@@ -4,6 +4,19 @@ import {
   universities, type University, type InsertUniversity,
   type ProgramWithUniversity
 } from "@shared/schema";
+import { eq, and, like, inArray, sql } from "drizzle-orm";
+import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+
+// Database connection
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL environment variable is required");
+}
+
+// Create postgres connection
+const connectionString = process.env.DATABASE_URL;
+const client = postgres(connectionString);
+const db = drizzle(client);
 
 // Expanded storage interface with all the needed CRUD methods
 export interface IStorage {
@@ -37,160 +50,163 @@ export interface ProgramFilters {
   search?: string;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private programs: Map<number, Program>;
-  private universities: Map<number, University>;
+export class DBStorage implements IStorage {
+  private db: PostgresJsDatabase;
 
-  private userCurrentId: number;
-  private programCurrentId: number;
-  private universityCurrentId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.programs = new Map();
-    this.universities = new Map();
-    
-    this.userCurrentId = 1;
-    this.programCurrentId = 1;
-    this.universityCurrentId = 1;
+  constructor(db: PostgresJsDatabase) {
+    this.db = db;
   }
 
   // User methods
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const result = await this.db.select().from(users).where(eq(users.id, id));
+    return result[0];
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const result = await this.db.select().from(users).where(eq(users.username, username));
+    return result[0];
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.userCurrentId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const result = await this.db.insert(users).values(insertUser).returning();
+    return result[0];
   }
 
   // Program methods
   async getPrograms(filters?: ProgramFilters): Promise<ProgramWithUniversity[]> {
-    let result = Array.from(this.programs.values());
+    let query = this.db.select({
+      id: programs.id,
+      name: programs.name,
+      universityId: programs.universityId,
+      tuition: programs.tuition,
+      duration: programs.duration,
+      intake: programs.intake,
+      degree: programs.degree,
+      studyField: programs.studyField,
+      requirements: programs.requirements,
+      hasScholarship: programs.hasScholarship,
+      imageUrl: programs.imageUrl,
+      university: {
+        name: universities.name,
+        location: universities.location,
+        imageUrl: universities.imageUrl
+      }
+    })
+    .from(programs)
+    .innerJoin(universities, eq(programs.universityId, universities.id));
     
+    // Apply filters if provided
     if (filters) {
-      // Apply study level filter
+      const conditions = [];
+      
+      // Study level filter
       if (filters.studyLevel && filters.studyLevel.length > 0) {
-        result = result.filter(program => filters.studyLevel!.includes(program.degree));
+        conditions.push(inArray(programs.degree, filters.studyLevel));
       }
       
-      // Apply study field filter
+      // Study field filter
       if (filters.studyField && filters.studyField.length > 0) {
-        result = result.filter(program => filters.studyField!.includes(program.studyField));
+        conditions.push(inArray(programs.studyField, filters.studyField));
       }
       
-      // Apply university filter
+      // University filter
       if (filters.universityIds && filters.universityIds.length > 0) {
-        result = result.filter(program => filters.universityIds!.includes(program.universityId));
+        conditions.push(inArray(programs.universityId, filters.universityIds));
       }
       
-      // Apply max tuition filter
-      if (filters.maxTuition) {
-        result = result.filter(program => {
-          // Extract numeric value from tuition string (e.g., "35,000 AED/year" -> 35000)
-          const tuitionValue = parseInt(program.tuition.replace(/[^0-9]/g, ''));
-          return !isNaN(tuitionValue) && tuitionValue <= filters.maxTuition!;
-        });
-      }
+      // Max tuition filter - this is a bit tricky since tuition is stored as a string
+      // For now, we'll handle it in-memory after fetching
       
-      // Apply duration filter
+      // Duration filter
       if (filters.duration && filters.duration.length > 0) {
-        result = result.filter(program => filters.duration!.includes(program.duration));
+        conditions.push(inArray(programs.duration, filters.duration));
       }
       
-      // Apply scholarship filter
+      // Scholarship filter
       if (filters.hasScholarship !== undefined) {
-        result = result.filter(program => program.hasScholarship === filters.hasScholarship);
+        conditions.push(eq(programs.hasScholarship, filters.hasScholarship));
       }
       
-      // Apply search filter
+      // Search filter
       if (filters.search) {
-        const searchLower = filters.search.toLowerCase();
-        result = result.filter(program => {
-          const university = this.universities.get(program.universityId);
-          return program.name.toLowerCase().includes(searchLower) || 
-                (university && university.name.toLowerCase().includes(searchLower));
-        });
+        const searchTerm = `%${filters.search}%`;
+        conditions.push(
+          sql`(${programs.name} ILIKE ${searchTerm} OR ${universities.name} ILIKE ${searchTerm})`
+        );
+      }
+      
+      // Apply all conditions
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
       }
     }
     
-    // Enrich programs with university data
-    return result.map(program => {
-      const university = this.universities.get(program.universityId);
-      if (!university) {
-        throw new Error(`University with id ${program.universityId} not found`);
-      }
-      
-      return {
-        ...program,
-        university: {
-          name: university.name,
-          location: university.location,
-          imageUrl: university.imageUrl
-        }
-      };
-    });
+    const results = await query;
+    
+    // Handle the max tuition filter in memory since it's stored as a string
+    if (filters?.maxTuition) {
+      return results.filter(program => {
+        const tuitionValue = parseInt(program.tuition.replace(/[^0-9]/g, ''));
+        return !isNaN(tuitionValue) && tuitionValue <= filters.maxTuition!;
+      });
+    }
+    
+    return results;
   }
 
   async getProgramById(id: number): Promise<ProgramWithUniversity | undefined> {
-    const program = this.programs.get(id);
-    if (!program) return undefined;
-    
-    const university = this.universities.get(program.universityId);
-    if (!university) {
-      throw new Error(`University with id ${program.universityId} not found`);
-    }
-    
-    return {
-      ...program,
+    const result = await this.db.select({
+      id: programs.id,
+      name: programs.name,
+      universityId: programs.universityId,
+      tuition: programs.tuition,
+      duration: programs.duration,
+      intake: programs.intake,
+      degree: programs.degree,
+      studyField: programs.studyField,
+      requirements: programs.requirements,
+      hasScholarship: programs.hasScholarship,
+      imageUrl: programs.imageUrl,
       university: {
-        name: university.name,
-        location: university.location,
-        imageUrl: university.imageUrl
+        name: universities.name,
+        location: universities.location,
+        imageUrl: universities.imageUrl
       }
-    };
+    })
+    .from(programs)
+    .innerJoin(universities, eq(programs.universityId, universities.id))
+    .where(eq(programs.id, id));
+    
+    return result[0];
   }
 
   async createProgram(insertProgram: InsertProgram): Promise<Program> {
-    const id = this.programCurrentId++;
-    const program: Program = { ...insertProgram, id };
-    this.programs.set(id, program);
-    return program;
+    const result = await this.db.insert(programs).values(insertProgram).returning();
+    return result[0];
   }
 
   // University methods
   async getUniversities(): Promise<University[]> {
-    return Array.from(this.universities.values());
+    return await this.db.select().from(universities);
   }
 
   async getUniversityById(id: number): Promise<University | undefined> {
-    return this.universities.get(id);
+    const result = await this.db.select().from(universities).where(eq(universities.id, id));
+    return result[0];
   }
 
   async createUniversity(insertUniversity: InsertUniversity): Promise<University> {
-    const id = this.universityCurrentId++;
-    const university: University = { ...insertUniversity, id };
-    this.universities.set(id, university);
-    return university;
+    const result = await this.db.insert(universities).values(insertUniversity).returning();
+    return result[0];
   }
 
   // Utility methods
   async clearAll(): Promise<void> {
-    this.programs.clear();
-    this.universities.clear();
-    this.programCurrentId = 1;
-    this.universityCurrentId = 1;
+    await this.db.delete(programs);
+    await this.db.delete(universities);
   }
 }
 
-export const storage = new MemStorage();
+// Export a singleton instance of the storage
+export const storage = new DBStorage(db);
