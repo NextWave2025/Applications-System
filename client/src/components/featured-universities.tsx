@@ -8,46 +8,49 @@ export default function FeaturedUniversities() {
   });
 
   return (
-    <section className="py-10 bg-gray-50">
+    <section className="py-16 bg-muted/30 md:py-20">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold mb-2">Featured Universities</h2>
-          <p className="text-gray-600">Discover top universities across the UAE</p>
+        <div className="mx-auto mb-10 max-w-2xl text-center">
+          <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
+            Our Partner Universities
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            Discover top universities across the UAE
+          </p>
         </div>
         
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
             {[...Array(6)].map((_, index) => (
-              <div key={index} className="flex flex-col items-center bg-white p-4 rounded-lg shadow-sm">
-                <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse mb-3"></div>
-                <div className="w-full h-5 bg-gray-200 rounded animate-pulse"></div>
+              <div key={index} className="flex items-center justify-center rounded-lg bg-white p-4 shadow-sm animate-pulse">
+                <div className="h-12 w-full bg-gray-200 rounded"></div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
             {universities.slice(0, 6).map((university) => (
-              <Link href={`/?universityIds=${university.id}`} key={university.id}>
-                <a className="flex flex-col items-center bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition">
-                  <div className="w-16 h-16 rounded-full overflow-hidden mb-3 bg-gray-100">
-                    <img
-                      src={university.imageUrl}
-                      alt={university.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <span className="text-center text-sm font-medium">{university.name}</span>
-                </a>
+              <Link 
+                href={`/?universityIds=${university.id}`} 
+                key={university.id}
+                className="flex items-center justify-center rounded-lg bg-white p-4 shadow-sm transition-all hover:shadow-md"
+              >
+                <img
+                  src={university.imageUrl}
+                  alt={university.name}
+                  className="h-12 w-auto object-contain grayscale transition-all hover:grayscale-0"
+                />
               </Link>
             ))}
           </div>
         )}
         
         <div className="mt-8 text-center">
-          <Link href="/">
-            <a className="text-primary font-medium hover:underline">
-              View All Universities <i className="fas fa-arrow-right ml-1"></i>
-            </a>
+          <Link href="/" className="inline-flex items-center text-primary font-medium hover:underline">
+            View All Universities
+            <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
           </Link>
         </div>
       </div>
