@@ -90,14 +90,24 @@ export default function ProgramList({ filters, searchQuery }: ProgramListProps) 
   };
 
   return (
-    <div className="lg:w-3/4">
+    <div className="w-full lg:w-3/4">
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold mb-2 md:mb-0">Programs ({programs.length})</h2>
-          <div className="flex items-center">
+          <div className="flex items-center space-x-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+              <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"></path>
+              <path d="M16.5 9.4 7.55 4.24"></path>
+              <polyline points="3.29 7 12 12 20.71 7"></polyline>
+              <line x1="12" y1="22" x2="12" y2="12"></line>
+              <circle cx="18.5" cy="15.5" r="2.5"></circle>
+              <path d="M20.27 17.27 22 19"></path>
+            </svg>
+            <h2 className="text-2xl font-bold">Programs <span className="text-gray-500">({programs.length})</span></h2>
+          </div>
+          <div className="flex items-center mt-4 md:mt-0">
             <span className="text-sm text-gray-600 mr-2">Sort by:</span>
             <select 
-              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               value={sortBy}
               onChange={handleSortChange}
             >
@@ -108,23 +118,88 @@ export default function ProgramList({ filters, searchQuery }: ProgramListProps) 
           </div>
         </div>
         
+        {/* Active filters display */}
+        {(filters.studyLevel.length > 0 || 
+          filters.studyField.length > 0 || 
+          filters.universityIds.length > 0 || 
+          filters.duration.length > 0 || 
+          filters.hasScholarship || 
+          searchQuery) && (
+          <div className="mb-6 flex flex-wrap gap-2 border-b border-gray-100 pb-4">
+            <div className="flex items-center text-sm text-gray-500">
+              <span className="mr-2">Active filters:</span>
+            </div>
+            
+            {filters.studyLevel.map((level: string) => (
+              <span key={level} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                {level}
+                <button className="ml-1 h-3 w-3 inline-flex items-center justify-center rounded-full text-primary hover:bg-primary/20">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </span>
+            ))}
+            
+            {filters.studyField.map((field: string) => (
+              <span key={field} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                {field}
+                <button className="ml-1 h-3 w-3 inline-flex items-center justify-center rounded-full text-blue-700 hover:bg-blue-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </span>
+            ))}
+            
+            {filters.hasScholarship && (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                Scholarship
+                <button className="ml-1 h-3 w-3 inline-flex items-center justify-center rounded-full text-green-700 hover:bg-green-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </span>
+            )}
+            
+            {searchQuery && (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                "{searchQuery}"
+                <button className="ml-1 h-3 w-3 inline-flex items-center justify-center rounded-full text-gray-700 hover:bg-gray-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </span>
+            )}
+          </div>
+        )}
+        
         {/* Programs Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, index) => (
-              <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                <div className="h-40 bg-gray-200 animate-pulse"></div>
-                <div className="p-4">
+              <div key={index} className="h-full rounded-lg overflow-hidden shadow-sm">
+                <div className="h-48 bg-gray-200 animate-pulse"></div>
+                <div className="p-4 bg-white">
                   <div className="h-6 bg-gray-200 rounded animate-pulse mb-4"></div>
-                  <div className="flex flex-wrap gap-y-2 mb-4">
+                  <div className="grid grid-cols-2 gap-y-2 mb-4">
                     {[...Array(4)].map((_, i) => (
-                      <div key={i} className="w-1/2 pr-2">
+                      <div key={i} className="pr-2">
                         <div className="h-4 bg-gray-100 rounded animate-pulse mb-1"></div>
                         <div className="h-5 bg-gray-200 rounded animate-pulse"></div>
                       </div>
                     ))}
                   </div>
-                  <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="flex justify-between">
+                    <div className="h-9 w-24 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-9 w-9 bg-gray-100 rounded animate-pulse"></div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -136,10 +211,14 @@ export default function ProgramList({ filters, searchQuery }: ProgramListProps) 
             ))}
           </div>
         ) : (
-          <div className="text-center py-8">
-            <i className="fas fa-search text-4xl text-gray-300 mb-3"></i>
+          <div className="text-center py-12 rounded-lg bg-gray-50">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-4 text-gray-400">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              <line x1="8" y1="11" x2="14" y2="11"></line>
+            </svg>
             <h3 className="text-xl font-semibold mb-2">No programs found</h3>
-            <p className="text-gray-500">
+            <p className="text-gray-500 max-w-md mx-auto">
               Try adjusting your filters or search criteria to find more programs.
             </p>
           </div>
@@ -148,33 +227,117 @@ export default function ProgramList({ filters, searchQuery }: ProgramListProps) 
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="mt-8 flex justify-center">
-            <nav className="inline-flex rounded-md shadow">
+            <nav className="flex items-center space-x-1">
               <button 
-                className={`inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}`}
+                className={`inline-flex items-center justify-center h-9 w-9 rounded-md border text-sm ${
+                  currentPage === 1 
+                    ? 'border-gray-200 text-gray-300 cursor-not-allowed' 
+                    : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                }`}
                 onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
+                aria-label="Previous Page"
               >
-                <i className="fas fa-chevron-left mr-2"></i>
-                Previous
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
               </button>
               
-              {[...Array(totalPages)].map((_, index) => (
-                <button
-                  key={index}
-                  className={`inline-flex items-center px-4 py-2 text-sm font-medium ${currentPage === index + 1 ? 'text-white bg-primary border border-primary' : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'}`}
-                  onClick={() => handlePageChange(index + 1)}
-                >
-                  {index + 1}
-                </button>
-              ))}
+              {totalPages <= 5 ? (
+                // Show all pages if 5 or less
+                [...Array(totalPages)].map((_, index) => (
+                  <button
+                    key={index}
+                    className={`inline-flex items-center justify-center h-9 min-w-[2.25rem] rounded-md border text-sm font-medium ${
+                      currentPage === index + 1 
+                        ? 'bg-primary text-white border-primary' 
+                        : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                    }`}
+                    onClick={() => handlePageChange(index + 1)}
+                  >
+                    {index + 1}
+                  </button>
+                ))
+              ) : (
+                // Show limited pages with ellipsis for larger page counts
+                <>
+                  {/* First page */}
+                  <button
+                    className={`inline-flex items-center justify-center h-9 min-w-[2.25rem] rounded-md border text-sm font-medium ${
+                      currentPage === 1 
+                        ? 'bg-primary text-white border-primary' 
+                        : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                    }`}
+                    onClick={() => handlePageChange(1)}
+                  >
+                    1
+                  </button>
+                  
+                  {/* Ellipsis or page 2 */}
+                  {currentPage > 3 && (
+                    <span className="inline-flex items-center justify-center h-9 min-w-[2.25rem] text-sm text-gray-500">
+                      ...
+                    </span>
+                  )}
+                  
+                  {/* Current page and surrounding pages */}
+                  {[...Array(totalPages)].map((_, index) => {
+                    const pageNumber = index + 1;
+                    if (
+                      (pageNumber !== 1 && pageNumber !== totalPages) && // Not first or last
+                      (Math.abs(pageNumber - currentPage) <= 1) // Within 1 of current
+                    ) {
+                      return (
+                        <button
+                          key={index}
+                          className={`inline-flex items-center justify-center h-9 min-w-[2.25rem] rounded-md border text-sm font-medium ${
+                            currentPage === pageNumber 
+                              ? 'bg-primary text-white border-primary' 
+                              : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                          }`}
+                          onClick={() => handlePageChange(pageNumber)}
+                        >
+                          {pageNumber}
+                        </button>
+                      );
+                    }
+                    return null;
+                  })}
+                  
+                  {/* Ellipsis or second-to-last page */}
+                  {currentPage < totalPages - 2 && (
+                    <span className="inline-flex items-center justify-center h-9 min-w-[2.25rem] text-sm text-gray-500">
+                      ...
+                    </span>
+                  )}
+                  
+                  {/* Last page */}
+                  <button
+                    className={`inline-flex items-center justify-center h-9 min-w-[2.25rem] rounded-md border text-sm font-medium ${
+                      currentPage === totalPages 
+                        ? 'bg-primary text-white border-primary' 
+                        : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                    }`}
+                    onClick={() => handlePageChange(totalPages)}
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
               
               <button 
-                className={`inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}`}
+                className={`inline-flex items-center justify-center h-9 w-9 rounded-md border text-sm ${
+                  currentPage === totalPages 
+                    ? 'border-gray-200 text-gray-300 cursor-not-allowed' 
+                    : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                }`}
                 onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
+                aria-label="Next Page"
               >
-                Next
-                <i className="fas fa-chevron-right ml-2"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
               </button>
             </nav>
           </div>

@@ -8,6 +8,40 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased bg-[#f8fafc] text-foreground;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+  
+  .container {
+    @apply px-4 mx-auto max-w-7xl;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-white shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-6 py-3 text-sm font-medium shadow-sm transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary;
+  }
+  
+  .card {
+    @apply rounded-lg bg-white shadow-sm overflow-hidden;
+  }
+  
+  .section-title {
+    @apply text-3xl font-bold tracking-tight md:text-4xl mb-4;
+  }
+  
+  .section-subtitle {
+    @apply text-lg text-gray-600 mb-8 max-w-3xl;
+  }
+  
+  .form-input {
+    @apply block w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary;
   }
 }
