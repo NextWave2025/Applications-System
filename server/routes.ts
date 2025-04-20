@@ -3,8 +3,11 @@ import { createServer, type Server } from "http";
 import { storage, type ProgramFilters } from "./storage";
 import { z } from "zod";
 import { scrapeData } from "./scraper";
+import { setupAuth } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication
+  setupAuth(app);
   // Initialize data from scraper
   app.get("/api/initialize", async (req: Request, res: Response) => {
     try {

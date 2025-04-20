@@ -66,9 +66,14 @@ export interface ProgramFilters {
 
 export class DBStorage implements IStorage {
   private db: PostgresJsDatabase;
+  public sessionStore: session.Store;
 
   constructor(db: PostgresJsDatabase) {
     this.db = db;
+    this.sessionStore = new PostgresSessionStore({
+      pool, 
+      createTableIfMissing: true,
+    });
   }
 
   // User methods
