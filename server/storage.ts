@@ -7,6 +7,8 @@ import {
 import { eq, and, like, inArray, sql } from "drizzle-orm";
 import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
 
 // Database connection
 if (!process.env.DATABASE_URL) {
@@ -18,9 +20,18 @@ const connectionString = process.env.DATABASE_URL;
 const client = postgres(connectionString);
 const db = drizzle(client);
 
+// Create postgres session store
+const pool = {
+  query: async (text: string, params: any[]) => {
+    return client(text, ...params);
+  }
+};
+
+const PostgresSessionStore = connectPg(session);
+
 // Expanded storage interface with all the needed CRUD methods
 export interface IStorage {
-  // User methods (keeping the original methods)
+  // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
@@ -37,6 +48,9 @@ export interface IStorage {
 
   // Utility methods
   clearAll(): Promise<void>;
+  
+  // Session store
+  sessionStore: session.Store;
 }
 
 // Filters for program queries
