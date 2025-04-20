@@ -69,9 +69,9 @@ export default function ProgramCard({ className, program }: ProgramCardProps) {
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Intake</span>
             <span className="text-sm font-medium">
-              {program.intake && program.intake.length > 0 
+              {program.intake && Array.isArray(program.intake) && program.intake.length > 0 
                 ? program.intake.join(', ') 
-                : "Contact for info"}
+                : program.intake || "Contact for info"}
             </span>
           </div>
         </div>
