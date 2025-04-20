@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import ProgramCard from "@/components/program-card";
+import { studyLevels, studyFields, durationOptions, type Program, type University } from "@shared/schema";
 
 export default function ProgramsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,12 +59,12 @@ export default function ProgramsPage() {
     : queryString;
 
   // Fetch programs based on filters
-  const { data: programs = [], isLoading } = useQuery({
+  const { data: programs = [], isLoading } = useQuery<Program[]>({
     queryKey: [queryString],
   });
 
   // Fetch universities for filter
-  const { data: universities = [] } = useQuery({
+  const { data: universities = [] } = useQuery<University[]>({
     queryKey: ['/api/universities'],
   });
 
@@ -125,17 +126,43 @@ export default function ProgramsPage() {
                 <h2 className="text-lg font-medium">Filters</h2>
               </div>
 
+              {/* Universities Filter */}
+              <div className="mb-6">
+                <h3 className="font-medium mb-3">Universities</h3>
+                <div className="max-h-40 overflow-y-auto space-y-2 pr-2">
+                  {universities.map((university) => (
+                    <div key={university.id} className="flex items-center">
+                      <input 
+                        id={`univ-${university.id}`} 
+                        type="checkbox" 
+                        className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
+                        checked={filters.universityIds.includes(university.id)}
+                        onChange={(e) => {
+                          const updatedIds = e.target.checked 
+                            ? [...filters.universityIds, university.id]
+                            : filters.universityIds.filter(id => id !== university.id);
+                          handleFilterChange('universityIds', updatedIds);
+                        }}
+                      />
+                      <label htmlFor={`univ-${university.id}`} className="ml-2 text-sm text-gray-700 truncate">{university.name}</label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Tuition Fee Filter */}
               <div className="mb-6">
                 <h3 className="font-medium mb-3">Tuition Fee (AED)</h3>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-500">0</span>
-                  <span className="text-sm text-gray-500">200,000</span>
+                  <span className="text-sm text-gray-500">{filters.maxTuition.toLocaleString()}</span>
                 </div>
                 <input 
                   type="range" 
                   min="0" 
                   max="200000" 
+                  value={filters.maxTuition}
+                  onChange={(e) => handleFilterChange('maxTuition', parseInt(e.target.value))}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" 
                 />
               </div>
@@ -144,22 +171,47 @@ export default function ProgramsPage() {
               <div className="mb-6">
                 <h3 className="font-medium mb-3">Degree Level</h3>
                 <div className="space-y-2">
-                  <div className="flex items-center">
-                    <input id="foundation" type="checkbox" className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" />
-                    <label htmlFor="foundation" className="ml-2 text-sm text-gray-700">Foundation</label>
-                  </div>
-                  <div className="flex items-center">
-                    <input id="bachelor" type="checkbox" className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" />
-                    <label htmlFor="bachelor" className="ml-2 text-sm text-gray-700">Bachelor</label>
-                  </div>
-                  <div className="flex items-center">
-                    <input id="master" type="checkbox" className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" />
-                    <label htmlFor="master" className="ml-2 text-sm text-gray-700">Master</label>
-                  </div>
-                  <div className="flex items-center">
-                    <input id="phd" type="checkbox" className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" />
-                    <label htmlFor="phd" className="ml-2 text-sm text-gray-700">PhD</label>
-                  </div>
+                  {studyLevels.map((level) => (
+                    <div key={level} className="flex items-center">
+                      <input 
+                        id={`degree-${level}`} 
+                        type="checkbox" 
+                        className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
+                        checked={filters.studyLevel.includes(level)}
+                        onChange={(e) => {
+                          const updatedLevels = e.target.checked 
+                            ? [...filters.studyLevel, level]
+                            : filters.studyLevel.filter(l => l !== level);
+                          handleFilterChange('studyLevel', updatedLevels);
+                        }}
+                      />
+                      <label htmlFor={`degree-${level}`} className="ml-2 text-sm text-gray-700">{level}</label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Study Field Filter */}
+              <div className="mb-6">
+                <h3 className="font-medium mb-3">Field of Study</h3>
+                <div className="space-y-2">
+                  {studyFields.map((field) => (
+                    <div key={field} className="flex items-center">
+                      <input 
+                        id={`field-${field}`} 
+                        type="checkbox" 
+                        className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
+                        checked={filters.studyField.includes(field)}
+                        onChange={(e) => {
+                          const updatedFields = e.target.checked 
+                            ? [...filters.studyField, field]
+                            : filters.studyField.filter(f => f !== field);
+                          handleFilterChange('studyField', updatedFields);
+                        }}
+                      />
+                      <label htmlFor={`field-${field}`} className="ml-2 text-sm text-gray-700">{field}</label>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -167,52 +219,23 @@ export default function ProgramsPage() {
               <div className="mb-6">
                 <h3 className="font-medium mb-3">Duration</h3>
                 <div className="space-y-2">
-                  <div className="flex items-center">
-                    <input id="1year" type="checkbox" className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" />
-                    <label htmlFor="1year" className="ml-2 text-sm text-gray-700">1 year</label>
-                  </div>
-                  <div className="flex items-center">
-                    <input id="2-3years" type="checkbox" className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" />
-                    <label htmlFor="2-3years" className="ml-2 text-sm text-gray-700">2-3 years</label>
-                  </div>
-                  <div className="flex items-center">
-                    <input id="4+years" type="checkbox" className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" />
-                    <label htmlFor="4+years" className="ml-2 text-sm text-gray-700">4+ years</label>
-                  </div>
-                </div>
-              </div>
-
-              {/* Intake Filter */}
-              <div className="mb-6">
-                <h3 className="font-medium mb-3">Intake</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <input id="january" type="checkbox" className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" />
-                    <label htmlFor="january" className="ml-2 text-sm text-gray-700">January</label>
-                  </div>
-                  <div className="flex items-center">
-                    <input id="may" type="checkbox" className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" />
-                    <label htmlFor="may" className="ml-2 text-sm text-gray-700">May</label>
-                  </div>
-                  <div className="flex items-center">
-                    <input id="september" type="checkbox" className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" />
-                    <label htmlFor="september" className="ml-2 text-sm text-gray-700">September</label>
-                  </div>
-                </div>
-              </div>
-
-              {/* Language Filter */}
-              <div className="mb-6">
-                <h3 className="font-medium mb-3">Language</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <input id="english" type="checkbox" className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" />
-                    <label htmlFor="english" className="ml-2 text-sm text-gray-700">English</label>
-                  </div>
-                  <div className="flex items-center">
-                    <input id="arabic" type="checkbox" className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary" />
-                    <label htmlFor="arabic" className="ml-2 text-sm text-gray-700">Arabic</label>
-                  </div>
+                  {durationOptions.map((duration) => (
+                    <div key={duration} className="flex items-center">
+                      <input 
+                        id={`duration-${duration}`} 
+                        type="checkbox" 
+                        className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
+                        checked={filters.duration.includes(duration)}
+                        onChange={(e) => {
+                          const updatedDurations = e.target.checked 
+                            ? [...filters.duration, duration]
+                            : filters.duration.filter(d => d !== duration);
+                          handleFilterChange('duration', updatedDurations);
+                        }}
+                      />
+                      <label htmlFor={`duration-${duration}`} className="ml-2 text-sm text-gray-700">{duration}</label>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -220,10 +243,13 @@ export default function ProgramsPage() {
               <div className="mb-6">
                 <h3 className="font-medium mb-3">Scholarships</h3>
                 <div className="relative">
-                  <select className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-primary focus:border-primary rounded-md appearance-none">
-                    <option>All options</option>
-                    <option>Available</option>
-                    <option>Not available</option>
+                  <select 
+                    className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-primary focus:border-primary rounded-md appearance-none"
+                    value={filters.hasScholarship ? "available" : "all"}
+                    onChange={(e) => handleFilterChange('hasScholarship', e.target.value === 'available')}
+                  >
+                    <option value="all">All options</option>
+                    <option value="available">Available</option>
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -235,10 +261,18 @@ export default function ProgramsPage() {
 
               {/* Filter Buttons */}
               <div className="space-y-3">
-                <button className="w-full py-2.5 px-4 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-700">
+                <button 
+                  className="w-full py-2.5 px-4 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-700"
+                  onClick={() => {
+                    // Filters are already applied reactively
+                  }}
+                >
                   Apply Filters
                 </button>
-                <button className="w-full py-2.5 px-4 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                <button 
+                  className="w-full py-2.5 px-4 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  onClick={resetFilters}
+                >
                   Reset Filters
                 </button>
               </div>
