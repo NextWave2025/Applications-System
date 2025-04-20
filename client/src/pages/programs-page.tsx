@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import ProgramCard from "@/components/program-card";
@@ -15,8 +15,29 @@ export default function ProgramsPage() {
     maxTuition: 200000,
   });
 
+  // Get all programs first without any filtering
+  const { data: allPrograms = [], isLoading: isLoadingAllPrograms } = useQuery<ProgramWithUniversity[]>({
+    queryKey: ['/api/programs']
+  });
+
   // Build filter query string using useMemo so it only recalculates when dependencies change
   const filterQuery = useMemo(() => {
+    // Check if any filters are active
+    const hasActiveFilters = 
+      filters.studyLevel.length > 0 || 
+      filters.studyField.length > 0 || 
+      filters.universityIds.length > 0 || 
+      (filters.maxTuition < 200000) || 
+      filters.duration.length > 0 || 
+      filters.hasScholarship || 
+      searchQuery.trim() !== "";
+    
+    // If no filters are active, just use the allPrograms data
+    if (!hasActiveFilters) {
+      return null;
+    }
+    
+    // Otherwise, build filter params
     const params = new URLSearchParams();
     
     // Add study level filters
@@ -59,9 +80,16 @@ export default function ProgramsPage() {
   }, [filters, searchQuery]);
   
   // Fetch programs based on the memoized filter query
-  const { data: programs = [], isLoading } = useQuery<ProgramWithUniversity[]>({
-    queryKey: [filterQuery]
+  // Fetch filtered programs only if there are filters active
+  const { data: filteredPrograms = [], isLoading: isLoadingFiltered } = useQuery<ProgramWithUniversity[]>({
+    queryKey: [filterQuery],
+    // Skip this query if there are no active filters (filterQuery is null)
+    enabled: filterQuery !== null
   });
+  
+  // Determine which programs to display: filtered programs if filters are active, otherwise all programs
+  const isLoading = filterQuery === null ? isLoadingAllPrograms : isLoadingFiltered;
+  const programs = filterQuery === null ? allPrograms : filteredPrograms;
   
   // Fetch universities for the filter dropdown
   const { data: universities = [] } = useQuery<University[]>({
