@@ -61,6 +61,9 @@ export default function ProgramsPage() {
   // Fetch programs based on filters
   const { data: programs = [], isLoading } = useQuery<ProgramWithUniversity[]>({
     queryKey: [queryString],
+    onSuccess: (data) => {
+      console.log("Programs data:", data);
+    }
   });
 
   // Fetch universities for filter
