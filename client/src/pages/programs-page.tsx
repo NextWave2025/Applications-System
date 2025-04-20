@@ -109,6 +109,22 @@ export default function ProgramsPage() {
     enabled: filterQuery !== null
   });
   
+  // Manually fetch filtered programs when the filter changes
+  useEffect(() => {
+    if (filterQuery !== null) {
+      console.log("Manually fetching filtered programs with query:", filterQuery);
+      fetch(filterQuery)
+        .then(res => res.json())
+        .then(data => {
+          console.log("Manually fetched filtered programs:", data.length, "programs");
+          queryClient.setQueryData([filterQuery], data);
+        })
+        .catch(err => {
+          console.error("Error manually fetching filtered programs:", err);
+        });
+    }
+  }, [filterQuery, queryClient]);
+  
   // Determine which programs to display: filtered programs if filters are active, otherwise all programs
   const isLoading = filterQuery === null ? isLoadingAllPrograms : isLoadingFiltered;
   const programs = filterQuery === null ? allPrograms : filteredPrograms;
