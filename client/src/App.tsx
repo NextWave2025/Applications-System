@@ -6,7 +6,7 @@ import { Toaster } from "./components/ui/toaster";
 
 import LandingPage from "./pages/landing-page";
 import ProgramsPage from "./pages/programs-page";
-import ProgramDetailPage from "./pages/program-detail";
+import ProgramDetailPage from "./pages/program-detail-page";
 import LoginPage from "./pages/login-page";
 import SignupPage from "./pages/signup-page";
 import DashboardPage from "./pages/dashboard-page";

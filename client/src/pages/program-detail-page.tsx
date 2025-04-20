@@ -95,9 +95,7 @@ export default function ProgramDetailPage() {
               <svg className="h-4 w-4 text-gray-400 mx-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <Link href="/programs">
-                <a className="hover:text-primary">Programs</a>
-              </Link>
+              <Link to="/programs" className="hover:text-primary">Programs</Link>
             </li>
             <li className="flex items-center">
               <svg className="h-4 w-4 text-gray-400 mx-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -138,15 +136,15 @@ export default function ProgramDetailPage() {
               <div className="mb-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Description</h3>
                 <p className="text-gray-700">
-                  {program.description || "No description available for this program. Please contact the university directly for more information."}
+                  No description available for this program. Please contact the university directly for more information.
                 </p>
               </div>
               
               <div className="mb-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Entry Requirements</h3>
                 <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                  {program.requirements && program.requirements.length > 0 ? (
-                    program.requirements.map((req, index) => (
+                  {program.requirements && Array.isArray(program.requirements) && program.requirements.length > 0 ? (
+                    program.requirements.map((req: string, index: number) => (
                       <li key={index}>{req}</li>
                     ))
                   ) : (
@@ -214,10 +212,8 @@ export default function ProgramDetailPage() {
                   <p className="text-sm text-gray-600">{program.university?.location}</p>
                 </div>
               </div>
-              <Link href={`/universities/${program.universityId}`}>
-                <a className="text-primary hover:underline text-sm font-medium">
-                  View University Profile
-                </a>
+              <Link to={`/universities/${program.universityId}`} className="text-primary hover:underline text-sm font-medium">
+                View University Profile
               </Link>
             </div>
           </div>
