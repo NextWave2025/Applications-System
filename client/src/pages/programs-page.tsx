@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import ProgramCard from "@/components/program-card";
@@ -15,57 +15,57 @@ export default function ProgramsPage() {
     maxTuition: 200000,
   });
 
-  // Build query string for filters
-  let queryString = '/api/programs?';
-  if (filters.studyLevel.length > 0) {
-    filters.studyLevel.forEach((level) => {
-      queryString += `degree=${encodeURIComponent(level)}&`;
-    });
-  }
+  // Build filter query string using useMemo so it only recalculates when dependencies change
+  const filterQuery = useMemo(() => {
+    const params = new URLSearchParams();
+    
+    // Add study level filters
+    if (filters.studyLevel.length > 0) {
+      filters.studyLevel.forEach(level => params.append('degree', level));
+    }
+    
+    // Add study field filters
+    if (filters.studyField.length > 0) {
+      filters.studyField.forEach(field => params.append('studyField', field));
+    }
+    
+    // Add university filters
+    if (filters.universityIds.length > 0) {
+      filters.universityIds.forEach(id => params.append('university', id.toString()));
+    }
+    
+    // Add tuition filter
+    if (filters.maxTuition && filters.maxTuition < 200000) {
+      params.append('maxTuition', filters.maxTuition.toString());
+    }
+    
+    // Add duration filters
+    if (filters.duration.length > 0) {
+      filters.duration.forEach(duration => params.append('duration', duration));
+    }
+    
+    // Add scholarship filter
+    if (filters.hasScholarship) {
+      params.append('hasScholarship', 'true');
+    }
+    
+    // Add search query
+    if (searchQuery) {
+      params.append('search', searchQuery);
+    }
+    
+    const queryStr = params.toString();
+    return queryStr ? `/api/programs?${queryStr}` : '/api/programs';
+  }, [filters, searchQuery]);
   
-  if (filters.studyField.length > 0) {
-    filters.studyField.forEach((field) => {
-      queryString += `studyField=${encodeURIComponent(field)}&`;
-    });
-  }
-  
-  if (filters.universityIds.length > 0) {
-    filters.universityIds.forEach((id) => {
-      queryString += `university=${id}&`;
-    });
-  }
-  
-  if (filters.maxTuition && filters.maxTuition < 200000) {
-    queryString += `maxTuition=${filters.maxTuition}&`;
-  }
-  
-  if (filters.duration.length > 0) {
-    filters.duration.forEach((duration) => {
-      queryString += `duration=${encodeURIComponent(duration)}&`;
-    });
-  }
-  
-  if (filters.hasScholarship) {
-    queryString += `hasScholarship=true&`;
-  }
-
-  if (searchQuery) {
-    queryString += `search=${encodeURIComponent(searchQuery)}&`;
-  }
-
-  // Remove trailing ampersand
-  queryString = queryString.endsWith('&') 
-    ? queryString.slice(0, -1) 
-    : queryString;
-
-  // Fetch programs based on filters
+  // Fetch programs based on the memoized filter query
   const { data: programs = [], isLoading } = useQuery<ProgramWithUniversity[]>({
-    queryKey: [queryString]
+    queryKey: [filterQuery]
   });
-
-  // Fetch universities for filter
+  
+  // Fetch universities for the filter dropdown
   const { data: universities = [] } = useQuery<University[]>({
-    queryKey: ['/api/universities'],
+    queryKey: ['/api/universities']
   });
 
   const handleFilterChange = (filterName: string, value: any) => {
