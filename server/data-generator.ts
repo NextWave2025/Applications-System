@@ -356,15 +356,16 @@ export function generateProgram(universityId: number, index: number): InsertProg
   const studyField = STUDY_FIELDS[index % STUDY_FIELDS.length];
   
   // Get program names for this field and degree
-  const availableNames = PROGRAM_NAMES[studyField][degreeLevel];
+  const fieldPrograms = PROGRAM_NAMES[studyField as keyof typeof PROGRAM_NAMES];
+  const availableNames = fieldPrograms[degreeLevel as keyof typeof fieldPrograms];
   const programName = availableNames[index % availableNames.length];
   
   // Generate tuition fee
-  const tuitionRange = TUITION_RANGES[degreeLevel];
+  const tuitionRange = TUITION_RANGES[degreeLevel as keyof typeof TUITION_RANGES];
   const tuition = `${Math.floor(Math.random() * (tuitionRange.max - tuitionRange.min + 1) + tuitionRange.min).toLocaleString()} AED/year`;
   
   // Generate duration
-  const durationRange = DURATION_RANGES[degreeLevel];
+  const durationRange = DURATION_RANGES[degreeLevel as keyof typeof DURATION_RANGES];
   const durationYears = Math.floor(Math.random() * (durationRange.max - durationRange.min + 1) + durationRange.min);
   const duration = `${durationYears} ${durationYears === 1 ? 'year' : 'years'}`;
   
@@ -372,7 +373,7 @@ export function generateProgram(universityId: number, index: number): InsertProg
   const intake = INTAKE_OPTIONS[index % INTAKE_OPTIONS.length];
   
   // Select requirements based on degree level
-  const requirementOptions = REQUIREMENTS_BY_DEGREE[degreeLevel];
+  const requirementOptions = REQUIREMENTS_BY_DEGREE[degreeLevel as keyof typeof REQUIREMENTS_BY_DEGREE];
   const requirements = requirementOptions[index % requirementOptions.length];
   
   // Determine if program has scholarship (30% chance)
