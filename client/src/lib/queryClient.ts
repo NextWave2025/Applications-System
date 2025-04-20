@@ -38,7 +38,9 @@ export const getQueryFn: <T>(options: {
     }
 
     await throwIfResNotOk(res);
-    return await res.json();
+    const data = await res.json();
+    console.log("Query response for", queryKey[0], ":", data);
+    return data;
   };
 
 export const queryClient = new QueryClient({
@@ -47,8 +49,8 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      retry: false,
+      staleTime: 60000, // 1 minute 
+      retry: 1,
     },
     mutations: {
       retry: false,

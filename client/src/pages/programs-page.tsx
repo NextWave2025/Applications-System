@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import ProgramCard from "@/components/program-card";
 import { studyLevels, studyFields, durationOptions, type Program, type University, type ProgramWithUniversity } from "@shared/schema";
@@ -20,7 +20,27 @@ export default function ProgramsPage() {
     queryKey: ['/api/programs']
   });
   
-  console.log("All programs count:", allPrograms.length);
+  console.log("All programs:", allPrograms);
+  console.log("Programs loading state:", { isLoadingAllPrograms, isErrorAllPrograms });
+  
+  // Use the query client to manually fetch programs if needed
+  const queryClient = useQueryClient();
+  
+  useEffect(() => {
+    // If we don't have any programs and we're not currently loading, manually fetch them
+    if (allPrograms.length === 0 && !isLoadingAllPrograms) {
+      console.log("Manually fetching programs...");
+      fetch('/api/programs')
+        .then(res => res.json())
+        .then(data => {
+          console.log("Manually fetched programs:", data);
+          queryClient.setQueryData(['/api/programs'], data);
+        })
+        .catch(err => {
+          console.error("Error manually fetching programs:", err);
+        });
+    }
+  }, [allPrograms.length, isLoadingAllPrograms, queryClient]);
 
   // Build filter query string using useMemo so it only recalculates when dependencies change
   const filterQuery = useMemo(() => {
