@@ -6,6 +6,12 @@ import { type InsertProgram, type InsertUniversity } from '@shared/schema';
 // The URL to scrape
 const DATA_URL = 'https://e7c0d9ac-af1f-4aa2-88c5-5b0ec4511256-00-2phr93moz2xbl.janeway.replit.dev/';
 
+// University list endpoint
+const UNIVERSITIES_API_URL = 'https://e7c0d9ac-af1f-4aa2-88c5-5b0ec4511256-00-2phr93moz2xbl.janeway.replit.dev/api/universities';
+
+// Programs list endpoint
+const PROGRAMS_API_URL = 'https://e7c0d9ac-af1f-4aa2-88c5-5b0ec4511256-00-2phr93moz2xbl.janeway.replit.dev/api/programs';
+
 // Default images for universities and program cards if no images are available
 const DEFAULT_UNIVERSITY_IMAGES = [
   'https://images.unsplash.com/photo-1612268363012-bb75afd00ae5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
@@ -57,195 +63,187 @@ function determineDegreeType(programName: string): string {
 // Main scraper function
 export async function scrapeData(): Promise<void> {
   try {
-    const response = await axios.get(DATA_URL);
-    const $ = load(response.data);
+    console.log('Starting data scraping from API sources...');
     
     // Map to track created universities to avoid duplicates
     const universityMap = new Map<string, number>();
     
-    // Scrape programs
-    const programElements = $('div.program-card, div.course-item, div.program-listing');
+    // Step 1: Fetch all universities
+    console.log('Fetching universities from API...');
+    const universitiesResponse = await axios.get(UNIVERSITIES_API_URL);
+    const universities = universitiesResponse.data;
     
-    console.log(`Found ${programElements.length} program elements`);
+    console.log(`Found ${universities.length} universities`);
     
-    for (let i = 0; i < programElements.length; i++) {
-      const element = programElements[i];
+    // Step 2: Create all universities first
+    for (const uni of universities) {
+      // Create a standardized university entry
+      const university: InsertUniversity = {
+        name: uni.name,
+        location: uni.location || 'UAE',
+        imageUrl: uni.imageUrl || uni.logo || DEFAULT_UNIVERSITY_IMAGES[universityMap.size % DEFAULT_UNIVERSITY_IMAGES.length]
+      };
       
-      // Extract program details
-      const programName = $(element).find('h4, .program-title, .course-title').first().text().trim();
-      const universityName = $(element).find('h3, .university-name, .institution').first().text().trim();
-      const location = $(element).find('.location, .university-location').text().trim() || 'UAE';
+      const createdUniversity = await storage.createUniversity(university);
+      universityMap.set(uni.name, createdUniversity.id);
+      console.log(`Created university: ${uni.name} (ID: ${createdUniversity.id})`);
+    }
+    
+    // Step 3: Fetch all programs
+    console.log('Fetching programs from API...');
+    const programsResponse = await axios.get(PROGRAMS_API_URL);
+    const programs = programsResponse.data;
+    
+    console.log(`Found ${programs.length} programs`);
+    
+    // Step 4: Create all programs
+    for (const prog of programs) {
+      // Find the university ID for this program
+      let universityId: number;
+      const universityName = prog.university?.name || prog.universityName;
       
-      // Extract tuition, duration, intake
-      const tuition = $(element).find('.tuition, .fee').text().trim() || 
-                     $(element).find('*:contains("Tuition")').next().text().trim() || 
-                     `${30000 + Math.floor(Math.random() * 20000)} AED/year`;
-      
-      const duration = $(element).find('.duration').text().trim() || 
-                      $(element).find('*:contains("Duration")').next().text().trim() || 
-                      `${Math.floor(Math.random() * 3) + 2} years`;
-      
-      const intake = $(element).find('.intake').text().trim() || 
-                    $(element).find('*:contains("Intake")').next().text().trim() || 
-                    'September';
-      
-      // Extract requirements
-      const requirementsText = $(element).find('.requirements').text().trim() || 
-                              $(element).find('*:contains("Requirements")').next().text().trim() || 
-                              'High School Certificate, IELTS 6.0';
-                              
-      const requirements = requirementsText.split(',').map(req => req.trim());
-      
-      // Check for scholarship tag
-      const hasScholarship = $(element).find('.scholarship, *:contains("Scholarship")').length > 0;
-      
-      if (!programName || !universityName) {
-        console.log(`Skipping program with missing data: ${programName || 'Unknown'}`);
+      if (!universityName) {
+        console.log(`Skipping program with missing university: ${prog.name || 'Unknown'}`);
         continue;
       }
       
-      // Create university if it doesn't exist
-      let universityId: number;
       if (universityMap.has(universityName)) {
         universityId = universityMap.get(universityName)!;
       } else {
+        // If the university wasn't in our initial list, create it
         const imageUrl = DEFAULT_UNIVERSITY_IMAGES[universityMap.size % DEFAULT_UNIVERSITY_IMAGES.length];
         
         const university: InsertUniversity = {
           name: universityName,
-          location: location,
+          location: 'UAE',
           imageUrl: imageUrl
         };
         
         const createdUniversity = await storage.createUniversity(university);
         universityId = createdUniversity.id;
         universityMap.set(universityName, universityId);
+        console.log(`Created missing university: ${universityName} (ID: ${universityId})`);
       }
       
-      // Determine study field and degree type
-      const studyField = determineStudyField(programName);
-      const degree = determineDegreeType(programName);
+      // Extract or generate requirements
+      let requirements: string[] = [];
+      if (prog.requirements) {
+        if (Array.isArray(prog.requirements)) {
+          requirements = prog.requirements;
+        } else if (typeof prog.requirements === 'string') {
+          requirements = prog.requirements.split(',').map(req => req.trim());
+        }
+      } else {
+        requirements = ['High School Certificate', 'IELTS 6.0'];
+      }
       
-      // Create program
+      // Determine study field and degree type from the program name
+      const studyField = prog.studyField || determineStudyField(prog.name);
+      const degree = prog.degree || prog.degreeLevel || determineDegreeType(prog.name);
+      
+      // Create program entry
       const program: InsertProgram = {
-        name: programName,
+        name: prog.name,
         universityId: universityId,
-        tuition: tuition,
-        duration: duration,
-        intake: intake,
+        tuition: prog.tuition || prog.tuitionFee || `${30000 + Math.floor(Math.random() * 20000)} AED/year`,
+        duration: prog.duration || '4 years',
+        intake: prog.intake || 'September',
         degree: degree,
         studyField: studyField,
         requirements: requirements,
-        hasScholarship: hasScholarship,
-        imageUrl: DEFAULT_UNIVERSITY_IMAGES[Math.floor(Math.random() * DEFAULT_UNIVERSITY_IMAGES.length)]
+        hasScholarship: !!prog.hasScholarship || prog.scholarship === true,
+        imageUrl: prog.imageUrl || DEFAULT_UNIVERSITY_IMAGES[Math.floor(Math.random() * DEFAULT_UNIVERSITY_IMAGES.length)]
       };
       
       await storage.createProgram(program);
+      console.log(`Created program: ${prog.name}`);
     }
     
-    // If no programs were found, add some fallback data
+    // Check if we got any data
     const programCount = await storage.getPrograms();
+    console.log(`Total programs created: ${programCount.length}`);
+    
     if (programCount.length === 0) {
-      console.log('No programs found on the page. Adding fallback data...');
+      console.log('No programs found from API. Falling back to HTML scraping...');
       
-      // Add sample universities
-      const universities = [
-        { name: 'Abu Dhabi University', location: 'Abu Dhabi, UAE', imageUrl: DEFAULT_UNIVERSITY_IMAGES[0] },
-        { name: 'Ajman University', location: 'Ajman, UAE', imageUrl: DEFAULT_UNIVERSITY_IMAGES[1] },
-        { name: 'American University of Sharjah', location: 'Sharjah, UAE', imageUrl: DEFAULT_UNIVERSITY_IMAGES[2] },
-        { name: 'Al Hosn University', location: 'Abu Dhabi, UAE', imageUrl: DEFAULT_UNIVERSITY_IMAGES[3] },
-        { name: 'Canadian University Dubai', location: 'Dubai, UAE', imageUrl: DEFAULT_UNIVERSITY_IMAGES[4] },
-        { name: 'University of Sharjah', location: 'Sharjah, UAE', imageUrl: DEFAULT_UNIVERSITY_IMAGES[5] }
-      ];
+      // Try to scrape from HTML as a fallback
+      const response = await axios.get(DATA_URL);
+      const $ = load(response.data);
       
-      for (const uni of universities) {
-        const created = await storage.createUniversity(uni);
-        universityMap.set(uni.name, created.id);
-      }
+      // Scrape programs
+      const programElements = $('div.program-card, div.course-item, div.program-listing');
       
-      // Add sample programs
-      const programs = [
-        {
-          name: 'BSc Computer Science',
-          universityName: 'Abu Dhabi University',
-          tuition: '35,000 AED/year',
-          duration: '4 years',
-          intake: 'September',
-          studyField: 'Computer Science & IT',
-          degree: 'Bachelor\'s Degree',
-          requirements: ['High School Certificate', 'IELTS 6.0'],
-          hasScholarship: true
-        },
-        {
-          name: 'Bachelor of Business Administration',
-          universityName: 'Ajman University',
-          tuition: '28,500 AED/year',
-          duration: '4 years',
-          intake: 'Sep/Jan',
-          studyField: 'Business & Management',
-          degree: 'Bachelor\'s Degree',
-          requirements: ['High School Certificate', 'IELTS 5.5'],
-          hasScholarship: false
-        },
-        {
-          name: 'MSc Electrical Engineering',
-          universityName: 'American University of Sharjah',
-          tuition: '42,000 AED/year',
-          duration: '2 years',
-          intake: 'Fall/Spring',
-          studyField: 'Engineering',
-          degree: 'Master\'s Degree',
-          requirements: ['Bachelor Degree', 'IELTS 6.5', 'GRE'],
-          hasScholarship: true
-        },
-        {
-          name: 'Bachelor of Architecture',
-          universityName: 'Al Hosn University',
-          tuition: '32,000 AED/year',
-          duration: '5 years',
-          intake: 'September',
-          studyField: 'Arts & Humanities',
-          degree: 'Bachelor\'s Degree',
-          requirements: ['High School Certificate', 'Portfolio', 'IELTS 6.0'],
-          hasScholarship: false
-        },
-        {
-          name: 'MBA in Finance',
-          universityName: 'Canadian University Dubai',
-          tuition: '45,000 AED/year',
-          duration: '1.5 years',
-          intake: 'Sep/Jan/May',
-          studyField: 'Business & Management',
-          degree: 'Master\'s Degree',
-          requirements: ['Bachelor Degree', 'GMAT', 'Work Experience', 'IELTS 6.5'],
-          hasScholarship: true
-        },
-        {
-          name: 'BSc Nursing',
-          universityName: 'University of Sharjah',
-          tuition: '36,500 AED/year',
-          duration: '4 years',
-          intake: 'Fall',
-          studyField: 'Medicine & Health',
-          degree: 'Bachelor\'s Degree',
-          requirements: ['High School Certificate', 'IELTS 6.0', 'Interview'],
-          hasScholarship: false
-        }
-      ];
+      console.log(`Found ${programElements.length} program elements from HTML`);
       
-      for (const prog of programs) {
-        const universityId = universityMap.get(prog.universityName)!;
+      for (let i = 0; i < programElements.length; i++) {
+        const element = programElements[i];
         
+        // Extract program details
+        const programName = $(element).find('h4, .program-title, .course-title').first().text().trim();
+        const universityName = $(element).find('h3, .university-name, .institution').first().text().trim();
+        const location = $(element).find('.location, .university-location').text().trim() || 'UAE';
+        
+        // Extract tuition, duration, intake
+        const tuition = $(element).find('.tuition, .fee').text().trim() || 
+                       $(element).find('*:contains("Tuition")').next().text().trim() || 
+                       `${30000 + Math.floor(Math.random() * 20000)} AED/year`;
+        
+        const duration = $(element).find('.duration').text().trim() || 
+                        $(element).find('*:contains("Duration")').next().text().trim() || 
+                        `${Math.floor(Math.random() * 3) + 2} years`;
+        
+        const intake = $(element).find('.intake').text().trim() || 
+                      $(element).find('*:contains("Intake")').next().text().trim() || 
+                      'September';
+        
+        // Extract requirements
+        const requirementsText = $(element).find('.requirements').text().trim() || 
+                                $(element).find('*:contains("Requirements")').next().text().trim() || 
+                                'High School Certificate, IELTS 6.0';
+                                
+        const requirements = requirementsText.split(',').map(req => req.trim());
+        
+        // Check for scholarship tag
+        const hasScholarship = $(element).find('.scholarship, *:contains("Scholarship")').length > 0;
+        
+        if (!programName || !universityName) {
+          console.log(`Skipping program with missing data: ${programName || 'Unknown'}`);
+          continue;
+        }
+        
+        // Create university if it doesn't exist
+        let universityId: number;
+        if (universityMap.has(universityName)) {
+          universityId = universityMap.get(universityName)!;
+        } else {
+          const imageUrl = DEFAULT_UNIVERSITY_IMAGES[universityMap.size % DEFAULT_UNIVERSITY_IMAGES.length];
+          
+          const university: InsertUniversity = {
+            name: universityName,
+            location: location,
+            imageUrl: imageUrl
+          };
+          
+          const createdUniversity = await storage.createUniversity(university);
+          universityId = createdUniversity.id;
+          universityMap.set(universityName, universityId);
+        }
+        
+        // Determine study field and degree type
+        const studyField = determineStudyField(programName);
+        const degree = determineDegreeType(programName);
+        
+        // Create program
         const program: InsertProgram = {
-          name: prog.name,
+          name: programName,
           universityId: universityId,
-          tuition: prog.tuition,
-          duration: prog.duration,
-          intake: prog.intake,
-          degree: prog.degree,
-          studyField: prog.studyField,
-          requirements: prog.requirements,
-          hasScholarship: prog.hasScholarship,
+          tuition: tuition,
+          duration: duration,
+          intake: intake,
+          degree: degree,
+          studyField: studyField,
+          requirements: requirements,
+          hasScholarship: hasScholarship,
           imageUrl: DEFAULT_UNIVERSITY_IMAGES[Math.floor(Math.random() * DEFAULT_UNIVERSITY_IMAGES.length)]
         };
         
