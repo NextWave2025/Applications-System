@@ -8,20 +8,32 @@ export default function ProgramDetailPage() {
   const [isSaved, setIsSaved] = useState(false);
   const queryClient = useQueryClient();
   
-  // Fetch program details from the API
+  // Fetch program details from the API with more stability
   const { data: program, isLoading, isError } = useQuery<ProgramWithUniversity>({
     queryKey: [`/api/programs/${id}`],
     enabled: !!id,
+    staleTime: 60000, // Cache for 1 minute
+    retryDelay: 1000, // Retry with 1 second delay if failed
+    retry: 3, // Retry 3 times
+    refetchOnWindowFocus: false // Don't refetch when window regains focus
   });
 
-  // Manually fetch program details for reliability
+  // Additional manual data fetching for reliability
+  const [manuallyFetchedProgram, setManuallyFetchedProgram] = useState<ProgramWithUniversity | null>(null);
+  
   useEffect(() => {
     if (id) {
       console.log("Manually fetching program details for ID:", id);
       fetch(`/api/programs/${id}`)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`Failed to fetch program: ${res.status}`);
+          }
+          return res.json();
+        })
         .then(data => {
           console.log("Manually fetched program details:", data);
+          setManuallyFetchedProgram(data);
           queryClient.setQueryData([`/api/programs/${id}`], data);
         })
         .catch(err => {
@@ -66,7 +78,8 @@ export default function ProgramDetailPage() {
     );
   }
 
-  if (isError || !program) {
+  // Check if we have manually fetched data as fallback
+  if ((isError || !program) && !manuallyFetchedProgram) {
     return (
       <div className="bg-gray-50 py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -81,6 +94,9 @@ export default function ProgramDetailPage() {
       </div>
     );
   }
+  
+  // Use manually fetched program data as fallback if the main query fails
+  const programData = program || manuallyFetchedProgram;
 
   return (
     <div className="bg-gray-50 py-12">
@@ -101,13 +117,13 @@ export default function ProgramDetailPage() {
               <svg className="h-4 w-4 text-gray-400 mx-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <span className="text-gray-900 font-medium">{program.name}</span>
+              <span className="text-gray-900 font-medium">{programData?.name}</span>
             </li>
           </ol>
         </nav>
         
         {/* Program title */}
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">{program.name}</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">{programData?.name}</h1>
         
         {/* Main content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -143,8 +159,8 @@ export default function ProgramDetailPage() {
               <div className="mb-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Entry Requirements</h3>
                 <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                  {program.requirements && Array.isArray(program.requirements) && program.requirements.length > 0 ? (
-                    program.requirements.map((req: string, index: number) => (
+                  {programData?.requirements && Array.isArray(programData.requirements) && programData.requirements.length > 0 ? (
+                    programData.requirements.map((req: string, index: number) => (
                       <li key={index}>{req}</li>
                     ))
                   ) : (
@@ -155,7 +171,7 @@ export default function ProgramDetailPage() {
               
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Field of Study</h3>
-                <p className="text-gray-700">{program.studyField}</p>
+                <p className="text-gray-700">{programData?.studyField}</p>
               </div>
             </div>
           </div>
@@ -167,21 +183,21 @@ export default function ProgramDetailPage() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Degree Level</span>
-                  <span className="font-medium text-gray-900">{program.degree}</span>
+                  <span className="font-medium text-gray-900">{programData?.degree}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Duration</span>
-                  <span className="font-medium text-gray-900">{program.duration}</span>
+                  <span className="font-medium text-gray-900">{programData?.duration}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Intake</span>
-                  <span className="font-medium text-gray-900">{program.intake}</span>
+                  <span className="font-medium text-gray-900">{programData?.intake}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tuition Fee</span>
-                  <span className="font-medium text-gray-900">{program.tuition}</span>
+                  <span className="font-medium text-gray-900">{programData?.tuition}</span>
                 </div>
-                {program.hasScholarship && (
+                {programData?.hasScholarship && (
                   <div className="flex items-center text-green-600 mt-2">
                     <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -198,21 +214,21 @@ export default function ProgramDetailPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">University Information</h3>
               <div className="flex items-center mb-4">
-                {program.university?.imageUrl ? (
+                {programData?.university?.imageUrl ? (
                   <img 
-                    src={program.university.imageUrl} 
-                    alt={program.university.name} 
+                    src={programData.university.imageUrl} 
+                    alt={programData.university.name} 
                     className="h-12 w-12 mr-4 object-contain"
                   />
                 ) : (
                   <div className="h-12 w-12 bg-gray-200 rounded-full mr-4"></div>
                 )}
                 <div>
-                  <h4 className="font-medium text-gray-900">{program.university?.name}</h4>
-                  <p className="text-sm text-gray-600">{program.university?.location}</p>
+                  <h4 className="font-medium text-gray-900">{programData?.university?.name}</h4>
+                  <p className="text-sm text-gray-600">{programData?.university?.location}</p>
                 </div>
               </div>
-              <Link to={`/universities/${program.universityId}`} className="text-primary hover:underline text-sm font-medium">
+              <Link to={`/universities/${programData?.universityId}`} className="text-primary hover:underline text-sm font-medium">
                 View University Profile
               </Link>
             </div>
