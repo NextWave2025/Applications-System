@@ -2,16 +2,24 @@ import { pgTable, text, serial, integer, boolean, jsonb } from "drizzle-orm/pg-c
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// User schema (keeping the original schema)
+// User schema with extended fields for agent registration
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  agencyName: text("agency_name"),
+  country: text("country"),
+  phoneNumber: text("phone_number"),
+  website: text("website"),
+  role: text("role"),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const insertUserSchema = createInsertSchema(users).extend({
+  // Add validation rules
+  username: z.string().email("Please enter a valid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
