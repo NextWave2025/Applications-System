@@ -16,9 +16,11 @@ export default function ProgramsPage() {
   });
 
   // Get all programs first without any filtering
-  const { data: allPrograms = [], isLoading: isLoadingAllPrograms } = useQuery<ProgramWithUniversity[]>({
+  const { data: allPrograms = [], isLoading: isLoadingAllPrograms, isError: isErrorAllPrograms } = useQuery<ProgramWithUniversity[]>({
     queryKey: ['/api/programs']
   });
+  
+  console.log("All programs count:", allPrograms.length);
 
   // Build filter query string using useMemo so it only recalculates when dependencies change
   const filterQuery = useMemo(() => {
@@ -315,6 +317,10 @@ export default function ProgramsPage() {
                   <div key={i} className="animate-pulse h-64 rounded-lg bg-gray-200" />
                 ))}
               </div>
+            ) : isErrorAllPrograms ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">Error loading programs. Please try again later.</p>
+              </div>
             ) : programs.length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {programs.map(program => (
@@ -324,6 +330,14 @@ export default function ProgramsPage() {
             ) : (
               <div className="text-center py-12">
                 <p className="text-gray-500">No programs found matching your criteria. Try adjusting your filters.</p>
+                {filterQuery !== null && (
+                  <button 
+                    onClick={resetFilters}
+                    className="mt-4 py-2 px-4 bg-primary text-white rounded-md hover:bg-primary-dark"
+                  >
+                    Reset Filters
+                  </button>
+                )}
               </div>
             )}
           </main>
