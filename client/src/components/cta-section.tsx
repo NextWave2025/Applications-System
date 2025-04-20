@@ -1,38 +1,74 @@
-import { Link } from "wouter";
+import { Link } from "react-router-dom";
 
 export default function CTASection() {
   return (
-    <section className="py-16 md:py-24">
-      <div className="container mx-auto px-4">
-        <div className="rounded-xl bg-gradient-to-r from-primary to-primary/80 p-8 md:p-12">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="mb-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Ready to Start Your Education Journey?
+    <section className="py-20 bg-gradient-to-r from-primary to-primary-dark text-white">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              Ready to Start Your Educational Journey in the UAE?
             </h2>
-            <p className="mb-8 text-lg text-white/90">
-              Let us help you find the perfect program and university that aligns with your goals.
+            <p className="text-lg text-white/90 mb-8">
+              Join thousands of students who have found their perfect educational path with Polymet. Our comprehensive platform makes the process easy and stress-free.
             </p>
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link href="/" className="w-full sm:w-auto">
-                <button className="bg-white text-primary hover:bg-white/90 w-full px-8 py-3 rounded-md font-medium transition-colors">
-                  Find Programs
-                </button>
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <Link
+                to="/programs"
+                className="btn-primary-white text-center"
+              >
+                Explore Programs
               </Link>
-              <Link href="/contact" className="w-full sm:w-auto">
-                <button className="border border-white text-white hover:bg-white/10 w-full px-8 py-3 rounded-md font-medium transition-colors">
-                  Get Guidance
-                </button>
+              <Link
+                to="/signup"
+                className="btn-outline-white text-center"
+              >
+                Create Account
               </Link>
             </div>
-            
-            {/* Decorative elements */}
-            <div className="relative mt-10 pt-8 border-t border-white/20 max-w-md mx-auto">
-              <div className="flex items-center justify-center text-sm text-white/70">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-                  <line x1="4" y1="22" x2="4" y2="15"></line>
-                </svg>
-                Trusted by thousands of students worldwide
+          </div>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-full h-full max-w-sm bg-white/10 rounded-full filter blur-2xl"></div>
+            </div>
+            <div className="relative bg-white/10 backdrop-blur-sm rounded-lg p-6 md:p-8">
+              <div className="bg-white/10 rounded-lg p-6 mb-6">
+                <h3 className="text-xl font-semibold mb-2">Why Choose Polymet?</h3>
+                <ul className="space-y-3">
+                  <li className="flex items-start">
+                    <svg className="h-6 w-6 mr-2 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Access to 100+ universities</span>
+                  </li>
+                  <li className="flex items-start">
+                    <svg className="h-6 w-6 mr-2 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Personalized program matching</span>
+                  </li>
+                  <li className="flex items-start">
+                    <svg className="h-6 w-6 mr-2 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Scholarship opportunities</span>
+                  </li>
+                  <li className="flex items-start">
+                    <svg className="h-6 w-6 mr-2 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Visa and accommodation support</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="text-center">
+                <p className="text-white/80 text-sm mb-3">Join 5,000+ students who found their path</p>
+                <Link
+                  to="/signup"
+                  className="btn-primary-white w-full"
+                >
+                  Sign Up Now
+                </Link>
               </div>
             </div>
           </div>
