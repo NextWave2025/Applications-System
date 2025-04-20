@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import ProgramCard from "@/components/program-card";
-import { studyLevels, studyFields, durationOptions, type Program, type University } from "@shared/schema";
+import { studyLevels, studyFields, durationOptions, type Program, type University, type ProgramWithUniversity } from "@shared/schema";
 
 export default function ProgramsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,7 +59,7 @@ export default function ProgramsPage() {
     : queryString;
 
   // Fetch programs based on filters
-  const { data: programs = [], isLoading } = useQuery<Program[]>({
+  const { data: programs = [], isLoading } = useQuery<ProgramWithUniversity[]>({
     queryKey: [queryString],
   });
 
