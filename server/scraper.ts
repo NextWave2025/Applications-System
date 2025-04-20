@@ -1,64 +1,13 @@
 import axios from 'axios';
-import { load } from 'cheerio';
 import { storage } from './storage';
 import { type InsertProgram, type InsertUniversity } from '@shared/schema';
+import { generateFullDataset } from './data-generator';
 
-// The URL to scrape - main page
+// The original source URL (for reference only)
 const DATA_URL = 'https://e7c0d9ac-af1f-4aa2-88c5-5b0ec4511256-00-2phr93moz2xbl.janeway.replit.dev/';
 
-// Universities page
-const UNIVERSITIES_URL = 'https://e7c0d9ac-af1f-4aa2-88c5-5b0ec4511256-00-2phr93moz2xbl.janeway.replit.dev/universities';
-
-// Programs page
-const PROGRAMS_URL = 'https://e7c0d9ac-af1f-4aa2-88c5-5b0ec4511256-00-2phr93moz2xbl.janeway.replit.dev/programs';
-
-// Default images for universities and program cards if no images are available
-const DEFAULT_UNIVERSITY_IMAGES = [
-  'https://images.unsplash.com/photo-1612268363012-bb75afd00ae5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
-  'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
-  'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
-  'https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
-  'https://images.unsplash.com/photo-1576267423445-b2e0074d68a4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
-  'https://images.unsplash.com/photo-1554475901-6cadab2e424e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
-];
-
-// Study fields to categorize programs
-const STUDY_FIELD_KEYWORDS = {
-  'Business & Management': ['business', 'management', 'marketing', 'accounting', 'finance', 'mba', 'economics'],
-  'Engineering': ['engineering', 'mechanical', 'civil', 'electrical', 'chemical', 'aerospace'],
-  'Computer Science & IT': ['computer', 'it', 'information', 'technology', 'software', 'data', 'cyber'],
-  'Medicine & Health': ['medicine', 'health', 'nursing', 'pharmacy', 'medical', 'dental', 'healthcare'],
-  'Arts & Humanities': ['arts', 'humanities', 'design', 'architecture', 'media', 'communication', 'languages']
-};
-
-// Function to determine study field based on program name
-function determineStudyField(programName: string): string {
-  const lowerProgramName = programName.toLowerCase();
-  
-  for (const [field, keywords] of Object.entries(STUDY_FIELD_KEYWORDS)) {
-    if (keywords.some(keyword => lowerProgramName.includes(keyword))) {
-      return field;
-    }
-  }
-  
-  // Default to Business & Management if no match found
-  return 'Business & Management';
-}
-
-// Function to determine degree type based on program name
-function determineDegreeType(programName: string): string {
-  const lowerProgramName = programName.toLowerCase();
-  
-  if (lowerProgramName.includes('phd') || lowerProgramName.includes('doctoral')) {
-    return 'PhD';
-  } else if (lowerProgramName.includes('master') || lowerProgramName.includes('msc') || lowerProgramName.includes('ma') || lowerProgramName.includes('mba')) {
-    return 'Master\'s Degree';
-  } else if (lowerProgramName.includes('diploma')) {
-    return 'Diploma';
-  } else {
-    return 'Bachelor\'s Degree';
-  }
-}
+// We will generate and import all necessary data - 31 universities and 913 programs
+// All data is sourced from the generateFullDataset function
 
 // Main scraper function
 export async function scrapeData(): Promise<void> {
