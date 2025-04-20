@@ -1,13 +1,90 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
+import ProgramCard from "@/components/program-card";
 
 export default function ProgramsPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  
-  const { data: programs = [], isLoading } = useQuery({
-    queryKey: ['/api/programs'],
+  const [filters, setFilters] = useState({
+    universityIds: [] as number[],
+    studyLevel: [] as string[],
+    studyField: [] as string[],
+    duration: [] as string[],
+    hasScholarship: false,
+    maxTuition: 200000,
   });
+
+  // Build query string for filters
+  let queryString = '/api/programs?';
+  if (filters.studyLevel.length > 0) {
+    filters.studyLevel.forEach((level) => {
+      queryString += `degree=${encodeURIComponent(level)}&`;
+    });
+  }
+  
+  if (filters.studyField.length > 0) {
+    filters.studyField.forEach((field) => {
+      queryString += `studyField=${encodeURIComponent(field)}&`;
+    });
+  }
+  
+  if (filters.universityIds.length > 0) {
+    filters.universityIds.forEach((id) => {
+      queryString += `university=${id}&`;
+    });
+  }
+  
+  if (filters.maxTuition && filters.maxTuition < 200000) {
+    queryString += `maxTuition=${filters.maxTuition}&`;
+  }
+  
+  if (filters.duration.length > 0) {
+    filters.duration.forEach((duration) => {
+      queryString += `duration=${encodeURIComponent(duration)}&`;
+    });
+  }
+  
+  if (filters.hasScholarship) {
+    queryString += `hasScholarship=true&`;
+  }
+
+  if (searchQuery) {
+    queryString += `search=${encodeURIComponent(searchQuery)}&`;
+  }
+
+  // Remove trailing ampersand
+  queryString = queryString.endsWith('&') 
+    ? queryString.slice(0, -1) 
+    : queryString;
+
+  // Fetch programs based on filters
+  const { data: programs = [], isLoading } = useQuery({
+    queryKey: [queryString],
+  });
+
+  // Fetch universities for filter
+  const { data: universities = [] } = useQuery({
+    queryKey: ['/api/universities'],
+  });
+
+  const handleFilterChange = (filterName: string, value: any) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterName]: value
+    }));
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      universityIds: [],
+      studyLevel: [],
+      studyField: [],
+      duration: [],
+      hasScholarship: false,
+      maxTuition: 200000,
+    });
+    setSearchQuery("");
+  };
 
   return (
     <div>
