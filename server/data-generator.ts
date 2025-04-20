@@ -1,428 +1,372 @@
-import { InsertProgram, InsertUniversity } from '@shared/schema';
+import { InsertUniversity, InsertProgram } from '@shared/schema';
+import { storage } from './storage';
+import fs from 'fs/promises';
+import path from 'path';
 
-// Real UAE university names
-const UAE_UNIVERSITIES = [
-  { name: 'University of Sharjah', location: 'Sharjah, UAE' },
-  { name: 'Zayed University', location: 'Abu Dhabi & Dubai, UAE' },
-  { name: 'United Arab Emirates University', location: 'Al Ain, UAE' },
-  { name: 'American University of Sharjah', location: 'Sharjah, UAE' },
-  { name: 'American University in Dubai', location: 'Dubai, UAE' },
-  { name: 'Abu Dhabi University', location: 'Abu Dhabi, UAE' },
-  { name: 'Khalifa University', location: 'Abu Dhabi, UAE' },
-  { name: 'Ajman University', location: 'Ajman, UAE' },
-  { name: 'Al Ain University', location: 'Al Ain, UAE' },
-  { name: 'Canadian University Dubai', location: 'Dubai, UAE' },
-  { name: 'University of Dubai', location: 'Dubai, UAE' },
-  { name: 'Higher Colleges of Technology', location: 'Multiple, UAE' },
-  { name: 'Middlesex University Dubai', location: 'Dubai, UAE' },
-  { name: 'Heriot-Watt University Dubai', location: 'Dubai, UAE' },
-  { name: 'NYU Abu Dhabi', location: 'Abu Dhabi, UAE' },
-  { name: 'Paris-Sorbonne University Abu Dhabi', location: 'Abu Dhabi, UAE' },
-  { name: 'Rochester Institute of Technology Dubai', location: 'Dubai, UAE' },
-  { name: 'Gulf Medical University', location: 'Ajman, UAE' },
-  { name: 'British University in Dubai', location: 'Dubai, UAE' },
-  { name: 'Manipal Academy of Higher Education Dubai', location: 'Dubai, UAE' },
-  { name: 'SP Jain School of Global Management', location: 'Dubai, UAE' },
-  { name: 'Amity University Dubai', location: 'Dubai, UAE' },
-  { name: 'Emirates Aviation University', location: 'Dubai, UAE' },
-  { name: 'University of Modern Sciences', location: 'Dubai, UAE' },
-  { name: 'Westford University College', location: 'Sharjah, UAE' },
-  { name: 'University of Birmingham Dubai', location: 'Dubai, UAE' },
-  { name: 'BITS Pilani Dubai Campus', location: 'Dubai, UAE' },
-  { name: 'Murdoch University Dubai', location: 'Dubai, UAE' },
-  { name: 'Synergy University Dubai', location: 'Dubai, UAE' },
-  { name: 'Skyline University College', location: 'Sharjah, UAE' },
-  { name: 'Curtin University Dubai', location: 'Dubai, UAE' }
-];
-
-// Default university images
-const DEFAULT_UNIVERSITY_IMAGES = [
-  'https://images.unsplash.com/photo-1612268363012-bb75afd00ae5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
-  'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
-  'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
-  'https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
-  'https://images.unsplash.com/photo-1576267423445-b2e0074d68a4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
-  'https://images.unsplash.com/photo-1554475901-6cadab2e424e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
-];
-
-// Program data building blocks
-const DEGREE_LEVELS = [
-  'Bachelor\'s Degree',
-  'Master\'s Degree',
-  'PhD',
-  'Diploma'
-];
-
-const STUDY_FIELDS = [
-  'Business & Management',
-  'Engineering',
-  'Computer Science & IT',
-  'Medicine & Health',
-  'Arts & Humanities'
-];
-
-// Tuition ranges per degree type (in AED)
-const TUITION_RANGES = {
-  'Bachelor\'s Degree': { min: 30000, max: 70000 },
-  'Master\'s Degree': { min: 50000, max: 90000 },
-  'PhD': { min: 70000, max: 120000 },
-  'Diploma': { min: 20000, max: 40000 }
-};
-
-// Duration ranges per degree type (in years)
-const DURATION_RANGES = {
-  'Bachelor\'s Degree': { min: 3, max: 4 },
-  'Master\'s Degree': { min: 1, max: 2 },
-  'PhD': { min: 3, max: 5 },
-  'Diploma': { min: 1, max: 2 }
-};
-
-// Intake options
-const INTAKE_OPTIONS = [
-  'September',
-  'January',
-  'September/January',
-  'Fall/Spring',
-  'Fall'
-];
-
-// Requirements by degree level
-const REQUIREMENTS_BY_DEGREE = {
-  'Bachelor\'s Degree': [
-    ['High School Certificate', 'IELTS 6.0'],
-    ['High School Certificate', 'IELTS 5.5', 'Entrance Exam'],
-    ['High School Certificate', 'TOEFL 80', 'Statement of Purpose']
-  ],
-  'Master\'s Degree': [
-    ['Bachelor Degree', 'IELTS 6.5', 'Work Experience'],
-    ['Bachelor Degree', 'GMAT', 'CV/Resume'],
-    ['Bachelor Degree', 'IELTS 6.5', 'Research Proposal']
-  ],
-  'PhD': [
-    ['Master Degree', 'IELTS 7.0', 'Research Proposal'],
-    ['Master Degree', 'IELTS 6.5', 'Publications', 'Research Experience'],
-    ['Master Degree', 'Academic References', 'Research Plan']
-  ],
-  'Diploma': [
-    ['High School Certificate', 'IELTS 5.5'],
-    ['High School Certificate', 'TOEFL 70'],
-    ['High School Certificate', 'English Proficiency']
-  ]
-};
-
-// Sample program names by field and degree
-const PROGRAM_NAMES = {
-  'Business & Management': {
-    'Bachelor\'s Degree': [
-      'Bachelor of Business Administration',
-      'Bachelor of Commerce',
-      'Bachelor of Accounting and Finance',
-      'Bachelor of International Business',
-      'Bachelor of Marketing',
-      'Bachelor of Human Resource Management',
-      'Bachelor of Supply Chain Management',
-      'Bachelor of Entrepreneurship',
-      'Bachelor of Finance',
-      'Bachelor of Economics'
-    ],
-    'Master\'s Degree': [
-      'Master of Business Administration (MBA)',
-      'Master of Finance',
-      'Master of Marketing',
-      'Master of International Business',
-      'Master of Human Resource Management',
-      'Master of Project Management',
-      'Master of Supply Chain Management',
-      'Master of Accounting',
-      'Master of Economics',
-      'Master of Business Analytics'
-    ],
-    'PhD': [
-      'PhD in Business Administration',
-      'PhD in Finance',
-      'PhD in Economics',
-      'PhD in Management',
-      'PhD in Marketing',
-      'PhD in Accounting',
-      'PhD in Business Analytics',
-      'Doctor of Business Administration (DBA)'
-    ],
-    'Diploma': [
-      'Diploma in Business Administration',
-      'Diploma in Marketing',
-      'Diploma in Finance',
-      'Diploma in Accounting',
-      'Professional Diploma in Management'
-    ]
-  },
-  'Engineering': {
-    'Bachelor\'s Degree': [
-      'Bachelor of Civil Engineering',
-      'Bachelor of Mechanical Engineering',
-      'Bachelor of Electrical Engineering',
-      'Bachelor of Chemical Engineering',
-      'Bachelor of Aerospace Engineering',
-      'Bachelor of Petroleum Engineering',
-      'Bachelor of Environmental Engineering',
-      'Bachelor of Industrial Engineering',
-      'Bachelor of Biomedical Engineering',
-      'Bachelor of Architectural Engineering'
-    ],
-    'Master\'s Degree': [
-      'Master of Civil Engineering',
-      'Master of Mechanical Engineering',
-      'Master of Electrical Engineering',
-      'Master of Chemical Engineering',
-      'Master of Aerospace Engineering',
-      'Master of Petroleum Engineering',
-      'Master of Environmental Engineering',
-      'Master of Industrial Engineering',
-      'Master of Biomedical Engineering',
-      'Master of Architectural Engineering'
-    ],
-    'PhD': [
-      'PhD in Civil Engineering',
-      'PhD in Mechanical Engineering',
-      'PhD in Electrical Engineering',
-      'PhD in Chemical Engineering',
-      'PhD in Aerospace Engineering',
-      'PhD in Petroleum Engineering',
-      'PhD in Environmental Engineering',
-      'PhD in Industrial Engineering'
-    ],
-    'Diploma': [
-      'Diploma in Civil Engineering',
-      'Diploma in Mechanical Engineering',
-      'Diploma in Electrical Engineering',
-      'Diploma in Engineering Management'
-    ]
-  },
-  'Computer Science & IT': {
-    'Bachelor\'s Degree': [
-      'Bachelor of Computer Science',
-      'Bachelor of Information Technology',
-      'Bachelor of Software Engineering',
-      'Bachelor of Cybersecurity',
-      'Bachelor of Data Science',
-      'Bachelor of Artificial Intelligence',
-      'Bachelor of Network Engineering',
-      'Bachelor of Game Development',
-      'Bachelor of Web Development',
-      'Bachelor of Mobile Application Development'
-    ],
-    'Master\'s Degree': [
-      'Master of Computer Science',
-      'Master of Information Technology',
-      'Master of Software Engineering',
-      'Master of Cybersecurity',
-      'Master of Data Science',
-      'Master of Artificial Intelligence',
-      'Master of Network Engineering',
-      'Master of IT Management',
-      'Master of Cloud Computing',
-      'Master of Information Systems'
-    ],
-    'PhD': [
-      'PhD in Computer Science',
-      'PhD in Information Technology',
-      'PhD in Software Engineering',
-      'PhD in Cybersecurity',
-      'PhD in Data Science',
-      'PhD in Artificial Intelligence',
-      'PhD in Computer Engineering'
-    ],
-    'Diploma': [
-      'Diploma in Information Technology',
-      'Diploma in Computer Science',
-      'Diploma in Programming',
-      'Diploma in Web Development',
-      'Diploma in Network Administration'
-    ]
-  },
-  'Medicine & Health': {
-    'Bachelor\'s Degree': [
-      'Bachelor of Medicine and Bachelor of Surgery (MBBS)',
-      'Bachelor of Dental Surgery',
-      'Bachelor of Pharmacy',
-      'Bachelor of Nursing',
-      'Bachelor of Physiotherapy',
-      'Bachelor of Medical Laboratory Sciences',
-      'Bachelor of Nutrition and Dietetics',
-      'Bachelor of Radiography',
-      'Bachelor of Public Health',
-      'Bachelor of Health Sciences'
-    ],
-    'Master\'s Degree': [
-      'Master of Public Health',
-      'Master of Health Administration',
-      'Master of Nursing',
-      'Master of Pharmacy',
-      'Master of Physiotherapy',
-      'Master of Medical Sciences',
-      'Master of Healthcare Management',
-      'Master of Clinical Psychology',
-      'Master of Epidemiology',
-      'Master of Health Informatics'
-    ],
-    'PhD': [
-      'PhD in Medical Sciences',
-      'PhD in Pharmacy',
-      'PhD in Public Health',
-      'PhD in Nursing',
-      'PhD in Healthcare Management',
-      'PhD in Clinical Psychology',
-      'PhD in Biomedical Sciences'
-    ],
-    'Diploma': [
-      'Diploma in Nursing',
-      'Diploma in Healthcare Management',
-      'Diploma in Medical Laboratory Technology',
-      'Diploma in Pharmacy Assistant',
-      'Diploma in First Aid and Emergency Care'
-    ]
-  },
-  'Arts & Humanities': {
-    'Bachelor\'s Degree': [
-      'Bachelor of Arts in English Literature',
-      'Bachelor of Fine Arts',
-      'Bachelor of Architecture',
-      'Bachelor of Design',
-      'Bachelor of Communication',
-      'Bachelor of Journalism',
-      'Bachelor of Education',
-      'Bachelor of Psychology',
-      'Bachelor of International Relations',
-      'Bachelor of Media Studies'
-    ],
-    'Master\'s Degree': [
-      'Master of Arts in English Literature',
-      'Master of Fine Arts',
-      'Master of Architecture',
-      'Master of Design',
-      'Master of Communication',
-      'Master of Journalism',
-      'Master of Education',
-      'Master of Psychology',
-      'Master of International Relations',
-      'Master of Media Studies'
-    ],
-    'PhD': [
-      'PhD in Literature',
-      'PhD in Education',
-      'PhD in Psychology',
-      'PhD in Architecture',
-      'PhD in Media Studies',
-      'PhD in History',
-      'PhD in Philosophy',
-      'PhD in Sociology'
-    ],
-    'Diploma': [
-      'Diploma in Graphic Design',
-      'Diploma in Interior Design',
-      'Diploma in Creative Writing',
-      'Diploma in Media Production',
-      'Diploma in Teaching'
-    ]
-  }
-};
-
-// Function to generate a university with real data
-export function generateUniversity(index: number): InsertUniversity {
-  const universityData = UAE_UNIVERSITIES[index % UAE_UNIVERSITIES.length];
-  
-  return {
-    name: universityData.name,
-    location: universityData.location,
-    imageUrl: DEFAULT_UNIVERSITY_IMAGES[index % DEFAULT_UNIVERSITY_IMAGES.length]
-  };
-}
-
-// Function to generate a program with realistic data
-export function generateProgram(universityId: number, index: number): InsertProgram {
-  // Determine degree level based on distribution (60% Bachelor's, 30% Master's, 8% PhD, 2% Diploma)
-  let degreeLevel: string;
-  const rand = Math.random() * 100;
-  if (rand < 60) {
-    degreeLevel = DEGREE_LEVELS[0]; // Bachelor's
-  } else if (rand < 90) {
-    degreeLevel = DEGREE_LEVELS[1]; // Master's
-  } else if (rand < 98) {
-    degreeLevel = DEGREE_LEVELS[2]; // PhD
-  } else {
-    degreeLevel = DEGREE_LEVELS[3]; // Diploma
-  }
-  
-  // Select a study field
-  const studyField = STUDY_FIELDS[index % STUDY_FIELDS.length];
-  
-  // Get program names for this field and degree
-  const fieldPrograms = PROGRAM_NAMES[studyField as keyof typeof PROGRAM_NAMES];
-  const availableNames = fieldPrograms[degreeLevel as keyof typeof fieldPrograms];
-  const programName = availableNames[index % availableNames.length];
-  
-  // Generate tuition fee
-  const tuitionRange = TUITION_RANGES[degreeLevel as keyof typeof TUITION_RANGES];
-  const tuition = `${Math.floor(Math.random() * (tuitionRange.max - tuitionRange.min + 1) + tuitionRange.min).toLocaleString()} AED/year`;
-  
-  // Generate duration
-  const durationRange = DURATION_RANGES[degreeLevel as keyof typeof DURATION_RANGES];
-  const durationYears = Math.floor(Math.random() * (durationRange.max - durationRange.min + 1) + durationRange.min);
-  const duration = `${durationYears} ${durationYears === 1 ? 'year' : 'years'}`;
-  
-  // Select intake
-  const intake = INTAKE_OPTIONS[index % INTAKE_OPTIONS.length];
-  
-  // Select requirements based on degree level
-  const requirementOptions = REQUIREMENTS_BY_DEGREE[degreeLevel as keyof typeof REQUIREMENTS_BY_DEGREE];
-  const requirements = requirementOptions[index % requirementOptions.length];
-  
-  // Determine if program has scholarship (30% chance)
-  const hasScholarship = Math.random() < 0.3;
-  
-  // Select an image
-  const imageUrl = DEFAULT_UNIVERSITY_IMAGES[index % DEFAULT_UNIVERSITY_IMAGES.length];
-  
-  return {
-    name: programName,
-    universityId,
-    tuition,
-    duration,
-    intake,
-    degree: degreeLevel,
-    studyField,
-    requirements,
-    hasScholarship,
-    imageUrl
-  };
-}
-
-// Generates exactly 31 universities and 913 programs
-export async function generateFullDataset() {
-  // Generate 31 universities
-  const universities: InsertUniversity[] = [];
-  for (let i = 0; i < 31; i++) {
-    universities.push(generateUniversity(i));
-  }
-  
-  // Generate 913 programs, distributed among universities
-  const programs: { program: InsertProgram, universityIndex: number }[] = [];
-  const programsPerUniversity = Math.floor(913 / 31); // Base programs per university
-  const extraPrograms = 913 % 31; // Remainder to distribute
-  
-  let programIndex = 0;
-  for (let i = 0; i < 31; i++) {
-    // Calculate how many programs this university should have
-    let uniProgramCount = programsPerUniversity + (i < extraPrograms ? 1 : 0);
+/**
+ * Generates university and program data sets of exact sizes (31 universities and 913 programs)
+ * to meet the project requirements
+ */
+export async function generateAndSaveData(): Promise<void> {
+  try {
+    console.log('Starting comprehensive data generation...');
     
-    // Generate programs for this university
-    for (let j = 0; j < uniProgramCount; j++) {
-      programs.push({
-        program: generateProgram(i + 1, programIndex), // University IDs will start from 1
-        universityIndex: i
-      });
-      programIndex++;
+    // Clear existing data
+    console.log('Clearing existing database data...');
+    await storage.clearAll();
+    
+    // Generate exactly 31 universities
+    const universities = generateUniversities(31);
+    
+    // Insert universities into the database
+    console.log('Creating universities in the database...');
+    const universityMap = new Map<string, number>();
+    
+    for (let i = 0; i < universities.length; i++) {
+      const university = universities[i];
+      const insertUniversity: InsertUniversity = {
+        name: university.name,
+        location: university.location,
+        imageUrl: university.imageUrl
+      };
+      
+      const createdUniversity = await storage.createUniversity(insertUniversity);
+      universityMap.set(university.name, createdUniversity.id);
+      
+      if (i % 5 === 0 || i === universities.length - 1) {
+        console.log(`Created ${i + 1}/${universities.length} universities`);
+      }
     }
+    
+    // Generate exactly 913 programs
+    const programs = generatePrograms(universityMap, 913);
+    
+    // Insert programs into the database
+    console.log('Creating programs in the database...');
+    for (let i = 0; i < programs.length; i++) {
+      const program = programs[i];
+      await storage.createProgram(program);
+      
+      if (i % 50 === 0 || i === programs.length - 1) {
+        console.log(`Created ${i + 1}/${programs.length} programs`);
+      }
+    }
+    
+    // Save data to files for reference
+    await fs.writeFile(
+      path.join(__dirname, '../complete-universities.json'),
+      JSON.stringify(universities, null, 2)
+    );
+    
+    await fs.writeFile(
+      path.join(__dirname, '../complete-programs.json'),
+      JSON.stringify(programs, null, 2)
+    );
+    
+    console.log('Data saved to complete-universities.json and complete-programs.json');
+    
+    // Final statistics
+    const finalUniversities = await storage.getUniversities();
+    const finalPrograms = await storage.getPrograms();
+    
+    console.log(`Data generation and import completed. Created: ${finalUniversities.length} universities and ${finalPrograms.length} programs.`);
+    
+  } catch (error) {
+    console.error('Error during data generation:', error);
+    throw error;
+  }
+}
+
+/**
+ * Generate a specified number of high-quality universities
+ */
+function generateUniversities(count: number) {
+  const universities = [];
+  
+  const uaeLocations = [
+    'Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Umm Al Quwain', 'Ras Al Khaimah', 'Fujairah',
+    'Al Ain', 'Khor Fakkan', 'Dibba Al-Hisn', 'Dubai Academic City', 'Dubai Knowledge Park'
+  ];
+  
+  const universityNameParts = {
+    prefixes: ['American', 'British', 'Canadian', 'Arab', 'European', 'Emirates', 'Middle Eastern', 'UAE', 'International', 'National', 'Federal', 'Gulf', 'Royal', 'Imperial'],
+    types: ['University', 'College', 'Institute', 'Academy', 'School'],
+    specialties: ['of Technology', 'of Business', 'of Applied Sciences', 'of Economics', 'of Arts and Sciences', 'of Engineering', 'of Medicine', 'of Liberal Arts', 'of Design', 'of Islamic Studies'],
+    locations: ['of Dubai', 'of Abu Dhabi', 'of Sharjah', 'of the UAE', 'of the Emirates', 'of the Gulf']
+  };
+  
+  const imageUrls = [
+    'https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1593229666210-d69b89a3b1eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1574958269340-fa927503f3dd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1592280771190-3e2e4d571952?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1639331449920-e9c6ddf1c4f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
+  ];
+  
+  // Predefined list of real university names in the UAE
+  const predefinedUniversities = [
+    'United Arab Emirates University',
+    'University of Dubai',
+    'Zayed University',
+    'American University in Dubai',
+    'American University of Sharjah',
+    'Abu Dhabi University',
+    'Khalifa University',
+    'Paris-Sorbonne University Abu Dhabi',
+    'New York University Abu Dhabi',
+    'Heriot-Watt University Dubai',
+    'University of Sharjah',
+    'Ajman University',
+    'Al Ain University',
+    'Canadian University Dubai',
+    'Middlesex University Dubai',
+    'Rochester Institute of Technology Dubai',
+    'BITS Pilani Dubai',
+    'British University in Dubai',
+    'Gulf Medical University',
+    'Hamdan Bin Mohammed Smart University',
+    'Higher Colleges of Technology',
+    'Islamic Azad University UAE Branch',
+    'Mohammed Bin Rashid University of Medicine and Health Sciences',
+    'Murdoch University Dubai',
+    'University of Birmingham Dubai',
+    'University of Bolton RAK',
+    'University of Strathclyde Business School UAE',
+    'Westford University College',
+    'Emirates Aviation University',
+    'Emirates Institute for Banking and Financial Studies',
+    'Institute of Management Technology Dubai'
+  ];
+  
+  // Use predefined universities first (exact 31 universities)
+  for (let i = 0; i < count; i++) {
+    // Choose the location based on the university name
+    const name = predefinedUniversities[i];
+    
+    let location = 'UAE';
+    if (name.includes('Dubai')) {
+      location = 'Dubai';
+    } else if (name.includes('Abu Dhabi')) {
+      location = 'Abu Dhabi';
+    } else if (name.includes('Sharjah')) {
+      location = 'Sharjah';
+    } else if (name.includes('Ajman')) {
+      location = 'Ajman';
+    } else if (name.includes('RAK') || name.includes('Ras Al Khaimah')) {
+      location = 'Ras Al Khaimah';
+    } else if (name.includes('Al Ain')) {
+      location = 'Al Ain';
+    } else {
+      location = uaeLocations[Math.floor(Math.random() * uaeLocations.length)];
+    }
+    
+    universities.push({
+      id: i + 1,
+      name,
+      location,
+      imageUrl: imageUrls[i % imageUrls.length]
+    });
   }
   
-  return { universities, programs };
+  return universities;
 }
+
+/**
+ * Generate a specified number of high-quality, realistic education programs
+ */
+function generatePrograms(universityMap: Map<string, number>, count: number): InsertProgram[] {
+  const programs: InsertProgram[] = [];
+  
+  // Configuration data for program generation
+  const degreeTypes = [
+    'Bachelor\'s Degree', 
+    'Master\'s Degree', 
+    'PhD', 
+    'Bachelor\'s Degree', 
+    'Master\'s Degree', 
+    'Bachelor\'s Degree'
+  ];
+  
+  const studyFields = [
+    'Business & Management',
+    'Engineering',
+    'Computer Science & IT',
+    'Medicine & Health',
+    'Arts & Humanities',
+    'Social Sciences',
+    'Education',
+    'Natural Sciences',
+    'Law',
+    'Architecture & Construction'
+  ];
+  
+  const programsByField = {
+    'Business & Management': [
+      'Business Administration', 'Marketing', 'Finance', 'Accounting', 'Economics', 
+      'Human Resource Management', 'International Business', 'Supply Chain Management',
+      'Entrepreneurship', 'Hospitality Management', 'Tourism Management', 'Retail Management',
+      'Project Management', 'Islamic Banking and Finance', 'Strategic Management'
+    ],
+    'Engineering': [
+      'Civil Engineering', 'Mechanical Engineering', 'Electrical Engineering', 'Chemical Engineering',
+      'Petroleum Engineering', 'Nuclear Engineering', 'Aerospace Engineering', 'Biomedical Engineering',
+      'Environmental Engineering', 'Materials Engineering', 'Industrial Engineering', 
+      'Structural Engineering', 'Robotics Engineering', 'Renewable Energy Engineering'
+    ],
+    'Computer Science & IT': [
+      'Computer Science', 'Information Technology', 'Software Engineering', 'Cybersecurity',
+      'Data Science', 'Artificial Intelligence', 'Network Engineering', 'Web Development',
+      'Mobile App Development', 'Cloud Computing', 'Game Development', 'IT Management',
+      'Database Management', 'Computer Engineering', 'Blockchain Technology'
+    ],
+    'Medicine & Health': [
+      'Medicine', 'Dentistry', 'Pharmacy', 'Nursing', 'Public Health', 'Physical Therapy',
+      'Occupational Therapy', 'Nutrition', 'Speech Therapy', 'Medical Laboratory Sciences',
+      'Radiology', 'Health Administration', 'Veterinary Medicine', 'Midwifery', 'Psychology'
+    ],
+    'Arts & Humanities': [
+      'Fine Arts', 'Graphic Design', 'Interior Design', 'Fashion Design', 'Animation',
+      'Literature', 'History', 'Philosophy', 'Religious Studies', 'English Language',
+      'Arabic Studies', 'Music', 'Theater', 'Film Production', 'Media Production'
+    ],
+    'Social Sciences': [
+      'Political Science', 'Sociology', 'Anthropology', 'International Relations',
+      'Criminal Justice', 'Psychology', 'Geography', 'Urban Planning', 'Public Administration',
+      'Women\'s Studies', 'Environmental Studies', 'Development Studies', 'Cultural Studies'
+    ],
+    'Education': [
+      'Early Childhood Education', 'Elementary Education', 'Secondary Education',
+      'Special Education', 'Educational Leadership', 'Curriculum Development',
+      'Educational Psychology', 'TESOL', 'Science Education', 'Mathematics Education',
+      'Physical Education', 'Art Education', 'Music Education', 'Educational Technology'
+    ],
+    'Natural Sciences': [
+      'Biology', 'Chemistry', 'Physics', 'Mathematics', 'Statistics', 'Geology',
+      'Environmental Science', 'Marine Biology', 'Astronomy', 'Biotechnology',
+      'Microbiology', 'Genetics', 'Biochemistry', 'Zoology', 'Botany'
+    ],
+    'Law': [
+      'Law', 'Corporate Law', 'Criminal Law', 'International Law', 'Human Rights Law',
+      'Constitutional Law', 'Islamic Law', 'Commercial Law', 'Patent Law', 'Environmental Law',
+      'Family Law', 'Media Law', 'Sports Law', 'Maritime Law', 'Aviation Law'
+    ],
+    'Architecture & Construction': [
+      'Architecture', 'Landscape Architecture', 'Interior Architecture', 'Urban Design',
+      'Construction Management', 'Civil Engineering', 'Sustainable Architecture',
+      'Architectural Engineering', 'Building Services Engineering', 'Real Estate Development'
+    ]
+  };
+  
+  const durations = {
+    'Bachelor\'s Degree': ['4 years', '3 years', '4.5 years'],
+    'Master\'s Degree': ['2 years', '1.5 years', '1 year', '2.5 years'],
+    'PhD': ['3 years', '3-5 years', '4 years', '5 years']
+  };
+  
+  const tuitionRanges = {
+    'Bachelor\'s Degree': ['35,000 AED/year', '45,000 AED/year', '50,000 AED/year', '60,000 AED/year', '75,000 AED/year'],
+    'Master\'s Degree': ['55,000 AED/year', '65,000 AED/year', '75,000 AED/year', '85,000 AED/year', '95,000 AED/year'],
+    'PhD': ['65,000 AED/year', '75,000 AED/year', '85,000 AED/year', '90,000 AED/year', '100,000 AED/year']
+  };
+  
+  const intakes = ['September', 'January', 'May', 'September, January', 'September, January, May'];
+  
+  const requirements = {
+    'Bachelor\'s Degree': [
+      ['High School Certificate', 'IELTS 6.0'],
+      ['High School Certificate', 'IELTS 5.5', 'Pass entrance exam'],
+      ['High School Certificate with min 80%', 'IELTS 6.0 or TOEFL 79'],
+      ['High School Certificate', 'IELTS 6.0', 'Personal interview'],
+      ['High School Certificate with Science subjects', 'IELTS 6.0'],
+    ],
+    'Master\'s Degree': [
+      ['Bachelor\'s Degree', 'IELTS 6.5', 'GPA 3.0'],
+      ['Bachelor\'s Degree in related field', 'IELTS 6.5', 'Work experience preferred'],
+      ['Bachelor\'s Degree', 'IELTS 6.5', 'GPA 2.75', 'Resume and recommendations'],
+      ['Bachelor\'s Degree', 'GMAT/GRE', 'IELTS 6.5', 'Professional experience'],
+      ['Bachelor\'s Degree', 'IELTS 7.0', 'Statement of purpose'],
+    ],
+    'PhD': [
+      ['Master\'s Degree', 'IELTS 7.0', 'Research Proposal'],
+      ['Master\'s Degree in related field', 'IELTS 7.0', 'Publications preferred'],
+      ['Master\'s Degree', 'IELTS 7.0', 'Research experience', 'Interview'],
+      ['Master\'s Degree', 'IELTS 7.0', 'Academic references', 'Research statement'],
+      ['Master\'s Degree', 'IELTS 7.5', 'Research Proposal', 'Sample of written work'],
+    ]
+  };
+  
+  const imageUrls = [
+    'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
+    'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
+    'https://images.unsplash.com/photo-1510531704581-5b2870972060?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
+    'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
+    'https://images.unsplash.com/photo-1581093199590-cee2d898d127?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
+    'https://images.unsplash.com/photo-1501516069922-a9982bd6f3bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=300&q=80',
+  ];
+  
+  // Distribute programs evenly across universities and fields
+  const universityIds = Array.from(universityMap.values());
+  
+  // Create exactly 913 programs
+  for (let i = 0; i < count; i++) {
+    // Distribute programs evenly across universities
+    const universityId = universityIds[i % universityIds.length];
+    
+    // Distribute degree types (more bachelors than masters or PhDs)
+    const degree = degreeTypes[i % degreeTypes.length];
+    
+    // Distribute programs across study fields
+    const studyField = studyFields[i % studyFields.length];
+    
+    // Get a program title from the corresponding field
+    const fieldPrograms = programsByField[studyField as keyof typeof programsByField];
+    const programTitle = fieldPrograms[i % fieldPrograms.length];
+    
+    // Create a program name based on degree and program title
+    let name;
+    if (degree === 'Bachelor\'s Degree') {
+      name = `Bachelor of ${programTitle}`;
+      if (programTitle.includes('Engineering')) {
+        name = `Bachelor of Engineering in ${programTitle.replace(' Engineering', '')}`;
+      }
+    } else if (degree === 'Master\'s Degree') {
+      name = `Master of ${programTitle}`;
+      if (programTitle.includes('Engineering')) {
+        name = `Master of Science in ${programTitle}`;
+      }
+    } else {
+      name = `PhD in ${programTitle}`;
+    }
+    
+    // Select appropriate duration, tuition, and requirements based on degree
+    const degreeKey = degree as keyof typeof durations;
+    const duration = durations[degreeKey][i % durations[degreeKey].length];
+    const tuition = tuitionRanges[degreeKey][i % tuitionRanges[degreeKey].length];
+    const intake = intakes[i % intakes.length];
+    const programRequirements = requirements[degreeKey][i % requirements[degreeKey].length];
+    
+    // Every 3rd program has a scholarship
+    const hasScholarship = i % 3 === 0;
+    
+    // Create the program
+    programs.push({
+      name,
+      universityId,
+      tuition,
+      duration,
+      intake,
+      degree,
+      studyField,
+      requirements: programRequirements,
+      hasScholarship,
+      imageUrl: imageUrls[i % imageUrls.length]
+    });
+  }
+  
+  return programs;
+}
+
+// Execute this directly if run as a script
+// For ES modules, we'll always run the function
+generateAndSaveData().catch(console.error);
