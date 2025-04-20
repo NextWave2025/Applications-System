@@ -27,20 +27,20 @@ export default function ProgramsPage() {
   const queryClient = useQueryClient();
   
   useEffect(() => {
-    // If we don't have any programs and we're not currently loading, manually fetch them
-    if (allPrograms.length === 0 && !isLoadingAllPrograms) {
+    // Force fetch programs on component mount for reliability
+    if (!isLoadingAllPrograms) {
       console.log("Manually fetching programs...");
       fetch('/api/programs')
         .then(res => res.json())
         .then(data => {
-          console.log("Manually fetched programs:", data);
+          console.log("Manually fetched programs:", data.length, "programs");
           queryClient.setQueryData(['/api/programs'], data);
         })
         .catch(err => {
           console.error("Error manually fetching programs:", err);
         });
     }
-  }, [allPrograms.length, isLoadingAllPrograms, queryClient]);
+  }, [isLoadingAllPrograms, queryClient]);
 
   // Build filter query string using useMemo so it only recalculates when dependencies change
   const filterQuery = useMemo(() => {
@@ -117,6 +117,22 @@ export default function ProgramsPage() {
   const { data: universities = [] } = useQuery<University[]>({
     queryKey: ['/api/universities']
   });
+  
+  // Also fetch universities manually for reliability
+  useEffect(() => {
+    if (universities.length === 0) {
+      console.log("Manually fetching universities...");
+      fetch('/api/universities')
+        .then(res => res.json())
+        .then(data => {
+          console.log("Manually fetched universities:", data.length, "universities");
+          queryClient.setQueryData(['/api/universities'], data);
+        })
+        .catch(err => {
+          console.error("Error manually fetching universities:", err);
+        });
+    }
+  }, [universities.length, queryClient]);
 
   const handleFilterChange = (filterName: string, value: any) => {
     setFilters(prev => ({
