@@ -22,7 +22,7 @@ export function registerRoutes(app: Express): Server {
   // API endpoint to get a specific university
   app.get("/api/universities/:id", async (req, res) => {
     try {
-      const university = await storage.getUniversity(parseInt(req.params.id));
+      const university = await storage.getUniversityById(parseInt(req.params.id));
       if (!university) {
         return res.status(404).json({ error: "University not found" });
       }
@@ -58,20 +58,8 @@ export function registerRoutes(app: Express): Server {
       
       const programs = await storage.getPrograms(filters);
       
-      // Get university details for each program
-      const programsWithUniversity = await Promise.all(
-        programs.map(async (program) => {
-          const university = await storage.getUniversity(program.universityId);
-          return {
-            ...program,
-            university: university ? {
-              name: university.name,
-              location: university.location,
-              imageUrl: university.imageUrl
-            } : null
-          };
-        })
-      );
+      // The university data is already included in the programs from the join in storage.getPrograms
+      const programsWithUniversity = programs;
       
       res.json(programsWithUniversity);
     } catch (error) {
@@ -83,21 +71,10 @@ export function registerRoutes(app: Express): Server {
   // API endpoint to get a specific program with university details
   app.get("/api/programs/:id", async (req, res) => {
     try {
-      const program = await storage.getProgram(parseInt(req.params.id));
-      if (!program) {
+      const programWithUniversity = await storage.getProgramById(parseInt(req.params.id));
+      if (!programWithUniversity) {
         return res.status(404).json({ error: "Program not found" });
       }
-      
-      const university = await storage.getUniversity(program.universityId);
-      
-      const programWithUniversity = {
-        ...program,
-        university: university ? {
-          name: university.name,
-          location: university.location,
-          imageUrl: university.imageUrl
-        } : null
-      };
       
       res.json(programWithUniversity);
     } catch (error) {
@@ -110,30 +87,11 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/search/programs/:query", async (req, res) => {
     try {
       const query = req.params.query.toLowerCase();
-      const programs = await storage.getPrograms();
+      const programs = await storage.getPrograms({
+        search: query
+      });
       
-      const filteredPrograms = programs.filter(program => 
-        program.name.toLowerCase().includes(query) ||
-        program.studyField.toLowerCase().includes(query) ||
-        program.degree.toLowerCase().includes(query)
-      );
-      
-      // Get university details for each program
-      const programsWithUniversity = await Promise.all(
-        filteredPrograms.map(async (program) => {
-          const university = await storage.getUniversity(program.universityId);
-          return {
-            ...program,
-            university: university ? {
-              name: university.name,
-              location: university.location,
-              imageUrl: university.imageUrl
-            } : null
-          };
-        })
-      );
-      
-      res.json(programsWithUniversity);
+      res.json(programs);
     } catch (error) {
       console.error("Error searching programs:", error);
       res.status(500).json({ error: "Failed to search programs" });
