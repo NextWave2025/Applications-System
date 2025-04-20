@@ -9,7 +9,7 @@ export default function AgentFeaturesSection() {
         </svg>
       ),
       title: 'Full Access to UAE Universities',
-      description: 'Access 25+ licensed UAE universities in one dashboard\nReal-time updates on programs, tuition, and scholarships'
+      description: 'Access 25+ licensed UAE universities in one dashboard\nReal-time updates on programs, tuition, and scholarships.'
     },
     {
       icon: (
@@ -18,7 +18,7 @@ export default function AgentFeaturesSection() {
         </svg>
       ),
       title: 'High Commissions',
-      description: 'Get paid with no delays, no confusion'
+      description: 'Get paid with no delays, no confusion.'
     },
     {
       icon: (
@@ -27,7 +27,7 @@ export default function AgentFeaturesSection() {
         </svg>
       ),
       title: 'Localized Agent Onboarding & Support',
-      description: 'Personal WhatsApp onboarding with your region expert\nVisa checklist and process mapped by country\n24/7 support team available for you'
+      description: 'Personal WhatsApp onboarding with your region expert\nVisa checklist and process mapped by country with 24/7 support team available for you.'
     },
     {
       icon: (
@@ -36,7 +36,7 @@ export default function AgentFeaturesSection() {
         </svg>
       ),
       title: 'Agent Portal + Built-in CRM',
-      description: 'Track student applications, documents, and communication\nNo need for external tools — everything in one place'
+      description: 'Track student applications, documents, and communication\nNo need for external tools, everything in one place.'
     },
     {
       icon: (
@@ -45,7 +45,7 @@ export default function AgentFeaturesSection() {
         </svg>
       ),
       title: 'Marketing & Recruitment Support',
-      description: 'Content kits, flyers, and videos\nCampaign ideas and materials you can start using instantly'
+      description: 'Content kits, flyers, and videos.\nCampaign ideas and materials you can start using instantly.'
     },
     {
       icon: (
@@ -54,7 +54,7 @@ export default function AgentFeaturesSection() {
         </svg>
       ),
       title: 'Student Support Network in UAE',
-      description: '2,000+ student community in UAE supports your applicants\nHelps students network faster and access internships, workshops'
+      description: '2,000+ student community in UAE supports your student.\nHelps students network faster and access internships, workshops in UAE.'
     }
   ];
 
