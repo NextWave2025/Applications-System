@@ -36,14 +36,20 @@ export function registerRoutes(app: Express): Server {
   // API endpoint to get programs with filters
   app.get("/api/programs", async (req, res) => {
     try {
-      const { university, degree, studyField, hasScholarship, maxTuition } = req.query;
+      console.log("GET /api/programs request with query:", req.query);
+      
+      const { university, degree, studyField, hasScholarship, maxTuition, duration, search } = req.query;
       
       const filters: any = {};
       
       if (university) {
-        filters.universityIds = Array.isArray(university) 
-          ? university.map(id => parseInt(id as string))
-          : [parseInt(university as string)];
+        try {
+          filters.universityIds = Array.isArray(university) 
+            ? university.map(id => parseInt(id as string))
+            : [parseInt(university as string)];
+        } catch (e) {
+          console.error("Error parsing university filter:", e);
+        }
       }
       
       if (degree) {
@@ -63,15 +69,36 @@ export function registerRoutes(app: Express): Server {
       }
       
       if (maxTuition) {
-        filters.maxTuition = parseInt(maxTuition as string);
+        try {
+          filters.maxTuition = parseInt(maxTuition as string);
+        } catch (e) {
+          console.error("Error parsing maxTuition filter:", e);
+        }
       }
       
-      const programs = await storage.getPrograms(filters);
+      if (duration) {
+        filters.duration = Array.isArray(duration)
+          ? duration.map(d => d as string)
+          : [duration as string];
+      }
       
-      res.json(programs);
+      if (search) {
+        filters.search = search as string;
+      }
+      
+      console.log("Applying filters:", filters);
+      
+      try {
+        const programs = await storage.getPrograms(filters);
+        console.log(`Found ${programs.length} programs matching filters`);
+        res.json(programs);
+      } catch (dbError) {
+        console.error("Database error fetching programs:", dbError);
+        res.status(500).json({ error: "Database error: " + dbError.message });
+      }
     } catch (error) {
       console.error("Error fetching programs:", error);
-      res.status(500).json({ error: "Failed to fetch programs" });
+      res.status(500).json({ error: "Failed to fetch programs: " + error.message });
     }
   });
 

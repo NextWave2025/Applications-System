@@ -17,17 +17,28 @@ if (!process.env.DATABASE_URL) {
 
 // Create postgres connection
 const connectionString = process.env.DATABASE_URL;
-const client = postgres(connectionString);
-const db = drizzle(client);
+const pgConnection = postgres(connectionString);
+const db = drizzle(pgConnection);
 
 // Create postgres session store
-const pool = {
-  query: async (text: string, params: any[]) => {
-    return client(text, ...params);
-  }
-};
-
 const PostgresSessionStore = connectPg(session);
+
+// Create a minimal pool interface compatible with connect-pg-simple
+const pgPool = {
+  query: (text: string, params: any[]) => {
+    return {
+      then: (resolve: any, reject: any) => {
+        pgConnection.unsafe(text, params)
+          .then(resolve)
+          .catch(reject);
+      }
+    };
+  },
+  // These properties are required by connect-pg-simple but not used
+  totalCount: 0,
+  idleCount: 0,
+  waitingCount: 0
+};
 
 // Expanded storage interface with all the needed CRUD methods
 export interface IStorage {
@@ -71,7 +82,7 @@ export class DBStorage implements IStorage {
   constructor(db: PostgresJsDatabase) {
     this.db = db;
     this.sessionStore = new PostgresSessionStore({
-      pool, 
+      pool: pgPool as any, 
       createTableIfMissing: true,
     });
   }
@@ -94,84 +105,98 @@ export class DBStorage implements IStorage {
 
   // Program methods
   async getPrograms(filters?: ProgramFilters): Promise<ProgramWithUniversity[]> {
-    let query = this.db.select({
-      id: programs.id,
-      name: programs.name,
-      universityId: programs.universityId,
-      tuition: programs.tuition,
-      duration: programs.duration,
-      intake: programs.intake,
-      degree: programs.degree,
-      studyField: programs.studyField,
-      requirements: programs.requirements,
-      hasScholarship: programs.hasScholarship,
-      imageUrl: programs.imageUrl,
-      university: {
-        name: universities.name,
-        location: universities.location,
-        imageUrl: universities.imageUrl
-      }
-    })
-    .from(programs)
-    .innerJoin(universities, eq(programs.universityId, universities.id));
+    console.log("Storage.getPrograms called with filters:", filters);
     
-    // Apply filters if provided
-    if (filters) {
+    try {
+      // Use ORM for better type safety
+      let query = this.db.select({
+        id: programs.id,
+        name: programs.name,
+        universityId: programs.universityId,
+        tuition: programs.tuition,
+        duration: programs.duration,
+        intake: programs.intake,
+        degree: programs.degree,
+        studyField: programs.studyField,
+        requirements: programs.requirements,
+        hasScholarship: programs.hasScholarship,
+        imageUrl: programs.imageUrl,
+        university: {
+          name: universities.name,
+          location: universities.location,
+          imageUrl: universities.imageUrl
+        }
+      })
+      .from(programs)
+      .innerJoin(universities, eq(programs.universityId, universities.id));
+      
+      // Build conditions array for WHERE clause
       const conditions = [];
       
-      // Study level filter
-      if (filters.studyLevel && filters.studyLevel.length > 0) {
-        conditions.push(inArray(programs.degree, filters.studyLevel));
+      // Apply filters if provided
+      if (filters) {
+        // Study level filter
+        if (filters.studyLevel && filters.studyLevel.length > 0) {
+          conditions.push(inArray(programs.degree, filters.studyLevel));
+        }
+        
+        // Study field filter
+        if (filters.studyField && filters.studyField.length > 0) {
+          conditions.push(inArray(programs.studyField, filters.studyField));
+        }
+        
+        // University filter
+        if (filters.universityIds && filters.universityIds.length > 0) {
+          conditions.push(inArray(programs.universityId, filters.universityIds));
+        }
+        
+        // Duration filter
+        if (filters.duration && filters.duration.length > 0) {
+          conditions.push(inArray(programs.duration, filters.duration));
+        }
+        
+        // Scholarship filter
+        if (filters.hasScholarship !== undefined) {
+          conditions.push(eq(programs.hasScholarship, filters.hasScholarship));
+        }
+        
+        // Search filter
+        if (filters.search) {
+          const searchLower = `%${filters.search.toLowerCase()}%`;
+          conditions.push(
+            sql`(LOWER(${programs.name}) LIKE ${searchLower} OR LOWER(${universities.name}) LIKE ${searchLower})`
+          );
+        }
       }
       
-      // Study field filter
-      if (filters.studyField && filters.studyField.length > 0) {
-        conditions.push(inArray(programs.studyField, filters.studyField));
-      }
-      
-      // University filter
-      if (filters.universityIds && filters.universityIds.length > 0) {
-        conditions.push(inArray(programs.universityId, filters.universityIds));
-      }
-      
-      // Max tuition filter - this is a bit tricky since tuition is stored as a string
-      // For now, we'll handle it in-memory after fetching
-      
-      // Duration filter
-      if (filters.duration && filters.duration.length > 0) {
-        conditions.push(inArray(programs.duration, filters.duration));
-      }
-      
-      // Scholarship filter
-      if (filters.hasScholarship !== undefined) {
-        conditions.push(eq(programs.hasScholarship, filters.hasScholarship));
-      }
-      
-      // Search filter
-      if (filters.search) {
-        const searchTerm = `%${filters.search}%`;
-        conditions.push(
-          sql`(${programs.name} ILIKE ${searchTerm} OR ${universities.name} ILIKE ${searchTerm})`
-        );
-      }
-      
-      // Apply all conditions
+      // Apply all conditions to the query
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
+      
+      console.log("Executing ORM query...");
+      const result = await query;
+      console.log(`Query returned ${result.length} programs`);
+      
+      // Handle max tuition filter in memory since tuition is stored as string with "AED/year" suffix
+      if (filters?.maxTuition) {
+        return result.filter((program: ProgramWithUniversity) => {
+          try {
+            // Extract numeric part from "35,000 AED/year" format
+            const tuitionValue = parseInt(program.tuition.replace(/[^0-9]/g, ''));
+            return !isNaN(tuitionValue) && tuitionValue <= (filters.maxTuition || 0);
+          } catch (e) {
+            console.error("Error parsing tuition:", e, "for program:", program.name);
+            return true; // Include by default if parsing fails
+          }
+        });
+      }
+      
+      return result;
+    } catch (error) {
+      console.error("Error in getPrograms:", error);
+      throw error;
     }
-    
-    const results = await query;
-    
-    // Handle the max tuition filter in memory since it's stored as a string
-    if (filters?.maxTuition) {
-      return results.filter(program => {
-        const tuitionValue = parseInt(program.tuition.replace(/[^0-9]/g, ''));
-        return !isNaN(tuitionValue) && tuitionValue <= filters.maxTuition!;
-      });
-    }
-    
-    return results;
   }
 
   async getProgramById(id: number): Promise<ProgramWithUniversity | undefined> {
