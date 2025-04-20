@@ -36,32 +36,39 @@ export function registerRoutes(app: Express): Server {
   // API endpoint to get programs with filters
   app.get("/api/programs", async (req, res) => {
     try {
-      const { university, degree, studyField, hasScholarship } = req.query;
+      const { university, degree, studyField, hasScholarship, maxTuition } = req.query;
       
       const filters: any = {};
       
       if (university) {
-        filters.universityId = parseInt(university as string);
+        filters.universityIds = Array.isArray(university) 
+          ? university.map(id => parseInt(id as string))
+          : [parseInt(university as string)];
       }
       
       if (degree) {
-        filters.degree = degree as string;
+        filters.studyLevel = Array.isArray(degree) 
+          ? degree.map(d => d as string)
+          : [degree as string];
       }
       
       if (studyField) {
-        filters.studyField = studyField as string;
+        filters.studyField = Array.isArray(studyField) 
+          ? studyField.map(f => f as string)
+          : [studyField as string];
       }
       
       if (hasScholarship === 'true') {
         filters.hasScholarship = true;
       }
       
+      if (maxTuition) {
+        filters.maxTuition = parseInt(maxTuition as string);
+      }
+      
       const programs = await storage.getPrograms(filters);
       
-      // The university data is already included in the programs from the join in storage.getPrograms
-      const programsWithUniversity = programs;
-      
-      res.json(programsWithUniversity);
+      res.json(programs);
     } catch (error) {
       console.error("Error fetching programs:", error);
       res.status(500).json({ error: "Failed to fetch programs" });
@@ -71,7 +78,12 @@ export function registerRoutes(app: Express): Server {
   // API endpoint to get a specific program with university details
   app.get("/api/programs/:id", async (req, res) => {
     try {
-      const programWithUniversity = await storage.getProgramById(parseInt(req.params.id));
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid program ID" });
+      }
+      
+      const programWithUniversity = await storage.getProgramById(id);
       if (!programWithUniversity) {
         return res.status(404).json({ error: "Program not found" });
       }
