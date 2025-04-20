@@ -7,14 +7,12 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import postgres from 'postgres';
-import { drizzle } from 'drizzle-orm/postgres-js';
 
 // Get current file directory
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Connect to the PostgreSQL database
 const client = postgres(process.env.DATABASE_URL);
-const db = drizzle(client);
 
 /**
  * Process and transform raw program data from the provided file format
@@ -50,16 +48,14 @@ async function processRawData() {
     }
     
     // Insert universities into database first
-    await db.execute('TRUNCATE TABLE universities CASCADE');
+    await client`TRUNCATE TABLE universities CASCADE`;
     console.log('Cleared existing universities data');
     
     // Insert universities with their IDs
     for (let i = 0; i < finalUniversities.length; i++) {
       const university = finalUniversities[i];
-      await db.execute(
-        'INSERT INTO universities (id, name, location, image_url) VALUES ($1, $2, $3, $4)',
-        [i + 1, university.name, university.location, university.imageUrl]
-      );
+      await client`INSERT INTO universities (id, name, location, image_url) 
+                  VALUES (${i + 1}, ${university.name}, ${university.location}, ${university.imageUrl})`;
     }
     console.log(`Inserted ${finalUniversities.length} universities`);
     
@@ -169,26 +165,29 @@ async function processRawData() {
     }
     
     // Insert programs into database
-    await db.execute('TRUNCATE TABLE programs CASCADE');
+    await client`TRUNCATE TABLE programs CASCADE`;
     console.log('Cleared existing programs data');
     
     for (const program of finalPrograms) {
-      await db.execute(
-        'INSERT INTO programs (id, name, university_id, tuition, duration, intake, degree, study_field, requirements, has_scholarship, image_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)',
-        [
-          program.id,
-          program.name,
-          program.universityId,
-          program.tuition,
-          program.duration,
-          program.intake,
-          program.degree,
-          program.studyField,
-          JSON.stringify(program.requirements),
-          program.hasScholarship,
-          program.imageUrl
-        ]
-      );
+      await client`
+        INSERT INTO programs (
+          id, name, university_id, tuition, duration, intake, 
+          degree, study_field, requirements, has_scholarship, image_url
+        ) 
+        VALUES (
+          ${program.id}, 
+          ${program.name}, 
+          ${program.universityId}, 
+          ${program.tuition}, 
+          ${program.duration}, 
+          ${program.intake}, 
+          ${program.degree}, 
+          ${program.studyField}, 
+          ${JSON.stringify(program.requirements)}, 
+          ${program.hasScholarship}, 
+          ${program.imageUrl}
+        )
+      `;
     }
     
     console.log(`Inserted ${finalPrograms.length} programs`);
