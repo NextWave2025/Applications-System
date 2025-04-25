@@ -323,6 +323,43 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ error: "Failed to create document" });
     }
   });
+  
+  // Upload a document directly (without application ID in path)
+  app.post("/api/documents", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const applicationId = parseInt(req.body.applicationId);
+      if (isNaN(applicationId)) {
+        return res.status(400).json({ error: "Invalid application ID in request body" });
+      }
+
+      // Check if the application belongs to the authenticated user
+      const application = await storage.getApplicationById(applicationId);
+      if (!application) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+
+      if (application.userId !== req.user.id) {
+        return res.status(403).json({ error: "Unauthorized access to this application" });
+      }
+
+      // TODO: Implement file upload handling
+      // For now, we'll just create a document record
+      const documentData = {
+        ...req.body,
+        applicationId
+      };
+
+      const document = await storage.createDocument(documentData);
+      res.status(201).json(document);
+    } catch (error) {
+      console.error("Error creating document:", error);
+      res.status(500).json({ error: "Failed to create document" });
+    }
+  });
 
   // Delete a document
   app.delete("/api/documents/:id", async (req, res) => {
