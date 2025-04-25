@@ -8,7 +8,7 @@ import { eq, and, like, inArray, sql } from "drizzle-orm";
 import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import session from "express-session";
-import connectPg from "connect-pg-simple";
+import createMemoryStore from "memorystore";
 
 // Database connection
 if (!process.env.DATABASE_URL) {
@@ -20,25 +20,8 @@ const connectionString = process.env.DATABASE_URL;
 const pgConnection = postgres(connectionString);
 const db = drizzle(pgConnection);
 
-// Create postgres session store
-const PostgresSessionStore = connectPg(session);
-
-// Create a minimal pool interface compatible with connect-pg-simple
-const pgPool = {
-  query: (text: string, params: any[]) => {
-    return {
-      then: (resolve: any, reject: any) => {
-        pgConnection.unsafe(text, params)
-          .then(resolve)
-          .catch(reject);
-      }
-    };
-  },
-  // These properties are required by connect-pg-simple but not used
-  totalCount: 0,
-  idleCount: 0,
-  waitingCount: 0
-};
+// Create a memory store for sessions
+const MemoryStore = createMemoryStore(session);
 
 // Expanded storage interface with all the needed CRUD methods
 export interface IStorage {
@@ -81,9 +64,8 @@ export class DBStorage implements IStorage {
 
   constructor(db: PostgresJsDatabase) {
     this.db = db;
-    this.sessionStore = new PostgresSessionStore({
-      pool: pgPool as any, 
-      createTableIfMissing: true,
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
     });
   }
 
