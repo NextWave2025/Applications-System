@@ -1,12 +1,15 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { ProgramWithUniversity } from "@shared/schema";
+import { useAuth } from "../hooks/use-auth";
 
 export default function ProgramDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [isSaved, setIsSaved] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
   
   // Fetch program details from the API with more stability
   const { data: program, isLoading, isError } = useQuery<ProgramWithUniversity>({
@@ -206,7 +209,18 @@ export default function ProgramDetailPage() {
                   </div>
                 )}
               </div>
-              <button className="w-full mt-6 py-3 bg-primary text-white font-medium rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+              <button 
+                onClick={() => {
+                  if (!user) {
+                    // Redirect to auth page if not authenticated
+                    navigate("/auth", { state: { redirectTo: `/apply/${id}` } });
+                  } else {
+                    // Redirect to application form if authenticated
+                    navigate(`/apply/${id}`);
+                  }
+                }}
+                className="w-full mt-6 py-3 bg-primary text-white font-medium rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              >
                 Apply Now
               </button>
             </div>
