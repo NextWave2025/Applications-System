@@ -152,6 +152,201 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Application endpoints (requires authentication)
+  // Get all applications for the authenticated user
+  app.get("/api/applications", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const applications = await storage.getApplications(req.user.id);
+      res.json(applications);
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+      res.status(500).json({ error: "Failed to fetch applications" });
+    }
+  });
+
+  // Get a specific application
+  app.get("/api/applications/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid application ID" });
+      }
+
+      const application = await storage.getApplicationById(id);
+      
+      if (!application) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+      
+      // Check if the application belongs to the authenticated user
+      if (application.userId !== req.user.id) {
+        return res.status(403).json({ error: "Unauthorized access to this application" });
+      }
+      
+      res.json(application);
+    } catch (error) {
+      console.error("Error fetching application:", error);
+      res.status(500).json({ error: "Failed to fetch application" });
+    }
+  });
+
+  // Create a new application
+  app.post("/api/applications", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      // Add the authenticated user's ID to the application data
+      const applicationData = {
+        ...req.body,
+        userId: req.user.id,
+        status: "draft" // Default status
+      };
+
+      const application = await storage.createApplication(applicationData);
+      res.status(201).json(application);
+    } catch (error) {
+      console.error("Error creating application:", error);
+      res.status(500).json({ error: "Failed to create application" });
+    }
+  });
+
+  // Update application status
+  app.patch("/api/applications/:id/status", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid application ID" });
+      }
+
+      const { status } = req.body;
+      if (!status) {
+        return res.status(400).json({ error: "Status is required" });
+      }
+
+      // Check if the application belongs to the authenticated user
+      const application = await storage.getApplicationById(id);
+      if (!application) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+
+      if (application.userId !== req.user.id) {
+        return res.status(403).json({ error: "Unauthorized access to this application" });
+      }
+
+      const updatedApplication = await storage.updateApplicationStatus(id, status);
+      res.json(updatedApplication);
+    } catch (error) {
+      console.error("Error updating application status:", error);
+      res.status(500).json({ error: "Failed to update application status" });
+    }
+  });
+
+  // Document endpoints (requires authentication)
+  // Get all documents for an application
+  app.get("/api/applications/:id/documents", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const applicationId = parseInt(req.params.id);
+      if (isNaN(applicationId)) {
+        return res.status(400).json({ error: "Invalid application ID" });
+      }
+
+      // Check if the application belongs to the authenticated user
+      const application = await storage.getApplicationById(applicationId);
+      if (!application) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+
+      if (application.userId !== req.user.id) {
+        return res.status(403).json({ error: "Unauthorized access to this application's documents" });
+      }
+
+      const documents = await storage.getDocumentsByApplicationId(applicationId);
+      res.json(documents);
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+      res.status(500).json({ error: "Failed to fetch documents" });
+    }
+  });
+
+  // Upload a document to an application
+  app.post("/api/applications/:id/documents", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const applicationId = parseInt(req.params.id);
+      if (isNaN(applicationId)) {
+        return res.status(400).json({ error: "Invalid application ID" });
+      }
+
+      // Check if the application belongs to the authenticated user
+      const application = await storage.getApplicationById(applicationId);
+      if (!application) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+
+      if (application.userId !== req.user.id) {
+        return res.status(403).json({ error: "Unauthorized access to this application" });
+      }
+
+      // TODO: Implement file upload handling
+      // For now, we'll just create a document record
+      // In a real implementation, you would use multer or another library to handle file uploads
+      const documentData = {
+        ...req.body,
+        applicationId
+      };
+
+      const document = await storage.createDocument(documentData);
+      res.status(201).json(document);
+    } catch (error) {
+      console.error("Error creating document:", error);
+      res.status(500).json({ error: "Failed to create document" });
+    }
+  });
+
+  // Delete a document
+  app.delete("/api/documents/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const documentId = parseInt(req.params.id);
+      if (isNaN(documentId)) {
+        return res.status(400).json({ error: "Invalid document ID" });
+      }
+
+      // TODO: Check if the document belongs to the authenticated user's application
+      // This would require a more complex query joining documents and applications tables
+
+      await storage.deleteDocument(documentId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      res.status(500).json({ error: "Failed to delete document" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

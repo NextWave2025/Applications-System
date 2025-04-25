@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb, timestamp, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -95,4 +95,105 @@ export type ProgramWithUniversity = Program & {
     location: string;
     imageUrl: string;
   }
+};
+
+// Application status enum
+export const applicationStatuses = [
+  "draft",
+  "submitted",
+  "under-review",
+  "approved",
+  "rejected",
+  "incomplete"
+] as const;
+
+export type ApplicationStatus = typeof applicationStatuses[number];
+
+// Applications schema
+export const applications = pgTable("applications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(), // Agent ID
+  programId: integer("program_id").notNull(),
+  
+  // Student information
+  studentFirstName: text("student_first_name").notNull(),
+  studentLastName: text("student_last_name").notNull(),
+  studentEmail: text("student_email").notNull(),
+  studentPhone: text("student_phone").notNull(),
+  studentDateOfBirth: date("student_date_of_birth").notNull(),
+  studentNationality: text("student_nationality").notNull(),
+  studentGender: text("student_gender").notNull(),
+  
+  // Academic information
+  highestQualification: text("highest_qualification").notNull(),
+  qualificationName: text("qualification_name").notNull(),
+  institutionName: text("institution_name").notNull(),
+  graduationYear: text("graduation_year").notNull(),
+  cgpa: text("cgpa"),
+  
+  // Application details
+  intakeDate: text("intake_date").notNull(),
+  notes: text("notes"),
+  status: text("status").notNull().default("draft"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertApplicationSchema = createInsertSchema(applications).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  studentEmail: z.string().email("Please enter a valid email address"),
+  studentDateOfBirth: z.coerce.date(),
+  studentGender: z.enum(["male", "female", "other", "prefer-not-to-say"]),
+});
+
+export type InsertApplication = z.infer<typeof insertApplicationSchema>;
+export type Application = typeof applications.$inferSelect;
+
+// Documents schema
+export const documents = pgTable("documents", {
+  id: serial("id").primaryKey(),
+  applicationId: integer("application_id").notNull(),
+  documentType: text("document_type").notNull(),
+  filename: text("filename").notNull(),
+  originalFilename: text("original_filename").notNull(),
+  fileSize: integer("file_size").notNull(),
+  mimeType: text("mime_type").notNull(),
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+});
+
+export const insertDocumentSchema = createInsertSchema(documents).omit({
+  id: true,
+  uploadedAt: true,
+});
+
+export type InsertDocument = z.infer<typeof insertDocumentSchema>;
+export type Document = typeof documents.$inferSelect;
+
+// Valid document types for applications
+export const documentTypes = [
+  "passport",
+  "resume",
+  "transcript",
+  "recommendation-letter",
+  "statement-of-purpose",
+  "english-proficiency",
+  "other"
+] as const;
+
+export type DocumentType = typeof documentTypes[number];
+
+// Application with related info (for queries)
+export type ApplicationWithDetails = Application & { 
+  program: {
+    name: string;
+    universityName: string;
+    universityLogo: string;
+    degree: string;
+  },
+  documents: Document[]
 };

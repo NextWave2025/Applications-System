@@ -2,7 +2,10 @@ import {
   users, type User, type InsertUser,
   programs, type Program, type InsertProgram,
   universities, type University, type InsertUniversity,
-  type ProgramWithUniversity
+  applications, type Application, type InsertApplication,
+  documents, type Document, type InsertDocument,
+  type ProgramWithUniversity,
+  type ApplicationWithDetails
 } from "@shared/schema";
 import { eq, and, like, inArray, sql } from "drizzle-orm";
 import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
@@ -39,6 +42,17 @@ export interface IStorage {
   getUniversities(): Promise<University[]>;
   getUniversityById(id: number): Promise<University | undefined>;
   createUniversity(university: InsertUniversity): Promise<University>;
+  
+  // Application methods
+  getApplications(userId: number): Promise<ApplicationWithDetails[]>;
+  getApplicationById(id: number): Promise<ApplicationWithDetails | undefined>;
+  createApplication(application: InsertApplication): Promise<Application>;
+  updateApplicationStatus(id: number, status: string): Promise<Application>;
+  
+  // Document methods
+  getDocumentsByApplicationId(applicationId: number): Promise<Document[]>;
+  createDocument(document: InsertDocument): Promise<Document>;
+  deleteDocument(id: number): Promise<void>;
 
   // Utility methods
   clearAll(): Promise<void>;
@@ -226,9 +240,99 @@ export class DBStorage implements IStorage {
     const result = await this.db.insert(universities).values(insertUniversity).returning();
     return result[0];
   }
+  
+  // Application methods
+  async getApplications(userId: number): Promise<ApplicationWithDetails[]> {
+    const applicationResults = await this.db.select().from(applications)
+      .where(eq(applications.userId, userId));
+      
+    // Fetch program details and documents for each application
+    const applicationsWithDetails = await Promise.all(
+      applicationResults.map(async (application) => {
+        // Get program details with university info
+        const program = await this.getProgramById(application.programId);
+        
+        // Get documents for this application
+        const docs = await this.getDocumentsByApplicationId(application.id);
+        
+        return {
+          ...application,
+          program: {
+            name: program?.name || "",
+            universityName: program?.university.name || "",
+            universityLogo: program?.university.imageUrl || "",
+            degree: program?.degree || ""
+          },
+          documents: docs
+        };
+      })
+    );
+    
+    return applicationsWithDetails;
+  }
+  
+  async getApplicationById(id: number): Promise<ApplicationWithDetails | undefined> {
+    const result = await this.db.select().from(applications).where(eq(applications.id, id));
+    
+    if (!result.length) {
+      return undefined;
+    }
+    
+    const application = result[0];
+    
+    // Get program details with university info
+    const program = await this.getProgramById(application.programId);
+    
+    // Get documents for this application
+    const docs = await this.getDocumentsByApplicationId(application.id);
+    
+    return {
+      ...application,
+      program: {
+        name: program?.name || "",
+        universityName: program?.university.name || "",
+        universityLogo: program?.university.imageUrl || "",
+        degree: program?.degree || ""
+      },
+      documents: docs
+    };
+  }
+  
+  async createApplication(insertApplication: InsertApplication): Promise<Application> {
+    const result = await this.db.insert(applications).values(insertApplication).returning();
+    return result[0];
+  }
+  
+  async updateApplicationStatus(id: number, status: string): Promise<Application> {
+    const result = await this.db.update(applications)
+      .set({ 
+        status, 
+        updatedAt: new Date() 
+      })
+      .where(eq(applications.id, id))
+      .returning();
+    return result[0];
+  }
+  
+  // Document methods
+  async getDocumentsByApplicationId(applicationId: number): Promise<Document[]> {
+    return await this.db.select().from(documents)
+      .where(eq(documents.applicationId, applicationId));
+  }
+  
+  async createDocument(insertDocument: InsertDocument): Promise<Document> {
+    const result = await this.db.insert(documents).values(insertDocument).returning();
+    return result[0];
+  }
+  
+  async deleteDocument(id: number): Promise<void> {
+    await this.db.delete(documents).where(eq(documents.id, id));
+  }
 
   // Utility methods
   async clearAll(): Promise<void> {
+    await this.db.delete(documents);
+    await this.db.delete(applications);
     await this.db.delete(programs);
     await this.db.delete(universities);
   }
