@@ -1,8 +1,42 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  // Fetch current user data
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["/api/user"],
+    retry: false,
+  });
+
+  // Handle clicking outside the profile dropdown to close it
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileRef]);
+
+  // Function to handle logout
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/logout", { method: "POST" });
+      window.location.href = "/"; // Fully reload to clear all React Query cache
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <header className="bg-white border-b border-gray-200">
@@ -39,20 +73,78 @@ export default function Header() {
               </Link>
             </nav>
           </div>
+          
+          {/* Desktop navigation - changes based on auth status */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link
-              to="/login"
-              className="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium"
-            >
-              Login
-            </Link>
-            <Link
-              to="/signup"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90"
-            >
-              Sign Up
-            </Link>
+            {!isLoading && user ? (
+              <div className="relative" ref={profileRef}>
+                <button
+                  type="button"
+                  className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                >
+                  <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center uppercase font-semibold">
+                    {user.username?.charAt(0) || 'A'}
+                  </div>
+                  <span>{user.agencyName || user.username}</span>
+                  <svg
+                    className="h-5 w-5 text-gray-400"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+                {isProfileOpen && (
+                  <div className="absolute right-0 w-48 mt-2 py-2 bg-white rounded-md shadow-lg z-10">
+                    <Link
+                      to="/dashboard"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsProfileOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsProfileOpen(false)}
+                    >
+                      Profile Settings
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link
+                  to="/auth"
+                  className="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/auth"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
+          
+          {/* Mobile menu button */}
           <div className="flex md:hidden">
             <button
               type="button"
@@ -132,23 +224,65 @@ export default function Header() {
               Contact
             </Link>
           </div>
+          
+          {/* Mobile auth menu - changes based on auth status */}
           <div className="pt-4 pb-3 border-t border-gray-200">
-            <div className="px-2 space-y-1">
-              <Link
-                to="/login"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Sign Up
-              </Link>
-            </div>
+            {!isLoading && user ? (
+              <div>
+                <div className="flex items-center px-4 py-2">
+                  <div className="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center uppercase font-semibold mr-3">
+                    {user.username?.charAt(0) || 'A'}
+                  </div>
+                  <div>
+                    <div className="text-base font-medium text-gray-800">
+                      {user.agencyName || user.username}
+                    </div>
+                    <div className="text-sm font-medium text-gray-500">
+                      {user.username}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 px-2 space-y-1">
+                  <Link
+                    to="/dashboard"
+                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    to="/profile"
+                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Profile Settings
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="px-2 space-y-1">
+                <Link
+                  to="/auth"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/auth"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}
