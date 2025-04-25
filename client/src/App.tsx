@@ -7,6 +7,7 @@ import { Toaster } from "./components/ui/toaster";
 import LandingPage from "./pages/landing-page";
 import ProgramsPage from "./pages/programs-page";
 import ProgramDetailPage from "./pages/program-detail-page";
+import ApplicationFormPage from "./pages/application-form-page";
 import AuthPage from "./pages/auth-page";
 import DashboardPage from "./pages/dashboard-page";
 import SettingsPage from "./pages/settings-page";
@@ -104,6 +105,18 @@ export default function App() {
               }
             />
 
+            {/* Application form route */}
+            <Route
+              path="/apply/:id"
+              element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <ApplicationFormPage />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+            
             {/* 404 route */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

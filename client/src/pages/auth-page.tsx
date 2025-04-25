@@ -30,16 +30,20 @@ export default function AuthPage() {
   const [signupError, setSignupError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if there's a redirect URL from a program application
+  const redirectTo = location.state?.redirectTo || "/dashboard";
   
   // Use auth context
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
   
-  // Redirect to dashboard if already logged in
+  // Redirect if already logged in
   useEffect(() => {
     if (!isLoading && user) {
-      navigate("/dashboard");
+      navigate(redirectTo);
     }
-  }, [user, isLoading, navigate]);
+  }, [user, isLoading, navigate, redirectTo]);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -68,8 +72,8 @@ export default function AuthPage() {
     
     try {
       await loginMutation.mutateAsync(data);
-      // After successful login, manually navigate to dashboard
-      navigate("/dashboard");
+      // After successful login, navigate to the redirect URL or dashboard
+      navigate(redirectTo);
     } catch (error: any) {
       console.error("Login error:", error);
       setLoginError(error.message || "Login failed. Please try again.");
@@ -87,8 +91,8 @@ export default function AuthPage() {
         ...data,
         role: "agent", // Set the role to agent
       });
-      // After successful registration, manually navigate to dashboard
-      navigate("/dashboard");
+      // After successful registration, navigate to the redirect URL or dashboard
+      navigate(redirectTo);
     } catch (error: any) {
       console.error("Registration error:", error);
       setSignupError(error.message || "Registration failed. Please try again.");
