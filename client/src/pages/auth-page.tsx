@@ -74,14 +74,35 @@ export default function AuthPage() {
         body: JSON.stringify(data),
       });
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Login failed");
-      }
+      // Try to parse the response as JSON, but handle non-JSON responses too
+      let errorMessage = "Login failed";
       
-      // Login successful, navigate to dashboard
-      navigate("/dashboard");
+      if (!response.ok) {
+        try {
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            errorMessage = errorData.error || "Login failed";
+          } else {
+            // Not JSON, just get the text
+            const text = await response.text();
+            console.error("Non-JSON error response:", text);
+            errorMessage = `Login failed (${response.status})`;
+          }
+          throw new Error(errorMessage);
+        } catch (jsonError) {
+          console.error("Error parsing response:", jsonError);
+          throw new Error(errorMessage);
+        }
+      } else {
+        // Login successful
+        const userData = await response.json();
+        console.log("Login successful:", userData);
+        // Login successful, navigate to dashboard
+        navigate("/dashboard");
+      }
     } catch (error: any) {
+      console.error("Login error:", error);
       setLoginError(error.message || "Login failed. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -104,14 +125,35 @@ export default function AuthPage() {
         }),
       });
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Registration failed");
-      }
+      // Try to parse the response as JSON, but handle non-JSON responses too
+      let errorMessage = "Registration failed";
       
-      // Registration successful, navigate to dashboard
-      navigate("/dashboard");
+      if (!response.ok) {
+        try {
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            errorMessage = errorData.error || "Registration failed";
+          } else {
+            // Not JSON, just get the text
+            const text = await response.text();
+            console.error("Non-JSON error response for registration:", text);
+            errorMessage = `Registration failed (${response.status})`;
+          }
+          throw new Error(errorMessage);
+        } catch (jsonError) {
+          console.error("Error parsing registration response:", jsonError);
+          throw new Error(errorMessage);
+        }
+      } else {
+        // Registration successful
+        const userData = await response.json();
+        console.log("Registration successful:", userData);
+        // Registration successful, navigate to dashboard
+        navigate("/dashboard");
+      }
     } catch (error: any) {
+      console.error("Registration error:", error);
       setSignupError(error.message || "Registration failed. Please try again.");
     } finally {
       setIsSubmitting(false);
