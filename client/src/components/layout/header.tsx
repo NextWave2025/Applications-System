@@ -10,7 +10,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           <div className="flex">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="text-xl font-bold text-primary">Polymet</span>
+              <span className="text-xl font-bold text-primary">Guide</span>
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
               <Link

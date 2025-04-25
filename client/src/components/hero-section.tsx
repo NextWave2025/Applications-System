@@ -23,13 +23,13 @@ export default function HeroSection() {
       <div className="container mx-auto px-6 lg:px-8 relative z-10">
         <div className="max-w-2xl py-12">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-            The #1 Platform for Admission in UAE
+            Guide: The #1 Platform for Admission in UAE
           </h1>
           <div className="h-1 w-24 bg-white mb-6"></div>
           <p className="text-lg text-white/90 mb-8">
             Guide helps education agents connect international students with premier UAE 
             universities. Maximize your commissions while providing students with life-
-            changing opportunities.
+            changing opportunities through our expert platform.
           </p>
           <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-8">
             <Link

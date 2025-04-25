@@ -64,7 +64,7 @@ export default function AgentFeaturesSection() {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">🎯 What You Get as Our Partner</h2>
           <p className="text-gray-600 max-w-3xl mx-auto">
-            Join the #1 platform for admission in UAE and enjoy these exclusive benefits
+            Join Guide, the #1 platform for admission in UAE and enjoy these exclusive benefits
           </p>
         </div>
 

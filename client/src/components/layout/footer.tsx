@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 pt-16 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4">Polymet</h3>
+            <h3 className="text-xl font-bold mb-4">Guide</h3>
             <p className="text-gray-400 mb-4">
               Connecting students with the best educational opportunities in the UAE.
             </p>
@@ -148,7 +148,7 @@ export default function Footer() {
                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                   />
                 </svg>
-                <span>info@polymet.ae</span>
+                <span>info@guide.ae</span>
               </li>
               <li className="flex items-start">
                 <svg
@@ -171,7 +171,7 @@ export default function Footer() {
         </div>
         <div className="border-t border-gray-800 mt-12 pt-8">
           <p className="text-gray-400 text-sm text-center">
-            &copy; {new Date().getFullYear()} Polymet. All rights reserved.
+            &copy; {new Date().getFullYear()} Guide. All rights reserved.
           </p>
         </div>
       </div>
