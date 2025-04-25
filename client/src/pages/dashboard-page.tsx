@@ -1,22 +1,34 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { ApplicationWithDetails, ApplicationStatus } from "@shared/schema";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   
   // Fetch current user data
-  const { data: user, isLoading, error } = useQuery({
+  const { data: user, isLoading: isLoadingUser, error: userError } = useQuery({
     queryKey: ["/api/user"],
     retry: false,
   });
 
+  // Fetch user's applications
+  const { data: applications, isLoading: isLoadingApplications } = useQuery<ApplicationWithDetails[]>({
+    queryKey: ["/api/applications"],
+    enabled: !!user, // Only fetch if user is logged in
+    retry: 1,
+  });
+  
+  // Determine overall loading state
+  const isLoading = isLoadingUser || isLoadingApplications;
+
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isLoadingUser && !user) {
       navigate("/auth");
     }
-  }, [isLoading, user, navigate]);
+  }, [isLoadingUser, user, navigate]);
 
   // Show loading state
   if (isLoading) {
@@ -28,7 +40,7 @@ export default function DashboardPage() {
   }
 
   // If there's an error or no user (and not currently redirecting), show error
-  if (error || !user) {
+  if (userError || !user) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">Authentication Required</h1>
@@ -43,6 +55,35 @@ export default function DashboardPage() {
     );
   }
 
+  // Calculate active applications (not in completed states)
+  const activeApplicationsCount = applications?.filter(app => 
+    !["approved", "rejected", "completed"].includes(app.status)
+  ).length || 0;
+  
+  // Calculate completed applications
+  const completedApplicationsCount = applications?.filter(app => 
+    ["approved", "rejected", "completed"].includes(app.status)
+  ).length || 0;
+
+  // Get recent applications, sorted by creation date
+  const recentApplications = applications ? 
+    [...applications].sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    ).slice(0, 5) : [];
+
+  // Helper function to get status badge color
+  const getStatusColor = (status: string) => {
+    switch(status) {
+      case "draft": return "bg-gray-200 text-gray-800";
+      case "submitted": return "bg-blue-200 text-blue-800";
+      case "under-review": return "bg-yellow-200 text-yellow-800";
+      case "approved": return "bg-green-200 text-green-800";
+      case "rejected": return "bg-red-200 text-red-800";
+      case "incomplete": return "bg-orange-200 text-orange-800";
+      default: return "bg-gray-200 text-gray-800";
+    }
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="container mx-auto px-4 py-8">
@@ -55,20 +96,65 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="text-3xl font-bold text-primary mb-2">0</div>
+            <div className="text-3xl font-bold text-primary mb-2">{activeApplicationsCount}</div>
             <div className="text-lg font-medium text-gray-800">Active Applications</div>
+            <div className="mt-2">
+              <button 
+                onClick={() => navigate("/dashboard/applications")}
+                className="text-sm text-primary hover:underline"
+              >
+                View all applications
+              </button>
+            </div>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="text-3xl font-bold text-primary mb-2">0</div>
+            <div className="text-3xl font-bold text-primary mb-2">{completedApplicationsCount}</div>
             <div className="text-lg font-medium text-gray-800">Completed Applications</div>
+            <div className="mt-2">
+              <button 
+                onClick={() => navigate("/dashboard/applications")}
+                className="text-sm text-primary hover:underline"
+              >
+                View completed applications
+              </button>
+            </div>
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Recent Activity</h2>
-          <div className="text-gray-600 italic">
-            No recent activity to display. Start by browsing programs and submitting applications.
-          </div>
+          {recentApplications.length > 0 ? (
+            <div className="space-y-4">
+              {recentApplications.map((app) => (
+                <div key={app.id} className="border-b border-gray-100 pb-4">
+                  <div className="flex justify-between mb-1">
+                    <div className="font-medium text-gray-800">{app.program.name}</div>
+                    <div className={`text-xs px-2.5 py-0.5 rounded-full ${getStatusColor(app.status)}`}>
+                      {app.status.replace('-', ' ')}
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {app.studentFirstName} {app.studentLastName} • {app.program.universityName}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    Submitted on {format(new Date(app.createdAt), "MMM d, yyyy")}
+                  </div>
+                </div>
+              ))}
+              <div className="pt-2">
+                <button 
+                  onClick={() => navigate("/dashboard/applications")}
+                  className="text-sm text-primary hover:underline"
+                >
+                  View all applications
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-gray-600 italic">
+              No recent activity to display. Start by browsing programs and submitting applications.
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">

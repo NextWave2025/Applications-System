@@ -3,23 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../hooks/use-auth";
 import { formatDistanceToNow } from "date-fns";
-
-// Define application status types
-type ApplicationStatus = "draft" | "submitted" | "under-review" | "approved" | "rejected" | "incomplete";
-
-// Define application interface
-interface Application {
-  id: number;
-  programId: number;
-  programName: string;
-  universityName: string;
-  universityLogo?: string;
-  studentFirstName: string;
-  studentLastName: string;
-  status: ApplicationStatus;
-  createdAt: string;
-  updatedAt: string;
-}
+import { ApplicationWithDetails, ApplicationStatus } from "@shared/schema";
 
 export default function ApplicationsPage() {
   const navigate = useNavigate();
@@ -27,7 +11,7 @@ export default function ApplicationsPage() {
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
 
   // Fetch applications
-  const { data: applications, isLoading, isError } = useQuery<Application[]>({
+  const { data: applications, isLoading, isError } = useQuery<ApplicationWithDetails[]>({
     queryKey: ["/api/applications"],
     staleTime: 60000, // 1 minute
     retry: 3,
@@ -187,20 +171,20 @@ export default function ApplicationsPage() {
                 <tr key={application.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      {application.universityLogo ? (
+                      {application.program?.university?.imageUrl ? (
                         <img 
-                          src={application.universityLogo} 
-                          alt={application.universityName} 
+                          src={application.program.university.imageUrl} 
+                          alt={application.program.university.name} 
                           className="h-10 w-10 mr-3 object-contain"
                         />
                       ) : (
                         <div className="h-10 w-10 bg-gray-200 rounded-full mr-3 flex items-center justify-center text-gray-500">
-                          {application.universityName?.charAt(0) || "U"}
+                          {application.program?.university?.name?.charAt(0) || "U"}
                         </div>
                       )}
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{application.programName}</div>
-                        <div className="text-sm text-gray-500">{application.universityName}</div>
+                        <div className="text-sm font-medium text-gray-900">{application.program?.name}</div>
+                        <div className="text-sm text-gray-500">{application.program?.university?.name}</div>
                       </div>
                     </div>
                   </td>
