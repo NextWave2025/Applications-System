@@ -17,6 +17,7 @@ const applicationSchema = z.object({
   studentPhone: z.string().min(1, "Student phone number is required"),
   studentNationality: z.string().min(1, "Student nationality is required"),
   studentDateOfBirth: z.string().min(1, "Student date of birth is required"),
+  studentGender: z.string().min(1, "Student gender is required"),
   educationLevel: z.string().min(1, "Current education level is required"),
   preferredIntake: z.string().min(1, "Preferred intake is required"),
   englishProficiency: z.string().min(1, "English proficiency is required"),
@@ -52,6 +53,7 @@ export default function ApplicationFormPage() {
       studentPhone: "",
       studentNationality: "",
       studentDateOfBirth: "",
+      studentGender: "",
       educationLevel: "",
       preferredIntake: program?.intake ? program.intake[0] : "",
       englishProficiency: "",
@@ -350,7 +352,7 @@ export default function ApplicationFormPage() {
                 </div>
 
                 {/* Personal details */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <label htmlFor="studentNationality" className="block text-sm font-medium text-gray-700 mb-1">
                       Nationality
@@ -381,6 +383,27 @@ export default function ApplicationFormPage() {
                     {form.formState.errors.studentDateOfBirth && (
                       <p className="mt-1 text-sm text-red-600">
                         {form.formState.errors.studentDateOfBirth.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor="studentGender" className="block text-sm font-medium text-gray-700 mb-1">
+                      Gender
+                    </label>
+                    <select
+                      id="studentGender"
+                      {...form.register("studentGender")}
+                      className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
+                    >
+                      <option value="">Select gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                      <option value="prefer-not-to-say">Prefer not to say</option>
+                    </select>
+                    {form.formState.errors.studentGender && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {form.formState.errors.studentGender.message}
                       </p>
                     )}
                   </div>
