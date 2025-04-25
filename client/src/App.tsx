@@ -7,8 +7,7 @@ import { Toaster } from "./components/ui/toaster";
 import LandingPage from "./pages/landing-page";
 import ProgramsPage from "./pages/programs-page";
 import ProgramDetailPage from "./pages/program-detail-page";
-import LoginPage from "./pages/login-page";
-import SignupPage from "./pages/signup-page";
+import AuthPage from "./pages/auth-page";
 import DashboardPage from "./pages/dashboard-page";
 import NotFoundPage from "./pages/not-found";
 
@@ -33,19 +32,10 @@ export default function App() {
             />
 
             <Route
-              path="/login"
+              path="/auth"
               element={
                 <MainLayout>
-                  <LoginPage />
-                </MainLayout>
-              }
-            />
-
-            <Route
-              path="/signup"
-              element={
-                <MainLayout>
-                  <SignupPage />
+                  <AuthPage />
                 </MainLayout>
               }
             />

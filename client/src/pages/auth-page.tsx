@@ -81,7 +81,7 @@ export default function AuthPage() {
       
       // Login successful, navigate to dashboard
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       setLoginError(error.message || "Login failed. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -111,7 +111,7 @@ export default function AuthPage() {
       
       // Registration successful, navigate to dashboard
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       setSignupError(error.message || "Registration failed. Please try again.");
     } finally {
       setIsSubmitting(false);

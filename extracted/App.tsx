@@ -5,6 +5,7 @@ import MainLayout from "@/polymet/layouts/main-layout";
 import DashboardPage from "@/polymet/pages/dashboard-page";
 import LandingPage from "@/polymet/pages/landing-page";
 import LoginPage from "@/polymet/pages/login-page";
+import AuthPage from "@/polymet/pages/auth-page";
 import ProgramDetailPage from "@/polymet/pages/program-detail-page";
 import ProgramsPage from "@/polymet/pages/programs-page";
 import SignupPage from "@/polymet/pages/signup-page";
@@ -23,11 +24,20 @@ export default function MainPrototype() {
           }
         />
 
-        <Route
+        {/* <Route
           path="/login"
           element={
             <MainLayout>
               <LoginPage />
+            </MainLayout>
+          }
+        /> */}
+
+        <Route
+          path="/auth"
+          element={
+            <MainLayout>
+              <AuthPage />
             </MainLayout>
           }
         />
