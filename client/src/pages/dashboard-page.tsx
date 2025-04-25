@@ -49,11 +49,11 @@ export default function DashboardPage() {
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">Welcome, {user.agencyName || user.username}</h1>
           <p className="text-gray-600">
-            This is your agent dashboard where you can manage your applications, student profiles, and university partnerships.
+            This is your agent dashboard where you can manage your applications, explore programs, and update your profile.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-3xl font-bold text-primary mb-2">0</div>
             <div className="text-lg font-medium text-gray-800">Active Applications</div>
@@ -61,10 +61,6 @@ export default function DashboardPage() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-3xl font-bold text-primary mb-2">0</div>
             <div className="text-lg font-medium text-gray-800">Completed Applications</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="text-3xl font-bold text-primary mb-2">0</div>
-            <div className="text-lg font-medium text-gray-800">Students</div>
           </div>
         </div>
 
@@ -79,7 +75,7 @@ export default function DashboardPage() {
           <h2 className="text-xl font-bold text-gray-800 mb-4">Get Started</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div 
-              className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+              className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer flex flex-col h-full"
               onClick={() => navigate("/programs")}
             >
               <h3 className="font-semibold text-gray-800 mb-2">Browse Programs</h3>
@@ -88,7 +84,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <div 
-              className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+              className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer flex flex-col h-full"
               onClick={() => navigate("/dashboard/settings")}
             >
               <h3 className="font-semibold text-gray-800 mb-2">Complete Your Profile</h3>

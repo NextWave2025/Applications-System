@@ -58,9 +58,9 @@ export default function SettingsPage() {
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
-          <div className="w-full md:w-1/4">
+          <div className="w-full lg:w-1/4">
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-xl font-bold">
@@ -73,11 +73,11 @@ export default function SettingsPage() {
               </div>
 
               <nav>
-                <ul className="space-y-1">
-                  <li>
+                <ul className="flex flex-row lg:flex-col space-x-2 lg:space-x-0 lg:space-y-1 overflow-x-auto pb-2 lg:pb-0">
+                  <li className="flex-shrink-0">
                     <button
                       onClick={() => setActiveTab("profile")}
-                      className={`w-full text-left px-4 py-2 rounded-md ${
+                      className={`w-full text-left px-4 py-2 rounded-md whitespace-nowrap ${
                         activeTab === "profile"
                           ? "bg-primary text-white"
                           : "text-gray-700 hover:bg-gray-100"
@@ -86,10 +86,10 @@ export default function SettingsPage() {
                       Profile Information
                     </button>
                   </li>
-                  <li>
+                  <li className="flex-shrink-0">
                     <button
                       onClick={() => setActiveTab("security")}
-                      className={`w-full text-left px-4 py-2 rounded-md ${
+                      className={`w-full text-left px-4 py-2 rounded-md whitespace-nowrap ${
                         activeTab === "security"
                           ? "bg-primary text-white"
                           : "text-gray-700 hover:bg-gray-100"
@@ -98,10 +98,10 @@ export default function SettingsPage() {
                       Security
                     </button>
                   </li>
-                  <li>
+                  <li className="flex-shrink-0">
                     <button
                       onClick={() => setActiveTab("notifications")}
-                      className={`w-full text-left px-4 py-2 rounded-md ${
+                      className={`w-full text-left px-4 py-2 rounded-md whitespace-nowrap ${
                         activeTab === "notifications"
                           ? "bg-primary text-white"
                           : "text-gray-700 hover:bg-gray-100"
@@ -116,7 +116,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Main content */}
-          <div className="w-full md:w-3/4">
+          <div className="w-full lg:w-3/4">
             <div className="bg-white rounded-lg shadow-md p-6">
               {activeTab === "profile" && (
                 <div>
