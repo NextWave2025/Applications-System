@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../hooks/use-auth";
 
 // Define auth form schemas
 const loginSchema = z.object({
@@ -31,11 +31,8 @@ export default function AuthPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   
-  // Check if user is already logged in
-  const { data: user, isLoading } = useQuery({
-    queryKey: ["/api/user"],
-    retry: false,
-  });
+  // Use auth context
+  const { user, isLoading, loginMutation, registerMutation } = useAuth();
   
   // Redirect to dashboard if already logged in
   useEffect(() => {
@@ -70,41 +67,9 @@ export default function AuthPage() {
     setLoginError("");
     
     try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      
-      // Try to parse the response as JSON, but handle non-JSON responses too
-      let errorMessage = "Login failed";
-      
-      if (!response.ok) {
-        try {
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
-            const errorData = await response.json();
-            errorMessage = errorData.error || "Login failed";
-          } else {
-            // Not JSON, just get the text
-            const text = await response.text();
-            console.error("Non-JSON error response:", text);
-            errorMessage = `Login failed (${response.status})`;
-          }
-          throw new Error(errorMessage);
-        } catch (jsonError) {
-          console.error("Error parsing response:", jsonError);
-          throw new Error(errorMessage);
-        }
-      } else {
-        // Login successful
-        const userData = await response.json();
-        console.log("Login successful:", userData);
-        // Login successful, navigate to dashboard
-        navigate("/dashboard");
-      }
+      await loginMutation.mutateAsync(data);
+      // After successful login, manually navigate to dashboard
+      navigate("/dashboard");
     } catch (error: any) {
       console.error("Login error:", error);
       setLoginError(error.message || "Login failed. Please try again.");
@@ -118,44 +83,12 @@ export default function AuthPage() {
     setSignupError("");
     
     try {
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...data,
-          role: "agent", // Set the role to agent
-        }),
+      await registerMutation.mutateAsync({
+        ...data,
+        role: "agent", // Set the role to agent
       });
-      
-      // Try to parse the response as JSON, but handle non-JSON responses too
-      let errorMessage = "Registration failed";
-      
-      if (!response.ok) {
-        try {
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
-            const errorData = await response.json();
-            errorMessage = errorData.error || "Registration failed";
-          } else {
-            // Not JSON, just get the text
-            const text = await response.text();
-            console.error("Non-JSON error response for registration:", text);
-            errorMessage = `Registration failed (${response.status})`;
-          }
-          throw new Error(errorMessage);
-        } catch (jsonError) {
-          console.error("Error parsing registration response:", jsonError);
-          throw new Error(errorMessage);
-        }
-      } else {
-        // Registration successful
-        const userData = await response.json();
-        console.log("Registration successful:", userData);
-        // Registration successful, navigate to dashboard
-        navigate("/dashboard");
-      }
+      // After successful registration, manually navigate to dashboard
+      navigate("/dashboard");
     } catch (error: any) {
       console.error("Registration error:", error);
       setSignupError(error.message || "Registration failed. Please try again.");
