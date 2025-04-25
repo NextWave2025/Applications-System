@@ -319,6 +319,44 @@ export default function AuthPage() {
                 )}
               </div>
               
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="first-name" className="block text-sm font-medium text-gray-700 mb-1">
+                    First Name
+                  </label>
+                  <input
+                    id="first-name"
+                    type="text"
+                    {...signupForm.register("firstName")}
+                    className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
+                    placeholder="First Name"
+                  />
+                  {signupForm.formState.errors.firstName && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {signupForm.formState.errors.firstName.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="last-name" className="block text-sm font-medium text-gray-700 mb-1">
+                    Last Name
+                  </label>
+                  <input
+                    id="last-name"
+                    type="text"
+                    {...signupForm.register("lastName")}
+                    className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
+                    placeholder="Last Name"
+                  />
+                  {signupForm.formState.errors.lastName && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {signupForm.formState.errors.lastName.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
               <div>
                 <label htmlFor="agency-name" className="block text-sm font-medium text-gray-700 mb-1">
                   Agency Name

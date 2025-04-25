@@ -53,18 +53,18 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-3xl font-bold text-primary mb-2">0</div>
             <div className="text-lg font-medium text-gray-800">Active Applications</div>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-3xl font-bold text-primary mb-2">0</div>
-            <div className="text-lg font-medium text-gray-800">Partner Universities</div>
+            <div className="text-lg font-medium text-gray-800">Completed Applications</div>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-3xl font-bold text-primary mb-2">0</div>
-            <div className="text-lg font-medium text-gray-800">Pending Commission</div>
+            <div className="text-lg font-medium text-gray-800">Students</div>
           </div>
         </div>
 
@@ -87,7 +87,10 @@ export default function DashboardPage() {
                 Explore over 900 programs from top UAE universities.
               </p>
             </div>
-            <div className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
+            <div 
+              className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+              onClick={() => navigate("/dashboard/settings")}
+            >
               <h3 className="font-semibold text-gray-800 mb-2">Complete Your Profile</h3>
               <p className="text-gray-600 text-sm">
                 Add your agency details to enhance your partnership opportunities.

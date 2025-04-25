@@ -9,6 +9,7 @@ import ProgramsPage from "./pages/programs-page";
 import ProgramDetailPage from "./pages/program-detail-page";
 import AuthPage from "./pages/auth-page";
 import DashboardPage from "./pages/dashboard-page";
+import SettingsPage from "./pages/settings-page";
 import NotFoundPage from "./pages/not-found";
 
 import MainLayout from "./layouts/main-layout";
@@ -93,11 +94,11 @@ export default function App() {
             />
 
             <Route
-              path="/dashboard/commissions"
+              path="/dashboard/settings"
               element={
                 <ProtectedRoute>
                   <DashboardLayout>
-                    <div className="p-4">Commissions Page (Coming Soon)</div>
+                    <SettingsPage />
                   </DashboardLayout>
                 </ProtectedRoute>
               }
