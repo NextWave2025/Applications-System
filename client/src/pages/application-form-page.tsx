@@ -18,9 +18,16 @@ const applicationSchema = z.object({
   studentNationality: z.string().min(1, "Student nationality is required"),
   studentDateOfBirth: z.string().min(1, "Student date of birth is required"),
   studentGender: z.string().min(1, "Student gender is required"),
-  educationLevel: z.string().min(1, "Current education level is required"),
-  preferredIntake: z.string().min(1, "Preferred intake is required"),
-  englishProficiency: z.string().min(1, "English proficiency is required"),
+  
+  // Educational background (matches database schema)
+  highestQualification: z.string().min(1, "Highest qualification is required"),
+  qualificationName: z.string().min(1, "Name of degree/qualification is required"),
+  institutionName: z.string().min(1, "Institution name is required"),
+  graduationYear: z.string().min(1, "Graduation year is required"),
+  cgpa: z.string().optional(),
+  
+  // Application details
+  intakeDate: z.string().min(1, "Intake date is required"),
   notes: z.string().optional(),
 });
 
@@ -54,9 +61,16 @@ export default function ApplicationFormPage() {
       studentNationality: "",
       studentDateOfBirth: "",
       studentGender: "",
-      educationLevel: "",
-      preferredIntake: program?.intake ? program.intake[0] : "",
-      englishProficiency: "",
+      
+      // Educational background
+      highestQualification: "",
+      qualificationName: "",
+      institutionName: "",
+      graduationYear: "",
+      cgpa: "",
+      
+      // Application details
+      intakeDate: program?.intake ? program.intake[0] : "",
       notes: "",
     },
   });
@@ -64,7 +78,7 @@ export default function ApplicationFormPage() {
   // Update form value when program data is loaded
   useEffect(() => {
     if (program && program.intake && program.intake.length > 0) {
-      form.setValue("preferredIntake", program.intake[0]);
+      form.setValue("intakeDate", program.intake[0]);
     }
   }, [program, form]);
 
@@ -409,14 +423,22 @@ export default function ApplicationFormPage() {
                   </div>
                 </div>
 
-                {/* Education details */}
+                {/* Education details heading */}
+                <div className="pt-6 pb-2">
+                  <h3 className="text-lg font-medium text-gray-900">Educational Background</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Please provide information about the student's educational history.
+                  </p>
+                </div>
+
+                {/* Highest qualification */}
                 <div>
-                  <label htmlFor="educationLevel" className="block text-sm font-medium text-gray-700 mb-1">
-                    Current Education Level
+                  <label htmlFor="highestQualification" className="block text-sm font-medium text-gray-700 mb-1">
+                    Highest Qualification
                   </label>
                   <select
-                    id="educationLevel"
-                    {...form.register("educationLevel")}
+                    id="highestQualification"
+                    {...form.register("highestQualification")}
                     className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
                   >
                     <option value="">Select an option</option>
@@ -427,21 +449,105 @@ export default function ApplicationFormPage() {
                     <option value="Diploma">Diploma</option>
                     <option value="Other">Other</option>
                   </select>
-                  {form.formState.errors.educationLevel && (
+                  {form.formState.errors.highestQualification && (
                     <p className="mt-1 text-sm text-red-600">
-                      {form.formState.errors.educationLevel.message}
+                      {form.formState.errors.highestQualification.message}
                     </p>
                   )}
                 </div>
 
-                {/* Intake preferences */}
+                {/* Qualification name and institution */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="qualificationName" className="block text-sm font-medium text-gray-700 mb-1">
+                      Name of Degree/Qualification
+                    </label>
+                    <input
+                      id="qualificationName"
+                      type="text"
+                      {...form.register("qualificationName")}
+                      className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
+                      placeholder="e.g., Bachelor of Science in Computer Science"
+                    />
+                    {form.formState.errors.qualificationName && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {form.formState.errors.qualificationName.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor="institutionName" className="block text-sm font-medium text-gray-700 mb-1">
+                      Institution Name
+                    </label>
+                    <input
+                      id="institutionName"
+                      type="text"
+                      {...form.register("institutionName")}
+                      className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
+                      placeholder="Name of school or university"
+                    />
+                    {form.formState.errors.institutionName && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {form.formState.errors.institutionName.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Graduation year and CGPA */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="graduationYear" className="block text-sm font-medium text-gray-700 mb-1">
+                      Graduation Year
+                    </label>
+                    <input
+                      id="graduationYear"
+                      type="text"
+                      {...form.register("graduationYear")}
+                      className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
+                      placeholder="e.g., 2022"
+                    />
+                    {form.formState.errors.graduationYear && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {form.formState.errors.graduationYear.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor="cgpa" className="block text-sm font-medium text-gray-700 mb-1">
+                      CGPA/Grade (Optional)
+                    </label>
+                    <input
+                      id="cgpa"
+                      type="text"
+                      {...form.register("cgpa")}
+                      className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
+                      placeholder="e.g., 3.8/4.0 or 85%"
+                    />
+                    {form.formState.errors.cgpa && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {form.formState.errors.cgpa.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Application details heading */}
+                <div className="pt-6 pb-2">
+                  <h3 className="text-lg font-medium text-gray-900">Application Preferences</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Please specify your intake preferences.
+                  </p>
+                </div>
+
+                {/* Intake date */}
                 <div>
-                  <label htmlFor="preferredIntake" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="intakeDate" className="block text-sm font-medium text-gray-700 mb-1">
                     Preferred Intake
                   </label>
                   <select
-                    id="preferredIntake"
-                    {...form.register("preferredIntake")}
+                    id="intakeDate"
+                    {...form.register("intakeDate")}
                     className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
                   >
                     <option value="">Select an option</option>
@@ -456,33 +562,9 @@ export default function ApplicationFormPage() {
                       )
                     }
                   </select>
-                  {form.formState.errors.preferredIntake && (
+                  {form.formState.errors.intakeDate && (
                     <p className="mt-1 text-sm text-red-600">
-                      {form.formState.errors.preferredIntake.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* English proficiency */}
-                <div>
-                  <label htmlFor="englishProficiency" className="block text-sm font-medium text-gray-700 mb-1">
-                    English Proficiency
-                  </label>
-                  <select
-                    id="englishProficiency"
-                    {...form.register("englishProficiency")}
-                    className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
-                  >
-                    <option value="">Select an option</option>
-                    <option value="IELTS">IELTS</option>
-                    <option value="TOEFL">TOEFL</option>
-                    <option value="Duolingo">Duolingo</option>
-                    <option value="Native">Native English Speaker</option>
-                    <option value="None">No English Test</option>
-                  </select>
-                  {form.formState.errors.englishProficiency && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {form.formState.errors.englishProficiency.message}
+                      {form.formState.errors.intakeDate.message}
                     </p>
                   )}
                 </div>
