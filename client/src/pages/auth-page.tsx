@@ -14,6 +14,8 @@ const loginSchema = z.object({
 const signupSchema = z.object({
   username: z.string().email("Please enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
   agencyName: z.string().min(1, "Agency name is required"),
   country: z.string().min(1, "Country is required"),
   phoneNumber: z.string().min(1, "Phone number is required"),
@@ -55,6 +57,8 @@ export default function AuthPage() {
     defaultValues: {
       username: "",
       password: "",
+      firstName: "",
+      lastName: "",
       agencyName: "",
       country: "",
       phoneNumber: "",
