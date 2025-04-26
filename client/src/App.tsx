@@ -8,6 +8,7 @@ import LandingPage from "./pages/landing-page";
 import ProgramsPage from "./pages/programs-page";
 import ProgramDetailPage from "./pages/program-detail-page";
 import ApplicationFormPage from "./pages/application-form-page";
+import ApplicationEditPage from "./pages/application-edit-page";
 import ApplicationsPage from "./pages/applications-page";
 import AuthPage from "./pages/auth-page";
 import DashboardPage from "./pages/dashboard-page";
@@ -114,6 +115,18 @@ export default function App() {
                   <MainLayout>
                     <ApplicationFormPage />
                   </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Application edit route */}
+            <Route
+              path="/dashboard/applications/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <ApplicationEditPage />
+                  </DashboardLayout>
                 </ProtectedRoute>
               }
             />

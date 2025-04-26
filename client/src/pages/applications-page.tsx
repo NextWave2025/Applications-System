@@ -204,14 +204,12 @@ export default function ApplicationsPage() {
                     >
                       View
                     </button>
-                    {application.status === "draft" && (
-                      <button
-                        onClick={() => navigate(`/dashboard/applications/${application.id}/edit`)}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        Edit
-                      </button>
-                    )}
+                    <button
+                      onClick={() => navigate(`/dashboard/applications/${application.id}/edit`)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      Edit
+                    </button>
                   </td>
                 </tr>
               ))}
