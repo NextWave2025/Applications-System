@@ -48,6 +48,7 @@ export interface IStorage {
   getApplicationById(id: number): Promise<ApplicationWithDetails | undefined>;
   createApplication(application: InsertApplication): Promise<Application>;
   updateApplicationStatus(id: number, status: string): Promise<Application>;
+  updateApplication(id: number, application: Partial<Application>): Promise<Application>;
   
   // Document methods
   getDocumentsByApplicationId(applicationId: number): Promise<Document[]>;
@@ -311,6 +312,20 @@ export class DBStorage implements IStorage {
       })
       .where(eq(applications.id, id))
       .returning();
+    return result[0];
+  }
+  
+  async updateApplication(id: number, applicationData: Partial<Application>): Promise<Application> {
+    // Ensure we have an updated timestamp
+    if (!applicationData.updatedAt) {
+      applicationData.updatedAt = new Date();
+    }
+    
+    const result = await this.db.update(applications)
+      .set(applicationData)
+      .where(eq(applications.id, id))
+      .returning();
+    
     return result[0];
   }
   

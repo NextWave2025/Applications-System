@@ -254,6 +254,53 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ error: "Failed to update application status" });
     }
   });
+  
+  // Update full application
+  app.put("/api/applications/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid application ID" });
+      }
+
+      // Check if the application belongs to the authenticated user
+      const application = await storage.getApplicationById(id);
+      if (!application) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+
+      if (application.userId !== req.user.id) {
+        return res.status(403).json({ error: "Unauthorized access to this application" });
+      }
+
+      // Update the application
+      const updatedData = {
+        ...req.body,
+        updatedAt: new Date(),
+      };
+      
+      // Ensure we don't modify userId or programId
+      delete updatedData.id;
+      delete updatedData.userId;
+      delete updatedData.programId;
+      delete updatedData.createdAt;
+      
+      // If studentDateOfBirth is provided as string, convert to Date
+      if (updatedData.studentDateOfBirth && typeof updatedData.studentDateOfBirth === 'string') {
+        updatedData.studentDateOfBirth = new Date(updatedData.studentDateOfBirth);
+      }
+
+      const updatedApplication = await storage.updateApplication(id, updatedData);
+      res.json(updatedApplication);
+    } catch (error) {
+      console.error("Error updating application:", error);
+      res.status(500).json({ error: "Failed to update application: " + error.message });
+    }
+  });
 
   // Document endpoints (requires authentication)
   // Get all documents for an application
