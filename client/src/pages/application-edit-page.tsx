@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -42,7 +42,8 @@ export default function ApplicationEditPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
-
+  const [manuallyFetchedApplication, setManuallyFetchedApplication] = useState<ApplicationWithDetails | null>(null);
+  
   // Fetch application details
   const { data: application, isLoading: applicationLoading, error: applicationError } = useQuery<ApplicationWithDetails>({
     queryKey: [`/api/applications/${id}`],
@@ -50,6 +51,30 @@ export default function ApplicationEditPage() {
     staleTime: 30000, // Cache for 30 seconds
     retry: 3, // Retry 3 times
   });
+  
+  // Manually fetch application for reliability
+  useEffect(() => {
+    if (id && user) {
+      console.log("Manually fetching application with ID:", id);
+      fetch(`/api/applications/${id}`, {
+        credentials: 'include'
+      })
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`Failed to fetch application: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          console.log("Manually fetched application:", data);
+          setManuallyFetchedApplication(data);
+          queryClient.setQueryData([`/api/applications/${id}`], data);
+        })
+        .catch(err => {
+          console.error("Error manually fetching application:", err);
+        });
+    }
+  }, [id, user, queryClient]);
 
   // Initialize form
   const form = useForm<ApplicationFormData>({
@@ -246,8 +271,8 @@ export default function ApplicationEditPage() {
     );
   }
 
-  // If application not found
-  if (applicationError || !application) {
+  // If application not found from both react-query and manual fetch
+  if ((applicationError || !application) && !manuallyFetchedApplication) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Application Not Found</h1>
@@ -261,6 +286,9 @@ export default function ApplicationEditPage() {
       </div>
     );
   }
+  
+  // Use manually fetched application as fallback if react-query failed
+  const applicationData = application || manuallyFetchedApplication;
 
   return (
     <div className="bg-gray-50 py-12">
@@ -294,7 +322,7 @@ export default function ApplicationEditPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Edit Application</h1>
           <p className="mt-2 text-gray-600">
-            {application.program?.name} - {application.program?.universityName}
+            {applicationData?.program?.name} - {applicationData?.program?.universityName}
           </p>
         </div>
 
