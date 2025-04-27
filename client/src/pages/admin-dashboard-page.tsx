@@ -7,8 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Loader2, Users, FileText, AlertTriangle, CheckCircle, 
-  Clock, School, Search, Calendar, Filter, RefreshCw,
-  Info, AlertCircle
+  Clock, School, Search, Calendar, Filter, RefreshCw
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { Input } from "@/components/ui/input";
@@ -18,10 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import StatusChangeDialog from "@/components/status-change-dialog";
 
 interface AdminStats {
   totalApplications: number;
@@ -261,8 +257,6 @@ function AuditLogsTable() {
 }
 
 function ApplicationsManagementTable() {
-  const { toast } = useToast();
-  const { user } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -271,12 +265,6 @@ function ApplicationsManagementTable() {
   // Status change dialog state
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
-  const [newStatus, setNewStatus] = useState("");
-  const [statusNotes, setStatusNotes] = useState("");
-  const [rejectionReason, setRejectionReason] = useState("");
-  const [conditionalOfferTerms, setConditionalOfferTerms] = useState("");
-  const [paymentConfirmation, setPaymentConfirmation] = useState(false);
-  const [statusDialogLoading, setStatusDialogLoading] = useState(false);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -339,62 +327,16 @@ function ApplicationsManagementTable() {
 
   const openChangeStatusDialog = (application: Application) => {
     setSelectedApplication(application);
-    setNewStatus(application.status);
-    setStatusNotes("");
-    setRejectionReason("");
-    setConditionalOfferTerms("");
-    setPaymentConfirmation(false);
     setStatusDialogOpen(true);
   };
   
-  const updateApplicationStatus = async () => {
-    if (!selectedApplication || !newStatus) return;
-    
+  const refreshApplications = async () => {
     try {
-      setStatusDialogLoading(true);
-      
-      // Prepare the request body based on the selected status
-      const requestBody: any = {
-        status: newStatus,
-        notes: statusNotes
-      };
-      
-      // Add conditional fields based on status
-      if (newStatus === "rejected") {
-        requestBody.rejectionReason = rejectionReason;
-      } else if (newStatus === "accepted-conditional-offer") {
-        requestBody.conditionalOfferTerms = conditionalOfferTerms;
-      } else if (newStatus === "payment-clearing") {
-        requestBody.paymentConfirmation = paymentConfirmation;
-      }
-      
-      // Make the API request
-      await apiRequest("PATCH", `/api/admin/applications/${selectedApplication.id}/status`, requestBody);
-      
-      // Show success toast
-      toast({
-        title: "Status updated successfully",
-        description: `Application status changed to ${newStatus.replace('-', ' ')}`,
-      });
-      
-      // Close the dialog
-      setStatusDialogOpen(false);
-      
-      // Refresh the applications list
       const response = await apiRequest("GET", "/api/admin/applications");
       const data = await response.json();
       setApplications(data);
     } catch (err) {
-      console.error("Error updating application status:", err);
-      
-      // Show error toast
-      toast({
-        title: "Failed to update status",
-        description: err instanceof Error ? err.message : "An unknown error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setStatusDialogLoading(false);
+      console.error("Error refreshing applications:", err);
     }
   };
 
@@ -521,6 +463,14 @@ function ApplicationsManagementTable() {
           </table>
         </div>
       )}
+      
+      {/* Status Change Dialog */}
+      <StatusChangeDialog
+        open={statusDialogOpen}
+        onOpenChange={setStatusDialogOpen}
+        application={selectedApplication}
+        onStatusChanged={refreshApplications}
+      />
     </div>
   );
 }

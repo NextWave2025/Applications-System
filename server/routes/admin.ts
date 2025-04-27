@@ -270,20 +270,23 @@ router.get("/applications/:id/status-history", async (req, res) => {
     const statusHistory = application.statusHistory || [];
     
     // If we need to include user details, we can enhance the response here
-    const historyWithUserDetails = await Promise.all(
-      statusHistory.map(async (entry: any) => {
-        const user = await storage.getUserById(entry.userId);
-        return {
-          ...entry,
-          userDetails: user ? {
-            username: user.username,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            role: user.role
-          } : undefined
-        };
-      })
-    );
+    let historyWithUserDetails = [];
+    if (Array.isArray(statusHistory)) {
+      historyWithUserDetails = await Promise.all(
+        statusHistory.map(async (entry: any) => {
+          const user = await storage.getUserById(entry.userId);
+          return {
+            ...entry,
+            userDetails: user ? {
+              username: user.username,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              role: user.role
+            } : undefined
+          };
+        })
+      );
+    }
     
     res.json(historyWithUserDetails);
   } catch (error) {
