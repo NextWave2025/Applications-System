@@ -3,10 +3,21 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { scrapeData } from "./scraper";
 import { setupAuth } from "./auth";
+import multer from "multer";
+import path from "path";
 
 export function registerRoutes(app: Express): Server {
   // sets up /api/register, /api/login, /api/logout, /api/user
   setupAuth(app);
+  
+  // Configure multer for file uploads
+  const multerStorage = multer.memoryStorage(); // Use memory storage for simplicity
+  const upload = multer({ 
+    storage: multerStorage,
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB file size limit
+    }
+  });
 
   // API endpoint to get universities
   app.get("/api/universities", async (req, res) => {
@@ -394,29 +405,45 @@ export function registerRoutes(app: Express): Server {
         return res.status(401).json({ error: "Authentication required" });
       }
 
-      const applicationId = parseInt(req.body.applicationId);
+      console.log("Document upload request body:", req.body);
+      
+      // When using FormData, req.body.applicationId might be a string
+      const applicationIdRaw = req.body.applicationId;
+      console.log("Application ID (raw):", applicationIdRaw);
+      
+      const applicationId = parseInt(applicationIdRaw);
+      console.log("Application ID (parsed):", applicationId);
+      
       if (isNaN(applicationId)) {
-        return res.status(400).json({ error: "Invalid application ID in request body" });
+        return res.status(400).json({ 
+          error: "Invalid application ID in request body",
+          received: applicationIdRaw,
+          parsed: applicationId
+        });
       }
 
       // Check if the application belongs to the authenticated user
       const application = await storage.getApplicationById(applicationId);
+      console.log("Found application:", application ? "Yes" : "No");
+      
       if (!application) {
-        return res.status(404).json({ error: "Application not found" });
+        return res.status(404).json({ error: "Application not found", applicationId });
       }
 
       if (application.userId !== req.user.id) {
         return res.status(403).json({ error: "Unauthorized access to this application" });
       }
 
-      // TODO: Implement file upload handling
-      // For now, we'll just create a document record
+      // Create document record with application ID
       const documentData = {
         ...req.body,
         applicationId
       };
-
+      
+      console.log("Creating document with data:", documentData);
       const document = await storage.createDocument(documentData);
+      console.log("Document created:", document);
+      
       res.status(201).json(document);
     } catch (error) {
       console.error("Error creating document:", error);
