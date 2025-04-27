@@ -76,7 +76,7 @@ interface AuditLog {
 function AuditLogsTable() {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string | null>(null);
+  const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState<Record<number, User>>({});
 
@@ -150,14 +150,14 @@ function AuditLogsTable() {
           </div>
         </div>
         <Select
-          value={filter || ""}
-          onValueChange={(value) => setFilter(value || null)}
+          value={filter}
+          onValueChange={(value) => setFilter(value)}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Types</SelectItem>
+            <SelectItem value="all">All Types</SelectItem>
             <SelectItem value="user">User</SelectItem>
             <SelectItem value="application">Application</SelectItem>
           </SelectContent>
@@ -166,7 +166,7 @@ function AuditLogsTable() {
           variant="outline" 
           size="icon"
           onClick={() => {
-            setFilter(null);
+            setFilter("all");
             setSearchQuery("");
           }}
         >
@@ -239,7 +239,7 @@ function AuditLogsTable() {
 function ApplicationsManagementTable() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -263,7 +263,7 @@ function ApplicationsManagementTable() {
 
   const filteredApplications = applications.filter(app => {
     // Status filter
-    if (statusFilter && app.status !== statusFilter) {
+    if (statusFilter !== "all" && app.status !== statusFilter) {
       return false;
     }
     
@@ -331,14 +331,14 @@ function ApplicationsManagementTable() {
           </div>
         </div>
         <Select
-          value={statusFilter || ""}
-          onValueChange={(value) => setStatusFilter(value || null)}
+          value={statusFilter}
+          onValueChange={(value) => setStatusFilter(value)}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Statuses</SelectItem>
+            <SelectItem value="all">All Statuses</SelectItem>
             <SelectItem value="draft">Draft</SelectItem>
             <SelectItem value="submitted">Submitted</SelectItem>
             <SelectItem value="under-review">Under Review</SelectItem>
@@ -351,7 +351,7 @@ function ApplicationsManagementTable() {
           variant="outline" 
           size="icon"
           onClick={() => {
-            setStatusFilter(null);
+            setStatusFilter("all");
             setSearchQuery("");
           }}
         >
