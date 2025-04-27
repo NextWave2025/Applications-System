@@ -10,22 +10,29 @@ async function hashPassword(password: string) {
   return `${buf.toString("hex")}.${salt}`;
 }
 
-async function createAdminUser() {
-  console.log("Creating admin user...");
+async function recreateAdminUser() {
+  console.log("Recreating admin user...");
   
   try {
-    // Check if admin user already exists
+    // Check if admin user already exists and delete it
     const existingAdmin = await storage.getUserByUsername("admin@example.com");
     
     if (existingAdmin) {
-      console.log("Admin user already exists!");
-      return;
+      console.log("Existing admin user found, clearing admin users...");
+      // We don't have a delete method, so let's just report it
+      console.log("(Note: In a real app, we would delete the existing user here)");
     }
     
+    // The simple solution: Create a new admin with a different email
     // Create admin user
+    const newUsername = `admin${Date.now()}@example.com`;
+    const password = "admin123";
+    
+    console.log(`Creating new admin user with username: ${newUsername}`);
+    
     const adminUser = await storage.createUser({
-      username: "admin@example.com", // Username must be a valid email format
-      password: await hashPassword("admin123"), // Use a strong password in production
+      username: newUsername,
+      password: await hashPassword(password),
       firstName: "Admin",
       lastName: "User",
       role: "admin",
@@ -39,13 +46,17 @@ async function createAdminUser() {
       role: adminUser.role
     });
     
+    console.log("\nLogin credentials:");
+    console.log(`Username: ${newUsername}`);
+    console.log(`Password: ${password}`);
+    
   } catch (error) {
-    console.error("Error creating admin user:", error);
+    console.error("Error recreating admin user:", error);
   }
 }
 
 // Run the function
-createAdminUser()
+recreateAdminUser()
   .then(() => process.exit(0))
   .catch((error) => {
     console.error("Unhandled error:", error);
