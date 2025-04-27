@@ -29,7 +29,9 @@ export function requireAdminOrResourceOwner(resourceIdField: string) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const resourceId = req.params[resourceIdField];
+    const resourceIdParam = req.params[resourceIdField];
+    // Try to convert to number if possible
+    const resourceId = resourceIdParam ? parseInt(resourceIdParam) : undefined;
     
     // If user is admin, allow access
     if (req.user?.role === 'admin') {
@@ -39,7 +41,12 @@ export function requireAdminOrResourceOwner(resourceIdField: string) {
     // If user is the owner of the resource, allow access
     // The specific check will depend on the resource
     const userId = req.user?.id;
-    if (req.body.userId === userId || req.query.userId === userId) {
+    
+    // Check if the user ID matches in the body or query params
+    const bodyUserId = typeof req.body.userId === 'number' ? req.body.userId : undefined;
+    const queryUserId = req.query.userId ? parseInt(req.query.userId as string) : undefined;
+    
+    if (bodyUserId === userId || queryUserId === userId) {
       return next();
     }
     

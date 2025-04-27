@@ -11,6 +11,9 @@ export function registerRoutes(app: Express): Server {
   // sets up /api/register, /api/login, /api/logout, /api/user
   setupAuth(app);
   
+  // Mount admin routes
+  app.use('/api/admin', adminRouter);
+  
   // Configure multer for file uploads
   const multerStorage = multer.memoryStorage(); // Use memory storage for simplicity
   const upload = multer({ 
