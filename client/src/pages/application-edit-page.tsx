@@ -274,8 +274,12 @@ export default function ApplicationEditPage() {
     );
   }
 
-  // If application not found from both react-query and manual fetch
-  if ((applicationError || !application) && !manuallyFetchedApplication) {
+  // Only show the "Application Not Found" message if we've tried both fetch methods and got no data
+  // This prevents the flash of "Application Not Found" message when using manual fetch as a fallback
+  const isFetchingComplete = !applicationLoading && (applicationError || application !== undefined);
+  const isManualFetchComplete = manuallyFetchedApplication !== null;
+  
+  if ((isFetchingComplete || isManualFetchComplete) && !application && !manuallyFetchedApplication) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Application Not Found</h1>
@@ -286,6 +290,15 @@ export default function ApplicationEditPage() {
         >
           Back to Applications
         </button>
+      </div>
+    );
+  }
+  
+  // Show loading state if we're still fetching application data
+  if (!applicationData && (applicationLoading || manuallyFetchedApplication === null)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -855,7 +868,9 @@ export default function ApplicationEditPage() {
                         ${applicationData?.status === "draft" ? "bg-gray-100 text-gray-800" : ""}
                         ${applicationData?.status === "incomplete" ? "bg-yellow-100 text-yellow-800" : ""}
                       `}>
-                        {applicationData?.status?.charAt(0).toUpperCase() + applicationData?.status?.slice(1).replace("-", " ")}
+                        {applicationData?.status 
+                          ? applicationData.status.charAt(0).toUpperCase() + applicationData.status.slice(1).replace("-", " ") 
+                          : "Unknown"}
                       </span>
                     </div>
                   </div>

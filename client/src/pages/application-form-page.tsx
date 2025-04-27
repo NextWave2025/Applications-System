@@ -156,7 +156,11 @@ export default function ApplicationFormPage() {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("applicationId", applicationId.toString());
-        formData.append("type", getDocumentType(file.name));
+        formData.append("documentType", getDocumentType(file.name));
+        formData.append("filename", file.name);
+        formData.append("originalFilename", file.name);
+        formData.append("fileSize", file.size.toString());
+        formData.append("mimeType", file.type);
 
         await fetch("/api/documents", {
           method: "POST",
