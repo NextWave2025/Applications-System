@@ -102,34 +102,37 @@ export default function ApplicationEditPage() {
     },
   });
 
+  // Use manually fetched application as fallback if react-query failed
+  const applicationData = application || manuallyFetchedApplication;
+  
   // Update form values when application data is loaded
   useEffect(() => {
-    if (application) {
+    if (applicationData) {
       // Format date from ISO string to YYYY-MM-DD
-      const dob = new Date(application.studentDateOfBirth);
+      const dob = new Date(applicationData.studentDateOfBirth);
       const formattedDob = dob.toISOString().split('T')[0];
       
       form.reset({
-        studentFirstName: application.studentFirstName,
-        studentLastName: application.studentLastName,
-        studentEmail: application.studentEmail,
-        studentPhone: application.studentPhone,
-        studentNationality: application.studentNationality,
+        studentFirstName: applicationData.studentFirstName,
+        studentLastName: applicationData.studentLastName,
+        studentEmail: applicationData.studentEmail,
+        studentPhone: applicationData.studentPhone,
+        studentNationality: applicationData.studentNationality,
         studentDateOfBirth: formattedDob,
-        studentGender: application.studentGender,
+        studentGender: applicationData.studentGender,
         
-        highestQualification: application.highestQualification,
-        qualificationName: application.qualificationName,
-        institutionName: application.institutionName,
-        graduationYear: application.graduationYear,
-        cgpa: application.cgpa || "",
+        highestQualification: applicationData.highestQualification,
+        qualificationName: applicationData.qualificationName,
+        institutionName: applicationData.institutionName,
+        graduationYear: applicationData.graduationYear,
+        cgpa: applicationData.cgpa || "",
         
-        intakeDate: application.intakeDate,
-        notes: application.notes || "",
-        status: application.status,
+        intakeDate: applicationData.intakeDate,
+        notes: applicationData.notes || "",
+        status: applicationData.status,
       });
     }
-  }, [application, form]);
+  }, [application, manuallyFetchedApplication, form]);
 
   // If not authenticated, redirect to login
   useEffect(() => {
@@ -286,9 +289,6 @@ export default function ApplicationEditPage() {
       </div>
     );
   }
-  
-  // Use manually fetched application as fallback if react-query failed
-  const applicationData = application || manuallyFetchedApplication;
 
   return (
     <div className="bg-gray-50 py-12">
@@ -730,11 +730,11 @@ export default function ApplicationEditPage() {
                   )}
 
                   {/* Existing documents list */}
-                  {application.documents && application.documents.length > 0 && (
+                  {applicationData?.documents && applicationData.documents.length > 0 && (
                     <div className="mt-4">
                       <h4 className="text-sm font-medium text-gray-700">Current Documents</h4>
                       <ul className="mt-2 divide-y divide-gray-200 border rounded-md">
-                        {application.documents.map((doc) => (
+                        {applicationData.documents.map((doc) => (
                           <li key={doc.id} className="flex items-center justify-between py-3 px-4">
                             <div className="flex items-center">
                               <svg
@@ -816,59 +816,59 @@ export default function ApplicationEditPage() {
               </div>
               <div className="p-6">
                 <div className="flex items-center mb-4">
-                  {application.program?.universityLogo ? (
+                  {applicationData?.program?.universityLogo ? (
                     <img
-                      src={application.program.universityLogo}
-                      alt={application.program.universityName}
+                      src={applicationData.program.universityLogo}
+                      alt={applicationData.program.universityName}
                       className="h-16 w-16 object-contain rounded-md mr-3"
                     />
                   ) : (
                     <div className="h-16 w-16 bg-gray-200 rounded-md flex items-center justify-center mr-3">
                       <span className="text-gray-500 text-xl font-medium">
-                        {application.program?.universityName?.charAt(0) || "U"}
+                        {applicationData?.program?.universityName?.charAt(0) || "U"}
                       </span>
                     </div>
                   )}
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900">{application.program?.universityName}</h3>
+                    <h3 className="text-lg font-medium text-gray-900">{applicationData?.program?.universityName}</h3>
                   </div>
                 </div>
 
                 <div className="mt-6 space-y-4">
                   <div>
                     <h4 className="text-sm font-medium text-gray-700">Program</h4>
-                    <p className="mt-1">{application.program?.name}</p>
+                    <p className="mt-1">{applicationData?.program?.name}</p>
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-gray-700">Degree Level</h4>
-                    <p className="mt-1">{application.program?.degree}</p>
+                    <p className="mt-1">{applicationData?.program?.degree}</p>
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-gray-700">Application Status</h4>
                     <div className="mt-1">
                       <span className={`
                         inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                        ${application.status === "approved" ? "bg-green-100 text-green-800" : ""}
-                        ${application.status === "rejected" ? "bg-red-100 text-red-800" : ""}
-                        ${application.status === "under-review" ? "bg-blue-100 text-blue-800" : ""}
-                        ${application.status === "submitted" ? "bg-purple-100 text-purple-800" : ""}
-                        ${application.status === "draft" ? "bg-gray-100 text-gray-800" : ""}
-                        ${application.status === "incomplete" ? "bg-yellow-100 text-yellow-800" : ""}
+                        ${applicationData?.status === "approved" ? "bg-green-100 text-green-800" : ""}
+                        ${applicationData?.status === "rejected" ? "bg-red-100 text-red-800" : ""}
+                        ${applicationData?.status === "under-review" ? "bg-blue-100 text-blue-800" : ""}
+                        ${applicationData?.status === "submitted" ? "bg-purple-100 text-purple-800" : ""}
+                        ${applicationData?.status === "draft" ? "bg-gray-100 text-gray-800" : ""}
+                        ${applicationData?.status === "incomplete" ? "bg-yellow-100 text-yellow-800" : ""}
                       `}>
-                        {application.status.charAt(0).toUpperCase() + application.status.slice(1).replace("-", " ")}
+                        {applicationData?.status?.charAt(0).toUpperCase() + applicationData?.status?.slice(1).replace("-", " ")}
                       </span>
                     </div>
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-gray-700">Submission Date</h4>
                     <p className="mt-1">
-                      {new Date(application.createdAt).toLocaleDateString()} 
+                      {applicationData?.createdAt ? new Date(applicationData.createdAt).toLocaleDateString() : ''} 
                     </p>
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-gray-700">Last Updated</h4>
                     <p className="mt-1">
-                      {new Date(application.updatedAt).toLocaleDateString()} 
+                      {applicationData?.updatedAt ? new Date(applicationData.updatedAt).toLocaleDateString() : ''} 
                     </p>
                   </div>
                 </div>
