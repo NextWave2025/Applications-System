@@ -206,7 +206,11 @@ export type ApplicationWithDetails = Application & {
     universityLogo: string;
     degree: string;
   },
-  documents: Document[]
+  documents: Document[],
+  agent?: {
+    name: string;
+    agencyName: string;
+  }
 };
 
 // Audit logs for admin actions

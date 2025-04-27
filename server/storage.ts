@@ -45,6 +45,7 @@ export interface IStorage {
   
   // Application methods
   getApplications(userId: number): Promise<ApplicationWithDetails[]>;
+  getAllApplications(filters?: ApplicationFilters): Promise<ApplicationWithDetails[]>; // For admin use
   getApplicationById(id: number): Promise<ApplicationWithDetails | undefined>;
   createApplication(application: InsertApplication): Promise<Application>;
   updateApplicationStatus(id: number, status: string): Promise<Application>;
@@ -71,6 +72,13 @@ export interface ProgramFilters {
   maxTuition?: number;
   duration?: string[];
   hasScholarship?: boolean;
+  search?: string;
+}
+
+// Filters for application queries (admin use)
+export interface ApplicationFilters {
+  status?: string;
+  userId?: number;
   search?: string;
 }
 
@@ -272,6 +280,80 @@ export class DBStorage implements IStorage {
     );
     
     return applicationsWithDetails;
+  }
+  
+  async getAllApplications(filters?: ApplicationFilters): Promise<ApplicationWithDetails[]> {
+    try {
+      // Build the base query
+      let query = this.db.select().from(applications);
+      
+      // Apply filters if provided
+      if (filters) {
+        const conditions = [];
+        
+        // Status filter
+        if (filters.status) {
+          conditions.push(eq(applications.status, filters.status));
+        }
+        
+        // User ID filter
+        if (filters.userId) {
+          conditions.push(eq(applications.userId, filters.userId));
+        }
+        
+        // Search filter (search in student names and emails)
+        if (filters.search) {
+          const searchTerm = `%${filters.search.toLowerCase()}%`;
+          conditions.push(
+            sql`(LOWER(${applications.studentFirstName}) LIKE ${searchTerm} OR 
+                 LOWER(${applications.studentLastName}) LIKE ${searchTerm} OR 
+                 LOWER(${applications.studentEmail}) LIKE ${searchTerm})`
+          );
+        }
+        
+        // Apply all conditions
+        if (conditions.length > 0) {
+          query = query.where(and(...conditions));
+        }
+      }
+      
+      // Sort by most recently updated
+      const applicationResults = await query.orderBy(sql`${applications.updatedAt} DESC`);
+      
+      // Fetch program details, user info, and documents for each application
+      const applicationsWithDetails = await Promise.all(
+        applicationResults.map(async (application) => {
+          // Get program details with university info
+          const program = await this.getProgramById(application.programId);
+          
+          // Get user (agent) details
+          const user = await this.getUser(application.userId);
+          
+          // Get documents for this application
+          const docs = await this.getDocumentsByApplicationId(application.id);
+          
+          return {
+            ...application,
+            program: {
+              name: program?.name || "",
+              universityName: program?.university.name || "",
+              universityLogo: program?.university.imageUrl || "",
+              degree: program?.degree || ""
+            },
+            agent: {
+              name: user ? `${user.firstName} ${user.lastName}` : "",
+              agencyName: user?.agencyName || ""
+            },
+            documents: docs
+          };
+        })
+      );
+      
+      return applicationsWithDetails;
+    } catch (error) {
+      console.error("Error in getAllApplications:", error);
+      throw error;
+    }
   }
   
   async getApplicationById(id: number): Promise<ApplicationWithDetails | undefined> {

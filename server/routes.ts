@@ -5,6 +5,7 @@ import { scrapeData } from "./scraper";
 import { setupAuth } from "./auth";
 import multer from "multer";
 import path from "path";
+import adminRouter from "./routes/admin";
 
 export function registerRoutes(app: Express): Server {
   // sets up /api/register, /api/login, /api/logout, /api/user
