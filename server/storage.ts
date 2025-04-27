@@ -480,13 +480,13 @@ export class DBStorage implements IStorage {
       .orderBy(sql`${auditLogs.createdAt} DESC`);
   }
 
-  async getAuditLogsByTarget(targetId: number, targetType: string): Promise<AuditLog[]> {
+  async getAuditLogsByTarget(resourceId: number, resourceType: string): Promise<AuditLog[]> {
     return await this.db.select()
       .from(auditLogs)
       .where(
         and(
-          eq(auditLogs.targetId, targetId),
-          eq(auditLogs.targetType, targetType)
+          eq(auditLogs.resourceId, resourceId),
+          eq(auditLogs.resourceType, resourceType)
         )
       )
       .orderBy(sql`${auditLogs.createdAt} DESC`);

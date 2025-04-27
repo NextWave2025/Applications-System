@@ -239,6 +239,19 @@ export default function AdminDashboardPage() {
                                 variant="outline" 
                                 size="sm"
                                 disabled={user.role === 'admin'}
+                                onClick={async () => {
+                                  try {
+                                    await apiRequest("PATCH", `/api/admin/users/${user.id}/status`, {
+                                      active: !user.active
+                                    });
+                                    // Refresh the user list
+                                    const response = await apiRequest("GET", "/api/admin/users");
+                                    const data = await response.json();
+                                    setUsers(data);
+                                  } catch (err) {
+                                    console.error("Error toggling user status:", err);
+                                  }
+                                }}
                               >
                                 {user.active ? 'Deactivate' : 'Activate'}
                               </Button>

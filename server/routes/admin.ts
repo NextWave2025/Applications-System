@@ -82,9 +82,9 @@ router.patch("/users/:id/status", async (req, res) => {
     await storage.createAuditLog({
       userId: req.user.id,
       action: active ? "activate_user" : "deactivate_user",
-      targetId: userId,
-      targetType: "user",
-      details: `${active ? "Activated" : "Deactivated"} user ${user.username}`
+      resourceType: "user",
+      resourceId: userId,
+      newData: { active, username: user.username }
     });
     
     res.json(updatedUser);
@@ -122,9 +122,10 @@ router.patch("/applications/:id/status", async (req, res) => {
     await storage.createAuditLog({
       userId: req.user.id,
       action: "update_application_status",
-      targetId: applicationId,
-      targetType: "application",
-      details: `Updated application status from ${application.status} to ${status}`
+      resourceType: "application",
+      resourceId: applicationId,
+      previousData: { status: application.status },
+      newData: { status }
     });
     
     res.json(updatedApplication);
