@@ -163,6 +163,7 @@ export const documents = pgTable("documents", {
   originalFilename: text("original_filename").notNull(),
   fileSize: integer("file_size").notNull(),
   mimeType: text("mime_type").notNull(),
+  fileData: text("file_data"), // Base64 encoded file data
   uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
 });
 

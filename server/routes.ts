@@ -361,11 +361,14 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Upload a document to an application
-  app.post("/api/applications/:id/documents", async (req, res) => {
+  app.post("/api/applications/:id/documents", upload.single('file'), async (req, res) => {
     try {
       if (!req.isAuthenticated()) {
         return res.status(401).json({ error: "Authentication required" });
       }
+
+      console.log("Document upload request for application, body:", req.body);
+      console.log("Uploaded file:", req.file);
 
       const applicationId = parseInt(req.params.id);
       if (isNaN(applicationId)) {
@@ -382,14 +385,30 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ error: "Unauthorized access to this application" });
       }
 
-      // TODO: Implement file upload handling
-      // For now, we'll just create a document record
-      // In a real implementation, you would use multer or another library to handle file uploads
+      // Get document type and other metadata from the form data
+      const { type, documentType, name, description } = req.body;
+      
+      // Use either type or documentType (handle both field name patterns)
+      const finalDocumentType = type || documentType || 'other';
+      
+      // Create document record with application ID and file data
       const documentData = {
-        ...req.body,
-        applicationId
+        applicationId,
+        type: finalDocumentType,
+        name: name || (req.file ? req.file.originalname : 'Untitled Document'),
+        description: description || '',
+        // If there's a file, save its buffer as base64
+        fileData: req.file ? req.file.buffer.toString('base64') : null,
+        mimeType: req.file ? req.file.mimetype : null,
+        fileName: req.file ? req.file.originalname : null,
+        size: req.file ? req.file.size : 0
       };
-
+      
+      console.log("Creating document for application with data:", {
+        ...documentData,
+        fileData: documentData.fileData ? `[Base64 encoded data - ${documentData.size} bytes]` : null
+      });
+      
       const document = await storage.createDocument(documentData);
       res.status(201).json(document);
     } catch (error) {
@@ -399,13 +418,14 @@ export function registerRoutes(app: Express): Server {
   });
   
   // Upload a document directly (without application ID in path)
-  app.post("/api/documents", async (req, res) => {
+  app.post("/api/documents", upload.single('file'), async (req, res) => {
     try {
       if (!req.isAuthenticated()) {
         return res.status(401).json({ error: "Authentication required" });
       }
 
       console.log("Document upload request body:", req.body);
+      console.log("Uploaded file:", req.file);
       
       // When using FormData, req.body.applicationId might be a string
       const applicationIdRaw = req.body.applicationId;
@@ -434,15 +454,35 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ error: "Unauthorized access to this application" });
       }
 
-      // Create document record with application ID
+      // Get document type and other metadata from the form data
+      const { type, documentType, name, description } = req.body;
+      
+      // Use either type or documentType (handle both field name patterns)
+      const finalDocumentType = type || documentType || 'other';
+      
+      // Create document record with application ID and file data
       const documentData = {
-        ...req.body,
-        applicationId
+        applicationId,
+        type: finalDocumentType,
+        name: name || (req.file ? req.file.originalname : 'Untitled Document'),
+        description: description || '',
+        // If there's a file, save its buffer as base64
+        fileData: req.file ? req.file.buffer.toString('base64') : null,
+        mimeType: req.file ? req.file.mimetype : null,
+        fileName: req.file ? req.file.originalname : null,
+        size: req.file ? req.file.size : 0
       };
       
-      console.log("Creating document with data:", documentData);
+      console.log("Creating document with data:", {
+        ...documentData,
+        fileData: documentData.fileData ? `[Base64 encoded data - ${documentData.size} bytes]` : null
+      });
+      
       const document = await storage.createDocument(documentData);
-      console.log("Document created:", document);
+      console.log("Document created:", {
+        ...document,
+        fileData: document.fileData ? `[Base64 encoded data - ${document.size} bytes]` : null
+      });
       
       res.status(201).json(document);
     } catch (error) {
