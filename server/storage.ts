@@ -31,7 +31,10 @@ export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserById(id: number): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUserStatus(id: number, active: boolean): Promise<User>;
+  getAllUsers(): Promise<User[]>;
   
   // Program methods
   getPrograms(filters?: ProgramFilters): Promise<ProgramWithUniversity[]>;
@@ -56,6 +59,13 @@ export interface IStorage {
   getDocumentsByApplicationId(applicationId: number): Promise<Document[]>;
   createDocument(document: InsertDocument): Promise<Document>;
   deleteDocument(id: number): Promise<void>;
+
+  // Audit log methods
+  createAuditLog(auditLog: InsertAuditLog): Promise<AuditLog>;
+  getAuditLogs(): Promise<AuditLog[]>;
+  getAuditLogsByUserId(userId: number): Promise<AuditLog[]>;
+  getAuditLogsByTarget(targetId: number, targetType: string): Promise<AuditLog[]>;
+  getAuditLogsByAction(action: string): Promise<AuditLog[]>;
 
   // Utility methods
   clearAll(): Promise<void>;

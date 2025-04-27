@@ -1,401 +1,185 @@
-import { Router, Request, Response } from 'express';
-import { requireAdmin, auditAdminAction } from '../middleware/admin';
-import { db } from '../db';
-import { users, applications, auditLogs, insertAuditLogSchema } from '@shared/schema';
-import { eq, desc, and, sql, inArray, not, asc } from 'drizzle-orm';
-import { storage } from '../storage';
+import { Router } from "express";
+import { z } from "zod";
+import { storage } from "../storage";
+import { requireAdmin } from "../middleware/admin";
 
-// Create admin router
-const adminRouter = Router();
+const router = Router();
 
-// Apply admin middleware to all routes
-adminRouter.use(requireAdmin);
+// Middleware to check admin status
+router.use(requireAdmin);
 
-/**
- * Get all users (for admin user management)
- * GET /api/admin/users
- */
-adminRouter.get('/users', async (req: Request, res: Response) => {
+// Get admin statistics
+router.get("/stats", async (req, res) => {
   try {
-    const allUsers = await db.select({
-      id: users.id, 
-      username: users.username, 
-      firstName: users.firstName, 
-      lastName: users.lastName,
-      agencyName: users.agencyName,
-      country: users.country,
-      phoneNumber: users.phoneNumber,
-      website: users.website,
-      role: users.role,
-      active: users.active,
-      createdAt: users.createdAt
-    })
-    .from(users)
-    .orderBy(desc(users.createdAt));
-    
-    return res.status(200).json(allUsers);
+    // Get application counts
+    const applications = await storage.getAllApplications();
+    const totalApplications = applications.length;
+    const pendingReviews = applications.filter(app => 
+      app.status === "submitted" || app.status === "under-review"
+    ).length;
+    const approvedApplications = applications.filter(app => 
+      app.status === "approved"
+    ).length;
+
+    // Get user counts
+    const users = await storage.getAllUsers();
+    const activeAgents = users.filter(user => 
+      user.role === "agent" && user.active === true
+    ).length;
+
+    // Calculate total students (count unique student emails)
+    const studentEmails = new Set(applications.map(app => app.studentEmail));
+    const totalStudents = studentEmails.size;
+
+    // Get university count
+    const universities = await storage.getUniversities();
+    const totalUniversities = universities.length;
+
+    res.json({
+      totalApplications,
+      pendingReviews,
+      approvedApplications,
+      activeAgents,
+      totalStudents,
+      totalUniversities
+    });
   } catch (error) {
-    console.error('Error fetching users:', error);
-    return res.status(500).json({ error: 'Failed to fetch users' });
+    console.error("Error fetching admin stats:", error);
+    res.status(500).json({ error: "Failed to fetch admin statistics" });
   }
 });
 
-/**
- * Get user details by ID
- * GET /api/admin/users/:id
- */
-adminRouter.get('/users/:id', async (req: Request, res: Response) => {
+// Get all users
+router.get("/users", async (req, res) => {
   try {
-    const userId = Number(req.params.id);
-    if (isNaN(userId)) {
-      return res.status(400).json({ error: 'Invalid user ID' });
-    }
+    const users = await storage.getAllUsers();
+    res.json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+// Activate/deactivate user
+router.patch("/users/:id/status", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { active } = z.object({ active: z.boolean() }).parse(req.body);
     
-    const [user] = await db.select({
-      id: users.id, 
-      username: users.username, 
-      firstName: users.firstName, 
-      lastName: users.lastName,
-      agencyName: users.agencyName,
-      country: users.country,
-      phoneNumber: users.phoneNumber,
-      website: users.website,
-      role: users.role,
-      active: users.active,
-      createdAt: users.createdAt
-    })
-    .from(users)
-    .where(eq(users.id, userId));
-    
+    const user = await storage.getUserById(userId);
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
     
-    return res.status(200).json(user);
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    return res.status(500).json({ error: 'Failed to fetch user' });
-  }
-});
-
-/**
- * Create a new agent user
- * POST /api/admin/users
- */
-adminRouter.post(
-  '/users', 
-  auditAdminAction('create', 'user'),
-  async (req: Request, res: Response) => {
-    try {
-      const { username, password, firstName, lastName, agencyName, country, phoneNumber, website } = req.body;
-      
-      // Validate required fields
-      if (!username || !password) {
-        return res.status(400).json({ error: 'Username and password are required' });
-      }
-      
-      // Check if username already exists
-      const existingUser = await storage.getUserByUsername(username);
-      if (existingUser) {
-        return res.status(400).json({ error: 'Username already exists' });
-      }
-      
-      // Create new agent user
-      const newUser = await storage.createUser({
-        username,
-        password,
-        firstName,
-        lastName,
-        agencyName,
-        country,
-        phoneNumber,
-        website,
-        role: 'agent' // Force role to be agent (admins can only be created through CLI)
-      });
-      
-      // Exclude password from response
-      const { password: _, ...userWithoutPassword } = newUser;
-      
-      return res.status(201).json(userWithoutPassword);
-    } catch (error) {
-      console.error('Error creating user:', error);
-      return res.status(500).json({ error: 'Failed to create user' });
+    // Don't allow deactivating admin users
+    if (user.role === "admin" && !active) {
+      return res.status(403).json({ error: "Cannot deactivate admin users" });
     }
-  }
-);
-
-/**
- * Update user (excluding role changes)
- * PUT /api/admin/users/:id
- */
-adminRouter.put(
-  '/users/:id', 
-  auditAdminAction('update', 'user'),
-  async (req: Request, res: Response) => {
-    try {
-      const userId = Number(req.params.id);
-      if (isNaN(userId)) {
-        return res.status(400).json({ error: 'Invalid user ID' });
-      }
-      
-      // Get current user data
-      const [currentUser] = await db.select()
-        .from(users)
-        .where(eq(users.id, userId));
-      
-      if (!currentUser) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      
-      // Prevent updating admin users if they're not the current admin
-      if (currentUser.role === 'admin' && currentUser.id !== req.user?.id) {
-        return res.status(403).json({ error: 'Cannot modify other admin users' });
-      }
-      
-      // Prepare update data
-      const { role, ...updateData } = req.body;
-      
-      // Update user, excluding role (which cannot be changed)
-      const [updatedUser] = await db.update(users)
-        .set(updateData)
-        .where(eq(users.id, userId))
-        .returning();
-      
-      // Exclude password from response
-      const { password, ...userWithoutPassword } = updatedUser;
-      
-      return res.status(200).json(userWithoutPassword);
-    } catch (error) {
-      console.error('Error updating user:', error);
-      return res.status(500).json({ error: 'Failed to update user' });
-    }
-  }
-);
-
-/**
- * Activate/deactivate user account
- * PUT /api/admin/users/:id/status
- */
-adminRouter.put(
-  '/users/:id/status', 
-  auditAdminAction('update-status', 'user'),
-  async (req: Request, res: Response) => {
-    try {
-      const userId = Number(req.params.id);
-      if (isNaN(userId)) {
-        return res.status(400).json({ error: 'Invalid user ID' });
-      }
-      
-      const { active } = req.body;
-      if (typeof active !== 'boolean') {
-        return res.status(400).json({ error: 'Active status must be a boolean' });
-      }
-      
-      // Get current user data
-      const [currentUser] = await db.select()
-        .from(users)
-        .where(eq(users.id, userId));
-      
-      if (!currentUser) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      
-      // Prevent deactivating admin users
-      if (currentUser.role === 'admin') {
-        return res.status(403).json({ error: 'Cannot change status of admin users' });
-      }
-      
-      // Update user active status
-      const [updatedUser] = await db.update(users)
-        .set({ active })
-        .where(eq(users.id, userId))
-        .returning();
-      
-      // Exclude password from response
-      const { password, ...userWithoutPassword } = updatedUser;
-      
-      // Create audit log
-      await db.insert(auditLogs).values({
-        userId: req.user?.id!,
-        action: active ? 'activate-user' : 'deactivate-user',
-        resourceType: 'user',
-        resourceId: userId,
-        previousData: { active: currentUser.active },
-        newData: { active },
-        ipAddress: req.ip,
-        userAgent: req.get('User-Agent') || ''
-      });
-      
-      return res.status(200).json(userWithoutPassword);
-    } catch (error) {
-      console.error('Error updating user status:', error);
-      return res.status(500).json({ error: 'Failed to update user status' });
-    }
-  }
-);
-
-/**
- * Get all applications (for admin application management)
- * GET /api/admin/applications
- */
-adminRouter.get('/applications', async (req: Request, res: Response) => {
-  try {
-    // Get query parameters for filtering
-    const { status, userId, search } = req.query;
     
-    // Fetch all applications with details
-    const allApplications = await storage.getAllApplications({
-      status: status as string,
-      userId: userId ? Number(userId) : undefined,
-      search: search as string
+    const updatedUser = await storage.updateUserStatus(userId, active);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user.id,
+      action: active ? "activate_user" : "deactivate_user",
+      targetId: userId,
+      targetType: "user",
+      details: `${active ? "Activated" : "Deactivated"} user ${user.username}`
     });
     
-    return res.status(200).json(allApplications);
+    res.json(updatedUser);
   } catch (error) {
-    console.error('Error fetching applications:', error);
-    return res.status(500).json({ error: 'Failed to fetch applications' });
+    console.error("Error updating user status:", error);
+    res.status(500).json({ error: "Failed to update user status" });
   }
 });
 
-/**
- * Update application status (admin can only update status)
- * PUT /api/admin/applications/:id/status
- */
-adminRouter.put(
-  '/applications/:id/status', 
-  auditAdminAction('update-status', 'application'),
-  async (req: Request, res: Response) => {
-    try {
-      const applicationId = Number(req.params.id);
-      if (isNaN(applicationId)) {
-        return res.status(400).json({ error: 'Invalid application ID' });
-      }
-      
-      const { status } = req.body;
-      if (!status) {
-        return res.status(400).json({ error: 'Status is required' });
-      }
-      
-      // Get current application
-      const currentApplication = await storage.getApplicationById(applicationId);
-      if (!currentApplication) {
-        return res.status(404).json({ error: 'Application not found' });
-      }
-      
-      // Update application status
-      const updatedApplication = await storage.updateApplicationStatus(applicationId, status);
-      
-      // Create audit log entry
-      await db.insert(auditLogs).values({
-        userId: req.user?.id!,
-        action: 'update-application-status',
-        resourceType: 'application',
-        resourceId: applicationId,
-        previousData: { status: currentApplication.status },
-        newData: { status },
-        ipAddress: req.ip,
-        userAgent: req.get('User-Agent') || ''
-      });
-      
-      return res.status(200).json(updatedApplication);
-    } catch (error) {
-      console.error('Error updating application status:', error);
-      return res.status(500).json({ error: 'Failed to update application status' });
-    }
-  }
-);
-
-/**
- * Get audit logs
- * GET /api/admin/audit-logs
- */
-adminRouter.get('/audit-logs', async (req: Request, res: Response) => {
+// Get all applications
+router.get("/applications", async (req, res) => {
   try {
-    // Get query parameters for filtering
-    const { userId, resourceType, resourceId, action } = req.query;
-    
-    // Build query
-    let query = db.select()
-      .from(auditLogs)
-      .orderBy(desc(auditLogs.createdAt));
-    
-    // Apply filters
-    if (userId) {
-      query = query.where(eq(auditLogs.userId, Number(userId)));
-    }
-    
-    if (resourceType) {
-      query = query.where(eq(auditLogs.resourceType, resourceType as string));
-    }
-    
-    if (resourceId) {
-      query = query.where(eq(auditLogs.resourceId, Number(resourceId)));
-    }
-    
-    if (action) {
-      query = query.where(eq(auditLogs.action, action as string));
-    }
-    
-    // Execute query
-    const logs = await query;
-    
-    return res.status(200).json(logs);
+    const applications = await storage.getAllApplications();
+    res.json(applications);
   } catch (error) {
-    console.error('Error fetching audit logs:', error);
-    return res.status(500).json({ error: 'Failed to fetch audit logs' });
+    console.error("Error fetching applications:", error);
+    res.status(500).json({ error: "Failed to fetch applications" });
   }
 });
 
-/**
- * Get admin dashboard statistics
- * GET /api/admin/stats
- */
-adminRouter.get('/stats', async (req: Request, res: Response) => {
+// Update application status
+router.patch("/applications/:id/status", async (req, res) => {
   try {
-    // Get total applications count
-    const [applicationsCount] = await db.select({ count: sql<number>`count(*)` })
-      .from(applications);
+    const applicationId = parseInt(req.params.id);
+    const { status } = z.object({ status: z.string() }).parse(req.body);
     
-    // Get pending applications count
-    const [pendingCount] = await db.select({ count: sql<number>`count(*)` })
-      .from(applications)
-      .where(eq(applications.status, 'submitted'));
+    const application = await storage.getApplicationById(applicationId);
+    if (!application) {
+      return res.status(404).json({ error: "Application not found" });
+    }
     
-    // Get approved applications count
-    const [approvedCount] = await db.select({ count: sql<number>`count(*)` })
-      .from(applications)
-      .where(eq(applications.status, 'approved'));
+    const updatedApplication = await storage.updateApplicationStatus(applicationId, status);
     
-    // Get active agents count
-    const [agentsCount] = await db.select({ count: sql<number>`count(*)` })
-      .from(users)
-      .where(and(
-        eq(users.role, 'agent'),
-        eq(users.active, true)
-      ));
-    
-    // Get total students count (unique student emails across applications)
-    const [studentsCount] = await db.select({ 
-      count: sql<number>`count(distinct ${applications.studentEmail})` 
-    })
-    .from(applications);
-    
-    // Get total universities count
-    const [universitiesCount] = await db.select({ count: sql<number>`count(*)` })
-      .from(sql`universities`);
-    
-    return res.status(200).json({
-      totalApplications: applicationsCount.count,
-      pendingReviews: pendingCount.count,
-      approvedApplications: approvedCount.count,
-      activeAgents: agentsCount.count,
-      totalStudents: studentsCount.count,
-      totalUniversities: universitiesCount.count
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user.id,
+      action: "update_application_status",
+      targetId: applicationId,
+      targetType: "application",
+      details: `Updated application status from ${application.status} to ${status}`
     });
+    
+    res.json(updatedApplication);
   } catch (error) {
-    console.error('Error fetching admin stats:', error);
-    return res.status(500).json({ error: 'Failed to fetch admin statistics' });
+    console.error("Error updating application status:", error);
+    res.status(500).json({ error: "Failed to update application status" });
   }
 });
 
-export default adminRouter;
+// Get audit logs
+router.get("/audit-logs", async (req, res) => {
+  try {
+    const auditLogs = await storage.getAuditLogs();
+    res.json(auditLogs);
+  } catch (error) {
+    console.error("Error fetching audit logs:", error);
+    res.status(500).json({ error: "Failed to fetch audit logs" });
+  }
+});
+
+// Get audit logs by user ID
+router.get("/audit-logs/user/:id", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const auditLogs = await storage.getAuditLogsByUserId(userId);
+    res.json(auditLogs);
+  } catch (error) {
+    console.error("Error fetching user audit logs:", error);
+    res.status(500).json({ error: "Failed to fetch user audit logs" });
+  }
+});
+
+// Get audit logs by target ID and type
+router.get("/audit-logs/target/:type/:id", async (req, res) => {
+  try {
+    const targetId = parseInt(req.params.id);
+    const targetType = req.params.type;
+    const auditLogs = await storage.getAuditLogsByTarget(targetId, targetType);
+    res.json(auditLogs);
+  } catch (error) {
+    console.error("Error fetching target audit logs:", error);
+    res.status(500).json({ error: "Failed to fetch target audit logs" });
+  }
+});
+
+// Get audit logs by action
+router.get("/audit-logs/action/:action", async (req, res) => {
+  try {
+    const action = req.params.action;
+    const auditLogs = await storage.getAuditLogsByAction(action);
+    res.json(auditLogs);
+  } catch (error) {
+    console.error("Error fetching action audit logs:", error);
+    res.status(500).json({ error: "Failed to fetch action audit logs" });
+  }
+});
+
+export default router;

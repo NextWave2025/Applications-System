@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DataTable } from "@/components/ui/data-table";
 import { Loader2, Users, FileText, AlertTriangle, CheckCircle, Clock, School } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 

@@ -180,6 +180,22 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+        
+        {/* Admin Section - Only visible to admin users */}
+        {user.role === "admin" && (
+          <div className="bg-white rounded-lg shadow-md p-6 mt-6 border-l-4 border-blue-500">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Admin Controls</h2>
+            <p className="text-gray-600 mb-4">
+              You have administrator privileges. Access the admin dashboard to manage users, applications, and view system statistics.
+            </p>
+            <button 
+              onClick={() => navigate("/admin")}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            >
+              Go to Admin Dashboard
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import ApplicationEditPage from "./pages/application-edit-page";
 import ApplicationsPage from "./pages/applications-page";
 import AuthPage from "./pages/auth-page";
 import DashboardPage from "./pages/dashboard-page";
+import AdminDashboardPage from "./pages/admin-dashboard-page";
 import SettingsPage from "./pages/settings-page";
 import NotFoundPage from "./pages/not-found";
 
@@ -103,6 +104,16 @@ export default function App() {
                   <DashboardLayout>
                     <SettingsPage />
                   </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin dashboard route */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboardPage />
                 </ProtectedRoute>
               }
             />
