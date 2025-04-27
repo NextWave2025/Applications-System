@@ -24,11 +24,10 @@ async function createAdminUser() {
     
     // Create admin user
     const adminUser = await storage.createUser({
-      username: "admin",
+      username: "admin@example.com", // Username must be a valid email format
       password: await hashPassword("admin123"), // Use a strong password in production
       firstName: "Admin",
       lastName: "User",
-      email: "admin@example.com",
       role: "admin",
       active: true,
       agencyName: "Guide Admin",
