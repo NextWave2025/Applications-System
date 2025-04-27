@@ -987,6 +987,60 @@ export default function ApplicationEditPage() {
                       </span>
                     </p>
                   </div>
+                  
+                  {/* Admin Notes - Only show if there are admin notes */}
+                  {applicationData?.adminNotes && (
+                    <div className="col-span-2 pt-4 border-t mt-4">
+                      <h4 className="text-sm font-medium text-gray-700">Admin Notes</h4>
+                      <div className="mt-1 p-3 bg-blue-50 text-blue-800 rounded-md">
+                        <p className="text-sm">{applicationData.adminNotes}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Rejection Reason - Only show if the application is rejected */}
+                  {applicationData?.rejectionReason && applicationData.status === "rejected" && (
+                    <div className="col-span-2 pt-4 border-t mt-4">
+                      <h4 className="text-sm font-medium text-red-700">Rejection Reason</h4>
+                      <div className="mt-1 p-3 bg-red-50 text-red-800 rounded-md">
+                        <p className="text-sm">{applicationData.rejectionReason}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Conditional Offer Terms - Only show if it has conditional offer terms */}
+                  {applicationData?.conditionalOfferTerms && applicationData.status === "accepted-conditional-offer" && (
+                    <div className="col-span-2 pt-4 border-t mt-4">
+                      <h4 className="text-sm font-medium text-green-700">Conditional Offer Terms</h4>
+                      <div className="mt-1 p-3 bg-green-50 text-green-800 rounded-md">
+                        <p className="text-sm">{applicationData.conditionalOfferTerms}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Status History - Only show if there is status history available */}
+                  {applicationData?.statusHistory && applicationData.statusHistory.length > 0 && (
+                    <div className="col-span-2 pt-4 border-t mt-4">
+                      <h4 className="text-sm font-medium text-gray-700">Status History</h4>
+                      <div className="mt-1 space-y-2">
+                        {applicationData.statusHistory.map((history, index) => (
+                          <div key={index} className="p-3 bg-gray-50 rounded-md">
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">
+                                {history.fromStatus.replace(/-/g, ' ')} → {history.toStatus.replace(/-/g, ' ')}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {new Date(history.timestamp).toLocaleDateString()}
+                              </span>
+                            </div>
+                            {history.notes && (
+                              <p className="text-xs text-gray-600 mt-1">{history.notes}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
