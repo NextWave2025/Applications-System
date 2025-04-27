@@ -1,84 +1,54 @@
-import { db } from './db';
-import { users } from '@shared/schema';
-import { eq } from 'drizzle-orm';
-import { scrypt, randomBytes } from 'crypto';
-import { promisify } from 'util';
+import { storage } from "./storage";
+import { scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
 
 const scryptAsync = promisify(scrypt);
 
 async function hashPassword(password: string) {
-  const salt = randomBytes(16).toString('hex');
+  const salt = randomBytes(16).toString("hex");
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  return `${buf.toString('hex')}.${salt}`;
+  return `${buf.toString("hex")}.${salt}`;
 }
 
-/**
- * Script to create an admin user
- */
-async function createAdminUser(
-  email: string,
-  password: string,
-  firstName: string,
-  lastName: string
-) {
-  console.log(`Creating admin user: ${email}`);
+async function createAdminUser() {
+  console.log("Creating admin user...");
   
   try {
-    // First check if user exists
-    const existingUser = await db.select().from(users).where(eq(users.username, email));
+    // Check if admin user already exists
+    const existingAdmin = await storage.getUserByUsername("admin");
     
-    if (existingUser.length > 0) {
-      // User exists, update to admin if not already
-      if (existingUser[0].role !== 'admin') {
-        await db.update(users)
-          .set({ 
-            role: 'admin',
-            firstName,
-            lastName 
-          })
-          .where(eq(users.id, existingUser[0].id));
-        console.log(`User ${email} updated to admin role.`);
-      } else {
-        console.log(`User ${email} is already an admin.`);
-      }
-    } else {
-      // Create new admin user
-      const hashedPassword = await hashPassword(password);
-      
-      const [newUser] = await db.insert(users)
-        .values({
-          username: email,
-          password: hashedPassword,
-          firstName,
-          lastName,
-          role: 'admin'
-        })
-        .returning();
-      
-      console.log(`Admin user created with ID: ${newUser.id}`);
+    if (existingAdmin) {
+      console.log("Admin user already exists!");
+      return;
     }
     
-    console.log('Admin user operation completed successfully');
+    // Create admin user
+    const adminUser = await storage.createUser({
+      username: "admin",
+      password: await hashPassword("admin123"), // Use a strong password in production
+      firstName: "Admin",
+      lastName: "User",
+      email: "admin@example.com",
+      role: "admin",
+      active: true,
+      agencyName: "Guide Admin",
+    });
+    
+    console.log("Admin user created successfully:", {
+      id: adminUser.id,
+      username: adminUser.username,
+      role: adminUser.role
+    });
+    
   } catch (error) {
-    console.error('Error creating/updating admin user:', error);
-    process.exit(1);
+    console.error("Error creating admin user:", error);
   }
 }
 
-// Get command line arguments
-const args = process.argv.slice(2);
-
-if (args.length < 4) {
-  console.error('Usage: tsx server/create-admin.ts <email> <password> <firstName> <lastName>');
-  process.exit(1);
-}
-
-const [email, password, firstName, lastName] = args;
-
-// Run the create admin function
-createAdminUser(email, password, firstName, lastName)
+// Run the function
+createAdminUser()
   .then(() => process.exit(0))
-  .catch(err => {
-    console.error('Unhandled error:', err);
+  .catch((error) => {
+    console.error("Unhandled error:", error);
     process.exit(1);
   });
