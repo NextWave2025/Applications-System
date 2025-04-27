@@ -11,10 +11,16 @@ export default function ApplicationsPage() {
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
 
   // Fetch applications
-  const { data: applications, isLoading, isError } = useQuery<ApplicationWithDetails[]>({
+  const { 
+    data: applications, 
+    isLoading, 
+    isError,
+    refetch 
+  } = useQuery<ApplicationWithDetails[]>({
     queryKey: ["/api/applications"],
     staleTime: 60000, // 1 minute
     retry: 3,
+    enabled: !!user, // Only fetch if user is authenticated
   });
 
   // Filter applications based on status
