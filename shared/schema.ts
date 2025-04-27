@@ -2,6 +2,10 @@ import { pgTable, text, serial, integer, boolean, jsonb, timestamp, date } from 
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// User roles enum
+export const userRoles = ["agent", "admin"] as const;
+export type UserRole = typeof userRoles[number];
+
 // User schema with extended fields for agent registration
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -13,13 +17,19 @@ export const users = pgTable("users", {
   country: text("country"),
   phoneNumber: text("phone_number"),
   website: text("website"),
-  role: text("role"),
+  role: text("role").notNull().default("agent"), // Default role is agent
+  active: boolean("active").notNull().default(true), // For account deactivation
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users).extend({
   // Add validation rules
   username: z.string().email("Please enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.enum(userRoles).default("agent"),
+}).omit({
+  id: true,
+  createdAt: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -198,3 +208,25 @@ export type ApplicationWithDetails = Application & {
   },
   documents: Document[]
 };
+
+// Audit logs for admin actions
+export const auditLogs = pgTable("audit_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(), // Admin ID
+  action: text("action").notNull(), // Type of action performed
+  resourceType: text("resource_type").notNull(), // Type of resource affected (e.g., 'application', 'user')
+  resourceId: integer("resource_id").notNull(), // ID of the resource
+  previousData: jsonb("previous_data"), // Previous state of the resource
+  newData: jsonb("new_data"), // New state of the resource
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+});
+
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
+export type AuditLog = typeof auditLogs.$inferSelect;
