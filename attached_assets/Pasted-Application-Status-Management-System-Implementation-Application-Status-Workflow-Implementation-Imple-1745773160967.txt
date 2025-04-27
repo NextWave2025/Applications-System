@@ -1,0 +1,83 @@
+Application Status Management System Implementation
+Application Status Workflow Implementation
+Implement a comprehensive status management system with the following statuses and restrictions:
+Agent-Controlled Statuses
+
+Draft
+
+Enable agents to save incomplete applications when not all required fields are filled
+Implement save functionality that preserves partial progress
+Visual indicator showing which fields remain incomplete
+Allow agents to return and continue editing draft applications
+
+
+Submitted
+
+Available only when all required fields are properly completed
+Implement thorough validation checks before allowing submission
+Once submitted, application becomes read-only for the agent
+Send confirmation notification to agent upon successful submission
+
+
+
+Admin-Only Controlled Statuses
+The following statuses must be exclusively modifiable by administrators:
+
+Submitted to University
+
+Only admins can transition applications to this status
+Track submission date and admin who made the change
+
+
+Action Required
+
+Implement notification system alerting agents when their application needs attention
+Require admins to include specific action requirements in notes
+Notes written by admin must be prominently displayed to the agent
+
+
+Accepted
+
+Include two distinct sub-statuses:
+
+Conditional Offer: Require admin to specify conditions
+Payment Pending: Trigger payment notification to agent
+
+
+Admin must be able to select either sub-status independently
+
+
+Payment Clearing
+
+Implement admin interface for tracking payment verification process
+Include document upload capability for payment confirmations
+
+
+Rejected
+
+Require mandatory rejection reason from admin
+Store rejection rationale in application history
+
+
+
+Status Change Management Requirements
+
+For ALL admin-controlled status changes:
+
+Implement confirmation popup dialog before status changes take effect
+Include mandatory note field within the confirmation popup
+All admin notes must be stored in application history
+Display admin notes to the respective agent in their application view
+Maintain complete audit trail of all status transitions
+
+
+
+Technical Implementation Details
+
+Ensure both frontend and backend enforce status change restrictions
+Create status-specific validation rules for each transition
+Implement proper error handling for invalid status change attempts
+Design database schema to store status history with timestamps and notes
+Add robust security checks to prevent unauthorized status modifications
+
+Implement this system to ensure transparent application tracking while maintaining appropriate access controls between agents and administrators.

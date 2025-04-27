@@ -109,15 +109,31 @@ export type ProgramWithUniversity = Program & {
 
 // Application status enum
 export const applicationStatuses = [
+  // Agent-controlled statuses
   "draft",
   "submitted",
-  "under-review",
-  "approved",
-  "rejected",
-  "incomplete"
+  
+  // Admin-only controlled statuses
+  "submitted-to-university",
+  "action-required",
+  "accepted-conditional-offer",
+  "accepted-payment-pending",
+  "payment-clearing",
+  "rejected"
 ] as const;
 
 export type ApplicationStatus = typeof applicationStatuses[number];
+
+// Group statuses by who can control them
+export const agentControlledStatuses = ["draft", "submitted"] as const;
+export const adminControlledStatuses = [
+  "submitted-to-university",
+  "action-required",
+  "accepted-conditional-offer",
+  "accepted-payment-pending",
+  "payment-clearing",
+  "rejected"
+] as const;
 
 // Applications schema
 export const applications = pgTable("applications", {
@@ -145,6 +161,15 @@ export const applications = pgTable("applications", {
   intakeDate: text("intake_date").notNull(),
   notes: text("notes"),
   status: text("status").notNull().default("draft"),
+  
+  // Status management
+  statusHistory: jsonb("status_history").default([]),  // Array of status changes with timestamps and notes
+  adminNotes: text("admin_notes"),                     // Notes specifically from admins
+  rejectionReason: text("rejection_reason"),           // Required for rejected applications
+  paymentConfirmation: boolean("payment_confirmation").default(false), // For payment-clearing status
+  submittedToUniversityDate: timestamp("submitted_to_university_date"), // When application was submitted to university
+  lastActionBy: integer("last_action_by"),             // User ID of who last changed the status
+  conditionalOfferTerms: text("conditional_offer_terms"), // For accepted-conditional-offer status
   
   // Timestamps
   createdAt: timestamp("created_at").defaultNow().notNull(),
