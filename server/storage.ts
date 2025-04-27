@@ -424,7 +424,7 @@ export class DBStorage implements IStorage {
   }
   
   async createApplication(insertApplication: InsertApplication): Promise<Application> {
-    const result = await this.db.insert(applications).values(insertApplication).returning();
+    const result = await this.db.insert(applications).values([insertApplication]).returning();
     return result[0];
   }
   
@@ -465,6 +465,10 @@ export class DBStorage implements IStorage {
     
     // Get the current status history or initialize empty array
     let statusHistory = currentApp.statusHistory || [];
+    // Ensure it's an array
+    if (!Array.isArray(statusHistory)) {
+      statusHistory = [];
+    }
     // Add the new entry to the status history
     statusHistory = [...statusHistory, historyEntry];
     updateData.statusHistory = statusHistory;
