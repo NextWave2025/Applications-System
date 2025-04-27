@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { AlertCircle, Info, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { applicationStatuses, adminControlledStatuses } from "@shared/schema";
 
 interface Application {
   id: number;
@@ -49,13 +50,17 @@ export default function StatusChangeDialog({
   const [loading, setLoading] = useState(false);
 
   // Reset form when dialog opens with a new application
-  if (application && open && application.status !== newStatus) {
-    setNewStatus(application.status);
-    setStatusNotes("");
-    setRejectionReason("");
-    setConditionalOfferTerms("");
-    setPaymentConfirmation(false);
-  }
+  // Using useEffect for state updates to avoid React warnings
+  // about setting state during render
+  useEffect(() => {
+    if (application && open) {
+      setNewStatus(application.status);
+      setStatusNotes("");
+      setRejectionReason("");
+      setConditionalOfferTerms("");
+      setPaymentConfirmation(false);
+    }
+  }, [application, open]);
 
   const updateApplicationStatus = async () => {
     if (!application || !newStatus) return;
@@ -155,23 +160,12 @@ export default function StatusChangeDialog({
                     <SelectValue placeholder="Select a new status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="submitted">Submitted</SelectItem>
-                    <SelectItem value="under-review">Under Review</SelectItem>
-                    <SelectItem value="documents-required">Documents Required</SelectItem>
-                    <SelectItem value="interview-scheduled">Interview Scheduled</SelectItem>
-                    <SelectItem value="accepted-conditional-offer">Conditional Offer</SelectItem>
-                    <SelectItem value="accepted-unconditional">Unconditional Offer</SelectItem>
-                    <SelectItem value="offer-accepted">Offer Accepted</SelectItem>
-                    <SelectItem value="payment-pending">Payment Pending</SelectItem>
-                    <SelectItem value="payment-clearing">Payment Clearing</SelectItem>
-                    <SelectItem value="submitted-to-university">Submitted to University</SelectItem>
-                    <SelectItem value="coe-issued">COE Issued</SelectItem>
-                    <SelectItem value="visa-applied">Visa Applied</SelectItem>
-                    <SelectItem value="visa-granted">Visa Granted</SelectItem>
-                    <SelectItem value="enrollment-confirmed">Enrollment Confirmed</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                    <SelectItem value="withdrawn">Withdrawn</SelectItem>
-                    <SelectItem value="deferred">Deferred</SelectItem>
+                    {/* Display all available statuses from the schema */}
+                    {applicationStatuses.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status.replace(/-/g, ' ')}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
