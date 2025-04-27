@@ -394,19 +394,17 @@ export function registerRoutes(app: Express): Server {
       // Create document record with application ID and file data
       const documentData = {
         applicationId,
-        type: finalDocumentType,
-        name: name || (req.file ? req.file.originalname : 'Untitled Document'),
-        description: description || '',
-        // If there's a file, save its buffer as base64
-        fileData: req.file ? req.file.buffer.toString('base64') : null,
-        mimeType: req.file ? req.file.mimetype : null,
-        fileName: req.file ? req.file.originalname : null,
-        size: req.file ? req.file.size : 0
+        documentType: finalDocumentType,
+        filename: req.file ? req.file.originalname.replace(/\s+/g, '_') : 'file.txt',
+        originalFilename: req.file ? req.file.originalname : 'Untitled Document',
+        fileSize: req.file ? req.file.size : 0,
+        mimeType: req.file ? req.file.mimetype : 'text/plain',
+        fileData: req.file ? req.file.buffer.toString('base64') : null
       };
       
       console.log("Creating document for application with data:", {
         ...documentData,
-        fileData: documentData.fileData ? `[Base64 encoded data - ${documentData.size} bytes]` : null
+        fileData: documentData.fileData ? `[Base64 encoded data - ${documentData.fileSize} bytes]` : null
       });
       
       const document = await storage.createDocument(documentData);
@@ -463,25 +461,23 @@ export function registerRoutes(app: Express): Server {
       // Create document record with application ID and file data
       const documentData = {
         applicationId,
-        type: finalDocumentType,
-        name: name || (req.file ? req.file.originalname : 'Untitled Document'),
-        description: description || '',
-        // If there's a file, save its buffer as base64
-        fileData: req.file ? req.file.buffer.toString('base64') : null,
-        mimeType: req.file ? req.file.mimetype : null,
-        fileName: req.file ? req.file.originalname : null,
-        size: req.file ? req.file.size : 0
+        documentType: finalDocumentType,
+        filename: req.file ? req.file.originalname.replace(/\s+/g, '_') : 'file.txt',
+        originalFilename: req.file ? req.file.originalname : 'Untitled Document',
+        fileSize: req.file ? req.file.size : 0,
+        mimeType: req.file ? req.file.mimetype : 'text/plain',
+        fileData: req.file ? req.file.buffer.toString('base64') : null
       };
       
       console.log("Creating document with data:", {
         ...documentData,
-        fileData: documentData.fileData ? `[Base64 encoded data - ${documentData.size} bytes]` : null
+        fileData: documentData.fileData ? `[Base64 encoded data - ${documentData.fileSize} bytes]` : null
       });
       
       const document = await storage.createDocument(documentData);
       console.log("Document created:", {
         ...document,
-        fileData: document.fileData ? `[Base64 encoded data - ${document.size} bytes]` : null
+        fileData: document.fileData ? `[Base64 encoded data - ${document.fileSize} bytes]` : null
       });
       
       res.status(201).json(document);
