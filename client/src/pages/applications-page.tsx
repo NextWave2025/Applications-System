@@ -1,9 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/use-auth";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 import { ApplicationStatus } from "@shared/schema";
 import { apiRequest } from "../lib/query-client";
+
+// Helper function to format dates consistently
+function formatDate(dateString: string): { formatted: string; relative: string } {
+  const date = new Date(dateString);
+  return {
+    formatted: format(date, 'PPP'), // 'Apr 29, 2023'
+    relative: formatDistanceToNow(date, { addSuffix: true }) // '3 days ago'
+  };
+}
 
 // Define types for application data
 type ApplicationProgram = {
@@ -220,6 +229,9 @@ export default function ApplicationsPage() {
                   Submitted
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Last Updated
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -257,7 +269,16 @@ export default function ApplicationsPage() {
                     <StatusBadge status={application.status} />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(application.createdAt).toLocaleDateString()} ({formatDistanceToNow(new Date(application.createdAt), { addSuffix: true })})
+                    {formatDate(application.createdAt).formatted}
+                    <span className="text-xs text-gray-400 ml-1">
+                      ({formatDate(application.createdAt).relative})
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatDate(application.updatedAt).formatted}
+                    <span className="text-xs text-gray-400 ml-1">
+                      ({formatDate(application.updatedAt).relative})
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <button
