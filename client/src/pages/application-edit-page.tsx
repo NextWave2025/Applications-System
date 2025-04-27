@@ -22,8 +22,8 @@ import {
 } from "../components/ui/alert-dialog";
 
 // Helper function to format dates consistently
-function formatDate(dateString: string): { formatted: string; relative: string } {
-  const date = new Date(dateString);
+function formatDate(dateString: string | Date): { formatted: string; relative: string } {
+  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
   return {
     formatted: format(date, 'PPP'), // 'Apr 29, 2023'
     relative: formatDistanceToNow(date, { addSuffix: true }) // '3 days ago'
@@ -92,7 +92,23 @@ export default function ApplicationEditPage() {
         description: "The document has been removed successfully.",
       });
       
-      // Update the application data in the cache to remove the deleted document
+      // First update local state immediately to avoid page reload
+      if (manuallyFetchedApplication) {
+        setManuallyFetchedApplication({
+          ...manuallyFetchedApplication,
+          documents: manuallyFetchedApplication.documents.filter(doc => doc.id !== documentId)
+        });
+      }
+      
+      // Also update the application data in the cache
+      if (application) {
+        queryClient.setQueryData([`/api/applications/${id}`], {
+          ...application,
+          documents: application.documents.filter(doc => doc.id !== documentId)
+        });
+      }
+      
+      // Finally, invalidate the query to ensure data is refreshed from server
       queryClient.invalidateQueries({ queryKey: [`/api/applications/${id}`] });
     },
     onError: (error: Error) => {

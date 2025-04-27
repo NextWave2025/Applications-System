@@ -6,8 +6,8 @@ import { ApplicationStatus } from "@shared/schema";
 import { apiRequest } from "../lib/query-client";
 
 // Helper function to format dates consistently
-function formatDate(dateString: string): { formatted: string; relative: string } {
-  const date = new Date(dateString);
+function formatDate(dateString: string | Date): { formatted: string; relative: string } {
+  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
   return {
     formatted: format(date, 'PPP'), // 'Apr 29, 2023'
     relative: formatDistanceToNow(date, { addSuffix: true }) // '3 days ago'
