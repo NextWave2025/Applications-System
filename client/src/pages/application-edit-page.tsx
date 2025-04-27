@@ -8,6 +8,17 @@ import { useAuth } from "../hooks/use-auth";
 import { queryClient } from "../lib/query-client";
 import { useToast } from "../hooks/use-toast";
 import { ProgramWithUniversity, Application, ApplicationWithDetails } from "@shared/schema";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../components/ui/alert-dialog";
 
 // Define application form schema
 const applicationSchema = z.object({
@@ -50,6 +61,37 @@ export default function ApplicationEditPage() {
     enabled: !!id && !!user,
     staleTime: 30000, // Cache for 30 seconds
     retry: 3, // Retry 3 times
+  });
+  
+  // Document deletion mutation
+  const deleteDocumentMutation = useMutation({
+    mutationFn: async (documentId: number) => {
+      const response = await fetch(`/api/documents/${documentId}`, {
+        method: "DELETE",
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to delete document");
+      }
+      
+      return documentId;
+    },
+    onSuccess: (documentId) => {
+      toast({
+        title: "Document Deleted",
+        description: "The document has been removed successfully.",
+      });
+      
+      // Update the application data in the cache to remove the deleted document
+      queryClient.invalidateQueries({ queryKey: [`/api/applications/${id}`] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete document. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
   
   // Manually fetch application for reliability
@@ -767,6 +809,33 @@ export default function ApplicationEditPage() {
                                 {doc.originalFilename} ({doc.documentType})
                               </span>
                             </div>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <button
+                                  type="button"
+                                  className="ml-2 text-sm text-red-600 hover:text-red-800"
+                                >
+                                  Remove
+                                </button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Document</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete this document? This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => deleteDocumentMutation.mutate(doc.id)}
+                                    className="bg-red-600 hover:bg-red-700 text-white"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </li>
                         ))}
                       </ul>
