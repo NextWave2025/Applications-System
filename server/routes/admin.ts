@@ -109,18 +109,76 @@ router.get("/applications", async (req, res) => {
   }
 });
 
-// Update application status
+// Update application status with enhanced validation and tracking
 router.patch("/applications/:id/status", async (req, res) => {
   try {
     const applicationId = parseInt(req.params.id);
-    const { status } = z.object({ status: z.string() }).parse(req.body);
+    const statusUpdateSchema = z.object({
+      status: z.string(),
+      notes: z.string().optional(),
+      rejectionReason: z.string().optional(),
+      conditionalOfferTerms: z.string().optional(),
+      paymentConfirmation: z.boolean().optional()
+    });
     
+    const { status, notes, rejectionReason, conditionalOfferTerms, paymentConfirmation } = 
+      statusUpdateSchema.parse(req.body);
+    
+    // Get the current application
     const application = await storage.getApplicationById(applicationId);
     if (!application) {
       return res.status(404).json({ error: "Application not found" });
     }
     
-    const updatedApplication = await storage.updateApplicationStatus(applicationId, status);
+    // Validate status change permissions
+    const currentStatus = application.status;
+    const adminRoles = ["admin"];
+    const isAdmin = adminRoles.includes(req.user?.role || "");
+    
+    // Import statuses from shared schema
+    const { agentControlledStatuses, adminControlledStatuses } = await import("@shared/schema");
+    
+    // Check if user has permission to change this status
+    if (adminControlledStatuses.includes(status as any)) {
+      if (!isAdmin) {
+        return res.status(403).json({ 
+          error: "You don't have permission to change to this status" 
+        });
+      }
+    }
+    
+    // Validate status-specific requirements
+    if (status === "rejected" && !rejectionReason) {
+      return res.status(400).json({ 
+        error: "Rejection reason is required when rejecting an application" 
+      });
+    }
+    
+    if (status === "accepted-conditional-offer" && !conditionalOfferTerms) {
+      return res.status(400).json({ 
+        error: "Conditional offer terms are required" 
+      });
+    }
+    
+    // Always require notes for admin status changes
+    if (adminControlledStatuses.includes(status as any) && !notes) {
+      return res.status(400).json({ 
+        error: "Notes are required when changing application status" 
+      });
+    }
+    
+    // Update the application status with history tracking
+    const updatedApplication = await storage.updateApplicationStatus(
+      applicationId, 
+      status,
+      req.user?.id || 0,
+      notes,
+      {
+        rejectionReason,
+        conditionalOfferTerms,
+        paymentConfirmation
+      }
+    );
     
     // Log the action
     await storage.createAuditLog({
@@ -129,7 +187,13 @@ router.patch("/applications/:id/status", async (req, res) => {
       resourceType: "application",
       resourceId: applicationId,
       previousData: { status: application.status },
-      newData: { status }
+      newData: { 
+        status,
+        notes,
+        rejectionReason: rejectionReason || undefined,
+        conditionalOfferTerms: conditionalOfferTerms || undefined,
+        paymentConfirmation: paymentConfirmation || undefined
+      }
     });
     
     res.json(updatedApplication);
@@ -188,6 +252,43 @@ router.get("/audit-logs/action/:action", async (req, res) => {
   } catch (error) {
     console.error("Error fetching action audit logs:", error);
     res.status(500).json({ error: "Failed to fetch action audit logs" });
+  }
+});
+
+// Get application status history
+router.get("/applications/:id/status-history", async (req, res) => {
+  try {
+    const applicationId = parseInt(req.params.id);
+    
+    // Get the application
+    const application = await storage.getApplicationById(applicationId);
+    if (!application) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+    
+    // Return the status history from the application
+    const statusHistory = application.statusHistory || [];
+    
+    // If we need to include user details, we can enhance the response here
+    const historyWithUserDetails = await Promise.all(
+      statusHistory.map(async (entry: any) => {
+        const user = await storage.getUserById(entry.userId);
+        return {
+          ...entry,
+          userDetails: user ? {
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role
+          } : undefined
+        };
+      })
+    );
+    
+    res.json(historyWithUserDetails);
+  } catch (error) {
+    console.error("Error fetching application status history:", error);
+    res.status(500).json({ error: "Failed to fetch application status history" });
   }
 });
 

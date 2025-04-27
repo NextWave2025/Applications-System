@@ -53,7 +53,17 @@ export interface IStorage {
   getAllApplications(filters?: ApplicationFilters): Promise<ApplicationWithDetails[]>; // For admin use
   getApplicationById(id: number): Promise<ApplicationWithDetails | undefined>;
   createApplication(application: InsertApplication): Promise<Application>;
-  updateApplicationStatus(id: number, status: string): Promise<Application>;
+  updateApplicationStatus(
+    id: number, 
+    status: string, 
+    userId: number, 
+    notes?: string,
+    additionalData?: {
+      rejectionReason?: string;
+      conditionalOfferTerms?: string;
+      paymentConfirmation?: boolean;
+    }
+  ): Promise<Application>;
   updateApplication(id: number, application: Partial<Application>): Promise<Application>;
   
   // Document methods
@@ -207,7 +217,7 @@ export class DBStorage implements IStorage {
       
       // Apply all conditions to the query
       if (conditions.length > 0) {
-        query = query.where(and(...conditions));
+        query = query.where(and(...conditions)) as any;
       }
       
       console.log("Executing ORM query...");
@@ -343,7 +353,7 @@ export class DBStorage implements IStorage {
         
         // Apply all conditions
         if (conditions.length > 0) {
-          query = query.where(and(...conditions));
+          query = query.where(and(...conditions)) as any;
         }
       }
       
@@ -418,14 +428,72 @@ export class DBStorage implements IStorage {
     return result[0];
   }
   
-  async updateApplicationStatus(id: number, status: string): Promise<Application> {
+  async updateApplicationStatus(
+    id: number, 
+    status: string, 
+    userId: number, 
+    notes?: string,
+    additionalData?: {
+      rejectionReason?: string;
+      conditionalOfferTerms?: string;
+      paymentConfirmation?: boolean;
+    }
+  ): Promise<Application> {
+    // First get the current application to add to history
+    const currentApp = await this.getApplicationById(id);
+    if (!currentApp) {
+      throw new Error(`Application with ID ${id} not found`);
+    }
+    
+    const now = new Date();
+    
+    // Create the status history entry
+    const historyEntry = {
+      fromStatus: currentApp.status,
+      toStatus: status,
+      timestamp: now.toISOString(),
+      userId: userId,
+      notes: notes || ""
+    };
+    
+    // Prepare the update data
+    const updateData: any = { 
+      status,
+      updatedAt: now,
+      lastActionBy: userId
+    };
+    
+    // Get the current status history or initialize empty array
+    let statusHistory = currentApp.statusHistory || [];
+    // Add the new entry to the status history
+    statusHistory = [...statusHistory, historyEntry];
+    updateData.statusHistory = statusHistory;
+    
+    // Add notes if provided
+    if (notes) {
+      updateData.adminNotes = notes;
+    }
+    
+    // Handle status-specific data requirements
+    if (status === "rejected" && additionalData?.rejectionReason) {
+      updateData.rejectionReason = additionalData.rejectionReason;
+    } 
+    else if (status === "accepted-conditional-offer" && additionalData?.conditionalOfferTerms) {
+      updateData.conditionalOfferTerms = additionalData.conditionalOfferTerms;
+    }
+    else if (status === "payment-clearing" && additionalData?.paymentConfirmation !== undefined) {
+      updateData.paymentConfirmation = additionalData.paymentConfirmation;
+    }
+    else if (status === "submitted-to-university") {
+      updateData.submittedToUniversityDate = now;
+    }
+    
+    // Update the application
     const result = await this.db.update(applications)
-      .set({ 
-        status, 
-        updatedAt: new Date() 
-      })
+      .set(updateData)
       .where(eq(applications.id, id))
       .returning();
+      
     return result[0];
   }
   

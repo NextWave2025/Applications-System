@@ -420,22 +420,13 @@ function ApplicationsManagementTable() {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">
-                        <Select
-                          defaultValue={app.status}
-                          onValueChange={(value) => updateApplicationStatus(app.id, value)}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openChangeStatusDialog(app)}
                         >
-                          <SelectTrigger className="w-[130px]">
-                            <SelectValue placeholder="Change status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="draft">Draft</SelectItem>
-                            <SelectItem value="submitted">Submitted</SelectItem>
-                            <SelectItem value="under-review">Under Review</SelectItem>
-                            <SelectItem value="approved">Approved</SelectItem>
-                            <SelectItem value="rejected">Rejected</SelectItem>
-                            <SelectItem value="incomplete">Incomplete</SelectItem>
-                          </SelectContent>
-                        </Select>
+                          Change Status
+                        </Button>
                         <Button variant="outline" size="sm">
                           View
                         </Button>
