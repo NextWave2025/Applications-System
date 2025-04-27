@@ -8,6 +8,7 @@ import { useAuth } from "../hooks/use-auth";
 import { queryClient } from "../lib/query-client";
 import { useToast } from "../hooks/use-toast";
 import { ProgramWithUniversity, Application, ApplicationWithDetails } from "@shared/schema";
+import { formatDistanceToNow, format } from "date-fns";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +20,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../components/ui/alert-dialog";
+
+// Helper function to format dates consistently
+function formatDate(dateString: string): { formatted: string; relative: string } {
+  const date = new Date(dateString);
+  return {
+    formatted: format(date, 'PPP'), // 'Apr 29, 2023'
+    relative: formatDistanceToNow(date, { addSuffix: true }) // '3 days ago'
+  };
+}
 
 // Define application form schema
 const applicationSchema = z.object({
@@ -946,13 +956,19 @@ export default function ApplicationEditPage() {
                   <div>
                     <h4 className="text-sm font-medium text-gray-700">Submission Date</h4>
                     <p className="mt-1">
-                      {applicationData?.createdAt ? new Date(applicationData.createdAt).toLocaleDateString() : ''} 
+                      {applicationData?.createdAt ? formatDate(applicationData.createdAt).formatted : ''} 
+                      <span className="text-xs text-gray-400 block">
+                        {applicationData?.createdAt ? formatDate(applicationData.createdAt).relative : ''}
+                      </span>
                     </p>
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-gray-700">Last Updated</h4>
                     <p className="mt-1">
-                      {applicationData?.updatedAt ? new Date(applicationData.updatedAt).toLocaleDateString() : ''} 
+                      {applicationData?.updatedAt ? formatDate(applicationData.updatedAt).formatted : ''} 
+                      <span className="text-xs text-gray-400 block">
+                        {applicationData?.updatedAt ? formatDate(applicationData.updatedAt).relative : ''}
+                      </span>
                     </p>
                   </div>
                 </div>
