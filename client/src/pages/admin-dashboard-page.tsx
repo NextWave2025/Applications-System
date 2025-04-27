@@ -83,12 +83,15 @@ function AuditLogsTable() {
   useEffect(() => {
     const fetchAuditLogs = async () => {
       try {
+        console.log("Fetching audit logs manually...");
         setLoading(true);
         const response = await apiRequest("GET", "/api/admin/audit-logs");
         const data = await response.json();
+        console.log("Manually fetched audit logs:", data);
         setAuditLogs(data);
       } catch (err) {
         console.error("Error fetching audit logs:", err);
+        console.error("Error details:", err instanceof Error ? err.message : String(err));
       } finally {
         setLoading(false);
       }
@@ -242,9 +245,11 @@ function ApplicationsManagementTable() {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
+        console.log("Fetching applications manually...");
         setLoading(true);
         const response = await apiRequest("GET", "/api/admin/applications");
         const data = await response.json();
+        console.log("Manually fetched applications:", data);
         setApplications(data);
       } catch (err) {
         console.error("Error fetching applications:", err);

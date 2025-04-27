@@ -96,8 +96,12 @@ router.patch("/users/:id/status", async (req, res) => {
 
 // Get all applications
 router.get("/applications", async (req, res) => {
+  console.log("Admin applications route called");
+  console.log("User:", req.user);
   try {
+    console.log("Fetching all applications...");
     const applications = await storage.getAllApplications();
+    console.log(`Found ${applications.length} applications`);
     res.json(applications);
   } catch (error) {
     console.error("Error fetching applications:", error);
@@ -137,8 +141,12 @@ router.patch("/applications/:id/status", async (req, res) => {
 
 // Get audit logs
 router.get("/audit-logs", async (req, res) => {
+  console.log("Admin audit-logs route called");
+  console.log("User:", req.user);
   try {
+    console.log("Fetching all audit logs...");
     const auditLogs = await storage.getAuditLogs();
+    console.log(`Found ${auditLogs.length} audit logs`);
     res.json(auditLogs);
   } catch (error) {
     console.error("Error fetching audit logs:", error);
