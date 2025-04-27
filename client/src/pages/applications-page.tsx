@@ -1,48 +1,85 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../hooks/use-auth";
 import { formatDistanceToNow } from "date-fns";
-import { ApplicationWithDetails, ApplicationStatus } from "@shared/schema";
+import { ApplicationStatus } from "@shared/schema";
+import { apiRequest } from "../lib/query-client";
+
+// Define types for application data
+type ApplicationProgram = {
+  name: string;
+  universityName: string;
+  universityLogo: string;
+  degree: string;
+};
+
+type Application = {
+  id: number;
+  userId: number;
+  programId: number;
+  studentFirstName: string;
+  studentLastName: string;
+  studentEmail: string;
+  studentPhone: string;
+  studentDateOfBirth: string;
+  studentNationality: string;
+  studentGender: string;
+  highestQualification: string;
+  qualificationName: string;
+  institutionName: string;
+  graduationYear: string;
+  cgpa: string;
+  intakeDate: string;
+  notes: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  program: ApplicationProgram;
+  documents: any[];
+};
 
 export default function ApplicationsPage() {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // Fetch applications with added logging
-  const { 
-    data: applications, 
-    isLoading, 
-    isError,
-    refetch 
-  } = useQuery<ApplicationWithDetails[]>({
-    queryKey: ["/api/applications"],
-    staleTime: 60000, // 1 minute
-    retry: 3,
-    enabled: !!user, // Only fetch if user is authenticated
-  });
-
-  // Log applications state for debugging
-  console.log("Applications state:", { user, isLoading, isError, applications });
-  
-  // Log application data when it changes
-  if (applications) {
-    console.log("Successfully fetched applications:", applications);
-  }
-  
-  // Log error when it occurs
-  if (isError) {
-    console.error("Error fetching applications");
-  }
+  // Load applications manually
+  useEffect(() => {
+    async function fetchApplications() {
+      if (!user) return;
+      
+      setIsLoading(true);
+      setIsError(false);
+      
+      try {
+        console.log("Fetching applications manually...");
+        const response = await apiRequest("GET", "/api/applications");
+        const data = await response.json();
+        console.log("Manually fetched applications:", data);
+        setApplications(data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching applications:", error);
+        setIsError(true);
+        setErrorMessage(error instanceof Error ? error.message : "Failed to load applications");
+        setIsLoading(false);
+      }
+    }
+    
+    fetchApplications();
+  }, [user]);
 
   // Filter applications based on status
-  const filteredApplications = applications?.filter(app => 
+  const filteredApplications = applications.filter(app => 
     filterStatus ? app.status === filterStatus : true
   );
 
   // Render status badge with appropriate color
-  const StatusBadge = ({ status }: { status: ApplicationStatus }) => {
+  const StatusBadge = ({ status }: { status: string }) => {
     let color: string;
     let label: string;
 
@@ -155,7 +192,9 @@ export default function ApplicationsPage() {
       ) : isError ? (
         <div className="text-center py-12 bg-red-50 rounded-lg">
           <h2 className="text-lg font-semibold text-red-800 mb-2">Error Loading Applications</h2>
-          <p className="text-red-600 mb-4">There was a problem loading your applications. Please try again later.</p>
+          <p className="text-red-600 mb-4">
+            {errorMessage || "There was a problem loading your applications. Please try again later."}
+          </p>
           <button 
             onClick={() => window.location.reload()} 
             className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
@@ -163,7 +202,7 @@ export default function ApplicationsPage() {
             Retry
           </button>
         </div>
-      ) : applications && applications.length > 0 ? (
+      ) : applications.length > 0 ? (
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -186,7 +225,7 @@ export default function ApplicationsPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredApplications?.map((application) => (
+              {filteredApplications.map((application) => (
                 <tr key={application.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -211,7 +250,7 @@ export default function ApplicationsPage() {
                     <div className="text-sm text-gray-900">{application.studentFirstName} {application.studentLastName}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <StatusBadge status={application.status as ApplicationStatus} />
+                    <StatusBadge status={application.status} />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(application.createdAt).toLocaleDateString()} ({formatDistanceToNow(new Date(application.createdAt), { addSuffix: true })})
