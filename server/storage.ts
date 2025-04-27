@@ -4,8 +4,10 @@ import {
   universities, type University, type InsertUniversity,
   applications, type Application, type InsertApplication,
   documents, type Document, type InsertDocument,
+  auditLogs, type AuditLog, type InsertAuditLog,
   type ProgramWithUniversity,
-  type ApplicationWithDetails
+  type ApplicationWithDetails,
+  type TargetType
 } from "@shared/schema";
 import { eq, and, like, inArray, sql } from "drizzle-orm";
 import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
@@ -111,6 +113,24 @@ export class DBStorage implements IStorage {
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     const result = await this.db.select().from(users).where(eq(users.username, username));
+    return result[0];
+  }
+
+  async getUserById(id: number): Promise<User | undefined> {
+    const result = await this.db.select().from(users).where(eq(users.id, id));
+    return result[0];
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await this.db.select().from(users).orderBy(users.createdAt);
+  }
+
+  async updateUserStatus(id: number, active: boolean): Promise<User> {
+    const result = await this.db
+      .update(users)
+      .set({ active })
+      .where(eq(users.id, id))
+      .returning();
     return result[0];
   }
 
@@ -443,12 +463,50 @@ export class DBStorage implements IStorage {
     await this.db.delete(documents).where(eq(documents.id, id));
   }
 
+  // Audit log methods
+  async createAuditLog(insertAuditLog: InsertAuditLog): Promise<AuditLog> {
+    const result = await this.db.insert(auditLogs).values(insertAuditLog).returning();
+    return result[0];
+  }
+
+  async getAuditLogs(): Promise<AuditLog[]> {
+    return await this.db.select().from(auditLogs).orderBy(sql`${auditLogs.createdAt} DESC`);
+  }
+
+  async getAuditLogsByUserId(userId: number): Promise<AuditLog[]> {
+    return await this.db.select()
+      .from(auditLogs)
+      .where(eq(auditLogs.userId, userId))
+      .orderBy(sql`${auditLogs.createdAt} DESC`);
+  }
+
+  async getAuditLogsByTarget(targetId: number, targetType: string): Promise<AuditLog[]> {
+    return await this.db.select()
+      .from(auditLogs)
+      .where(
+        and(
+          eq(auditLogs.targetId, targetId),
+          eq(auditLogs.targetType, targetType)
+        )
+      )
+      .orderBy(sql`${auditLogs.createdAt} DESC`);
+  }
+
+  async getAuditLogsByAction(action: string): Promise<AuditLog[]> {
+    return await this.db.select()
+      .from(auditLogs)
+      .where(eq(auditLogs.action, action))
+      .orderBy(sql`${auditLogs.createdAt} DESC`);
+  }
+  
   // Utility methods
   async clearAll(): Promise<void> {
+    await this.db.delete(auditLogs);
     await this.db.delete(documents);
     await this.db.delete(applications);
     await this.db.delete(programs);
     await this.db.delete(universities);
+    await this.db.delete(users);
   }
 }
 
