@@ -41,6 +41,7 @@ export default function AuthPage() {
   // Redirect if already logged in
   useEffect(() => {
     if (!isLoading && user) {
+      console.log("User already authenticated, redirecting to:", redirectTo);
       navigate(redirectTo);
     }
   }, [user, isLoading, navigate, redirectTo]);

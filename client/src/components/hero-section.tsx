@@ -33,7 +33,8 @@ export default function HeroSection() {
           </p>
           <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-8">
             <Link
-              to="/signup"
+              to="/auth"
+              state={{ redirectTo: "/dashboard" }}
               className="py-3 px-6 bg-white text-black font-medium rounded"
             >
               Become an Agent

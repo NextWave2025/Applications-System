@@ -226,7 +226,11 @@ export default function ApplicationsPage() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredApplications.map((application) => (
-                <tr key={application.id} className="hover:bg-gray-50">
+                <tr 
+                  key={application.id} 
+                  className="hover:bg-gray-50 cursor-pointer"
+                  onClick={() => navigate(`/dashboard/applications/${application.id}/edit`)}
+                >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       {application.program?.universityLogo ? (
@@ -257,13 +261,19 @@ export default function ApplicationsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <button
-                      onClick={() => navigate(`/dashboard/applications/${application.id}`)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent row click from triggering
+                        navigate(`/dashboard/applications/${application.id}`);
+                      }}
                       className="text-primary hover:text-primary-dark mr-3"
                     >
                       View
                     </button>
                     <button
-                      onClick={() => navigate(`/dashboard/applications/${application.id}/edit`)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent row click from triggering
+                        navigate(`/dashboard/applications/${application.id}/edit`);
+                      }}
                       className="text-blue-600 hover:text-blue-800"
                     >
                       Edit
