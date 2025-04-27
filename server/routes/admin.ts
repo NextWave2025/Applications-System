@@ -80,7 +80,7 @@ router.patch("/users/:id/status", async (req, res) => {
     
     // Log the action
     await storage.createAuditLog({
-      userId: req.user.id,
+      userId: req.user?.id || 0,
       action: active ? "activate_user" : "deactivate_user",
       resourceType: "user",
       resourceId: userId,
@@ -120,7 +120,7 @@ router.patch("/applications/:id/status", async (req, res) => {
     
     // Log the action
     await storage.createAuditLog({
-      userId: req.user.id,
+      userId: req.user?.id || 0,
       action: "update_application_status",
       resourceType: "application",
       resourceId: applicationId,
@@ -158,16 +158,16 @@ router.get("/audit-logs/user/:id", async (req, res) => {
   }
 });
 
-// Get audit logs by target ID and type
-router.get("/audit-logs/target/:type/:id", async (req, res) => {
+// Get audit logs by resource ID and type
+router.get("/audit-logs/resource/:type/:id", async (req, res) => {
   try {
-    const targetId = parseInt(req.params.id);
-    const targetType = req.params.type;
-    const auditLogs = await storage.getAuditLogsByTarget(targetId, targetType);
+    const resourceId = parseInt(req.params.id);
+    const resourceType = req.params.type;
+    const auditLogs = await storage.getAuditLogsByTarget(resourceId, resourceType);
     res.json(auditLogs);
   } catch (error) {
-    console.error("Error fetching target audit logs:", error);
-    res.status(500).json({ error: "Failed to fetch target audit logs" });
+    console.error("Error fetching resource audit logs:", error);
+    res.status(500).json({ error: "Failed to fetch resource audit logs" });
   }
 });
 

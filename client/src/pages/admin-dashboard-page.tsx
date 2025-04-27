@@ -5,8 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Users, FileText, AlertTriangle, CheckCircle, Clock, School } from "lucide-react";
+import { 
+  Loader2, Users, FileText, AlertTriangle, CheckCircle, 
+  Clock, School, Search, Calendar, Filter, RefreshCw 
+} from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { Input } from "@/components/ui/input";
+import { 
+  Select, SelectContent, SelectItem, 
+  SelectTrigger, SelectValue 
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 
 interface AdminStats {
   totalApplications: number;
@@ -26,6 +36,415 @@ interface User {
   role: string;
   active: boolean;
   createdAt: string;
+}
+
+interface Application {
+  id: number;
+  userId: number;
+  programId: number;
+  studentFirstName: string;
+  studentLastName: string;
+  studentEmail: string;
+  studentPhone: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  program: {
+    name: string;
+    universityName: string;
+    universityLogo: string;
+    degree: string;
+  };
+  documents: {
+    id: number;
+    documentType: string;
+    originalFilename: string;
+  }[];
+}
+
+interface AuditLog {
+  id: number;
+  userId: number;
+  action: string;
+  resourceType: string;
+  resourceId: number;
+  createdAt: string;
+  previousData?: any;
+  newData?: any;
+}
+
+function AuditLogsTable() {
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [users, setUsers] = useState<Record<number, User>>({});
+
+  useEffect(() => {
+    const fetchAuditLogs = async () => {
+      try {
+        setLoading(true);
+        const response = await apiRequest("GET", "/api/admin/audit-logs");
+        const data = await response.json();
+        setAuditLogs(data);
+      } catch (err) {
+        console.error("Error fetching audit logs:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchUsers = async () => {
+      try {
+        const response = await apiRequest("GET", "/api/admin/users");
+        const data = await response.json();
+        // Create a map of user IDs to user objects for easier lookup
+        const userMap: Record<number, User> = {};
+        data.forEach((user: User) => {
+          userMap[user.id] = user;
+        });
+        setUsers(userMap);
+      } catch (err) {
+        console.error("Error fetching users:", err);
+      }
+    };
+
+    fetchAuditLogs();
+    fetchUsers();
+  }, []);
+
+  const getActionLabel = (action: string) => {
+    // Convert snake_case to Title Case with spaces
+    return action
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const getResourceTypeLabel = (resourceType: string) => {
+    // Convert to Title Case
+    return resourceType.charAt(0).toUpperCase() + resourceType.slice(1);
+  };
+
+  const getUserName = (userId: number) => {
+    const user = users[userId];
+    if (!user) return `User #${userId}`;
+    return `${user.firstName} ${user.lastName} (${user.username})`;
+  };
+
+  return (
+    <div>
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search audit logs..."
+              className="pl-8"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+        <Select
+          value={filter || ""}
+          onValueChange={(value) => setFilter(value || null)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Types</SelectItem>
+            <SelectItem value="user">User</SelectItem>
+            <SelectItem value="application">Application</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button 
+          variant="outline" 
+          size="icon"
+          onClick={() => {
+            setFilter(null);
+            setSearchQuery("");
+          }}
+        >
+          <RefreshCw className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center p-6">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="rounded-md border">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b bg-muted/50">
+                <th className="py-3 px-4 text-left">Date/Time</th>
+                <th className="py-3 px-4 text-left">User</th>
+                <th className="py-3 px-4 text-left">Action</th>
+                <th className="py-3 px-4 text-left">Resource Type</th>
+                <th className="py-3 px-4 text-left">Resource ID</th>
+                <th className="py-3 px-4 text-left">Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              {auditLogs.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-6 text-center text-muted-foreground">
+                    No audit logs found
+                  </td>
+                </tr>
+              ) : (
+                auditLogs.map((log) => (
+                  <tr key={log.id} className="border-b">
+                    <td className="py-3 px-4">
+                      {format(new Date(log.createdAt), 'MMM d, yyyy HH:mm:ss')}
+                    </td>
+                    <td className="py-3 px-4">
+                      {getUserName(log.userId)}
+                    </td>
+                    <td className="py-3 px-4">
+                      <Badge variant="outline" className="bg-blue-50 text-blue-800">
+                        {getActionLabel(log.action)}
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-4">
+                      {getResourceTypeLabel(log.resourceType)}
+                    </td>
+                    <td className="py-3 px-4">
+                      {log.resourceId}
+                    </td>
+                    <td className="py-3 px-4">
+                      {log.previousData && log.newData && (
+                        <Button variant="ghost" size="sm">
+                          View Changes
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ApplicationsManagementTable() {
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        setLoading(true);
+        const response = await apiRequest("GET", "/api/admin/applications");
+        const data = await response.json();
+        setApplications(data);
+      } catch (err) {
+        console.error("Error fetching applications:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplications();
+  }, []);
+
+  const filteredApplications = applications.filter(app => {
+    // Status filter
+    if (statusFilter && app.status !== statusFilter) {
+      return false;
+    }
+    
+    // Search query filter (student name or email)
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const fullName = `${app.studentFirstName} ${app.studentLastName}`.toLowerCase();
+      const email = app.studentEmail.toLowerCase();
+      const programName = app.program.name.toLowerCase();
+      
+      return fullName.includes(query) || 
+             email.includes(query) || 
+             programName.includes(query);
+    }
+    
+    return true;
+  });
+
+  const getStatusBadgeStyles = (status: string) => {
+    switch (status) {
+      case "draft":
+        return "bg-gray-100 text-gray-800";
+      case "submitted":
+        return "bg-blue-100 text-blue-800";
+      case "under-review":
+        return "bg-yellow-100 text-yellow-800";
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      case "incomplete":
+        return "bg-orange-100 text-orange-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const updateApplicationStatus = async (applicationId: number, newStatus: string) => {
+    try {
+      await apiRequest("PATCH", `/api/admin/applications/${applicationId}/status`, {
+        status: newStatus
+      });
+      
+      // Refresh the applications list
+      const response = await apiRequest("GET", "/api/admin/applications");
+      const data = await response.json();
+      setApplications(data);
+    } catch (err) {
+      console.error("Error updating application status:", err);
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by student name, email, or program..."
+              className="pl-8"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+        <Select
+          value={statusFilter || ""}
+          onValueChange={(value) => setStatusFilter(value || null)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Statuses</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="submitted">Submitted</SelectItem>
+            <SelectItem value="under-review">Under Review</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="incomplete">Incomplete</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button 
+          variant="outline" 
+          size="icon"
+          onClick={() => {
+            setStatusFilter(null);
+            setSearchQuery("");
+          }}
+        >
+          <RefreshCw className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center p-6">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="rounded-md border">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b bg-muted/50">
+                <th className="py-3 px-4 text-left">ID</th>
+                <th className="py-3 px-4 text-left">Student</th>
+                <th className="py-3 px-4 text-left">Program</th>
+                <th className="py-3 px-4 text-left">University</th>
+                <th className="py-3 px-4 text-left">Status</th>
+                <th className="py-3 px-4 text-left">Updated</th>
+                <th className="py-3 px-4 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredApplications.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-6 text-center text-muted-foreground">
+                    No applications found
+                  </td>
+                </tr>
+              ) : (
+                filteredApplications.map((app) => (
+                  <tr key={app.id} className="border-b">
+                    <td className="py-3 px-4">{app.id}</td>
+                    <td className="py-3 px-4">
+                      <div className="font-medium">{app.studentFirstName} {app.studentLastName}</div>
+                      <div className="text-xs text-muted-foreground">{app.studentEmail}</div>
+                    </td>
+                    <td className="py-3 px-4">{app.program.name}</td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        {app.program.universityLogo && (
+                          <div className="h-6 w-6 rounded-full overflow-hidden">
+                            <img 
+                              src={app.program.universityLogo} 
+                              alt={app.program.universityName} 
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <span>{app.program.universityName}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <Badge 
+                        variant="outline" 
+                        className={getStatusBadgeStyles(app.status)}
+                      >
+                        {app.status.replace('-', ' ')}
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-4">
+                      {format(new Date(app.updatedAt), 'MMM d, yyyy')}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex space-x-2">
+                        <Select
+                          defaultValue={app.status}
+                          onValueChange={(value) => updateApplicationStatus(app.id, value)}
+                        >
+                          <SelectTrigger className="w-[130px]">
+                            <SelectValue placeholder="Change status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="draft">Draft</SelectItem>
+                            <SelectItem value="submitted">Submitted</SelectItem>
+                            <SelectItem value="under-review">Under Review</SelectItem>
+                            <SelectItem value="approved">Approved</SelectItem>
+                            <SelectItem value="rejected">Rejected</SelectItem>
+                            <SelectItem value="incomplete">Incomplete</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Button variant="outline" size="sm">
+                          View
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function AdminDashboardPage() {
@@ -278,9 +697,7 @@ export default function AdminDashboardPage() {
               <CardTitle>Application Management</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-center py-8 text-muted-foreground">
-                Applications management tab content will go here
-              </p>
+              <ApplicationsManagementTable />
             </CardContent>
           </Card>
         </TabsContent>
@@ -290,9 +707,7 @@ export default function AdminDashboardPage() {
               <CardTitle>Audit Logs</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-center py-8 text-muted-foreground">
-                Audit logs will be displayed here
-              </p>
+              <AuditLogsTable />
             </CardContent>
           </Card>
         </TabsContent>
