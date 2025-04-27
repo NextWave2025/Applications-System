@@ -51,6 +51,7 @@ export interface IStorage {
   updateApplication(id: number, application: Partial<Application>): Promise<Application>;
   
   // Document methods
+  getDocumentById(id: number): Promise<Document | undefined>;
   getDocumentsByApplicationId(applicationId: number): Promise<Document[]>;
   createDocument(document: InsertDocument): Promise<Document>;
   deleteDocument(id: number): Promise<void>;
@@ -245,7 +246,8 @@ export class DBStorage implements IStorage {
   // Application methods
   async getApplications(userId: number): Promise<ApplicationWithDetails[]> {
     const applicationResults = await this.db.select().from(applications)
-      .where(eq(applications.userId, userId));
+      .where(eq(applications.userId, userId))
+      .orderBy(sql`${applications.updatedAt} DESC`); // Sort by latest updated
       
     // Fetch program details and documents for each application
     const applicationsWithDetails = await Promise.all(
@@ -330,6 +332,11 @@ export class DBStorage implements IStorage {
   }
   
   // Document methods
+  async getDocumentById(id: number): Promise<Document | undefined> {
+    const result = await this.db.select().from(documents).where(eq(documents.id, id));
+    return result[0];
+  }
+
   async getDocumentsByApplicationId(applicationId: number): Promise<Document[]> {
     return await this.db.select().from(documents)
       .where(eq(documents.applicationId, applicationId));

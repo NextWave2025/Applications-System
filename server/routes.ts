@@ -416,6 +416,45 @@ export function registerRoutes(app: Express): Server {
   });
   
   // Upload a document directly (without application ID in path)
+  // DELETE a document
+  app.delete("/api/documents/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const documentId = parseInt(req.params.id);
+      if (isNaN(documentId)) {
+        return res.status(400).json({ error: "Invalid document ID" });
+      }
+
+      // Get the document to verify ownership
+      const document = await storage.getDocumentById(documentId);
+      if (!document) {
+        return res.status(404).json({ error: "Document not found" });
+      }
+
+      // Get the application to verify ownership
+      const application = await storage.getApplicationById(document.applicationId);
+      if (!application) {
+        return res.status(404).json({ error: "Associated application not found" });
+      }
+
+      // Check if the application belongs to the authenticated user
+      if (application.userId !== req.user.id) {
+        return res.status(403).json({ error: "You don't have permission to delete this document" });
+      }
+
+      // Delete the document
+      await storage.deleteDocument(documentId);
+      
+      res.status(200).json({ success: true, message: "Document deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      res.status(500).json({ error: "Failed to delete document" });
+    }
+  });
+
   app.post("/api/documents", upload.single('file'), async (req, res) => {
     try {
       if (!req.isAuthenticated()) {
@@ -487,28 +526,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Delete a document
-  app.delete("/api/documents/:id", async (req, res) => {
-    try {
-      if (!req.isAuthenticated()) {
-        return res.status(401).json({ error: "Authentication required" });
-      }
 
-      const documentId = parseInt(req.params.id);
-      if (isNaN(documentId)) {
-        return res.status(400).json({ error: "Invalid document ID" });
-      }
-
-      // TODO: Check if the document belongs to the authenticated user's application
-      // This would require a more complex query joining documents and applications tables
-
-      await storage.deleteDocument(documentId);
-      res.status(204).send();
-    } catch (error) {
-      console.error("Error deleting document:", error);
-      res.status(500).json({ error: "Failed to delete document" });
-    }
-  });
 
   const httpServer = createServer(app);
 
