@@ -156,11 +156,18 @@ export function registerRoutes(app: Express): Server {
   // Get all applications for the authenticated user
   app.get("/api/applications", async (req, res) => {
     try {
+      console.log("GET /api/applications request received");
+      console.log("Authentication status:", req.isAuthenticated());
+      console.log("User in session:", req.user);
+      
       if (!req.isAuthenticated()) {
+        console.log("User not authenticated, returning 401");
         return res.status(401).json({ error: "Authentication required" });
       }
 
+      console.log("Fetching applications for user ID:", req.user.id);
       const applications = await storage.getApplications(req.user.id);
+      console.log(`Found ${applications.length} applications for user ID ${req.user.id}`);
       res.json(applications);
     } catch (error) {
       console.error("Error fetching applications:", error);

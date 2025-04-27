@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../hooks/use-auth";
@@ -10,7 +10,7 @@ export default function ApplicationsPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
 
-  // Fetch applications
+  // Fetch applications with added logging
   const { 
     data: applications, 
     isLoading, 
@@ -22,6 +22,19 @@ export default function ApplicationsPage() {
     retry: 3,
     enabled: !!user, // Only fetch if user is authenticated
   });
+
+  // Log applications state for debugging
+  console.log("Applications state:", { user, isLoading, isError, applications });
+  
+  // Log application data when it changes
+  if (applications) {
+    console.log("Successfully fetched applications:", applications);
+  }
+  
+  // Log error when it occurs
+  if (isError) {
+    console.error("Error fetching applications");
+  }
 
   // Filter applications based on status
   const filteredApplications = applications?.filter(app => 
@@ -177,20 +190,20 @@ export default function ApplicationsPage() {
                 <tr key={application.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      {application.program?.university?.imageUrl ? (
+                      {application.program?.universityLogo ? (
                         <img 
-                          src={application.program.university.imageUrl} 
-                          alt={application.program.university.name} 
+                          src={application.program.universityLogo} 
+                          alt={application.program.universityName} 
                           className="h-10 w-10 mr-3 object-contain"
                         />
                       ) : (
                         <div className="h-10 w-10 bg-gray-200 rounded-full mr-3 flex items-center justify-center text-gray-500">
-                          {application.program?.university?.name?.charAt(0) || "U"}
+                          {application.program?.universityName?.charAt(0) || "U"}
                         </div>
                       )}
                       <div>
                         <div className="text-sm font-medium text-gray-900">{application.program?.name}</div>
-                        <div className="text-sm text-gray-500">{application.program?.university?.name}</div>
+                        <div className="text-sm text-gray-500">{application.program?.universityName}</div>
                       </div>
                     </div>
                   </td>
@@ -198,7 +211,7 @@ export default function ApplicationsPage() {
                     <div className="text-sm text-gray-900">{application.studentFirstName} {application.studentLastName}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <StatusBadge status={application.status} />
+                    <StatusBadge status={application.status as ApplicationStatus} />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(application.createdAt).toLocaleDateString()} ({formatDistanceToNow(new Date(application.createdAt), { addSuffix: true })})
