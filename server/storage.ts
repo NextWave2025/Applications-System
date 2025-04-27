@@ -424,7 +424,15 @@ export class DBStorage implements IStorage {
   }
   
   async createApplication(insertApplication: InsertApplication): Promise<Application> {
-    const result = await this.db.insert(applications).values([insertApplication]).returning();
+    // Ensure studentDateOfBirth is properly formatted as an ISO string if it's a Date object
+    if (insertApplication.studentDateOfBirth instanceof Date) {
+      insertApplication = {
+        ...insertApplication,
+        studentDateOfBirth: insertApplication.studentDateOfBirth.toISOString().split('T')[0]
+      };
+    }
+    
+    const result = await this.db.insert(applications).values(insertApplication).returning();
     return result[0];
   }
   
