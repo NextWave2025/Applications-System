@@ -289,9 +289,18 @@ export function registerRoutes(app: Express): Server {
       delete updatedData.programId;
       delete updatedData.createdAt;
       
-      // If studentDateOfBirth is provided as string, convert to Date
-      if (updatedData.studentDateOfBirth && typeof updatedData.studentDateOfBirth === 'string') {
-        updatedData.studentDateOfBirth = new Date(updatedData.studentDateOfBirth);
+      // If studentDateOfBirth is provided as string, we need to handle it specially for Postgres
+      if (updatedData.studentDateOfBirth) {
+        // For string input, convert to formatted date string YYYY-MM-DD
+        if (typeof updatedData.studentDateOfBirth === 'string') {
+          // Date is already in string format, make sure it's properly formatted
+          const dateObj = new Date(updatedData.studentDateOfBirth);
+          updatedData.studentDateOfBirth = dateObj.toISOString().split('T')[0];
+        } 
+        // For Date object input, convert to formatted date string
+        else if (updatedData.studentDateOfBirth instanceof Date) {
+          updatedData.studentDateOfBirth = updatedData.studentDateOfBirth.toISOString().split('T')[0];
+        }
       }
 
       const updatedApplication = await storage.updateApplication(id, updatedData);
