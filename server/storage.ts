@@ -16,13 +16,22 @@ import session from "express-session";
 import createMemoryStore from "memorystore";
 
 // Database connection
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is required");
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  console.error("Warning: DATABASE_URL environment variable is not set.");
+  console.error("Please make sure you have a .env file in the project root with DATABASE_URL set.");
+  console.error("Example: DATABASE_URL=postgresql://username:password@localhost:5432/database_name");
+  
+  // For development, use a default local connection string if one isn't provided
+  const defaultLocalConnectionString = "postgresql://postgres:postgres@localhost:5432/postgres";
+  console.error(`Attempting to use default connection string: ${defaultLocalConnectionString}`);
+  
+  // Set a default connection string for development
+  process.env.DATABASE_URL = defaultLocalConnectionString;
 }
 
 // Create postgres connection
-const connectionString = process.env.DATABASE_URL;
-const pgConnection = postgres(connectionString);
+const pgConnection = postgres(process.env.DATABASE_URL);
 const db = drizzle(pgConnection);
 
 // Create a memory store for sessions

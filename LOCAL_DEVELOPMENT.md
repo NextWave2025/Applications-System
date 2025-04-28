@@ -189,21 +189,81 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ### Common Issues and Solutions
 
-1. **Port Conflicts**
+1. **Environment Variable Issues**
+
+   If you see the error `DATABASE_URL environment variable is required` or similar errors, make sure:
    
-   If port 5000 is already in use, change the PORT value in your .env file.
+   - The `.env` file exists in the project root directory.
+   - The `.env` file contains the DATABASE_URL variable.
+   - You have copied the `.env.example` file to `.env` and updated the values.
+   - There are no spaces around the `=` sign in the `.env` file.
+   
+   > **Important**: On macOS, `.env` files may be hidden by default. Use `ls -la` to see hidden files or use command `touch .env` followed by `open -e .env` to create and edit it.
+   
+   Example `.env` file content:
+   ```
+   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/guide_db
+   SESSION_SECRET=yoursecretkey
+   PORT=5000
+   NODE_ENV=development
+   ```
 
 2. **Database Connection Errors**
    
-   Check that PostgreSQL is running and your connection string is correct.
+   If you can't connect to the database, try these steps:
+   
+   - Verify PostgreSQL is running with `pg_isready` command
+   - Check your database credentials in the .env file
+   - Make sure the database exists: `createdb guide_db`
+   - Test the connection with: `psql -d postgresql://username:password@localhost:5432/guide_db -c "SELECT 1;"`
+   - For Windows users, ensure PostgreSQL service is running in Services panel
 
-3. **TypeScript/Build Errors**
+3. **Port Conflicts**
+   
+   If port 5000 is already in use, change the PORT value in your .env file.
+
+4. **TypeScript/Build Errors**
    
    Run `npm run check` to identify TypeScript errors.
 
-4. **Missing Dependencies**
+5. **Missing Dependencies**
    
    Ensure all dependencies are installed with `npm install`.
+
+6. **Permission Issues**
+
+   If setup scripts fail with permission errors:
+   
+   ```bash
+   # Make script executable
+   chmod +x setup-local-dev.sh
+   chmod +x cleanup.sh
+   ```
+
+### Debugging Environment Variables
+
+If you suspect environment variables aren't loading correctly:
+
+1. Try printing environment variables to verify they're loaded:
+
+   ```javascript
+   // Add this to server/index.ts temporarily
+   console.log("Environment variables:", {
+     DATABASE_URL: process.env.DATABASE_URL?.substring(0, 10) + "...",
+     NODE_ENV: process.env.NODE_ENV,
+     PORT: process.env.PORT
+   });
+   ```
+
+2. Use dotenv-cli to ensure variables are loaded:
+
+   ```bash
+   # Install dotenv-cli
+   npm install -g dotenv-cli
+   
+   # Run with dotenv
+   dotenv -e .env -- tsx server/index.ts
+   ```
 
 ### Getting Help
 

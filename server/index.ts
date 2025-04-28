@@ -4,16 +4,22 @@ import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
 import { checkDatabaseConnection } from "./db";
 import dotenv from "dotenv";
+import fs from "fs";
 
-// Load environment variables from .env file in development mode
-// This is not needed in production as environment variables should be set in the hosting environment
-if (process.env.NODE_ENV === "development") {
-  try {
-    dotenv.config();
-    log("Environment variables loaded from .env file");
-  } catch (error) {
-    log("Warning: Error loading .env file. Make sure to set environment variables manually.");
+// Load environment variables from .env file
+const rootPath = path.resolve(import.meta.dirname, "..");
+const envPath = path.join(rootPath, '.env');
+
+try {
+  // Check if .env file exists and load it
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+    log(`Environment variables loaded from ${envPath}`);
+  } else {
+    log(`Warning: .env file not found at ${envPath}`);
   }
+} catch (error) {
+  log(`Error loading environment variables: ${error}`);
 }
 
 const app = express();
