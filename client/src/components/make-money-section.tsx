@@ -55,15 +55,16 @@ export default function SimpleProcessSection() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Header with brand-inspired design */}
         <div className="max-w-3xl mx-auto mb-16 text-center">
-          <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-            <span className="w-2 h-2 bg-primary rounded-full mr-2"></span>
-            For Education Agents
+          {/* Centered "For Education Agents" tag */}
+          <div className="flex justify-center mb-4">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
+              <span className="w-2 h-2 bg-primary rounded-full mr-2"></span>
+              For Education Agents
+            </div>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 relative inline-block">
+          {/* Removed outline from heading */}
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
             A Simple <span className="text-primary">Process</span>
-            <svg className="absolute -bottom-2 left-0 w-full" height="4" viewBox="0 0 200 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M0 2C50 2 50 2 100 2C150 2 150 2 200 2" stroke="#EF3009" strokeWidth="4" strokeLinecap="round" strokeDasharray="1 12"/>
-            </svg>
           </h2>
           <p className="text-gray-600 font-light text-lg mt-6">
             Start earning money by referring students to universities in just three simple steps
@@ -73,8 +74,8 @@ export default function SimpleProcessSection() {
         {/* Modern process visualization with brand elements */}
         <div className="max-w-6xl mx-auto">
           <div className="relative mb-20">
-            {/* Process connector line */}
-            <div className="hidden md:block absolute top-28 left-0 w-full h-1 bg-gray-100">
+            {/* Process connector line - moved down to avoid icon interference */}
+            <div className="hidden md:block absolute top-36 left-0 w-full h-1 bg-gray-100">
               <div className="absolute top-0 left-0 h-full bg-primary" style={{ width: isVisible ? '100%' : '0%', transition: 'width 1.5s ease-in-out' }}></div>
             </div>
             
