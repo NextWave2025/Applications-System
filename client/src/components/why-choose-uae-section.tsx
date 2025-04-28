@@ -1,64 +1,114 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { GraduationCap, Globe, TrendingUp, Shield } from 'lucide-react';
 
 export default function WhyChooseUAESection() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const section = document.getElementById('why-choose-uae-section');
+    if (section) observer.observe(section);
+
+    return () => {
+      if (section) observer.unobserve(section);
+    };
+  }, []);
+
+  // Define our features array
   const features = [
     {
-      icon: (
-        <svg className="w-10 h-10 p-2 bg-gray-100 rounded-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-        </svg>
-      ),
-      title: 'World-Class Education',
-      description: 'UAE universities offer internationally recognized degrees and partnerships with leading global institutions.'
+      icon: <GraduationCap className="w-8 h-8" />,
+      title: "World-Class Education",
+      description: "UAE universities offer internationally recognized degrees and partnerships with leading global institutions, ensuring students receive premium education.",
+      gradient: "bg-gradient-to-br from-primary/10 via-primary/5 to-transparent"
     },
     {
-      icon: (
-        <svg className="w-10 h-10 p-2 bg-gray-100 rounded-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      title: 'Global Hub',
-      description: 'Strategic location connecting East and West, with a diverse multicultural environment and global networking opportunities.'
+      icon: <Globe className="w-8 h-8" />,
+      title: "Global Hub",
+      description: "Strategic location connecting East and West, with a diverse multicultural environment and networking opportunities for international careers.",
+      gradient: "bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent"
     },
     {
-      icon: (
-        <svg className="w-10 h-10 p-2 bg-gray-100 rounded-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-        </svg>
-      ),
-      title: 'Career Growth',
-      description: 'Access to thriving job markets in technology, finance, healthcare, and tourism with competitive salaries.'
+      icon: <TrendingUp className="w-8 h-8" />,
+      title: "Career Growth",
+      description: "Access to thriving job markets in technology, finance, healthcare, and tourism with competitive salaries and rapid professional advancement.",
+      gradient: "bg-gradient-to-br from-green-500/10 via-green-500/5 to-transparent"
     },
     {
-      icon: (
-        <svg className="w-10 h-10 p-2 bg-gray-100 rounded-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-        </svg>
-      ),
-      title: 'Quality of Life',
-      description: 'Safe environment with modern infrastructure, excellent healthcare, and vibrant cultural experiences.'
+      icon: <Shield className="w-8 h-8" />,
+      title: "Quality of Life",
+      description: "A safe environment with modern infrastructure, excellent healthcare, vibrant cultural experiences, and high standard of living for students.",
+      gradient: "bg-gradient-to-br from-violet-500/10 via-violet-500/5 to-transparent"
     }
   ];
 
   return (
-    <section className="py-16 bg-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose UAE for Your Education?</h2>
-          <p className="text-gray-600 max-w-3xl mx-auto">
-            The United Arab Emirates offers exceptional educational opportunities with unique advantages for international students.
+    <section id="why-choose-uae-section" className="py-24 bg-gray-50 relative overflow-hidden">
+      {/* Brand-inspired decorative elements */}
+      <div className="absolute left-0 top-0 w-full h-32 bg-gradient-to-b from-white to-transparent pointer-events-none"></div>
+      
+      {/* Logo-inspired half-circle pattern */}
+      <div className="absolute -right-32 bottom-0 w-64 h-64 border-8 border-primary/10 rounded-full half-circle-left opacity-50 pointer-events-none"></div>
+      <div className="absolute -left-16 top-1/3 w-32 h-32 bg-primary/5 rounded-full opacity-30 pointer-events-none"></div>
+      
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-3xl mx-auto mb-20 text-center">
+          <div className="guide-badge-with-dot mb-6">
+            Student Advantages
+          </div>
+          <h2 className="text-5xl md:text-[64px] font-bold text-gray-900 mb-6 leading-tight tracking-tight">
+            Why Choose <span className="text-primary">UAE</span> for Your Education?
+          </h2>
+          <p className="text-lg md:text-[25px] font-light text-gray-600 leading-relaxed max-w-3xl mx-auto mt-6">
+            The United Arab Emirates offers exceptional educational opportunities with unique advantages for international students
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
-            <div key={index} className="border border-gray-100 rounded-lg p-6 hover:shadow-md transition-shadow">
-              <div className="mb-4">
-                {feature.icon}
+            <div 
+              key={index} 
+              className={`group rounded-lg overflow-hidden shadow-lg bg-white transition-all duration-700 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+              style={{ transitionDelay: `${index * 150}ms`, minHeight: '400px' }}
+            >
+              {/* Top accent bar with brand color */}
+              <div className="h-2 bg-primary"></div>
+              
+              {/* Inner content with proper spacing (80px min) */}
+              <div className="p-8 relative h-full flex flex-col">
+                {/* Background with G pattern */}
+                <div className={`absolute inset-0 ${feature.gradient} opacity-60 pointer-events-none`}></div>
+                <div className="absolute -right-12 -bottom-12 w-32 h-32 border-[6px] border-primary/5 rounded-tl-full transform rotate-90 opacity-30 pointer-events-none"></div>
+                
+                {/* Content */}
+                <div className="relative z-10 flex-1 flex flex-col">
+                  <div className="mb-6 w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                    {feature.icon}
+                  </div>
+                  
+                  <h3 className="text-[25px] font-bold text-gray-900 mb-4 leading-tight">
+                    {feature.title}
+                  </h3>
+                  
+                  <p className="text-[16px] font-light leading-relaxed text-gray-600 flex-1">
+                    {feature.description}
+                  </p>
+                  
+                  {/* Brand accent at bottom */}
+                  <div className="mt-6 w-16 h-1 bg-primary/20 rounded-full group-hover:w-24 transition-all duration-300">
+                    <div className="w-8 h-full bg-primary rounded-full"></div>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-              <p className="text-gray-600 text-sm">{feature.description}</p>
             </div>
           ))}
         </div>

@@ -2,21 +2,21 @@ export default function TestimonialsSection() {
   const testimonials = [
     {
       id: 1,
-      quote: "Polymet helped me find the perfect program at American University of Sharjah. The application process was smooth, and I got accepted with a partial scholarship!",
+      quote: "Guide helped me find the perfect program at American University of Sharjah. The application process was smooth, and I got accepted with a partial scholarship!",
       name: "Sarah Ahmed",
       role: "Computer Science Student",
       image: "https://randomuser.me/api/portraits/women/1.jpg",
     },
     {
       id: 2,
-      quote: "I was overwhelmed by all the university options in the UAE. Polymet's platform made it easy to compare programs and find the one that matched my career goals.",
+      quote: "I was overwhelmed by all the university options in the UAE. Guide's platform made it easy to compare programs and find the one that matched my career goals.",
       name: "Mohammed Al-Farsi",
       role: "Business Administration Student",
       image: "https://randomuser.me/api/portraits/men/2.jpg",
     },
     {
       id: 3,
-      quote: "As an international student, I was worried about the visa process. Polymet's team guided me through every step, making my transition to studying in Dubai seamless.",
+      quote: "As an international student, I was worried about the visa process. Guide's team guided me through every step, making my transition to studying in Dubai seamless.",
       name: "Priya Sharma",
       role: "Engineering Student",
       image: "https://randomuser.me/api/portraits/women/3.jpg",

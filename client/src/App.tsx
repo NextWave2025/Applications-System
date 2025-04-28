@@ -14,6 +14,8 @@ import AuthPage from "./pages/auth-page";
 import DashboardPage from "./pages/dashboard-page";
 import AdminDashboardPage from "./pages/admin-dashboard-page";
 import SettingsPage from "./pages/settings-page";
+import AboutPage from "./pages/about-page";
+import ContactPage from "./pages/contact-page";
 import NotFoundPage from "./pages/not-found";
 
 import MainLayout from "./layouts/main-layout";
@@ -59,6 +61,24 @@ export default function App() {
               element={
                 <MainLayout>
                   <ProgramDetailPage />
+                </MainLayout>
+              }
+            />
+
+            <Route
+              path="/about"
+              element={
+                <MainLayout>
+                  <AboutPage />
+                </MainLayout>
+              }
+            />
+
+            <Route
+              path="/contact"
+              element={
+                <MainLayout>
+                  <ContactPage />
                 </MainLayout>
               }
             />

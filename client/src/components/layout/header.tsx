@@ -1,6 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import CustomLogo from '../custom-logo';
+import LogoSettings from '../logo-settings';
+
+// User type definition
+interface User {
+  id: number;
+  username: string;
+  agencyName?: string;
+  isAdmin?: boolean;
+  [key: string]: any; // For other properties
+}
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -9,7 +20,7 @@ export default function Header() {
   const navigate = useNavigate();
 
   // Fetch current user data
-  const { data: user, isLoading } = useQuery({
+  const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/user"],
     retry: false,
   });
@@ -44,7 +55,8 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           <div className="flex">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="text-xl font-bold text-primary">Guide</span>
+              <CustomLogo className="mr-2" />
+              {!isLoading && user?.isAdmin && <LogoSettings />}
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
               <Link
@@ -52,12 +64,6 @@ export default function Header() {
                 className="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium"
               >
                 Programs
-              </Link>
-              <Link
-                to="/universities"
-                className="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium"
-              >
-                Universities
               </Link>
               <Link
                 to="/about"
@@ -201,13 +207,6 @@ export default function Header() {
               onClick={() => setIsMenuOpen(false)}
             >
               Programs
-            </Link>
-            <Link
-              to="/universities"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Universities
             </Link>
             <Link
               to="/about"
