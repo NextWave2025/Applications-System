@@ -11,8 +11,8 @@ export default function LandingPage() {
     <>
       <HeroSection />
       <PartnerUniversitiesSection />
-      <WhyChooseUAESection />
       <AgentFeaturesSection />
+      <WhyChooseUAESection />
       <AgentTestimonialsSection />
       <AgentCTASection />
     </>
