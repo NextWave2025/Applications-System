@@ -1,29 +1,39 @@
-import axios from 'axios';
-import fs from 'fs/promises';
+import fetch from 'node-fetch';
 
 async function testFetch() {
   try {
-    const url = 'https://e7c0d9ac-af1f-4aa2-88c5-5b0ec4511256-00-2phr93moz2xbl.janeway.replit.dev/';
-    console.log(`Fetching ${url}...`);
+    // Get universities
+    console.log('Fetching universities...');
+    const uniResponse = await fetch('http://localhost:5000/api/universities');
     
-    const response = await axios.get(url);
-    console.log('Response status:', response.status);
-    console.log('Content type:', response.headers['content-type']);
+    if (!uniResponse.ok) {
+      console.error(`Universities API error: ${uniResponse.status} ${uniResponse.statusText}`);
+    } else {
+      const universities = await uniResponse.json();
+      console.log(`Successfully fetched ${universities.length} universities`);
+      console.log('First 3 universities:');
+      universities.slice(0, 3).forEach(uni => {
+        console.log(`- ${uni.name} (${uni.location})`);
+      });
+    }
     
-    // Save the HTML to a file for inspection
-    await fs.writeFile('raw-university-page.html', response.data);
-    console.log('HTML saved to raw-university-page.html');
+    // Get programs
+    console.log('\nFetching programs...');
+    const programResponse = await fetch('http://localhost:5000/api/programs');
     
-    // Output first 500 characters of the response
-    console.log('First 500 characters of response:');
-    console.log(response.data.substring(0, 500));
+    if (!programResponse.ok) {
+      console.error(`Programs API error: ${programResponse.status} ${programResponse.statusText}`);
+    } else {
+      const programs = await programResponse.json();
+      console.log(`Successfully fetched ${programs.length} programs`);
+      console.log('First 3 programs:');
+      programs.slice(0, 3).forEach(program => {
+        console.log(`- ${program.name} (${program.degree})`);
+      });
+    }
     
   } catch (error) {
-    console.error('Error fetching website:', error.message);
-    if (error.response) {
-      console.error('Response status:', error.response.status);
-      console.error('Response headers:', error.response.headers);
-    }
+    console.error('Fetch error:', error.message);
   }
 }
 

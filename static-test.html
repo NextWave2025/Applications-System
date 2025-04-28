@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guide Platform Test Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #4a6cf7;
+      text-align: center;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    button {
+      background-color: #4a6cf7;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #3a5ce6;
+    }
+    #results {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f7f9fc;
+      border-radius: 8px;
+      min-height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Guide Platform Test Page</h1>
+  
+  <div class="card">
+    <h2>Server Status Check</h2>
+    <p>This page confirms that the Node.js server is running properly.</p>
+    <p>Current Time: <span id="current-time"></span></p>
+    <p>Server Status: <span id="server-status">✅ Running</span></p>
+  </div>
+  
+  <div class="card">
+    <h2>API Test</h2>
+    <p>Test the API endpoints below:</p>
+    <button id="test-universities">Get Universities</button>
+    <button id="test-programs">Get Programs</button>
+    <div id="results">
+      <p>Results will display here...</p>
+    </div>
+  </div>
+
+  <script>
+    // Update current time
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('current-time').textContent = now.toLocaleString();
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+    
+    // Test university endpoint
+    document.getElementById('test-universities').addEventListener('click', async () => {
+      const resultsElement = document.getElementById('results');
+      resultsElement.innerHTML = '<p>Loading universities...</p>';
+      
+      try {
+        const response = await fetch('/api/universities');
+        if (!response.ok) {
+          throw new Error(`HTTP error ${response.status}`);
+        }
+        
+        const data = await response.json();
+        resultsElement.innerHTML = `
+          <h3>Success! Found ${data.length} universities</h3>
+          <p>First few universities:</p>
+          <ul>
+            ${data.slice(0, 5).map(uni => `<li>${uni.name} (${uni.location})</li>`).join('')}
+          </ul>
+          ${data.length > 5 ? `<p>...and ${data.length - 5} more</p>` : ''}
+        `;
+      } catch (error) {
+        resultsElement.innerHTML = `<p>Error fetching universities: ${error.message}</p>`;
+      }
+    });
+    
+    // Test programs endpoint
+    document.getElementById('test-programs').addEventListener('click', async () => {
+      const resultsElement = document.getElementById('results');
+      resultsElement.innerHTML = '<p>Loading programs...</p>';
+      
+      try {
+        const response = await fetch('/api/programs');
+        if (!response.ok) {
+          throw new Error(`HTTP error ${response.status}`);
+        }
+        
+        const data = await response.json();
+        resultsElement.innerHTML = `
+          <h3>Success! Found ${data.length} programs</h3>
+          <p>First few programs:</p>
+          <ul>
+            ${data.slice(0, 5).map(program => `<li>${program.name} at ${program.university?.name || 'Unknown University'}</li>`).join('')}
+          </ul>
+          ${data.length > 5 ? `<p>...and ${data.length - 5} more</p>` : ''}
+        `;
+      } catch (error) {
+        resultsElement.innerHTML = `<p>Error fetching programs: ${error.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>

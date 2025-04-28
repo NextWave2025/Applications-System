@@ -15,14 +15,6 @@ run = ["npm", "run", "start"]
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 5001
-externalPort = 3000
-
-[[ports]]
-localPort = 5555
-externalPort = 3001
-
 [workflows]
 
 [[workflows.workflow]]
@@ -46,7 +38,3 @@ agentRequireRestartOnSave = false
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run start"
