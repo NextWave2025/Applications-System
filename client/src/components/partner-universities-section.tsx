@@ -1,14 +1,14 @@
 import React from "react";
 
 // Import university logos
-import abuDhabiUniLogo from "@assets/university-logos/abu_dhabi_uni.jpg";
-import birminghamUniLogo from "@assets/university-logos/birmingham_uni.png";
-import dubaiUniLogo from "@assets/university-logos/dubai_uni.png";
-import gulfMedicalUniLogo from "@assets/university-logos/gulf_medical_unipng.png";
-import heriotWattUniLogo from "@assets/university-logos/heriot_watt_uni.svg";
-import middlesexDubaiLogo from "@assets/university-logos/middlesex_dubai_dubai.png";
-import skylineUniLogo from "@assets/university-logos/skyline_uni.png";
-import ukCollegeLogo from "@assets/university-logos/uk_college.webp";
+import abuDhabiUniLogo from "../assets/university-logos/abu_dhabi_uni.jpg";
+import birminghamUniLogo from "../assets/university-logos/birmingham_uni.png";
+import dubaiUniLogo from "../assets/university-logos/dubai_uni.png";
+import gulfMedicalUniLogo from "../assets/university-logos/gulf_medical_unipng.png";
+import heriotWattUniLogo from "../assets/university-logos/heriot_watt_uni.svg";
+import middlesexDubaiLogo from "../assets/university-logos/middlesex_dubai_dubai.png";
+import skylineUniLogo from "../assets/university-logos/skyline_uni.png";
+import ukCollegeLogo from "../assets/university-logos/uk_college.webp";
 
 // Define the partner universities with their logos
 const partnerUniversities = [
@@ -28,7 +28,7 @@ export default function PartnerUniversitiesSection() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Our Partner Universities
+            Top Partner Universities in UAE
           </h2>
           <p className="text-gray-600 max-w-3xl mx-auto">
             We work with the top universities across the UAE
