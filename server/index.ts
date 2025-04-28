@@ -2,6 +2,19 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
+import { checkDatabaseConnection } from "./db";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file in development mode
+// This is not needed in production as environment variables should be set in the hosting environment
+if (process.env.NODE_ENV === "development") {
+  try {
+    dotenv.config();
+    log("Environment variables loaded from .env file");
+  } catch (error) {
+    log("Warning: Error loading .env file. Make sure to set environment variables manually.");
+  }
+}
 
 const app = express();
 app.use(express.json());
@@ -62,8 +75,8 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Simple server start on port 5000 with basic error handling
-  const port = 5000;
+  // Get port from environment variable or use default 5000
+  const port = parseInt(process.env.PORT || '5000', 10);
   
   // Add detailed error logging and uncaught exception handling
   process.on('uncaughtException', (err) => {
