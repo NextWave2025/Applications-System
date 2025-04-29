@@ -50,3 +50,7 @@ coverage/
 # Misc
 .vercel
 .netlify
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
