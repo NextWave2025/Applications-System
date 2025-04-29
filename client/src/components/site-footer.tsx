@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Linkedin, Mail, ArrowRight, MapPin, Phone } from 'lucide-react';
+import CustomLogo from './custom-logo';
 
 export default function SiteFooter() {
   const currentYear = new Date().getFullYear();
@@ -19,13 +20,8 @@ export default function SiteFooter() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
           {/* Logo and Company Info - 4 columns */}
           <div className="md:col-span-4">
-            <div className="flex items-center mb-6">
-              {/* G logo using half-circle design similar to brand */}
-              <div className="relative h-10 w-10 mr-3">
-                <div className="absolute inset-0 bg-primary rounded-full half-circle-left"></div>
-                <div className="absolute inset-0 flex items-center justify-center font-bold text-white">G</div>
-              </div>
-              <span className="text-2xl font-bold tracking-tight">Guide</span>
+            <div className="mb-6">
+              <CustomLogo variant="white" />
             </div>
             
             <p className="text-gray-400 font-light text-[16px] leading-relaxed mb-6 max-w-md">
