@@ -14,7 +14,7 @@ export default function HeroSection() {
     <section className="relative bg-black py-20 lg:py-28 overflow-hidden">
       {/* Brand-inspired half-circle shape */}
       <div className="absolute -left-1/4 top-1/2 -translate-y-1/2 w-1/2 aspect-square bg-primary/40 rounded-full filter blur-3xl opacity-30 pointer-events-none"></div>
-      
+
       {/* Brand-inspired decorative elements */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute bottom-0 left-0 w-full h-1/4 bg-gradient-to-t from-primary/5 to-transparent"></div>
@@ -52,10 +52,10 @@ export default function HeroSection() {
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               <span className="text-primary">Guide</span> Your Students to
-              <span className="relative"> 
+              <span className="relative ml-1.5">
                 Success
                 <svg className="absolute bottom-2 left-0 w-full" height="6" viewBox="0 0 200 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M0 3C50 3 50 3 100 3C150 3 150 3 200 3" stroke="#EF3009" strokeWidth="5" strokeLinecap="round"/>
+                  <path d="M0 3C50 3 50 3 100 3C150 3 150 3 200 3" stroke="#EF3009" strokeWidth="5" strokeLinecap="round" />
                 </svg>
               </span>
             </h1>
@@ -80,7 +80,7 @@ export default function HeroSection() {
                 Explore Programs
               </Link>
             </div>
-            
+
             <div className="mt-16 flex items-center">
               <div className="flex -space-x-2">
                 <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-medium border-2 border-black">UA</div>
@@ -88,24 +88,24 @@ export default function HeroSection() {
                 <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-white text-xs font-medium border-2 border-black">JK</div>
               </div>
               <div className="ml-4">
-                <p className="text-white text-sm font-medium">Trusted by <span className="text-primary">500+</span> agents worldwide</p>
+                <p className="text-white text-sm font-medium">Trusted by many agents worldwide</p>
                 <div className="flex mt-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <svg key={star} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   ))}
-                  <span className="ml-1 text-white/60 text-xs">4.9/5</span>
+                  <span className="ml-1 text-white/60 text-xs">5/5</span>
                 </div>
               </div>
             </div>
           </div>
-          
+
           <div className={`relative lg:w-1/2 flex justify-center items-center transition-all duration-1000 delay-300 ease-out transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
             <div className="relative w-full max-w-md aspect-square">
               {/* Decorative half-circle - inspired by logo */}
               <div className="absolute -left-6 bottom-1/4 w-72 h-72 border-[16px] border-primary rounded-full opacity-30 clip-half-circle-left"></div>
-              
+
               {/* Main circular element */}
               <div className="absolute inset-0 bg-gradient-to-br from-black to-gray-900 rounded-full border border-gray-800 p-10 flex items-center justify-center overflow-hidden">
                 <div className="relative z-10 text-center">
@@ -116,7 +116,7 @@ export default function HeroSection() {
                   <div className="text-primary font-medium">Programs</div>
                 </div>
               </div>
-              
+
               {/* Accent circles */}
               <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 backdrop-blur-md rounded-full"></div>
               <div className="absolute -bottom-2 right-1/4 w-12 h-12 bg-primary/10 backdrop-blur-md rounded-full"></div>
@@ -124,7 +124,7 @@ export default function HeroSection() {
           </div>
         </div>
       </div>
-      
+
       {/* Custom CSS for half-circle clip - implemented as a style tag */}
       <style dangerouslySetInnerHTML={{
         __html: `

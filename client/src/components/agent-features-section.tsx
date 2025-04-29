@@ -91,17 +91,14 @@ export default function AgentFeaturesSection() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
           {features.map((feature, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className={`relative bg-white rounded-lg border border-gray-100 p-8 shadow-lg overflow-hidden transition-all duration-700 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
               style={{ transitionDelay: `${index * 100}ms`, minHeight: '320px' }}
             >
               {/* Background gradient */}
               <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-30 pointer-events-none`}></div>
-              
-              {/* G pattern background element at consistent position */}
-              <GPatternElement />
-              
+
               {/* Content with proper spacing */}
               <div className="relative z-10 flex flex-col h-full">
                 <div className="mb-6">
@@ -109,15 +106,15 @@ export default function AgentFeaturesSection() {
                     {feature.icon}
                   </div>
                 </div>
-                
+
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 leading-tight">
                   {feature.title}
                 </h3>
-                
+
                 <p className="text-base font-light leading-relaxed text-gray-600 mt-2 flex-grow">
                   {feature.description}
                 </p>
-                
+
                 <div className="mt-6 w-12 h-1 bg-primary/20 rounded-full">
                   <div className="w-6 h-full bg-primary rounded-full"></div>
                 </div>

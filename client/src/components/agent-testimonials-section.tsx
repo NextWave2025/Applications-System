@@ -56,12 +56,12 @@ export default function AgentTestimonialsSection() {
       <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-gray-50/50 to-transparent pointer-events-none"></div>
       <div className="absolute -left-16 bottom-1/4 w-32 h-32 bg-primary/5 rounded-full opacity-40 pointer-events-none"></div>
       <div className="absolute right-0 top-0 w-64 h-64 bg-primary/5 rounded-bl-full opacity-20 pointer-events-none"></div>
-      
+
       {/* G pattern background subtly in the background */}
       <div className="absolute bottom-0 right-0 w-80 h-80 opacity-5 pointer-events-none">
         <div className="w-full h-full border-[20px] border-primary rounded-tl-full"></div>
       </div>
-      
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-3xl mx-auto mb-16 text-center">
           <div className="guide-badge-with-dot mb-6">
@@ -77,8 +77,8 @@ export default function AgentTestimonialsSection() {
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {testimonials.map((testimonial, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className={`relative bg-white rounded-lg border border-gray-100 shadow-xl overflow-hidden transition-all duration-700 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
               style={{ transitionDelay: `${index * 150}ms` }}
             >
@@ -88,18 +88,18 @@ export default function AgentTestimonialsSection() {
                 <div className="absolute -top-16 -left-16 w-32 h-32 border-8 border-primary/20 rounded-full"></div>
                 <div className="absolute -right-8 top-0 w-24 h-24 bg-primary/10 rounded-bl-full"></div>
               </div>
-              
+
               {/* Quote Icon with brand styling */}
-              <div className="absolute top-6 right-6 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <div className="absolute top-2 right-2 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Quote className="w-5 h-5 text-primary" />
               </div>
-              
+
               <div className="p-8 pt-12 relative z-10">
                 {/* Quote Text */}
                 <p className="text-[16px] font-light leading-relaxed text-gray-700 mb-8 min-h-[120px]">
                   "{testimonial.quote}"
                 </p>
-                
+
                 {/* Author Info */}
                 <div className="pt-6 border-t border-gray-100 flex items-center">
                   <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white text-xs font-medium">
@@ -111,7 +111,7 @@ export default function AgentTestimonialsSection() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Bottom accent line for brand identity */}
               <div className="absolute bottom-0 left-0 w-full h-1">
                 <div className="h-full w-1/3 bg-primary"></div>
@@ -119,12 +119,12 @@ export default function AgentTestimonialsSection() {
             </div>
           ))}
         </div>
-        
+
         {/* Trust Indicator with Brand Styling */}
         <div className="mt-16 text-center">
           <div className="inline-flex items-center px-6 py-3 rounded-full bg-primary/5 text-gray-600 text-sm font-light">
             <span className="mr-2 text-primary">★★★★★</span>
-            Rated 4.9/5 by our partner agencies worldwide
+            Rated 5/5 by our partner agencies worldwide
           </div>
         </div>
       </div>
