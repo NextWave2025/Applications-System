@@ -16,7 +16,7 @@ export default function Footer() {
               Connecting students with the best educational opportunities in the UAE.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white">
+              <a href="https://www.instagram.com/startwithguide/" target="_blank" className="text-gray-400 hover:text-white">
                 <span className="sr-only">Instagram</span>
                 <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                   <path
@@ -26,7 +26,7 @@ export default function Footer() {
                   />
                 </svg>
               </a>
-              <a href="#" className="text-gray-400 hover:text-white">
+              <a href="https://www.linkedin.com/company/startwithguide/" target="_blank" className="text-gray-400 hover:text-white">
                 <span className="sr-only">LinkedIn</span>
                 <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                   <path
