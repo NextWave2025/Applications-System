@@ -108,7 +108,7 @@ export default function HeroSection() {
               <div className="absolute -left-6 bottom-1/4 w-72 h-72 border-[16px] border-primary rounded-full opacity-30 clip-half-circle-left"></div>
 
               {/* Main circular element */}
-              <div className="absolute inset-0 bg-gradient-to-br from-black to-gray-900 rounded-full border border-gray-800 p-10 flex items-center justify-center overflow-hidden">
+              <div className="hidden absolute inset-0 bg-gradient-to-br from-black to-gray-900 rounded-full border border-gray-800 p-10 lg:flex items-center justify-center overflow-hidden">
                 <div className="relative z-10 text-center">
                   <div className="text-5xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80">31+</div>
                   <div className="text-primary font-medium">UAE Universities</div>
@@ -119,8 +119,8 @@ export default function HeroSection() {
               </div>
 
               {/* Accent circles */}
-              <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 backdrop-blur-md rounded-full"></div>
-              <div className="absolute -bottom-2 right-1/4 w-12 h-12 bg-primary/10 backdrop-blur-md rounded-full"></div>
+              <div className="hidden lg:block absolute top-0 right-0 w-20 h-20 bg-primary/5 backdrop-blur-md rounded-full"></div>
+              <div className="hidden lg:block absolute -bottom-2 right-1/4 w-12 h-12 bg-primary/10 backdrop-blur-md rounded-full"></div>
             </div>
           </div>
         </div>
