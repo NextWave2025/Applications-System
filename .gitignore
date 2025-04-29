@@ -9,6 +9,8 @@ dist/
 build/
 .cache/
 
+migrations/
+
 # Environment variables
 .env
 .env.local

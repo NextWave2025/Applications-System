@@ -1,4 +1,4 @@
-import { 
+import {
   users, type User, type InsertUser,
   programs, type Program, type InsertProgram,
   universities, type University, type InsertUniversity,
@@ -21,11 +21,11 @@ if (!connectionString) {
   console.error("Warning: DATABASE_URL environment variable is not set.");
   console.error("Please make sure you have a .env file in the project root with DATABASE_URL set.");
   console.error("Example: DATABASE_URL=postgresql://username:password@localhost:5432/database_name");
-  
+
   // For development, use a default local connection string if one isn't provided
-  const defaultLocalConnectionString = "postgresql://postgres:postgres@localhost:5432/postgres";
+  const defaultLocalConnectionString = "postgres://neondb_owner_render:kiARnihT25Ngo3Q1gIUwN72QsexjIJdF@dpg-d07rg4qdbo4c73br2udg-a.oregon-postgres.render.com/neondb_twto?sslmode=require";
   console.error(`Attempting to use default connection string: ${defaultLocalConnectionString}`);
-  
+
   // Set a default connection string for development
   process.env.DATABASE_URL = defaultLocalConnectionString;
 }
@@ -46,26 +46,26 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUserStatus(id: number, active: boolean): Promise<User>;
   getAllUsers(): Promise<User[]>;
-  
+
   // Program methods
   getPrograms(filters?: ProgramFilters): Promise<ProgramWithUniversity[]>;
   getProgramById(id: number): Promise<ProgramWithUniversity | undefined>;
   createProgram(program: InsertProgram): Promise<Program>;
-  
+
   // University methods
   getUniversities(): Promise<University[]>;
   getUniversityById(id: number): Promise<University | undefined>;
   createUniversity(university: InsertUniversity): Promise<University>;
-  
+
   // Application methods
   getApplications(userId: number): Promise<ApplicationWithDetails[]>;
   getAllApplications(filters?: ApplicationFilters): Promise<ApplicationWithDetails[]>; // For admin use
   getApplicationById(id: number): Promise<ApplicationWithDetails | undefined>;
   createApplication(application: InsertApplication): Promise<Application>;
   updateApplicationStatus(
-    id: number, 
-    status: string, 
-    userId: number, 
+    id: number,
+    status: string,
+    userId: number,
     notes?: string,
     additionalData?: {
       rejectionReason?: string;
@@ -74,7 +74,7 @@ export interface IStorage {
     }
   ): Promise<Application>;
   updateApplication(id: number, application: Partial<Application>): Promise<Application>;
-  
+
   // Document methods
   getDocumentById(id: number): Promise<Document | undefined>;
   getDocumentsByApplicationId(applicationId: number): Promise<Document[]>;
@@ -90,7 +90,7 @@ export interface IStorage {
 
   // Utility methods
   clearAll(): Promise<void>;
-  
+
   // Session store
   sessionStore: session.Store;
 }
@@ -161,7 +161,7 @@ export class DBStorage implements IStorage {
   // Program methods
   async getPrograms(filters?: ProgramFilters): Promise<ProgramWithUniversity[]> {
     console.log("Storage.getPrograms called with filters:", filters);
-    
+
     try {
       // Use ORM for better type safety
       let query = this.db.select({
@@ -182,39 +182,39 @@ export class DBStorage implements IStorage {
           imageUrl: universities.imageUrl
         }
       })
-      .from(programs)
-      .innerJoin(universities, eq(programs.universityId, universities.id));
-      
+        .from(programs)
+        .innerJoin(universities, eq(programs.universityId, universities.id));
+
       // Build conditions array for WHERE clause
       const conditions = [];
-      
+
       // Apply filters if provided
       if (filters) {
         // Study level filter
         if (filters.studyLevel && filters.studyLevel.length > 0) {
           conditions.push(inArray(programs.degree, filters.studyLevel));
         }
-        
+
         // Study field filter
         if (filters.studyField && filters.studyField.length > 0) {
           conditions.push(inArray(programs.studyField, filters.studyField));
         }
-        
+
         // University filter
         if (filters.universityIds && filters.universityIds.length > 0) {
           conditions.push(inArray(programs.universityId, filters.universityIds));
         }
-        
+
         // Duration filter
         if (filters.duration && filters.duration.length > 0) {
           conditions.push(inArray(programs.duration, filters.duration));
         }
-        
+
         // Scholarship filter
         if (filters.hasScholarship !== undefined) {
           conditions.push(eq(programs.hasScholarship, filters.hasScholarship));
         }
-        
+
         // Search filter
         if (filters.search) {
           const searchLower = `%${filters.search.toLowerCase()}%`;
@@ -223,16 +223,16 @@ export class DBStorage implements IStorage {
           );
         }
       }
-      
+
       // Apply all conditions to the query
       if (conditions.length > 0) {
         query = query.where(and(...conditions)) as any;
       }
-      
+
       console.log("Executing ORM query...");
       const result = await query;
       console.log(`Query returned ${result.length} programs`);
-      
+
       // Handle max tuition filter in memory since tuition is stored as string with "AED/year" suffix
       if (filters?.maxTuition) {
         return result.filter((program: ProgramWithUniversity) => {
@@ -246,7 +246,7 @@ export class DBStorage implements IStorage {
           }
         });
       }
-      
+
       return result;
     } catch (error) {
       console.error("Error in getPrograms:", error);
@@ -273,10 +273,10 @@ export class DBStorage implements IStorage {
         imageUrl: universities.imageUrl
       }
     })
-    .from(programs)
-    .innerJoin(universities, eq(programs.universityId, universities.id))
-    .where(eq(programs.id, id));
-    
+      .from(programs)
+      .innerJoin(universities, eq(programs.universityId, universities.id))
+      .where(eq(programs.id, id));
+
     return result[0];
   }
 
@@ -299,22 +299,22 @@ export class DBStorage implements IStorage {
     const result = await this.db.insert(universities).values(insertUniversity).returning();
     return result[0];
   }
-  
+
   // Application methods
   async getApplications(userId: number): Promise<ApplicationWithDetails[]> {
     const applicationResults = await this.db.select().from(applications)
       .where(eq(applications.userId, userId))
       .orderBy(sql`${applications.updatedAt} DESC`); // Sort by latest updated
-      
+
     // Fetch program details and documents for each application
     const applicationsWithDetails = await Promise.all(
       applicationResults.map(async (application) => {
         // Get program details with university info
         const program = await this.getProgramById(application.programId);
-        
+
         // Get documents for this application
         const docs = await this.getDocumentsByApplicationId(application.id);
-        
+
         return {
           ...application,
           program: {
@@ -327,60 +327,60 @@ export class DBStorage implements IStorage {
         };
       })
     );
-    
+
     return applicationsWithDetails;
   }
-  
+
   async getAllApplications(filters?: ApplicationFilters): Promise<ApplicationWithDetails[]> {
     try {
       // Build the base query
       let query = this.db.select().from(applications);
-      
+
       // Apply filters if provided
       if (filters) {
         const conditions = [];
-        
+
         // Status filter
         if (filters.status) {
           conditions.push(eq(applications.status, filters.status));
         }
-        
+
         // User ID filter
         if (filters.userId) {
           conditions.push(eq(applications.userId, filters.userId));
         }
-        
+
         // Search filter (search in student names and emails)
         if (filters.search) {
           const searchTerm = `%${filters.search.toLowerCase()}%`;
           conditions.push(
-            sql`(LOWER(${applications.studentFirstName}) LIKE ${searchTerm} OR 
-                 LOWER(${applications.studentLastName}) LIKE ${searchTerm} OR 
+            sql`(LOWER(${applications.studentFirstName}) LIKE ${searchTerm} OR
+                 LOWER(${applications.studentLastName}) LIKE ${searchTerm} OR
                  LOWER(${applications.studentEmail}) LIKE ${searchTerm})`
           );
         }
-        
+
         // Apply all conditions
         if (conditions.length > 0) {
           query = query.where(and(...conditions)) as any;
         }
       }
-      
+
       // Sort by most recently updated
       const applicationResults = await query.orderBy(sql`${applications.updatedAt} DESC`);
-      
+
       // Fetch program details, user info, and documents for each application
       const applicationsWithDetails = await Promise.all(
         applicationResults.map(async (application) => {
           // Get program details with university info
           const program = await this.getProgramById(application.programId);
-          
+
           // Get user (agent) details
           const user = await this.getUser(application.userId);
-          
+
           // Get documents for this application
           const docs = await this.getDocumentsByApplicationId(application.id);
-          
+
           return {
             ...application,
             program: {
@@ -397,29 +397,29 @@ export class DBStorage implements IStorage {
           };
         })
       );
-      
+
       return applicationsWithDetails;
     } catch (error) {
       console.error("Error in getAllApplications:", error);
       throw error;
     }
   }
-  
+
   async getApplicationById(id: number): Promise<ApplicationWithDetails | undefined> {
     const result = await this.db.select().from(applications).where(eq(applications.id, id));
-    
+
     if (!result.length) {
       return undefined;
     }
-    
+
     const application = result[0];
-    
+
     // Get program details with university info
     const program = await this.getProgramById(application.programId);
-    
+
     // Get documents for this application
     const docs = await this.getDocumentsByApplicationId(application.id);
-    
+
     return {
       ...application,
       program: {
@@ -431,7 +431,7 @@ export class DBStorage implements IStorage {
       documents: docs
     };
   }
-  
+
   async createApplication(insertApplication: InsertApplication): Promise<Application> {
     // Ensure studentDateOfBirth is properly formatted as an ISO string if it's a Date object
     if (insertApplication.studentDateOfBirth instanceof Date) {
@@ -440,15 +440,15 @@ export class DBStorage implements IStorage {
         studentDateOfBirth: insertApplication.studentDateOfBirth.toISOString().split('T')[0]
       };
     }
-    
+
     const result = await this.db.insert(applications).values(insertApplication).returning();
     return result[0];
   }
-  
+
   async updateApplicationStatus(
-    id: number, 
-    status: string, 
-    userId: number, 
+    id: number,
+    status: string,
+    userId: number,
     notes?: string,
     additionalData?: {
       rejectionReason?: string;
@@ -461,9 +461,9 @@ export class DBStorage implements IStorage {
     if (!currentApp) {
       throw new Error(`Application with ID ${id} not found`);
     }
-    
+
     const now = new Date();
-    
+
     // Create the status history entry
     const historyEntry = {
       fromStatus: currentApp.status,
@@ -472,14 +472,14 @@ export class DBStorage implements IStorage {
       userId: userId,
       notes: notes || ""
     };
-    
+
     // Prepare the update data
-    const updateData: any = { 
+    const updateData: any = {
       status,
       updatedAt: now,
       lastActionBy: userId
     };
-    
+
     // Get the current status history or initialize empty array
     let statusHistory = currentApp.statusHistory || [];
     // Ensure it's an array
@@ -489,16 +489,16 @@ export class DBStorage implements IStorage {
     // Add the new entry to the status history
     statusHistory = [...statusHistory, historyEntry];
     updateData.statusHistory = statusHistory;
-    
+
     // Add notes if provided
     if (notes) {
       updateData.adminNotes = notes;
     }
-    
+
     // Handle status-specific data requirements
     if (status === "rejected" && additionalData?.rejectionReason) {
       updateData.rejectionReason = additionalData.rejectionReason;
-    } 
+    }
     else if (status === "accepted-conditional-offer" && additionalData?.conditionalOfferTerms) {
       updateData.conditionalOfferTerms = additionalData.conditionalOfferTerms;
     }
@@ -508,30 +508,30 @@ export class DBStorage implements IStorage {
     else if (status === "submitted-to-university") {
       updateData.submittedToUniversityDate = now;
     }
-    
+
     // Update the application
     const result = await this.db.update(applications)
       .set(updateData)
       .where(eq(applications.id, id))
       .returning();
-      
+
     return result[0];
   }
-  
+
   async updateApplication(id: number, applicationData: Partial<Application>): Promise<Application> {
     // Ensure we have an updated timestamp
     if (!applicationData.updatedAt) {
       applicationData.updatedAt = new Date();
     }
-    
+
     const result = await this.db.update(applications)
       .set(applicationData)
       .where(eq(applications.id, id))
       .returning();
-    
+
     return result[0];
   }
-  
+
   // Document methods
   async getDocumentById(id: number): Promise<Document | undefined> {
     const result = await this.db.select().from(documents).where(eq(documents.id, id));
@@ -542,12 +542,12 @@ export class DBStorage implements IStorage {
     return await this.db.select().from(documents)
       .where(eq(documents.applicationId, applicationId));
   }
-  
+
   async createDocument(insertDocument: InsertDocument): Promise<Document> {
     const result = await this.db.insert(documents).values(insertDocument).returning();
     return result[0];
   }
-  
+
   async deleteDocument(id: number): Promise<void> {
     await this.db.delete(documents).where(eq(documents.id, id));
   }
@@ -587,7 +587,7 @@ export class DBStorage implements IStorage {
       .where(eq(auditLogs.action, action))
       .orderBy(sql`${auditLogs.createdAt} DESC`);
   }
-  
+
   // Utility methods
   async clearAll(): Promise<void> {
     await this.db.delete(auditLogs);
