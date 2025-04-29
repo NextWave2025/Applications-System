@@ -18,6 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import StatusChangeDialog from "@/components/status-change-dialog";
+import { UserActionDialog } from "@/components/user-action-dialog";
 
 interface AdminStats {
   totalApplications: number;
@@ -483,6 +484,11 @@ export default function AdminDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  
+  // User action dialog state
+  const [userActionDialogOpen, setUserActionDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [userActionType, setUserActionType] = useState<"activate" | "deactivate">("deactivate");
 
   useEffect(() => {
     // If the user is not an admin, redirect to the dashboard
@@ -686,18 +692,10 @@ export default function AdminDashboardPage() {
                                 variant="outline" 
                                 size="sm"
                                 disabled={user.role === 'admin'}
-                                onClick={async () => {
-                                  try {
-                                    await apiRequest("PATCH", `/api/admin/users/${user.id}/status`, {
-                                      active: !user.active
-                                    });
-                                    // Refresh the user list
-                                    const response = await apiRequest("GET", "/api/admin/users");
-                                    const data = await response.json();
-                                    setUsers(data);
-                                  } catch (err) {
-                                    console.error("Error toggling user status:", err);
-                                  }
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  setUserActionType(user.active ? "deactivate" : "activate");
+                                  setUserActionDialogOpen(true);
                                 }}
                               >
                                 {user.active ? 'Deactivate' : 'Activate'}
@@ -740,6 +738,37 @@ export default function AdminDashboardPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* User Action Confirmation Dialog */}
+      <UserActionDialog
+        open={userActionDialogOpen}
+        onOpenChange={setUserActionDialogOpen}
+        onConfirm={async () => {
+          if (!selectedUser) return;
+          
+          try {
+            // Set the user status to the opposite of current status
+            await apiRequest("PATCH", `/api/admin/users/${selectedUser.id}/status`, {
+              active: userActionType === "activate" // true if activating, false if deactivating
+            });
+            
+            // Refresh the user list
+            const response = await apiRequest("GET", "/api/admin/users");
+            const data = await response.json();
+            setUsers(data);
+          } catch (err) {
+            console.error(`Error ${userActionType === "activate" ? "activating" : "deactivating"} user:`, err);
+          }
+        }}
+        title={userActionType === "activate" ? "Activate User Account" : "Deactivate User Account"}
+        description={
+          userActionType === "activate"
+            ? `Are you sure you want to activate the account for ${selectedUser?.firstName} ${selectedUser?.lastName}? This will allow the user to log in to the system.`
+            : `Are you sure you want to deactivate the account for ${selectedUser?.firstName} ${selectedUser?.lastName}? This user will no longer be able to log in to the system.`
+        }
+        actionLabel={userActionType === "activate" ? "Activate" : "Deactivate"}
+        actionVariant={userActionType === "activate" ? "default" : "destructive"}
+      />
     </div>
   );
 }

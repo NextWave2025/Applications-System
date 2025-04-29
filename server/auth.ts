@@ -59,9 +59,17 @@ export function setupAuth(app: Express) {
     new LocalStrategy(async (username, password, done) => {
       try {
         const user = await storage.getUserByUsername(username);
+        
+        // Check if user exists and password is correct
         if (!user || !(await comparePasswords(password, user.password))) {
-          return done(null, false);
+          return done(null, false, { message: "Invalid credentials" });
         }
+        
+        // Check if user account is active
+        if (!user.active) {
+          return done(null, false, { message: "Your account is inactive. Please contact an administrator." });
+        }
+        
         return done(null, user);
       } catch (err) {
         return done(err);

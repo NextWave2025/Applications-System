@@ -18,7 +18,7 @@ export const users = pgTable("users", {
   phoneNumber: text("phone_number"),
   website: text("website"),
   role: text("role").notNull().default("agent"), // Default role is agent
-  active: boolean("active").notNull().default(true), // For account deactivation
+  active: boolean("active").notNull().default(false), // New accounts are inactive by default until approved
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
