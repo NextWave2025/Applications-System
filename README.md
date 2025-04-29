@@ -1,155 +1,220 @@
-# Guide - Educational Program Discovery Platform
+# Guide Platform - Project Documentation
 
-Guide is a comprehensive web platform designed to connect UAE students with educational opportunities. The application allows users to explore universities and their programs, filter by various criteria, and submit applications.
+## Project Overview
 
-## Tech Stack
+Guide is a dynamic web platform designed to simplify educational program discovery for UAE students, offering an intuitive and engaging user experience for exploring academic opportunities. The platform features 31 universities and 913 programs with comprehensive details for prospective students.
 
-- **Frontend**: React with TypeScript, Vite, TailwindCSS, Shadcn UI components
-- **Backend**: Express.js with TypeScript
-- **Database**: PostgreSQL with Drizzle ORM
+## Project Architecture
+
+### Technology Stack
+
+#### Frontend
+- **Framework**: React.js with TypeScript
+- **Build System**: Vite
+- **Styling**: Tailwind CSS, shadcn/ui components
+- **State Management**: TanStack React Query
+- **Routing**: Wouter
+- **Forms**: React Hook Form with Zod validation
+
+#### Backend
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **API**: RESTful API design
 - **Authentication**: Passport.js with session-based auth
-- **API**: RESTful architecture
+- **Session Storage**: Express-session with connect-pg-simple
 
-## Prerequisites
+#### Database
+- **Type**: PostgreSQL
+- **ORM**: Drizzle ORM
+- **Schema Validation**: Drizzle-zod
+- **Migrations**: Drizzle Kit
 
-Before you begin, ensure you have installed:
+#### Development Tools
+- **Package Manager**: npm
+- **TypeScript Compiler**: tsc
+- **Development Server**: Vite + tsx
 
-- Node.js (v18 or higher)
-- npm (v8 or higher)
-- PostgreSQL (v14 or higher)
-
-## Local Development Setup
-
-### Step 1: Clone the repository
-
-```bash
-git clone <your-repository-url>
-cd guide-platform
-```
-
-### Step 2: Install dependencies
-
-```bash
-npm install
-```
-
-### Step 3: Set up the environment variables
-
-1. Create a `.env` file in the root of the project:
-
-```bash
-cp .env.example .env
-```
-
-2. Fill in the environment variables:
-   - `DATABASE_URL`: Your PostgreSQL connection string
-   - `SESSION_SECRET`: A secure random string for session encryption
-   - `PORT`: The port on which to run the application (default 5000)
-   - `NODE_ENV`: Set to `development` for local development
-
-### Step 4: Set up the database
-
-1. Create a PostgreSQL database for the project:
-
-```bash
-createdb guide_db
-```
-
-2. Run the database migrations to set up the schema:
-
-```bash
-npm run db:push
-```
-
-### Step 5: Start the development server
-
-```bash
-npm run dev
-```
-
-This will start both the backend Express server and the frontend Vite development server. The application will be available at `http://localhost:5000`.
-
-## Available Scripts
-
-- `npm run dev`: Start the development server
-- `npm run build`: Build the project for production
-- `npm run start`: Run the production build
-- `npm run check`: Run TypeScript type checking
-- `npm run db:push`: Apply database schema changes
-
-## Project Structure
+## Directory Structure
 
 ```
 guide-platform/
 ├── client/                 # Frontend code
-│   ├── public/             # Static assets
-│   ├── src/
-│   │   ├── assets/         # Frontend assets
-│   │   ├── components/     # React components
-│   │   ├── context/        # React context providers
+│   ├── src/                # React application source
+│   │   ├── components/     # Reusable UI components
 │   │   ├── hooks/          # Custom React hooks
-│   │   ├── layouts/        # Layout components
-│   │   ├── lib/            # Utility functions
-│   │   ├── pages/          # Page components
+│   │   ├── lib/            # Utility functions and shared logic
+│   │   ├── pages/          # Application pages
+│   │   ├── styles/         # Global stylesheets
 │   │   ├── App.tsx         # Main application component
-│   │   └── main.tsx        # Entry point
+│   │   └── main.tsx        # Application entry point
+│   └── vite.config.ts      # Vite configuration for frontend
+│
 ├── server/                 # Backend code
 │   ├── middleware/         # Express middleware
-│   ├── routes/             # API routes
-│   ├── auth.ts             # Authentication logic
+│   ├── routes/             # API route handlers
+│   ├── auth.ts             # Authentication configuration
 │   ├── db.ts               # Database connection
 │   ├── index.ts            # Server entry point
 │   ├── routes.ts           # Route configuration
 │   ├── storage.ts          # Data access layer
-│   └── vite.ts             # Vite configuration for serving the frontend
-├── shared/                 # Shared code between frontend and backend
+│   └── vite.ts             # Vite integration for development
+│
+├── shared/                 # Shared code between client and server
 │   └── schema.ts           # Database schema and types
-├── migrations/             # Database migrations
-├── .env                    # Environment variables (not versioned)
+│
+├── migrations/             # Database migration files
+│
+├── public/                 # Static assets
+│
+├── setup-local-dev.sh      # Local development setup script
+├── setup-local-database.sh # Local database setup script
+├── cleanup.sh              # Project cleanup script
+│
 ├── .env.example            # Example environment variables
-├── .gitignore              # Git ignore file
 ├── drizzle.config.ts       # Drizzle ORM configuration
-├── package.json            # Node.js dependencies and scripts
+├── tailwind.config.ts      # Tailwind CSS configuration
 ├── tsconfig.json           # TypeScript configuration
-└── vite.config.ts          # Vite configuration
+├── LOCAL_DEVELOPMENT.md    # Local development guide
+├── DEPLOYMENT.md           # Deployment instructions
+└── CLEANUP_GUIDE.md        # Cleanup instructions
 ```
 
-## Database Schema
+## Core Features
 
-The application uses the following main database tables:
+1. **University & Program Discovery**: Browse and search among 31 universities and 913 programs.
+2. **Application Management**: Submit and track applications to programs.
+3. **Agent Portal**: Educational agents can manage multiple student applications.
+4. **Admin Dashboard**: Administrators can review and process applications.
+5. **Document Upload**: Support for uploading required application documents.
+6. **Status Tracking**: Real-time application status updates.
 
-- `users`: User accounts for agents and admins
-- `universities`: Information about educational institutions
-- `programs`: Academic programs offered by universities
-- `applications`: Student applications to programs
-- `documents`: Files attached to applications (passports, transcripts, etc.)
-- `auditLogs`: Audit trail of administrative actions
+## Key Files and Components
 
-## Production Deployment
+### Database Schema
 
-To deploy the application in a production environment:
+The database schema is defined in `shared/schema.ts` using Drizzle ORM. Main entities include:
 
-1. Build the project:
+- **Users**: Agents and administrators
+- **Universities**: Educational institutions
+- **Programs**: Academic programs offered by universities
+- **Applications**: Student applications to programs
+- **Documents**: Application documents
+- **Audit Logs**: System activity tracking
+
+### Authentication
+
+Authentication is implemented in `server/auth.ts` using Passport.js with local strategy:
+
+- Session-based authentication
+- Role-based access control (agent/admin)
+- Secure password hashing
+
+### API Endpoints
+
+Main API endpoints include:
+
+- `/api/login`, `/api/register`, `/api/logout`: Authentication
+- `/api/user`: Current user information
+- `/api/programs`: Program search and details
+- `/api/applications`: Application management
+- `/api/documents`: Document upload and management
+
+## Environment Setup
+
+### Required Environment Variables
+
+```
+# Database Configuration
+DATABASE_URL=postgresql://USERNAME:PASSWORD@HOSTNAME:PORT/DATABASE_NAME
+PGPORT=PORT
+PGUSER=USERNAME
+PGPASSWORD=PASSWORD
+PGDATABASE=DATABASE_NAME
+PGHOST=HOSTNAME
+
+# Session Configuration
+SESSION_SECRET=your_secure_session_secret
+
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+```
+
+## Development Setup
+
+See `LOCAL_DEVELOPMENT.md` for detailed instructions on setting up the development environment.
+
+### Quick Start
+
+1. Copy `.env.example` to `.env` and update with your settings
+2. Run `./setup-local-database.sh` to set up the database
+3. Run `npm install` to install dependencies
+4. Run `npm run dev` to start the development server
+
+## Deployment Requirements
+
+The application can be deployed using various approaches. See `DEPLOYMENT.md` for detailed instructions.
+
+### AWS Deployment Options
+
+1. **AWS Elastic Beanstalk**: Recommended for simplicity
+   - Node.js platform
+   - Environment variables for database connection
+   - Suitable for most production needs
+
+2. **AWS App Runner**: For containerized deployment
+   - Container-based deployment
+   - Automatic scaling
+   - Minimal configuration needed
+
+3. **AWS Amplify**: Frontend-focused deployment
+   - Great for React applications
+   - Continuous deployment from Git
+   - Easy setup for frontend applications
+
+4. **ECS Fargate + RDS**: For advanced scalability
+   - Containerized deployment with Docker
+   - Managed PostgreSQL with RDS
+   - More control over infrastructure
+
+### Database Deployment
+
+The application uses PostgreSQL, which can be deployed as:
+
+1. **Existing Neon Database**: Continue using the current cloud PostgreSQL provider
+2. **AWS RDS**: Migrate to Amazon's managed PostgreSQL service
+3. **Self-hosted PostgreSQL**: For complete control over the database
+
+## Build Process
 
 ```bash
+# Build the application
 npm run build
-```
 
-2. Set the appropriate environment variables for production.
-
-3. Start the production server:
-
-```bash
+# Start in production mode
 npm run start
 ```
 
-## Contributing
+The build process:
+1. Compiles TypeScript for server-side code
+2. Builds React application with Vite
+3. Bundles server code with ESBuild
+4. Outputs to the `dist` directory
 
-1. Create a feature branch: `git checkout -b feature/my-feature`
-2. Commit your changes: `git commit -m 'Add my feature'`
-3. Push to the branch: `git push origin feature/my-feature`
-4. Submit a pull request
+## Additional Resources
 
-## License
+- **LOCAL_DEVELOPMENT.md**: Detailed instructions for local development
+- **DEPLOYMENT.md**: Comprehensive deployment guide
+- **CLEANUP_GUIDE.md**: Instructions for cleaning up development files before production
 
-[MIT](LICENSE)
+## Colors and Branding
+
+- Primary color: #EF3009
+- Font family: Outfit (Light 300, Medium 500, Bold 700)
+- Typography: Section headers (64px), Subheadings (25px), Body text (16px)
+- Border radius: 8px on all containers
+- Minimum clear space: 80px around important elements
+
+## Contact
+
+For any questions or support regarding this project, please contact the project maintainers.
