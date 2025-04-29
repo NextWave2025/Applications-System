@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Linkedin, Mail, ArrowRight, MapPin, Phone } from 'lucide-react';
-import CustomLogo from './custom-logo';
+import { Instagram, Linkedin, Mail, MapPin, Phone, ArrowRight } from 'lucide-react';
+import GuideLogo from '../assets/Guide-logo-Primary-red.svg';
 
 export default function SiteFooter() {
   const currentYear = new Date().getFullYear();
@@ -21,7 +21,7 @@ export default function SiteFooter() {
           {/* Logo and Company Info - 4 columns */}
           <div className="md:col-span-4">
             <div className="mb-6">
-              <CustomLogo variant="white" />
+              <img src={GuideLogo} alt="Guide Logo" className="h-12" />
             </div>
             
             <p className="text-gray-400 font-light text-[16px] leading-relaxed mb-6 max-w-md">
@@ -32,30 +32,30 @@ export default function SiteFooter() {
             <div className="space-y-3 mb-8">
               <div className="flex items-center">
                 <MapPin className="h-5 w-5 text-primary mr-3" />
-                <span className="text-gray-300 text-[16px] font-light">Dubai Media City, Dubai, UAE</span>
+                <span className="text-gray-300 text-[16px] font-light">in5 tech internet city, Dubai, UAE</span>
               </div>
               <div className="flex items-center">
                 <Mail className="h-5 w-5 text-primary mr-3" />
-                <span className="text-gray-300 text-[16px] font-light">info@guideuae.com</span>
-              </div>
-              <div className="flex items-center">
-                <Phone className="h-5 w-5 text-primary mr-3" />
-                <span className="text-gray-300 text-[16px] font-light">+971 4 123 4567</span>
+                <span className="text-gray-300 text-[16px] font-light">info@startwithguide.com</span>
               </div>
             </div>
             
-            {/* Social Icons */}
+            {/* Social Icons - Instagram and LinkedIn only */}
             <div className="flex space-x-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary hover:text-white transition-colors duration-300">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary hover:text-white transition-colors duration-300">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary hover:text-white transition-colors duration-300">
+              <a 
+                href="https://instagram.com" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary hover:text-white transition-colors duration-300"
+              >
                 <Instagram className="h-5 w-5" />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary hover:text-white transition-colors duration-300">
+              <a 
+                href="https://linkedin.com" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary hover:text-white transition-colors duration-300"
+              >
                 <Linkedin className="h-5 w-5" />
               </a>
             </div>
@@ -74,7 +74,7 @@ export default function SiteFooter() {
               <li>
                 <Link to="/programs" className="text-gray-400 hover:text-primary font-light text-[16px] transition-colors duration-200 flex items-center">
                   <span className="w-1.5 h-1.5 bg-primary mr-2 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
-                  Programs
+                  Explore
                 </Link>
               </li>
               <li>
@@ -87,12 +87,6 @@ export default function SiteFooter() {
                 <Link to="/contact" className="text-gray-400 hover:text-primary font-light text-[16px] transition-colors duration-200 flex items-center">
                   <span className="w-1.5 h-1.5 bg-primary mr-2 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
                   Contact
-                </Link>
-              </li>
-              <li>
-                <Link to="/blog" className="text-gray-400 hover:text-primary font-light text-[16px] transition-colors duration-200 flex items-center">
-                  <span className="w-1.5 h-1.5 bg-primary mr-2 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
-                  Blog
                 </Link>
               </li>
             </ul>
