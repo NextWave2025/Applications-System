@@ -47,10 +47,10 @@ export default function SimpleProcessSection() {
 
   return (
     <section id="simple-process-section" className="py-20 bg-white relative overflow-hidden">
-      {/* Brand-inspired decorative elements */}
+      {/* Brand-inspired decorative elements - adjusted for mobile/tablet */}
       <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-gray-50 to-white"></div>
-      <div className="absolute -bottom-16 -right-16 w-32 h-32 border border-primary/10 rounded-full"></div>
-      <div className="absolute top-1/4 -left-16 w-32 h-32 border-8 border-primary/5 rounded-full"></div>
+      <div className="absolute -bottom-16 -right-16 w-32 h-32 border border-primary/10 rounded-full hidden md:block"></div>
+      <div className="absolute top-1/4 -left-16 w-32 h-32 border-8 border-primary/5 rounded-full hidden md:block"></div>
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header with brand-inspired design */}

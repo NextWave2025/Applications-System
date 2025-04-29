@@ -71,10 +71,10 @@ export default function AgentFeaturesSection() {
 
   return (
     <section id="agent-features-section" className="py-24 bg-white relative overflow-hidden">
-      {/* Brand-inspired background elements */}
+      {/* Brand-inspired background elements - adjusted for mobile/tablet */}
       <div className="absolute top-0 left-0 w-full h-16 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
-      <div className="absolute -left-16 top-1/4 w-32 h-32 bg-primary/5 rounded-full opacity-40 pointer-events-none"></div>
-      <div className="absolute right-0 bottom-0 w-64 h-64 rounded-tl-full bg-primary/5 opacity-20 pointer-events-none"></div>
+      <div className="absolute -left-16 top-1/4 w-32 h-32 bg-primary/5 rounded-full opacity-40 pointer-events-none hidden md:block"></div>
+      <div className="absolute right-0 bottom-0 w-64 h-64 rounded-tl-full bg-primary/5 opacity-20 pointer-events-none hidden md:block"></div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-3xl mx-auto mb-16 text-center">

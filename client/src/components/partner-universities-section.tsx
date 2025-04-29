@@ -46,9 +46,9 @@ export default function PartnerUniversitiesSection() {
 
   return (
     <section id="partner-universities-section" className="py-20 bg-gray-50 relative overflow-hidden">
-      {/* Brand-inspired decorative elements */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-bl-full"></div>
-      <div className="absolute -bottom-16 -left-16 w-32 h-32 border border-primary/10 rounded-full"></div>
+      {/* Brand-inspired decorative elements - adjusted for mobile/tablet */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-bl-full hidden md:block"></div>
+      <div className="absolute -bottom-16 -left-16 w-32 h-32 border border-primary/10 rounded-full hidden md:block"></div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
@@ -79,8 +79,8 @@ export default function PartnerUniversitiesSection() {
           <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-8 bg-primary/10 rounded-b-full"></div>
           
           <div className="bg-white rounded-xl p-8 shadow-xl shadow-black/5 relative">
-            {/* Subtle half-circle brand element */}
-            <div className="absolute bottom-0 left-0 w-32 h-32 rounded-tr-full bg-primary/5 pointer-events-none"></div>
+            {/* Subtle half-circle brand element - hidden on mobile/smaller screens */}
+            <div className="absolute bottom-0 left-0 w-32 h-32 rounded-tr-full bg-primary/5 pointer-events-none hidden sm:block"></div>
           
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
               {partnerUniversities.map((university, index) => (
