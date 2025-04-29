@@ -1,0 +1,10 @@
+# Ignore node_modules in the upload but let them be installed on the server
+!node_modules/
+
+# Ignore development files
+.git/
+.github/
+.vscode/
+test/
+.env
+*.log
