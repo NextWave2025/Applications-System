@@ -1,167 +1,140 @@
-# Guide Platform - Deployment Guide
+# Guide Platform Deployment Guide
 
-This document provides instructions for deploying the Guide Platform to a production environment.
+This document provides detailed instructions for deploying the Guide Platform to AWS Elastic Beanstalk.
 
 ## Prerequisites
 
-Before deploying, ensure you have:
+- AWS account with Elastic Beanstalk access
+- Familiarity with AWS console
+- PostgreSQL database (Neon or AWS RDS)
 
-- Cleaned up the project using the cleanup script or following the CLEANUP_GUIDE.md
-- Tested the application thoroughly in a development environment
-- A PostgreSQL database provisioned for production use
-- A hosting environment with Node.js support (v18 or higher)
+## Deployment Steps
 
-## Deployment Options
+### 1. Prepare the Deployment Package
 
-### Option 1: Traditional Server Deployment
-
-#### Step 1: Prepare the Project
-
-1. Build the project for production:
+Run the provided deployment script to create a proper production build:
 
 ```bash
-npm run build
+# Make the script executable
+chmod +x prepare-eb-deploy.sh
+
+# Run the deployment script
+./prepare-eb-deploy.sh
 ```
 
-This will create a `dist` directory with the compiled frontend and backend code.
+This script will:
+- Build the application
+- Create a clean deployment package with only the necessary production files
+- Generate a deployment zip file `eb-deploy.zip` in the project root
 
-#### Step 2: Set Up Environment Variables
+### 2. Create an Elastic Beanstalk Environment
 
-Create a `.env` file in your production environment with the following variables:
+1. Log in to your AWS Management Console
+2. Navigate to the Elastic Beanstalk service
+3. Click "Create Application"
+4. Enter the application name (e.g., "Guide-Platform")
+5. Select "Web server environment"
+6. Platform: Node.js
+7. Platform branch: Node.js 18 (or latest LTS)
+8. Platform version: Recommended
+9. Application code: Upload your code
+10. Source code origin: Upload a local file
+11. Choose File: Select the `eb-deploy.zip` created by the deployment script
+12. Click "Create environment"
 
-```
-NODE_ENV=production
-DATABASE_URL=your_production_database_url
-SESSION_SECRET=your_secure_production_secret
-PORT=5000  # Or the port specified by your hosting provider
-```
+### 3. Configure Environment Variables
 
-Make sure to use a secure, randomly generated string for `SESSION_SECRET` and the correct connection string for your production database.
+Once your environment is created, you need to configure the necessary environment variables:
 
-#### Step 3: Start the Server
+1. Navigate to your new Elastic Beanstalk environment
+2. In the left navigation, click "Configuration"
+3. Under "Software", click "Edit"
+4. Scroll down to "Environment properties"
+5. Add the following key-value pairs:
+   - Key: `DATABASE_URL`, Value: `postgres://username:password@hostname:port/database?sslmode=require` (use your actual database credentials)
+   - Key: `SESSION_SECRET`, Value: [a secure random string]
+6. Click "Apply"
 
-```bash
-npm run start
-```
+### 4. Verify Deployment
 
-### Option 2: Docker Deployment
+1. Wait for the environment to update (this may take a few minutes)
+2. Once the environment shows "Health: Ok", click on the URL provided
+3. Your application should be running
+4. Check the logs for any errors:
+   - Navigate to "Logs" in the left sidebar
+   - Request "Request logs" and view "Last 100 lines of log"
 
-For Docker-based deployments, you can create a Dockerfile in the project root:
+### 5. Troubleshooting Common Issues
 
-```dockerfile
-FROM node:18-alpine
+If you encounter issues during deployment:
 
-WORKDIR /app
+#### Application Crashes or Shows 502 Error
 
-# Copy package files and install dependencies
-COPY package*.json ./
-RUN npm ci --only=production
+1. Check the logs to identify the error
+2. Common issues include:
+   - Missing environment variables
+   - Database connection failures
+   - Port conflicts
 
-# Copy built application
-COPY dist/ ./dist/
-COPY .env.example ./
+#### Database Connection Issues
 
-# Expose the port the app runs on
-EXPOSE 5000
+1. Verify your `DATABASE_URL` is correct
+2. Ensure your database allows connections from the Elastic Beanstalk IP range
+3. Check that `sslmode=require` is included in the connection string
+4. For Neon database, make sure you're using the correct connection string format
 
-# Start the application
-CMD ["npm", "run", "start"]
-```
+#### Memory Issues
 
-Build and run the Docker container:
+If your application runs out of memory:
 
-```bash
-docker build -t guide-platform .
-docker run -p 5000:5000 --env-file .env -d guide-platform
-```
+1. Go to "Configuration" > "Instance" > "Edit"
+2. Choose a larger instance type
+3. Click "Apply"
 
-### Option 3: Cloud Platform Deployment
+### 6. Production Optimizations
 
-The Guide Platform can be deployed to various cloud platforms:
+For a production environment, consider:
 
-#### Heroku
+1. **Scaling**: Configure auto-scaling based on load
+   - Go to "Configuration" > "Capacity" > "Edit"
+   - Enable auto-scaling with appropriate triggers
 
-1. Create a `Procfile` in the project root:
-```
-web: npm start
-```
+2. **HTTPS**: Configure SSL/TLS
+   - Create or upload SSL certificate
+   - Configure load balancer to use HTTPS
 
-2. Deploy using the Heroku CLI:
-```bash
-heroku create
-git push heroku main
-heroku config:set DATABASE_URL=your_production_database_url
-heroku config:set SESSION_SECRET=your_secure_production_secret
-heroku config:set NODE_ENV=production
-```
+3. **Monitoring**: Set up CloudWatch alarms
+   - Go to "Alarms" in the left sidebar
+   - Create alarms for metrics like CPU usage, request count, etc.
 
-#### AWS Elastic Beanstalk
+## Database Migration
 
-1. Initialize Elastic Beanstalk in your project:
-```bash
-eb init
-```
+If you need to migrate your database from development to production:
 
-2. Create an environment and deploy:
-```bash
-eb create guide-production
-```
+1. Export your data from the development database
+2. Import it into your production database
+3. Verify all data was migrated correctly
 
-3. Set environment variables:
-```bash
-eb setenv DATABASE_URL=your_production_database_url SESSION_SECRET=your_secure_production_secret NODE_ENV=production
-```
+## Maintenance and Updates
 
-## Database Migration for Production
+For future updates:
 
-Before deploying, make sure your production database schema is up to date:
+1. Make changes to your codebase
+2. Run the deployment script to create a new deployment package
+3. Upload the new package to your Elastic Beanstalk environment
+4. Elastic Beanstalk will handle the deployment and rollover
 
-```bash
-# Update DATABASE_URL in your .env to point to the production database temporarily
-DATABASE_URL=your_production_database_url npm run db:push
-```
+## Rollback
 
-## SSL Configuration
+If you need to rollback to a previous version:
 
-For production, it's essential to use HTTPS. If your hosting provider doesn't handle this automatically, you'll need to configure SSL:
+1. In your Elastic Beanstalk environment, go to "Application versions"
+2. Select the version you want to rollback to
+3. Click "Deploy"
 
-1. Acquire SSL certificates (e.g., using Let's Encrypt)
-2. Update your server configuration to use these certificates
+## Support
 
-## Monitoring and Logging
-
-Consider setting up monitoring and logging for your production deployment:
-
-1. Use a service like New Relic, Datadog, or Sentry for application monitoring
-2. Set up centralized logging using solutions like ELK Stack or Papertrail
-3. Configure database performance monitoring
-
-## Scaling Considerations
-
-As your application grows, consider:
-
-1. Implementing a caching layer (e.g., Redis)
-2. Setting up a load balancer for multiple application instances
-3. Optimizing database queries and adding appropriate indexes
-4. Implementing a CDN for static assets
-
-## Production Checklist
-
-Before going live, verify:
-
-- [ ] Application builds without errors
-- [ ] All environment variables are properly set
-- [ ] Database migrations have been applied
-- [ ] Static assets are being served correctly
-- [ ] SSL is properly configured
-- [ ] Error handling and logging are working
-- [ ] Authentication and authorization function as expected
-- [ ] Performance is acceptable under expected load
-
-## Rollback Plan
-
-If issues arise after deployment:
-
-1. Keep the previous version's build artifacts
-2. Document the steps to revert to the previous version
-3. Have a database backup from before the deployment
+For any deployment issues, check:
+1. AWS Elastic Beanstalk documentation
+2. AWS Node.js platform guides
+3. Neon database documentation (if using Neon)

@@ -1,0 +1,33 @@
+Apr 29 10:30:09 ip-172-31-14-161 web[6441]: Node.js v20.18.3
+Apr 29 10:30:10 ip-172-31-14-161 web[6461]: npm warn config production Use `--omit=dev` instead.
+Apr 29 10:30:10 ip-172-31-14-161 web[6461]: > rest-express@1.0.0 start
+Apr 29 10:30:10 ip-172-31-14-161 web[6461]: > NODE_ENV=production node dist/index.js
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]: /var/app/current/node_modules/rollup/dist/native.js:63
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]: #011#011throw new Error(
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]: #011#011      ^
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]: Error: Cannot find module @rollup/rollup-linux-x64-gnu. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:    at requireWithFriendlyError (/var/app/current/node_modules/rollup/dist/native.js:63:9)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:    at Object.<anonymous> (/var/app/current/node_modules/rollup/dist/native.js:72:76)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:    ... 3 lines matching cause stack trace ...
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:    at Module._load (node:internal/modules/cjs/loader:1104:12)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:    at cjsLoader (node:internal/modules/esm/translators:346:17)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:    at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:286:7)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24) {
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:  [cause]: Error: Cannot find module '@rollup/rollup-linux-x64-gnu'
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:  Require stack:
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:  - /var/app/current/node_modules/rollup/dist/native.js
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:      at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:      at Module._load (node:internal/modules/cjs/loader:1051:27)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:      at Module.require (node:internal/modules/cjs/loader:1311:19)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:      at require (node:internal/modules/helpers:179:18)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:      at requireWithFriendlyError (/var/app/current/node_modules/rollup/dist/native.js:45:10)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:      at Object.<anonymous> (/var/app/current/node_modules/rollup/dist/native.js:72:76)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:      at Module._compile (node:internal/modules/cjs/loader:1469:14)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:      at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:      at Module.load (node:internal/modules/cjs/loader:1288:32)
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:      at Module._load (node:internal/modules/cjs/loader:1104:12) {
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:    code: 'MODULE_NOT_FOUND',
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:    requireStack: [ '/var/app/current/node_modules/rollup/dist/native.js' ]
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]:  }
+Apr 29 10:30:12 ip-172-31-14-161 web[6539]: }
