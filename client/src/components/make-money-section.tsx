@@ -40,7 +40,7 @@ export default function SimpleProcessSection() {
     {
       number: 3,
       title: "Earn Money",
-      description: "Once a student enrolls, you earn 100% commission. We handle the rest",
+      description: "Once a student enrolls, you earn 80% commission. We handle the rest",
       icon: <CreditCard className="h-6 w-6" />,
     },
   ];
