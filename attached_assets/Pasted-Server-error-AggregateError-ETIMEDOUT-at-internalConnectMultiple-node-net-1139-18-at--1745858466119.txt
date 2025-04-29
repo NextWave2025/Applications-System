@@ -1,0 +1,99 @@
+Server error: AggregateError [ETIMEDOUT]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at internalConnectMultiple (node:net:1215:5)
+    at Timeout.internalConnectMultipleTimeout (node:net:1739:5)
+    at listOnTimeout (node:internal/timers:616:11)
+    at process.processTimers (node:internal/timers:549:7) {
+  code: 'ETIMEDOUT',
+  [errors]: [
+    Error: connect ETIMEDOUT 35.84.214.33:5432
+        at createConnectionError (node:net:1675:14)
+        at Timeout.internalConnectMultipleTimeout (node:net:1734:38)
+        at listOnTimeout (node:internal/timers:616:11)
+        at process.processTimers (node:internal/timers:549:7) {
+      errno: -60,
+      code: 'ETIMEDOUT',
+      syscall: 'connect',
+      address: '35.84.214.33',
+      port: 5432
+    },
+    Error: connect EHOSTUNREACH 2600:1f14:3392:6b30:d28d:658c:574f:408f:5432 - Local (:::55092)
+        at internalConnectMultiple (node:net:1211:16)
+        at Timeout.internalConnectMultipleTimeout (node:net:1739:5)
+        at listOnTimeout (node:internal/timers:616:11)
+        at process.processTimers (node:internal/timers:549:7) {
+      errno: -65,
+      code: 'EHOSTUNREACH',
+      syscall: 'connect',
+      address: '2600:1f14:3392:6b30:d28d:658c:574f:408f',
+      port: 5432
+    },
+    Error: connect ETIMEDOUT 18.236.35.18:5432
+        at createConnectionError (node:net:1675:14)
+        at Timeout.internalConnectMultipleTimeout (node:net:1734:38)
+        at listOnTimeout (node:internal/timers:616:11)
+        at process.processTimers (node:internal/timers:549:7) {
+      errno: -60,
+      code: 'ETIMEDOUT',
+      syscall: 'connect',
+      address: '18.236.35.18',
+      port: 5432
+    },
+    Error: connect EHOSTUNREACH 2600:1f14:3392:6b2c:92f3:5c5a:b24:4481:5432 - Local (:::55094)
+        at internalConnectMultiple (node:net:1211:16)
+        at Timeout.internalConnectMultipleTimeout (node:net:1739:5)
+        at listOnTimeout (node:internal/timers:616:11)
+        at process.processTimers (node:internal/timers:549:7) {
+      errno: -65,
+      code: 'EHOSTUNREACH',
+      syscall: 'connect',
+      address: '2600:1f14:3392:6b2c:92f3:5c5a:b24:4481',
+      port: 5432
+    },
+    Error: connect ETIMEDOUT 18.236.14.165:5432
+        at createConnectionError (node:net:1675:14)
+        at Timeout.internalConnectMultipleTimeout (node:net:1734:38)
+        at listOnTimeout (node:internal/timers:616:11)
+        at process.processTimers (node:internal/timers:549:7) {
+      errno: -60,
+      code: 'ETIMEDOUT',
+      syscall: 'connect',
+      address: '18.236.14.165',
+      port: 5432
+    },
+    Error: connect EHOSTUNREACH 2600:1f14:3392:6b04:7827:8c76:39d1:f7da:5432 - Local (:::55096)
+        at internalConnectMultiple (node:net:1211:16)
+        at Timeout.internalConnectMultipleTimeout (node:net:1739:5)
+        at listOnTimeout (node:internal/timers:616:11)
+        at process.processTimers (node:internal/timers:549:7) {
+      errno: -65,
+      code: 'EHOSTUNREACH',
+      syscall: 'connect',
+      address: '2600:1f14:3392:6b04:7827:8c76:39d1:f7da',
+      port: 5432
+    },
+    Error: connect ETIMEDOUT 44.236.99.237:5432
+        at createConnectionError (node:net:1675:14)
+        at Timeout.internalConnectMultipleTimeout (node:net:1734:38)
+        at listOnTimeout (node:internal/timers:616:11)
+        at process.processTimers (node:internal/timers:549:7) {
+      errno: -60,
+      code: 'ETIMEDOUT',
+      syscall: 'connect',
+      address: '44.236.99.237',
+      port: 5432
+    },
+    Error: connect EHOSTUNREACH 2600:1f14:3392:6b13:6fd4:8b4:96f:e269:5432 - Local (:::55098)
+        at internalConnectMultiple (node:net:1211:16)
+        at Timeout.internalConnectMultipleTimeout (node:net:1739:5)
+        at listOnTimeout (node:internal/timers:616:11)
+        at process.processTimers (node:internal/timers:549:7) {
+      errno: -65,
+      code: 'EHOSTUNREACH',
+      syscall: 'connect',
+      address: '2600:1f14:3392:6b13:6fd4:8b4:96f:e269',
+      port: 5432
+    }
+  ]
+}
+8:40:13 PM [express] POST /api/login 500 in 1033ms :: {"error":"Internal Server Error"}
