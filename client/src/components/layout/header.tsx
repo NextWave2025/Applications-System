@@ -55,7 +55,6 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           <div className="flex">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <CustomLogo className="mr-2" />
               {!isLoading && user?.isAdmin && <LogoSettings />}
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">

@@ -7,11 +7,6 @@ export default function Footer() {
       <div className="container mx-auto px-4 pt-16 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <img
-              src={NextWaveLogo}
-              alt="NextWave Logo"
-              className="mb-4 h-6 object-contain"
-            />
             <p className="text-gray-400 mb-4">
               Connecting students with the best educational opportunities in the
               UAE.
