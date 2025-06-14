@@ -12,10 +12,10 @@ export default function AgentTestimonialsSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
-    const section = document.getElementById('agent-testimonials-section');
+    const section = document.getElementById("agent-testimonials-section");
     if (section) observer.observe(section);
 
     return () => {
@@ -26,11 +26,11 @@ export default function AgentTestimonialsSection() {
   const testimonials = [
     {
       quote:
-        "Working with Guide has transformed our agency. The platform is intuitive, and the commission structure is the best in the industry.",
+        "Working with NextWave has transformed our agency. The platform is intuitive, and the commission structure is the best in the industry.",
       author: "Sarah Ahmed",
       role: "Education Consultant",
       location: "Dubai, UAE",
-      avatar: "SA"
+      avatar: "SA",
     },
     {
       quote:
@@ -38,20 +38,23 @@ export default function AgentTestimonialsSection() {
       author: "Rajiv Mehta",
       role: "Recruitment Manager",
       location: "Mumbai, India",
-      avatar: "RM"
+      avatar: "RM",
     },
     {
       quote:
-        "The marketing materials provided are professional and effective. Our conversion rates have improved significantly since partnering with Guide.",
+        "The marketing materials provided are professional and effective. Our conversion rates have improved significantly since partnering with NextWave.",
       author: "Elena Kim",
       role: "Agency Director",
       location: "Seoul, South Korea",
-      avatar: "EK"
+      avatar: "EK",
     },
   ];
 
   return (
-    <section id="agent-testimonials-section" className="py-24 bg-white relative overflow-hidden">
+    <section
+      id="agent-testimonials-section"
+      className="py-24 bg-white relative overflow-hidden"
+    >
       {/* Brand-inspired background elements */}
       <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-gray-50/50 to-transparent pointer-events-none"></div>
       <div className="absolute -left-16 bottom-1/4 w-32 h-32 bg-primary/5 rounded-full opacity-40 pointer-events-none"></div>
@@ -64,14 +67,13 @@ export default function AgentTestimonialsSection() {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-3xl mx-auto mb-16 text-center">
-          <div className="guide-badge-with-dot mb-6">
-            Success Stories
-          </div>
+          <div className="guide-badge-with-dot mb-6">Success Stories</div>
           <h2 className="text-5xl md:text-[64px] font-bold text-gray-900 mb-6 leading-tight tracking-tight">
             What Our <span className="text-primary">Agents</span> Say
           </h2>
           <p className="text-lg md:text-[25px] font-light text-gray-600 leading-relaxed max-w-3xl mx-auto mt-6">
-            Hear from education agents who are successfully placing students in UAE universities
+            Hear from education agents who are successfully placing students in
+            UAE universities
           </p>
         </div>
 
@@ -79,7 +81,7 @@ export default function AgentTestimonialsSection() {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className={`relative bg-white rounded-lg border border-gray-100 shadow-xl overflow-hidden transition-all duration-700 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+              className={`relative bg-white rounded-lg border border-gray-100 shadow-xl overflow-hidden transition-all duration-700 transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
               style={{ transitionDelay: `${index * 150}ms` }}
             >
               {/* Top Pattern with brand colors */}
@@ -106,8 +108,12 @@ export default function AgentTestimonialsSection() {
                     {testimonial.avatar}
                   </div>
                   <div className="ml-4">
-                    <p className="text-gray-900 font-medium">{testimonial.author}</p>
-                    <p className="text-xs text-gray-500 font-light">{testimonial.role}, {testimonial.location}</p>
+                    <p className="text-gray-900 font-medium">
+                      {testimonial.author}
+                    </p>
+                    <p className="text-xs text-gray-500 font-light">
+                      {testimonial.role}, {testimonial.location}
+                    </p>
                   </div>
                 </div>
               </div>

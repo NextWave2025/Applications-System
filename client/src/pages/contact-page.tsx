@@ -71,7 +71,7 @@ export default function ContactPage() {
                       <h4 className="text-base font-medium">Email Us</h4>
                       <p className="text-gray-600 mt-1">
                         <a href="mailto:info@guide.com" className="hover:text-primary">
-                          info@guide.com
+                          nextwaveadmission@gmail.com
                         </a>
                       </p>
                     </div>
@@ -82,8 +82,8 @@ export default function ContactPage() {
                     <div>
                       <h4 className="text-base font-medium">Call Us</h4>
                       <p className="text-gray-600 mt-1">
-                        <a href="tel:+97144001234" className="hover:text-primary">
-                          +971 4 400 1234
+                        <a href="tel:+971527142527" className="hover:text-primary">
+                          +971527142527
                         </a>
                       </p>
                     </div>

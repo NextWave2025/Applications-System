@@ -10,19 +10,15 @@ export default function CTASection() {
               Ready to Start Your Educational Journey in the UAE?
             </h2>
             <p className="text-lg text-white/90 mb-8">
-              Join thousands of students who have found their perfect educational path with Guide. Our comprehensive platform makes the process easy and stress-free.
+              Join thousands of students who have found their perfect
+              educational path with NextWave. Our comprehensive platform makes
+              the process easy and stress-free.
             </p>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-              <Link
-                to="/programs"
-                className="btn-primary-white text-center"
-              >
+              <Link to="/programs" className="btn-primary-white text-center">
                 Explore Programs
               </Link>
-              <Link
-                to="/signup"
-                className="btn-outline-white text-center"
-              >
+              <Link to="/signup" className="btn-outline-white text-center">
                 Create Account
               </Link>
             </div>
@@ -33,40 +29,81 @@ export default function CTASection() {
             </div>
             <div className="relative bg-white/10 backdrop-blur-sm rounded-lg p-6 md:p-8">
               <div className="bg-white/10 rounded-lg p-6 mb-6">
-                <h3 className="text-xl font-semibold mb-2">Why Choose NextWave?</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  Why Choose NextWave?
+                </h3>
                 <ul className="space-y-3">
                   <li className="flex items-start">
-                    <svg className="h-6 w-6 mr-2 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <svg
+                      className="h-6 w-6 mr-2 text-white/80"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
-                    <span>Access to 100+ universities</span>
+                    <span>Access to 20+ UAE universities</span>
                   </li>
                   <li className="flex items-start">
-                    <svg className="h-6 w-6 mr-2 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <svg
+                      className="h-6 w-6 mr-2 text-white/80"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                     <span>Personalized program matching</span>
                   </li>
                   <li className="flex items-start">
-                    <svg className="h-6 w-6 mr-2 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <svg
+                      className="h-6 w-6 mr-2 text-white/80"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                     <span>Scholarship opportunities</span>
                   </li>
                   <li className="flex items-start">
-                    <svg className="h-6 w-6 mr-2 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <svg
+                      className="h-6 w-6 mr-2 text-white/80"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                     <span>Visa and accommodation support</span>
                   </li>
                 </ul>
               </div>
               <div className="text-center">
-                <p className="text-white/80 text-sm mb-3">Join 5,000+ students who found their path</p>
-                <Link
-                  to="/signup"
-                  className="btn-primary-white w-full"
-                >
+                <p className="text-white/80 text-sm mb-3">
+                  Join 5,000+ students who found their path
+                </p>
+                <Link to="/signup" className="btn-primary-white w-full">
                   Sign Up Now
                 </Link>
               </div>

@@ -13,10 +13,10 @@ export default function SimpleProcessSection() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
-    const section = document.getElementById('simple-process-section');
+    const section = document.getElementById("simple-process-section");
     if (section) observer.observe(section);
 
     return () => {
@@ -34,19 +34,24 @@ export default function SimpleProcessSection() {
     {
       number: 2,
       title: "Refer students",
-      description: "We provide brochures and support. You refer students who want to study abroad",
+      description:
+        "We provide brochures and support. You refer students who want to study abroad",
       icon: <Users className="h-6 w-6" />,
     },
     {
       number: 3,
       title: "Earn Money",
-      description: "Once a student enrolls, you earn 80% commission. We handle the rest",
+      description:
+        "Once a student enrolls, you earn 80% commission. We handle the rest",
       icon: <CreditCard className="h-6 w-6" />,
     },
   ];
 
   return (
-    <section id="simple-process-section" className="py-20 bg-white relative overflow-hidden">
+    <section
+      id="simple-process-section"
+      className="py-20 bg-white relative overflow-hidden"
+    >
       {/* Brand-inspired decorative elements - adjusted for mobile/tablet */}
       <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-gray-50 to-white"></div>
       <div className="absolute -bottom-16 -right-16 w-32 h-32 border border-primary/10 rounded-full hidden md:block"></div>
@@ -67,7 +72,8 @@ export default function SimpleProcessSection() {
             A Simple <span className="text-primary">Process</span>
           </h2>
           <p className="text-gray-600 font-light text-lg mt-6">
-            Start earning money by referring students to universities in just three simple steps
+            Start earning money by referring students to universities in just
+            three simple steps
           </p>
         </div>
 
@@ -79,7 +85,7 @@ export default function SimpleProcessSection() {
               {steps.map((step, index) => (
                 <div
                   key={index}
-                  className={`relative transition-all duration-700 ease-out transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+                  className={`relative transition-all duration-700 ease-out transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
                   style={{ transitionDelay: `${index * 200}ms` }}
                 >
                   {/* Step Number - Circle with half-circle accent */}
@@ -93,7 +99,7 @@ export default function SimpleProcessSection() {
 
                     {/* Completion check that appears with animation */}
                     <div
-                      className={`absolute -right-2 -bottom-2 bg-white rounded-full transition-all duration-500 transform ${isVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
+                      className={`absolute -right-2 -bottom-2 bg-white rounded-full transition-all duration-500 transform ${isVisible ? "scale-100 opacity-100" : "scale-0 opacity-0"}`}
                       style={{ transitionDelay: `${800 + index * 200}ms` }}
                     >
                       <CheckCircle className="h-6 w-6 text-primary" />
@@ -107,8 +113,12 @@ export default function SimpleProcessSection() {
                       {step.icon}
                     </div>
 
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">{step.title}</h3>
-                    <p className="text-gray-600 font-light">{step.description}</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">
+                      {step.title}
+                    </h3>
+                    <p className="text-gray-600 font-light">
+                      {step.description}
+                    </p>
 
                     {/* Visual divider on mobile only */}
                     <div className="md:hidden w-16 h-1 bg-primary/20 mx-auto mt-6 rounded-full">
@@ -130,18 +140,45 @@ export default function SimpleProcessSection() {
               href="/auth"
               className="inline-flex items-center justify-center bg-primary text-white px-10 py-4 rounded-md font-medium hover:bg-primary/90 transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg shadow-primary/20"
             >
-              Partner with Guide
-              <svg className="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4.16667 10H15.8333" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M10.8333 5L15.8333 10L10.8333 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              Partner with NextWave
+              <svg
+                className="ml-2 h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M4.16667 10H15.8333"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M10.8333 5L15.8333 10L10.8333 15"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </Link>
 
             {/* Trust indicator */}
             <div className="mt-6 flex items-center justify-center">
               <div className="flex items-center text-gray-500 text-sm">
-                <svg className="h-4 w-4 text-primary mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                <svg
+                  className="h-4 w-4 text-primary mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                  />
                 </svg>
                 Free signup, no monthly fees
               </div>
