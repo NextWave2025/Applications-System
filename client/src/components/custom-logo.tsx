@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import GuideLogo from "../assets/Guide-logo-Primary-red.svg";
+import NextWaveLogo from "../assets/NextWave-logo-Primary-red.svg";
 
 interface CustomLogoProps {
   className?: string;
@@ -51,8 +51,8 @@ export default function CustomLogo({ className = "", variant = "default" }: Cust
       ) : (
         // Default variant with red accent
         <img 
-          src={GuideLogo} 
-          alt="Guide Logo" 
+          src={NextWaveLogo} 
+          alt="NextWave Logo" 
           className="h-9 object-contain"
         />
       )}

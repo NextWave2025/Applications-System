@@ -52,7 +52,7 @@ export default function HeroSection() {
               The #1 Platform for Admission in UAE
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              <span className="text-primary">Guide</span> Your Students to
+              <span className="text-primary">NextWave</span> Your Students to
               <span className="relative ml-1.5">
                 Success
                 <svg className="absolute bottom-2 left-0 w-full" height="6" viewBox="0 0 200 6" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -61,7 +61,7 @@ export default function HeroSection() {
               </span>
             </h1>
             <p className="text-lg text-white/80 mb-8 font-light max-w-xl">
-              Guide helps education agents connect international students with
+              NextWave helps education agents connect international students with
               premier UAE universities. Maximize your commissions while providing
               students with life-changing opportunities.
             </p>

@@ -33,7 +33,7 @@ export default function CTASection() {
             </div>
             <div className="relative bg-white/10 backdrop-blur-sm rounded-lg p-6 md:p-8">
               <div className="bg-white/10 rounded-lg p-6 mb-6">
-                <h3 className="text-xl font-semibold mb-2">Why Choose Guide?</h3>
+                <h3 className="text-xl font-semibold mb-2">Why Choose NextWave?</h3>
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <svg className="h-6 w-6 mr-2 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">

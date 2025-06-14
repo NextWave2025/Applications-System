@@ -102,15 +102,15 @@
   }
   
   /* Brand elements */
-  .guide-badge {
+  .nextwave-badge {
     @apply inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium;
   }
   
-  .guide-badge-with-dot {
+  .nextwave-badge-with-dot {
     @apply inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium;
   }
   
-  .guide-badge-with-dot::before {
+  .nextwave-badge-with-dot::before {
     content: "";
     @apply w-2 h-2 bg-primary rounded-full mr-2;
   }

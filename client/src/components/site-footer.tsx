@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, Linkedin, Mail, MapPin, Phone, ArrowRight } from 'lucide-react';
-import GuideLogo from '../assets/Guide-logo-Primary-red.svg';
+import NextWaveLogo from '../assets/NextWave-logo-Primary-red.svg';
 
 export default function SiteFooter() {
   const currentYear = new Date().getFullYear();
@@ -21,11 +21,11 @@ export default function SiteFooter() {
           {/* Logo and Company Info - 4 columns */}
           <div className="md:col-span-4">
             <div className="mb-6">
-              <img src={GuideLogo} alt="Guide Logo" className="h-12" />
+              <img src={NextWaveLogo} alt="NextWave Logo" className="h-12" />
             </div>
             
             <p className="text-gray-400 font-light text-[16px] leading-relaxed mb-6 max-w-md">
-              Connecting international students with premier UAE universities through our trusted network of education agents worldwide.
+              NextWave connects international students with premier UAE universities through our trusted network of education agents worldwide.
             </p>
             
             {/* Contact Info */}

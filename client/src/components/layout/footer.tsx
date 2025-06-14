@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import GuideLogo from "../../assets/Guide-logo-Primary-white.png";
+import NextWaveLogo from "../../assets/NextWave-logo-Primary-white.png";
 
 export default function Footer() {
   return (
@@ -8,8 +8,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <img
-              src={GuideLogo}
-              alt="Guide Logo"
+              src={NextWaveLogo}
+              alt="NextWave Logo"
               className="mb-4 h-6 object-contain"
             />
             <p className="text-gray-400 mb-4">

@@ -78,14 +78,14 @@ export default function AgentFeaturesSection() {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-3xl mx-auto mb-16 text-center">
-          <div className="guide-badge-with-dot mb-6">
+          <div className="nextwave-badge-with-dot mb-6">
             Exclusive Benefits
           </div>
           <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight tracking-tight">
             What You Get as Our <span className="text-primary">Partner</span>
           </h2>
           <p className="text-lg md:text-xl font-light text-gray-600 max-w-3xl mx-auto mt-6">
-            Join Guide, the #1 platform for admission in UAE and enjoy these exclusive benefits designed to maximize your success
+            Join NextWave, the #1 platform for admission in UAE and enjoy these exclusive benefits designed to maximize your success
           </p>
         </div>
 
