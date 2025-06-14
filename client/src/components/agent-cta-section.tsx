@@ -63,7 +63,7 @@ export default function AgentCTASection() {
               {/* Stats */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 mb-10">
                 <div>
-                  <p className="text-4xl font-bold text-primary mb-1">31+</p>
+                  <p className="text-4xl font-bold text-primary mb-1">20+</p>
                   <p className="text-white/70 text-sm font-light">
                     Partner Universities
                   </p>
