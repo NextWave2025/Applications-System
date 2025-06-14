@@ -55,6 +55,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           <div className="flex">
             <Link to="/" className="flex-shrink-0 flex items-center">
+              <span className="text-2xl font-bold text-gray-900 mr-4">NextWave</span>
               {!isLoading && user?.isAdmin && <LogoSettings />}
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
