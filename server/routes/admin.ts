@@ -255,6 +255,228 @@ router.get("/audit-logs/action/:action", async (req, res) => {
   }
 });
 
+// University Management Routes
+router.get("/universities", async (req, res) => {
+  try {
+    const universities = await storage.getUniversities();
+    res.json(universities);
+  } catch (error) {
+    console.error("Error fetching universities:", error);
+    res.status(500).json({ error: "Failed to fetch universities" });
+  }
+});
+
+router.post("/universities", async (req, res) => {
+  try {
+    const universitySchema = z.object({
+      name: z.string().min(1, "University name is required"),
+      location: z.string().min(1, "Location is required"),
+      imageUrl: z.string().url("Valid image URL is required")
+    });
+    
+    const universityData = universitySchema.parse(req.body);
+    const university = await storage.createUniversity(universityData);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "create_university",
+      resourceType: "university",
+      resourceId: university.id,
+      newData: universityData
+    });
+    
+    res.json(university);
+  } catch (error) {
+    console.error("Error creating university:", error);
+    res.status(500).json({ error: "Failed to create university" });
+  }
+});
+
+router.put("/universities/:id", async (req, res) => {
+  try {
+    const universityId = parseInt(req.params.id);
+    const updateSchema = z.object({
+      name: z.string().min(1).optional(),
+      location: z.string().min(1).optional(),
+      imageUrl: z.string().url().optional()
+    });
+    
+    const updateData = updateSchema.parse(req.body);
+    
+    // Get current university for audit log
+    const currentUniversity = await storage.getUniversityById(universityId);
+    if (!currentUniversity) {
+      return res.status(404).json({ error: "University not found" });
+    }
+    
+    // Update university
+    const updatedUniversity = await storage.updateUniversity(universityId, updateData);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "update_university",
+      resourceType: "university",
+      resourceId: universityId,
+      previousData: currentUniversity,
+      newData: updateData
+    });
+    
+    res.json(updatedUniversity);
+  } catch (error) {
+    console.error("Error updating university:", error);
+    res.status(500).json({ error: "Failed to update university" });
+  }
+});
+
+router.delete("/universities/:id", async (req, res) => {
+  try {
+    const universityId = parseInt(req.params.id);
+    
+    // Get current university for audit log
+    const currentUniversity = await storage.getUniversityById(universityId);
+    if (!currentUniversity) {
+      return res.status(404).json({ error: "University not found" });
+    }
+    
+    // Delete university
+    await storage.deleteUniversity(universityId);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "delete_university",
+      resourceType: "university",
+      resourceId: universityId,
+      previousData: currentUniversity
+    });
+    
+    res.json({ message: "University deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting university:", error);
+    res.status(500).json({ error: "Failed to delete university" });
+  }
+});
+
+// Program Management Routes
+router.get("/programs", async (req, res) => {
+  try {
+    const programs = await storage.getPrograms();
+    res.json(programs);
+  } catch (error) {
+    console.error("Error fetching programs:", error);
+    res.status(500).json({ error: "Failed to fetch programs" });
+  }
+});
+
+router.post("/programs", async (req, res) => {
+  try {
+    const programSchema = z.object({
+      name: z.string().min(1, "Program name is required"),
+      universityId: z.number().int().positive(),
+      tuition: z.string().min(1, "Tuition is required"),
+      duration: z.string().min(1, "Duration is required"),
+      intake: z.string().min(1, "Intake is required"),
+      degree: z.string().min(1, "Degree is required"),
+      studyField: z.string().min(1, "Study field is required"),
+      requirements: z.array(z.string()),
+      hasScholarship: z.boolean(),
+      imageUrl: z.string().url("Valid image URL is required")
+    });
+    
+    const programData = programSchema.parse(req.body);
+    const program = await storage.createProgram(programData);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "create_program",
+      resourceType: "program",
+      resourceId: program.id,
+      newData: programData
+    });
+    
+    res.json(program);
+  } catch (error) {
+    console.error("Error creating program:", error);
+    res.status(500).json({ error: "Failed to create program" });
+  }
+});
+
+router.put("/programs/:id", async (req, res) => {
+  try {
+    const programId = parseInt(req.params.id);
+    const updateSchema = z.object({
+      name: z.string().min(1).optional(),
+      universityId: z.number().int().positive().optional(),
+      tuition: z.string().min(1).optional(),
+      duration: z.string().min(1).optional(),
+      intake: z.string().min(1).optional(),
+      degree: z.string().min(1).optional(),
+      studyField: z.string().min(1).optional(),
+      requirements: z.array(z.string()).optional(),
+      hasScholarship: z.boolean().optional(),
+      imageUrl: z.string().url().optional()
+    });
+    
+    const updateData = updateSchema.parse(req.body);
+    
+    // Get current program for audit log
+    const currentProgram = await storage.getProgramById(programId);
+    if (!currentProgram) {
+      return res.status(404).json({ error: "Program not found" });
+    }
+    
+    // Update program
+    const updatedProgram = await storage.updateProgram(programId, updateData);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "update_program",
+      resourceType: "program",
+      resourceId: programId,
+      previousData: currentProgram,
+      newData: updateData
+    });
+    
+    res.json(updatedProgram);
+  } catch (error) {
+    console.error("Error updating program:", error);
+    res.status(500).json({ error: "Failed to update program" });
+  }
+});
+
+router.delete("/programs/:id", async (req, res) => {
+  try {
+    const programId = parseInt(req.params.id);
+    
+    // Get current program for audit log
+    const currentProgram = await storage.getProgramById(programId);
+    if (!currentProgram) {
+      return res.status(404).json({ error: "Program not found" });
+    }
+    
+    // Delete program
+    await storage.deleteProgram(programId);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "delete_program",
+      resourceType: "program",
+      resourceId: programId,
+      previousData: currentProgram
+    });
+    
+    res.json({ message: "Program deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting program:", error);
+    res.status(500).json({ error: "Failed to delete program" });
+  }
+});
+
 // Get application status history
 router.get("/applications/:id/status-history", async (req, res) => {
   try {

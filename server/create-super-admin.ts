@@ -26,15 +26,18 @@ async function createSuperAdmin() {
       return;
     }
     
-    // Create super admin user
+    // Create super admin user with full admin privileges
     const adminUser = await storage.createUser({
       username: "nextwaveadmission@gmail.com",
       password: await hashPassword("NEXT2025"),
       firstName: "NextWave",
-      lastName: "Admin",
+      lastName: "Super Admin",
       role: "admin",
       active: true,
-      agencyName: "NextWave Admin",
+      agencyName: "NextWave Administration",
+      country: "UAE",
+      phoneNumber: "+971527142527",
+      website: "https://nextwave.com"
     });
     
     console.log("Super admin user created successfully:", {

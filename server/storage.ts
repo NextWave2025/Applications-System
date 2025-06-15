@@ -51,11 +51,15 @@ export interface IStorage {
   getPrograms(filters?: ProgramFilters): Promise<ProgramWithUniversity[]>;
   getProgramById(id: number): Promise<ProgramWithUniversity | undefined>;
   createProgram(program: InsertProgram): Promise<Program>;
+  updateProgram(id: number, program: Partial<Program>): Promise<Program>;
+  deleteProgram(id: number): Promise<void>;
 
   // University methods
   getUniversities(): Promise<University[]>;
   getUniversityById(id: number): Promise<University | undefined>;
   createUniversity(university: InsertUniversity): Promise<University>;
+  updateUniversity(id: number, university: Partial<University>): Promise<University>;
+  deleteUniversity(id: number): Promise<void>;
 
   // Application methods
   getApplications(userId: number): Promise<ApplicationWithDetails[]>;
@@ -285,6 +289,18 @@ export class DBStorage implements IStorage {
     return result[0];
   }
 
+  async updateProgram(id: number, programData: Partial<Program>): Promise<Program> {
+    const result = await this.db.update(programs)
+      .set(programData)
+      .where(eq(programs.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteProgram(id: number): Promise<void> {
+    await this.db.delete(programs).where(eq(programs.id, id));
+  }
+
   // University methods
   async getUniversities(): Promise<University[]> {
     return await this.db.select().from(universities);
@@ -298,6 +314,18 @@ export class DBStorage implements IStorage {
   async createUniversity(insertUniversity: InsertUniversity): Promise<University> {
     const result = await this.db.insert(universities).values(insertUniversity).returning();
     return result[0];
+  }
+
+  async updateUniversity(id: number, universityData: Partial<University>): Promise<University> {
+    const result = await this.db.update(universities)
+      .set(universityData)
+      .where(eq(universities.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteUniversity(id: number): Promise<void> {
+    await this.db.delete(universities).where(eq(universities.id, id));
   }
 
   // Application methods
