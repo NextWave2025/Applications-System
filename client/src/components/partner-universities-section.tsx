@@ -1,25 +1,26 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 // Import university logos
-import abuDhabiUniLogo from "../assets/university-logos/abu_dhabi_uni.jpg";
-import birminghamUniLogo from "../assets/university-logos/birmingham_uni.png";
-import dubaiUniLogo from "../assets/university-logos/dubai_uni.png";
-import gulfMedicalUniLogo from "../assets/university-logos/gulf_medical_unipng.png";
-import heriotWattUniLogo from "../assets/university-logos/heriot_watt_uni.svg";
+import amityUniLogo from "../assets/university-logos/amity_university.png";
+import westfordUniLogo from "../assets/university-logos/westford_university.png";
+import manipalUniLogo from "../assets/university-logos/manipal_university.png";
+import deMontfortUniLogo from "../assets/university-logos/de_montfort_university.png";
+import curtinUniLogo from "../assets/university-logos/curtin_university.png";
+import symbiosisUniLogo from "../assets/university-logos/symbiosis_university.png";
+import boltonRakUniLogo from "../assets/university-logos/university_of_bolton_rak.png";
 import middlesexDubaiLogo from "../assets/university-logos/middlesex_dubai_dubai.png";
-import skylineUniLogo from "../assets/university-logos/skyline_uni.png";
-import ukCollegeLogo from "../assets/university-logos/uk_college.webp";
 
 // Define the partner universities with their logos
 const partnerUniversities = [
-  { name: "University of Dubai", logo: dubaiUniLogo },
-  { name: "Abu Dhabi University", logo: abuDhabiUniLogo },
-  { name: "University of Birmingham Dubai", logo: birminghamUniLogo },
-  { name: "Heriot-Watt University Dubai", logo: heriotWattUniLogo },
+  { name: "AMITY University", logo: amityUniLogo },
+  { name: "WESTFORD University", logo: westfordUniLogo },
+  { name: "MANIPAL University", logo: manipalUniLogo },
+  { name: "DE MONTFORT University", logo: deMontfortUniLogo },
+  { name: "CURTIN University", logo: curtinUniLogo },
+  { name: "Symbiosis University", logo: symbiosisUniLogo },
+  { name: "University of Bolton Rak", logo: boltonRakUniLogo },
   { name: "Middlesex University Dubai", logo: middlesexDubaiLogo },
-  { name: "Gulf Medical University", logo: gulfMedicalUniLogo },
-  { name: "Skyline University College", logo: skylineUniLogo },
-  { name: "UK College of Business & Computing", logo: ukCollegeLogo },
 ];
 
 export default function PartnerUniversitiesSection() {
@@ -90,12 +91,13 @@ export default function PartnerUniversitiesSection() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
               {partnerUniversities.map((university, index) => (
-                <div
+                <Link
+                  to={`/programs?university=${encodeURIComponent(university.name)}`}
                   key={index}
-                  className={`group relative transition-all duration-500 ease-out transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
+                  className={`group relative transition-all duration-500 ease-out transform block ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
                   style={{ transitionDelay: `${index * 100}ms` }}
                 >
-                  <div className="relative bg-white rounded-lg flex items-center justify-center p-6 h-28 border border-gray-100 group-hover:border-primary/20 transition-all duration-300 overflow-hidden group-hover:shadow-lg">
+                  <div className="relative bg-white rounded-lg flex items-center justify-center p-6 h-28 border border-gray-100 group-hover:border-primary/20 transition-all duration-300 overflow-hidden group-hover:shadow-lg cursor-pointer">
                     {/* Hover effect with brand-inspired half-circle */}
                     <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-primary/5 rounded-tl-full scale-0 group-hover:scale-100 transition-transform duration-300 origin-top-left"></div>
 
@@ -110,7 +112,7 @@ export default function PartnerUniversitiesSection() {
                       {university.name}
                     </h3>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
 

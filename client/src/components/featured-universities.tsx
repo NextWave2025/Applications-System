@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { type University } from "@shared/schema";
-import { Link } from "wouter";
+import { Link } from "react-router-dom";
 
 export default function FeaturedUniversities() {
   const { data: universities = [], isLoading } = useQuery<University[]>({
@@ -34,7 +34,7 @@ export default function FeaturedUniversities() {
           <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
             {universities.slice(0, 6).map((university) => (
               <Link
-                href={`/?universityIds=${university.id}`}
+                to={`/programs?universityIds=${university.id}`}
                 key={university.id}
                 className="flex items-center justify-center rounded-lg bg-white p-4 shadow-sm transition-all hover:shadow-md"
               >
@@ -50,7 +50,7 @@ export default function FeaturedUniversities() {
 
         <div className="mt-8 text-center">
           <Link
-            href="/"
+            to="/programs"
             className="inline-flex items-center text-primary font-medium hover:underline"
           >
             View All Universities
