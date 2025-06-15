@@ -452,8 +452,12 @@ function ApplicationsManagementTable() {
                         >
                           Change Status
                         </Button>
-                        <Button variant="outline" size="sm">
-                          View
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setLocation(`/admin/applications/${app.id}`)}
+                        >
+                          View Details
                         </Button>
                       </div>
                     </td>

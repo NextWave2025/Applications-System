@@ -10,10 +10,10 @@ import adminRouter from "./routes/admin";
 export function registerRoutes(app: Express): Server {
   // sets up /api/register, /api/login, /api/logout, /api/user
   setupAuth(app);
-  
+
   // Mount admin routes
   app.use('/api/admin', adminRouter);
-  
+
   // Configure multer for file uploads
   const multerStorage = multer.memoryStorage(); // Use memory storage for simplicity
   const upload = multer({ 
@@ -52,11 +52,11 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/programs", async (req, res) => {
     try {
       console.log("GET /api/programs request with query:", req.query);
-      
+
       const { university, degree, studyField, hasScholarship, maxTuition, duration, search } = req.query;
-      
+
       const filters: any = {};
-      
+
       if (university) {
         try {
           filters.universityIds = Array.isArray(university) 
@@ -66,23 +66,23 @@ export function registerRoutes(app: Express): Server {
           console.error("Error parsing university filter:", e);
         }
       }
-      
+
       if (degree) {
         filters.studyLevel = Array.isArray(degree) 
           ? degree.map(d => d as string)
           : [degree as string];
       }
-      
+
       if (studyField) {
         filters.studyField = Array.isArray(studyField) 
           ? studyField.map(f => f as string)
           : [studyField as string];
       }
-      
+
       if (hasScholarship === 'true') {
         filters.hasScholarship = true;
       }
-      
+
       if (maxTuition) {
         try {
           filters.maxTuition = parseInt(maxTuition as string);
@@ -90,19 +90,19 @@ export function registerRoutes(app: Express): Server {
           console.error("Error parsing maxTuition filter:", e);
         }
       }
-      
+
       if (duration) {
         filters.duration = Array.isArray(duration)
           ? duration.map(d => d as string)
           : [duration as string];
       }
-      
+
       if (search) {
         filters.search = search as string;
       }
-      
+
       console.log("Applying filters:", filters);
-      
+
       try {
         const programs = await storage.getPrograms(filters);
         console.log(`Found ${programs.length} programs matching filters`);
@@ -124,12 +124,12 @@ export function registerRoutes(app: Express): Server {
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid program ID" });
       }
-      
+
       const programWithUniversity = await storage.getProgramById(id);
       if (!programWithUniversity) {
         return res.status(404).json({ error: "Program not found" });
       }
-      
+
       res.json(programWithUniversity);
     } catch (error) {
       console.error("Error fetching program:", error);
@@ -144,7 +144,7 @@ export function registerRoutes(app: Express): Server {
       const programs = await storage.getPrograms({
         search: query
       });
-      
+
       res.json(programs);
     } catch (error) {
       console.error("Error searching programs:", error);
@@ -174,7 +174,7 @@ export function registerRoutes(app: Express): Server {
       console.log("GET /api/applications request received");
       console.log("Authentication status:", req.isAuthenticated());
       console.log("User in session:", req.user);
-      
+
       if (!req.isAuthenticated()) {
         console.log("User not authenticated, returning 401");
         return res.status(401).json({ error: "Authentication required" });
@@ -203,16 +203,16 @@ export function registerRoutes(app: Express): Server {
       }
 
       const application = await storage.getApplicationById(id);
-      
+
       if (!application) {
         return res.status(404).json({ error: "Application not found" });
       }
-      
+
       // Check if the application belongs to the authenticated user
       if (application.userId !== req.user.id) {
         return res.status(403).json({ error: "Unauthorized access to this application" });
       }
-      
+
       res.json(application);
     } catch (error) {
       console.error("Error fetching application:", error);
@@ -276,7 +276,7 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ error: "Failed to update application status" });
     }
   });
-  
+
   // Update full application
   app.put("/api/applications/:id", async (req, res) => {
     try {
@@ -304,13 +304,13 @@ export function registerRoutes(app: Express): Server {
         ...req.body,
         updatedAt: new Date(),
       };
-      
+
       // Ensure we don't modify userId or programId
       delete updatedData.id;
       delete updatedData.userId;
       delete updatedData.programId;
       delete updatedData.createdAt;
-      
+
       // If studentDateOfBirth is provided as string, we need to handle it specially for Postgres
       if (updatedData.studentDateOfBirth) {
         // For string input, convert to formatted date string YYYY-MM-DD
@@ -391,10 +391,10 @@ export function registerRoutes(app: Express): Server {
 
       // Get document type and other metadata from the form data
       const { type, documentType, name, description } = req.body;
-      
+
       // Use either type or documentType (handle both field name patterns)
       const finalDocumentType = type || documentType || 'other';
-      
+
       // Create document record with application ID and file data
       const documentData = {
         applicationId,
@@ -405,12 +405,12 @@ export function registerRoutes(app: Express): Server {
         mimeType: req.file ? req.file.mimetype : 'text/plain',
         fileData: req.file ? req.file.buffer.toString('base64') : null
       };
-      
+
       console.log("Creating document for application with data:", {
         ...documentData,
         fileData: documentData.fileData ? `[Base64 encoded data - ${documentData.fileSize} bytes]` : null
       });
-      
+
       const document = await storage.createDocument(documentData);
       res.status(201).json(document);
     } catch (error) {
@@ -418,7 +418,7 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ error: "Failed to create document" });
     }
   });
-  
+
   // Upload a document directly (without application ID in path)
   // DELETE a document
   app.delete("/api/documents/:id", async (req, res) => {
@@ -451,7 +451,7 @@ export function registerRoutes(app: Express): Server {
 
       // Delete the document
       await storage.deleteDocument(documentId);
-      
+
       res.status(200).json({ success: true, message: "Document deleted successfully" });
     } catch (error) {
       console.error("Error deleting document:", error);
@@ -467,14 +467,14 @@ export function registerRoutes(app: Express): Server {
 
       console.log("Document upload request body:", req.body);
       console.log("Uploaded file:", req.file);
-      
+
       // When using FormData, req.body.applicationId might be a string
       const applicationIdRaw = req.body.applicationId;
       console.log("Application ID (raw):", applicationIdRaw);
-      
+
       const applicationId = parseInt(applicationIdRaw);
       console.log("Application ID (parsed):", applicationId);
-      
+
       if (isNaN(applicationId)) {
         return res.status(400).json({ 
           error: "Invalid application ID in request body",
@@ -486,7 +486,7 @@ export function registerRoutes(app: Express): Server {
       // Check if the application belongs to the authenticated user
       const application = await storage.getApplicationById(applicationId);
       console.log("Found application:", application ? "Yes" : "No");
-      
+
       if (!application) {
         return res.status(404).json({ error: "Application not found", applicationId });
       }
@@ -497,10 +497,10 @@ export function registerRoutes(app: Express): Server {
 
       // Get document type and other metadata from the form data
       const { type, documentType, name, description } = req.body;
-      
+
       // Use either type or documentType (handle both field name patterns)
       const finalDocumentType = type || documentType || 'other';
-      
+
       // Create document record with application ID and file data
       const documentData = {
         applicationId,
@@ -511,22 +511,166 @@ export function registerRoutes(app: Express): Server {
         mimeType: req.file ? req.file.mimetype : 'text/plain',
         fileData: req.file ? req.file.buffer.toString('base64') : null
       };
-      
+
       console.log("Creating document with data:", {
         ...documentData,
         fileData: documentData.fileData ? `[Base64 encoded data - ${documentData.fileSize} bytes]` : null
       });
-      
+
       const document = await storage.createDocument(documentData);
       console.log("Document created:", {
         ...document,
         fileData: document.fileData ? `[Base64 encoded data - ${document.fileSize} bytes]` : null
       });
-      
+
       res.status(201).json(document);
     } catch (error) {
       console.error("Error creating document:", error);
       res.status(500).json({ error: "Failed to create document" });
+    }
+  });
+
+  // Document routes
+  app.get("/api/documents", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+  
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+  
+      const applicationId = parseInt(req.query.applicationId as string);
+      if (isNaN(applicationId)) {
+        return res.status(400).json({ error: "Invalid application ID" });
+      }
+  
+      // Check if the user is authorized to access these documents
+      const application = await storage.getApplicationById(applicationId);
+      if (!application) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+  
+      // Only the application owner and admins can access the documents
+      const isOwner = application.userId === userId;
+      const isAdmin = req.user?.role === "admin";
+  
+      if (!isOwner && !isAdmin) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+  
+      const documents = await storage.getDocumentsByApplicationId(applicationId);
+      res.json(documents);
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+      res.status(500).json({ error: "Failed to fetch documents" });
+    }
+  });
+
+  // Document download route for admin and application owners
+  app.get("/api/documents/:id/download", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const documentId = parseInt(req.params.id);
+      if (isNaN(documentId)) {
+        return res.status(400).json({ error: "Invalid document ID" });
+      }
+
+      const document = await storage.getDocumentById(documentId);
+
+      if (!document) {
+        return res.status(404).json({ error: "Document not found" });
+      }
+
+      // Check if user has permission to download this document
+      const application = await storage.getApplicationById(document.applicationId);
+      if (!application) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+      const isOwner = application?.userId === req.user?.id;
+      const isAdmin = req.user?.role === "admin";
+
+      if (!isOwner && !isAdmin) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      // In a real application, you would serve the actual file from storage
+      // For now, we'll return the document metadata
+      res.json({
+        id: document.id,
+        originalFilename: document.originalFilename,
+        documentType: document.documentType,
+        downloadUrl: `/uploads/${document.filename}`, // Use filename instead of filePath
+        fileSize: document.fileSize,
+        mimeType: document.mimeType,
+        message: "In production, this would serve the actual file"
+      });
+    } catch (error) {
+      console.error("Error downloading document:", error);
+      res.status(500).json({ error: "Failed to download document" });
+    }
+  });
+
+  // File upload route (if you have one)
+  app.post("/api/documents/upload", upload.single("file"), async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const { applicationId, documentType } = req.body;
+
+      if (!applicationId || !documentType) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      // Verify the user owns this application or is admin
+      const application = await storage.getApplicationById(parseInt(applicationId));
+      const isOwner = application?.userId === req.user?.id;
+      const isAdmin = req.user?.role === "admin";
+
+      if (!isOwner && !isAdmin) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const documentData = {
+        applicationId: parseInt(applicationId),
+        documentType,
+        filename: req.file.originalname.replace(/\s+/g, '_'), // Sanitize filename
+        originalFilename: req.file.originalname,
+        fileSize: req.file.size,
+        mimeType: req.file.mimetype,
+        fileData: req.file.buffer.toString('base64') // Store file data as base64
+      };
+      const document = await storage.createDocument(documentData);
+
+      // Log the upload action
+      await storage.createAuditLog({
+        userId: req.user?.id || 0,
+        action: isAdmin ? "admin_upload_document" : "upload_document",
+        resourceType: "document",
+        resourceId: document.id,
+        newData: {
+          applicationId: parseInt(applicationId),
+          documentType,
+          originalFilename: req.file.originalname,
+          fileSize: req.file.size
+        }
+      });
+
+      res.json(document);
+    } catch (error) {
+      console.error("Error uploading document:", error);
+      res.status(500).json({ error: "Failed to upload document" });
     }
   });
 

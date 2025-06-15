@@ -255,6 +255,87 @@ router.get("/audit-logs/action/:action", async (req, res) => {
   }
 });
 
+// Get specific application details for admin
+router.get("/applications/:id", async (req, res) => {
+  try {
+    const applicationId = parseInt(req.params.id);
+    const application = await storage.getApplicationById(applicationId);
+    
+    if (!application) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+    
+    res.json(application);
+  } catch (error) {
+    console.error("Error fetching application details:", error);
+    res.status(500).json({ error: "Failed to fetch application details" });
+  }
+});
+
+// Send update notification to agent and student
+router.post("/applications/:id/send-update", async (req, res) => {
+  try {
+    const applicationId = parseInt(req.params.id);
+    const { message, hasDocument, documentName } = req.body;
+    
+    // Get the application to find the agent and student details
+    const application = await storage.getApplicationById(applicationId);
+    if (!application) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+    
+    // Get the agent details
+    const agent = await storage.getUserById(application.userId);
+    
+    // In a real application, you would send actual emails here
+    // For now, we'll just log the notification and create an audit entry
+    console.log(`Sending update notification for application ${applicationId}:`);
+    console.log(`To Agent: ${agent?.username} (${agent?.firstName} ${agent?.lastName})`);
+    console.log(`To Student: ${application.studentEmail} (${application.studentFirstName} ${application.studentLastName})`);
+    console.log(`Message: ${message}`);
+    if (hasDocument) {
+      console.log(`Document attached: ${documentName}`);
+    }
+    
+    // Create audit log for the update notification
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "send_application_update",
+      resourceType: "application",
+      resourceId: applicationId,
+      newData: {
+        message,
+        hasDocument,
+        documentName,
+        sentToAgent: agent?.username,
+        sentToStudent: application.studentEmail
+      }
+    });
+    
+    // TODO: Implement actual email sending here
+    // Example:
+    // await emailService.sendApplicationUpdate({
+    //   agentEmail: agent?.username,
+    //   studentEmail: application.studentEmail,
+    //   applicationId,
+    //   message,
+    //   hasDocument,
+    //   documentName
+    // });
+    
+    res.json({ 
+      message: "Update notification sent successfully",
+      sentTo: {
+        agent: agent?.username,
+        student: application.studentEmail
+      }
+    });
+  } catch (error) {
+    console.error("Error sending update notification:", error);
+    res.status(500).json({ error: "Failed to send update notification" });
+  }
+});
+
 // University Management Routes
 router.get("/universities", async (req, res) => {
   try {

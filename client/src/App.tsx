@@ -21,6 +21,7 @@ import NotFoundPage from "./pages/not-found";
 import MainLayout from "./layouts/main-layout";
 import DashboardLayout from "./layouts/dashboard-layout";
 import { ProtectedRoute } from "./components/protected-route";
+import AdminApplicationDetailPage from "./pages/admin-application-detail-page";
 
 export default function App() {
   return (
@@ -137,6 +138,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+          <Route path="/admin/applications/:id" element={<AdminApplicationDetailPage />} />
 
             {/* Application form route */}
             <Route
@@ -161,7 +163,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            
+
             {/* 404 route */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
