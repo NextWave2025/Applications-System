@@ -133,8 +133,8 @@ ACADEMIC INFORMATION:
 - Highest Qualification: ${application.highestQualification}
 - Qualification Name: ${application.qualificationName}
 - Institution: ${application.institutionName}
-- Graduation Year: string;
-  cgpa: string;
+- Graduation Year: ${application.graduationYear}
+- CGPA: ${application.cgpa}
 
 PROGRAM DETAILS:
 - Program: ${application.program.name}
