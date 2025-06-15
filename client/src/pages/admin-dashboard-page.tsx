@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Redirect, useLocation } from "wouter";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -455,7 +455,7 @@ function ApplicationsManagementTable() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => setLocation(`/admin/applications/${app.id}`)}
+                          onClick={() => navigate(`/admin/applications/${app.id}`)}
                         >
                           View Details
                         </Button>
@@ -482,7 +482,7 @@ function ApplicationsManagementTable() {
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -497,9 +497,9 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     // If the user is not an admin, redirect to the dashboard
     if (user && user.role !== "admin") {
-      setLocation("/");
+      navigate("/");
     }
-  }, [user, setLocation]);
+  }, [user, navigate]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -543,14 +543,15 @@ export default function AdminDashboardPage() {
 
   // Redirect to login if not authenticated
   if (!user) {
-    return <Redirect to="/auth" />;
+    navigate("/auth");
+    return null;
   }
 
   return (
     <div className="container py-10">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <Button onClick={() => setLocation("/")}>Back to Main Dashboard</Button>
+        <Button onClick={() => navigate("/")}>Back to Main Dashboard</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">

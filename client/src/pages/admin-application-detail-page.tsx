@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
@@ -134,8 +133,8 @@ ACADEMIC INFORMATION:
 - Highest Qualification: ${application.highestQualification}
 - Qualification Name: ${application.qualificationName}
 - Institution: ${application.institutionName}
-- Graduation Year: ${application.graduationYear}
-- CGPA: ${application.cgpa}
+- Graduation Year: string;
+  cgpa: string;
 
 PROGRAM DETAILS:
 - Program: ${application.program.name}
@@ -151,9 +150,9 @@ APPLICATION STATUS:
 ADDITIONAL NOTES:
 ${application.notes || 'No additional notes'}
 
-${application.adminNotes ? `ADMIN NOTES:\n${application.adminNotes}` : ''}
-${application.rejectionReason ? `REJECTION REASON:\n${application.rejectionReason}` : ''}
-${application.conditionalOfferTerms ? `CONDITIONAL OFFER TERMS:\n${application.conditionalOfferTerms}` : ''}
+${application.adminNotes ? \`ADMIN NOTES:\n${application.adminNotes}\` : ''}
+${application.rejectionReason ? \`REJECTION REASON:\n${application.rejectionReason}\` : ''}
+${application.conditionalOfferTerms ? \`CONDITIONAL OFFER TERMS:\n${application.conditionalOfferTerms}\` : ''}
 
 APPLICATION ID: ${application.id}
     `.trim();
@@ -163,8 +162,8 @@ APPLICATION ID: ${application.id}
 
   const downloadDocument = async (documentId: number, filename: string) => {
     try {
-      const response = await apiRequest("GET", `/api/documents/${documentId}/download`);
-      
+      const response = await apiRequest("GET", \`/api/documents/\${documentId}/download\`);
+
       if (!response.ok) {
         throw new Error('Failed to download document');
       }
@@ -172,13 +171,13 @@ APPLICATION ID: ${application.id}
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.style.display = 'none';
+      a.style.display: 'none';
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
-      
+
       toast({
         title: "Downloaded",
         description: `${filename} downloaded successfully`
