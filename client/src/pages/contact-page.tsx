@@ -12,7 +12,11 @@ export default function ContactPage() {
 
   const [submitted, setSubmitted] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -35,15 +39,16 @@ export default function ContactPage() {
   };
 
   return (
-
     <section className="py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              Contact Us
+            </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Have questions about studying in the UAE? Our team is here to help you
-              every step of the way.
+              Have questions about studying in the UAE? Our team is here to help
+              you every step of the way.
             </p>
           </div>
 
@@ -58,8 +63,7 @@ export default function ContactPage() {
                     <div>
                       <h4 className="text-base font-medium">Office Address</h4>
                       <address className="not-italic text-gray-600 mt-1">
-                        Sheikh Zayed Road<br />
-                        Business Bay<br />
+                        <br />
                         Dubai, UAE
                       </address>
                     </div>
@@ -70,7 +74,10 @@ export default function ContactPage() {
                     <div>
                       <h4 className="text-base font-medium">Email Us</h4>
                       <p className="text-gray-600 mt-1">
-                        <a href="mailto:info@guide.com" className="hover:text-primary">
+                        <a
+                          href="mailto:info@guide.com"
+                          className="hover:text-primary"
+                        >
                           nextwaveadmission@gmail.com
                         </a>
                       </p>
@@ -82,7 +89,10 @@ export default function ContactPage() {
                     <div>
                       <h4 className="text-base font-medium">Call Us</h4>
                       <p className="text-gray-600 mt-1">
-                        <a href="tel:+971527142527" className="hover:text-primary">
+                        <a
+                          href="tel:+971527142527"
+                          className="hover:text-primary"
+                        >
                           +971527142527
                         </a>
                       </p>
@@ -94,7 +104,8 @@ export default function ContactPage() {
                     <div>
                       <h4 className="text-base font-medium">Working Hours</h4>
                       <p className="text-gray-600 mt-1">
-                        Sunday - Thursday: 9:00 AM - 5:00 PM<br />
+                        Sunday - Thursday: 9:00 AM - 5:00 PM
+                        <br />
                         Friday - Saturday: Closed
                       </p>
                     </div>
@@ -119,9 +130,12 @@ export default function ContactPage() {
                       d="M5 13l4 4L19 7"
                     />
                   </svg>
-                  <h3 className="text-xl font-semibold text-green-800 mb-2">Thank You!</h3>
+                  <h3 className="text-xl font-semibold text-green-800 mb-2">
+                    Thank You!
+                  </h3>
                   <p className="text-green-700">
-                    Your message has been sent successfully. We'll get back to you soon.
+                    Your message has been sent successfully. We'll get back to
+                    you soon.
                   </p>
                   <button
                     className="mt-6 btn-primary"
@@ -131,12 +145,20 @@ export default function ContactPage() {
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="bg-white rounded-lg p-8 border border-gray-200">
-                  <h3 className="text-xl font-semibold mb-6">Send Us a Message</h3>
+                <form
+                  onSubmit={handleSubmit}
+                  className="bg-white rounded-lg p-8 border border-gray-200"
+                >
+                  <h3 className="text-xl font-semibold mb-6">
+                    Send Us a Message
+                  </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="name"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Your Name
                       </label>
                       <input
@@ -152,7 +174,10 @@ export default function ContactPage() {
                     </div>
 
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Your Email
                       </label>
                       <input
@@ -169,7 +194,10 @@ export default function ContactPage() {
                   </div>
 
                   <div className="mb-6">
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="subject"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Subject
                     </label>
                     <input
@@ -185,7 +213,10 @@ export default function ContactPage() {
                   </div>
 
                   <div className="mb-6">
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="message"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Message
                     </label>
                     <textarea
@@ -213,6 +244,5 @@ export default function ContactPage() {
         </div>
       </div>
     </section>
-
   );
 }
