@@ -8,7 +8,7 @@ import manipalUniLogo from "../assets/university-logos/manipal_university.jpeg";
 import deMontfortUniLogo from "../assets/university-logos/de_montfort_university.png";
 import curtinUniLogo from "../assets/university-logos/curtin_university.png";
 import symbiosisUniLogo from "../assets/university-logos/symbiosis_university.png";
-import boltonRakUniLogo from "../assets/university-logos/university_of_bolton_rak.png";
+import boltonRakUniLogo from "../assets/university-logos/university_of_bolton_rak_new.jpg";
 import middlesexDubaiLogo from "../assets/university-logos/middlesex_dubai_dubai.png";
 
 // Define the partner universities with their logos
