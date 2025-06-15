@@ -32,8 +32,8 @@ interface ApplicationWithDetails {
   highestQualification: string;
   qualificationName: string;
   institutionName: string;
-  graduationYear: string;
-  cgpa: string;
+  graduationYear: ${application.graduationYear}
+- CGPA: ${application.cgpa}
   intakeDate: string;
   notes: string;
   status: string;
@@ -150,9 +150,9 @@ APPLICATION STATUS:
 ADDITIONAL NOTES:
 ${application.notes || 'No additional notes'}
 
-${application.adminNotes ? \`ADMIN NOTES:\n${application.adminNotes}\` : ''}
-${application.rejectionReason ? \`REJECTION REASON:\n${application.rejectionReason}\` : ''}
-${application.conditionalOfferTerms ? \`CONDITIONAL OFFER TERMS:\n${application.conditionalOfferTerms}\` : ''}
+${application.adminNotes ? `ADMIN NOTES:\n${application.adminNotes}` : ''}
+${application.rejectionReason ? `REJECTION REASON:\n${application.rejectionReason}` : ''}
+${application.conditionalOfferTerms ? `CONDITIONAL OFFER TERMS:\n${application.conditionalOfferTerms}` : ''}
 
 APPLICATION ID: ${application.id}
     `.trim();
@@ -171,7 +171,7 @@ APPLICATION ID: ${application.id}
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.style.display: 'none';
+      a.style.display = 'none';
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);
