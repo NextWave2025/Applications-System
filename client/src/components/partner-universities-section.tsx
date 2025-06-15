@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 // Import university logos
-import amityUniLogo from "../assets/university-logos/amity_university.png";
-import westfordUniLogo from "../assets/university-logos/westford_university.png";
-import manipalUniLogo from "../assets/university-logos/manipal_university.png";
+import amityUniLogo from "../assets/university-logos/amity_university.jpg";
+import westfordUniLogo from "../assets/university-logos/westford_university.jpg";
+import manipalUniLogo from "../assets/university-logos/manipal_university.jpeg";
 import deMontfortUniLogo from "../assets/university-logos/de_montfort_university.png";
 import curtinUniLogo from "../assets/university-logos/curtin_university.png";
 import symbiosisUniLogo from "../assets/university-logos/symbiosis_university.png";
@@ -13,11 +13,11 @@ import middlesexDubaiLogo from "../assets/university-logos/middlesex_dubai_dubai
 
 // Define the partner universities with their logos
 const partnerUniversities = [
-  { name: "AMITY University", logo: amityUniLogo },
-  { name: "WESTFORD University", logo: westfordUniLogo },
-  { name: "MANIPAL University", logo: manipalUniLogo },
-  { name: "DE MONTFORT University", logo: deMontfortUniLogo },
-  { name: "CURTIN University", logo: curtinUniLogo },
+  { name: "Amity University", logo: amityUniLogo },
+  { name: "Westford University", logo: westfordUniLogo },
+  { name: "Manipal University", logo: manipalUniLogo },
+  { name: "De Montfort University", logo: deMontfortUniLogo },
+  { name: "Curtin University", logo: curtinUniLogo },
   { name: "Symbiosis University", logo: symbiosisUniLogo },
   { name: "University of Bolton Rak", logo: boltonRakUniLogo },
   { name: "Middlesex University Dubai", logo: middlesexDubaiLogo },
