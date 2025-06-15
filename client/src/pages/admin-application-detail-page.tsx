@@ -162,7 +162,7 @@ APPLICATION ID: ${application.id}
 
   const downloadDocument = async (documentId: number, filename: string) => {
     try {
-      const response = await apiRequest("GET", \`/api/documents/\${documentId}/download\`);
+      const response = await apiRequest("GET", `/api/documents/${documentId}/download`);
 
       if (!response.ok) {
         throw new Error('Failed to download document');
