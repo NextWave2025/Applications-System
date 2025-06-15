@@ -32,8 +32,8 @@ interface ApplicationWithDetails {
   highestQualification: string;
   qualificationName: string;
   institutionName: string;
-  graduationYear: ${application.graduationYear}
-- CGPA: ${application.cgpa}
+  graduationYear: string;
+  cgpa: string;
   intakeDate: string;
   notes: string;
   status: string;
