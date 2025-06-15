@@ -258,6 +258,7 @@ function AuditLogsTable() {
 }
 
 function ApplicationsManagementTable() {
+  const navigate = useNavigate();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
