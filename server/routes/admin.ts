@@ -2,8 +2,27 @@ import { Router } from "express";
 import { z } from "zod";
 import { storage } from "../storage";
 import { requireAdmin } from "../middleware/admin";
+import multer from "multer";
+import * as XLSX from "xlsx";
+import path from "path";
 
 const router = Router();
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+        file.mimetype === 'application/vnd.ms-excel') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only Excel files are allowed'));
+    }
+  },
+});
 
 // Middleware to check admin status
 router.use(requireAdmin);
@@ -595,6 +614,209 @@ router.get("/applications/:id/status-history", async (req, res) => {
   } catch (error) {
     console.error("Error fetching application status history:", error);
     res.status(500).json({ error: "Failed to fetch application status history" });
+  }
+});
+
+// Excel Upload Route
+router.post("/upload-excel", upload.single("excel"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    // Parse Excel file
+    const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+    
+    let universitiesCreated = 0;
+    let universitiesUpdated = 0;
+    let programsCreated = 0;
+    let programsUpdated = 0;
+    const errors: string[] = [];
+
+    // Process Universities sheet
+    if (workbook.SheetNames.includes("Universities")) {
+      const universitiesSheet = workbook.Sheets["Universities"];
+      const universitiesData = XLSX.utils.sheet_to_json(universitiesSheet);
+
+      for (let i = 0; i < universitiesData.length; i++) {
+        const row = universitiesData[i] as any;
+        try {
+          if (!row.name || !row.location) {
+            errors.push(`Row ${i + 2} in Universities sheet: Missing required fields (name, location)`);
+            continue;
+          }
+
+          // Check if university already exists
+          const existingUniversities = await storage.getUniversities();
+          const existingUniversity = existingUniversities.find(u => 
+            u.name.toLowerCase() === row.name.toLowerCase()
+          );
+
+          const universityData = {
+            name: row.name,
+            location: row.location,
+            imageUrl: row.imageUrl || row.logo || 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
+          };
+
+          if (existingUniversity) {
+            await storage.updateUniversity(existingUniversity.id, universityData);
+            universitiesUpdated++;
+          } else {
+            await storage.createUniversity(universityData);
+            universitiesCreated++;
+          }
+        } catch (error) {
+          errors.push(`Row ${i + 2} in Universities sheet: ${error.message}`);
+        }
+      }
+    }
+
+    // Process Programs sheet
+    if (workbook.SheetNames.includes("Programs")) {
+      const programsSheet = workbook.Sheets["Programs"];
+      const programsData = XLSX.utils.sheet_to_json(programsSheet);
+      
+      // Get updated universities list
+      const universities = await storage.getUniversities();
+      const universityMap = new Map(universities.map(u => [u.name.toLowerCase(), u.id]));
+
+      for (let i = 0; i < programsData.length; i++) {
+        const row = programsData[i] as any;
+        try {
+          if (!row.name || !row.universityName) {
+            errors.push(`Row ${i + 2} in Programs sheet: Missing required fields (name, universityName)`);
+            continue;
+          }
+
+          const universityId = universityMap.get(row.universityName.toLowerCase());
+          if (!universityId) {
+            errors.push(`Row ${i + 2} in Programs sheet: University "${row.universityName}" not found`);
+            continue;
+          }
+
+          // Parse requirements if it's a string
+          let requirements = [];
+          if (row.requirements) {
+            if (typeof row.requirements === 'string') {
+              requirements = row.requirements.split(',').map(req => req.trim()).filter(req => req);
+            } else if (Array.isArray(row.requirements)) {
+              requirements = row.requirements;
+            }
+          }
+
+          // Check if program already exists
+          const existingPrograms = await storage.getPrograms();
+          const existingProgram = existingPrograms.find(p => 
+            p.name.toLowerCase() === row.name.toLowerCase() && 
+            p.universityId === universityId
+          );
+
+          const programData = {
+            name: row.name,
+            universityId: universityId,
+            tuition: row.tuition || row.fees || '0 AED/year',
+            duration: row.duration || '1 year',
+            intake: row.intake || 'September',
+            degree: row.degree || row.level || "Bachelor's Degree",
+            studyField: row.studyField || row.field || 'General Studies',
+            requirements: requirements,
+            hasScholarship: Boolean(row.hasScholarship || row.scholarship),
+            imageUrl: row.imageUrl || row.image || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
+          };
+
+          if (existingProgram) {
+            await storage.updateProgram(existingProgram.id, programData);
+            programsUpdated++;
+          } else {
+            await storage.createProgram(programData);
+            programsCreated++;
+          }
+        } catch (error) {
+          errors.push(`Row ${i + 2} in Programs sheet: ${error.message}`);
+        }
+      }
+    }
+
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "bulk_upload_excel",
+      resourceType: "system",
+      resourceId: 0,
+      newData: {
+        universitiesCreated,
+        universitiesUpdated,
+        programsCreated,
+        programsUpdated,
+        errorsCount: errors.length
+      }
+    });
+
+    res.json({
+      message: "Excel file processed successfully",
+      universitiesCreated,
+      universitiesUpdated,
+      programsCreated,
+      programsUpdated,
+      errors
+    });
+
+  } catch (error) {
+    console.error("Error processing Excel file:", error);
+    res.status(500).json({ error: "Failed to process Excel file" });
+  }
+});
+
+// Excel Template Download Route
+router.get("/download-excel-template", async (req, res) => {
+  try {
+    // Create a new workbook
+    const workbook = XLSX.utils.book_new();
+
+    // Universities template
+    const universitiesTemplate = [
+      {
+        name: "Example University",
+        location: "Dubai, UAE",
+        imageUrl: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+      }
+    ];
+
+    // Programs template
+    const programsTemplate = [
+      {
+        name: "Bachelor of Business Administration",
+        universityName: "Example University",
+        tuition: "45000 AED/year",
+        duration: "4 years",
+        intake: "September",
+        degree: "Bachelor's Degree",
+        studyField: "Business & Management",
+        requirements: "High School Certificate, IELTS 6.0, Personal Statement",
+        hasScholarship: "TRUE",
+        imageUrl: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+      }
+    ];
+
+    // Create worksheets
+    const universitiesWS = XLSX.utils.json_to_sheet(universitiesTemplate);
+    const programsWS = XLSX.utils.json_to_sheet(programsTemplate);
+
+    // Add worksheets to workbook
+    XLSX.utils.book_append_sheet(workbook, universitiesWS, "Universities");
+    XLSX.utils.book_append_sheet(workbook, programsWS, "Programs");
+
+    // Generate buffer
+    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+
+    // Set headers
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", "attachment; filename=university-programs-template.xlsx");
+
+    res.send(buffer);
+  } catch (error) {
+    console.error("Error generating Excel template:", error);
+    res.status(500).json({ error: "Failed to generate Excel template" });
   }
 });
 

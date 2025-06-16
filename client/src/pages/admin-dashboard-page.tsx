@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Loader2, Users, FileText, AlertTriangle, CheckCircle, 
-  Clock, School, Search, Calendar, Filter, RefreshCw, Plus, Edit, Trash2
+  Clock, School, Search, Calendar, Filter, RefreshCw, Plus, Edit, Trash2, Upload
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { Input } from "@/components/ui/input";
@@ -130,6 +130,7 @@ function UniversitiesProgramsManagement() {
   const [editingProgram, setEditingProgram] = useState<Program | null>(null);
   const [isAddingUniversity, setIsAddingUniversity] = useState(false);
   const [isAddingProgram, setIsAddingProgram] = useState(false);
+  const [isExcelUploadOpen, setIsExcelUploadOpen] = useState(false);
 
   useEffect(() => {
     fetchUniversities();
@@ -162,7 +163,7 @@ function UniversitiesProgramsManagement() {
     if (!confirm("Are you sure you want to delete this university? This will also delete all associated programs.")) {
       return;
     }
-    
+
     try {
       await apiRequest("DELETE", `/api/admin/universities/${id}`);
       fetchUniversities();
@@ -176,7 +177,7 @@ function UniversitiesProgramsManagement() {
     if (!confirm("Are you sure you want to delete this program?")) {
       return;
     }
-    
+
     try {
       await apiRequest("DELETE", `/api/admin/programs/${id}`);
       fetchPrograms();
@@ -536,7 +537,7 @@ function ApplicationsManagementTable() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // Status change dialog state
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
@@ -565,19 +566,19 @@ function ApplicationsManagementTable() {
     if (statusFilter !== "all" && app.status !== statusFilter) {
       return false;
     }
-    
+
     // Search query filter (student name or email)
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       const fullName = `${app.studentFirstName} ${app.studentLastName}`.toLowerCase();
       const email = app.studentEmail.toLowerCase();
       const programName = app.program.name.toLowerCase();
-      
+
       return fullName.includes(query) || 
              email.includes(query) || 
              programName.includes(query);
     }
-    
+
     return true;
   });
 
@@ -604,7 +605,7 @@ function ApplicationsManagementTable() {
     setSelectedApplication(application);
     setStatusDialogOpen(true);
   };
-  
+
   const refreshApplications = async () => {
     try {
       const response = await apiRequest("GET", "/api/admin/applications");
@@ -742,7 +743,7 @@ function ApplicationsManagementTable() {
           </table>
         </div>
       )}
-      
+
       {/* Status Change Dialog */}
       <StatusChangeDialog
         open={statusDialogOpen}
@@ -762,7 +763,7 @@ export default function AdminDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
-  
+
   // User action dialog state
   const [userActionDialogOpen, setUserActionDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -1021,20 +1022,20 @@ export default function AdminDashboardPage() {
           </Card>
         </TabsContent>
       </Tabs>
-      
+
       {/* User Action Confirmation Dialog */}
       <UserActionDialog
         open={userActionDialogOpen}
         onOpenChange={setUserActionDialogOpen}
         onConfirm={async () => {
           if (!selectedUser) return;
-          
+
           try {
             // Set the user status to the opposite of current status
             await apiRequest("PATCH", `/api/admin/users/${selectedUser.id}/status`, {
               active: userActionType === "activate" // true if activating, false if deactivating
             });
-            
+
             // Refresh the user list
             const response = await apiRequest("GET", "/api/admin/users");
             const data = await response.json();
@@ -1053,5 +1054,84 @@ export default function AdminDashboardPage() {
         actionVariant={userActionType === "activate" ? "default" : "destructive"}
       />
     </div>
+  );
+}
+
+interface ExcelUploadDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+function ExcelUploadDialog({ isOpen, onClose, onSuccess }: ExcelUploadDialogProps) {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    setSelectedFile(file);
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      alert("Please select a file.");
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      const response = await apiRequest("POST", "/api/admin/upload-excel", formData, {
+        "Content-Type": "multipart/form-data",
+      });
+
+      if (response.ok) {
+        alert("File uploaded successfully!");
+        onSuccess(); // Refresh data
+        onClose();
+      } else {
+        const errorData = await response.json();
+        alert(`Upload failed: ${errorData.message || "Unknown error"}`);
+      }
+    } catch (error: any) {
+      console.error("Error uploading file:", error);
+      alert(`Upload failed: ${error.message || "Unknown error"}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Upload Excel File</DialogTitle>
+          <DialogDescription>
+            Upload an Excel file containing university and program data.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <Input type="file" onChange={handleFileChange} />
+        </div>
+        <DialogFooter>
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="button" onClick={handleUpload} disabled={uploading}>
+            {uploading ? (
+              <>
+                Uploading...
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              </>
+            ) : (
+              "Upload"
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
