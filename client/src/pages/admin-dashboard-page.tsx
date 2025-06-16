@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -22,6 +23,7 @@ import { UserActionDialog } from "@/components/user-action-dialog";
 import UniversityFormDialog from "@/components/university-form-dialog";
 import ProgramFormDialog from "@/components/program-form-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import ExcelUploadDialog from "@/components/excel-upload-dialog";
 
 interface AdminStats {
   totalApplications: number;
@@ -123,41 +125,31 @@ interface Program {
 }
 
 function UniversitiesProgramsManagement() {
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"universities" | "programs">("universities");
-  const [universities, setUniversities] = useState<University[]>([]);
-  const [programs, setPrograms] = useState<Program[]>([]);
-  const [loading, setLoading] = useState(true);
   const [editingUniversity, setEditingUniversity] = useState<University | null>(null);
   const [editingProgram, setEditingProgram] = useState<Program | null>(null);
   const [isAddingUniversity, setIsAddingUniversity] = useState(false);
   const [isAddingProgram, setIsAddingProgram] = useState(false);
   const [isExcelUploadOpen, setIsExcelUploadOpen] = useState(false);
 
-  useEffect(() => {
-    fetchUniversities();
-    fetchPrograms();
-  }, []);
+  // Fetch universities
+  const { data: universities = [], isLoading: loadingUniversities } = useQuery({
+    queryKey: ["/api/admin/universities"],
+    retry: 1,
+  });
 
-  const fetchUniversities = async () => {
-    try {
-      const response = await apiRequest("GET", "/api/admin/universities");
-      const data = await response.json();
-      setUniversities(data);
-    } catch (err) {
-      console.error("Error fetching universities:", err);
-    }
-  };
+  // Fetch programs
+  const { data: programs = [], isLoading: loadingPrograms } = useQuery({
+    queryKey: ["/api/admin/programs"],
+    retry: 1,
+  });
 
-  const fetchPrograms = async () => {
-    try {
-      const response = await apiRequest("GET", "/api/admin/programs");
-      const data = await response.json();
-      setPrograms(data);
-    } catch (err) {
-      console.error("Error fetching programs:", err);
-    } finally {
-      setLoading(false);
-    }
+  const loading = loadingUniversities || loadingPrograms;
+
+  const refreshData = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/admin/universities"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/admin/programs"] });
   };
 
   const deleteUniversity = async (id: number) => {
@@ -167,8 +159,7 @@ function UniversitiesProgramsManagement() {
 
     try {
       await apiRequest("DELETE", `/api/admin/universities/${id}`);
-      fetchUniversities();
-      fetchPrograms(); // Refresh programs as well
+      refreshData();
     } catch (err) {
       console.error("Error deleting university:", err);
     }
@@ -181,7 +172,7 @@ function UniversitiesProgramsManagement() {
 
     try {
       await apiRequest("DELETE", `/api/admin/programs/${id}`);
-      fetchPrograms();
+      refreshData();
     } catch (err) {
       console.error("Error deleting program:", err);
     }
@@ -350,7 +341,7 @@ function UniversitiesProgramsManagement() {
           setIsAddingUniversity(false);
         }}
         onSave={() => {
-          fetchUniversities();
+          refreshData();
           setEditingUniversity(null);
           setIsAddingUniversity(false);
         }}
@@ -366,7 +357,7 @@ function UniversitiesProgramsManagement() {
           setIsAddingProgram(false);
         }}
         onSave={() => {
-          fetchPrograms();
+          refreshData();
           setEditingProgram(null);
           setIsAddingProgram(false);
         }}
@@ -377,8 +368,7 @@ function UniversitiesProgramsManagement() {
         isOpen={isExcelUploadOpen}
         onClose={() => setIsExcelUploadOpen(false)}
         onSuccess={() => {
-          fetchUniversities();
-          fetchPrograms();
+          refreshData();
           setIsExcelUploadOpen(false);
         }}
       />
@@ -387,47 +377,26 @@ function UniversitiesProgramsManagement() {
 }
 
 function AuditLogsTable() {
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [users, setUsers] = useState<Record<number, User>>({});
 
-  useEffect(() => {
-    const fetchAuditLogs = async () => {
-      try {
-        console.log("Fetching audit logs manually...");
-        setLoading(true);
-        const response = await apiRequest("GET", "/api/admin/audit-logs");
-        const data = await response.json();
-        console.log("Manually fetched audit logs:", data);
-        setAuditLogs(data);
-      } catch (err) {
-        console.error("Error fetching audit logs:", err);
-        console.error("Error details:", err instanceof Error ? err.message : String(err));
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch audit logs
+  const { data: auditLogs = [], isLoading: loading } = useQuery({
+    queryKey: ["/api/admin/audit-logs"],
+    retry: 1,
+  });
 
-    const fetchUsers = async () => {
-      try {
-        const response = await apiRequest("GET", "/api/admin/users");
-        const data = await response.json();
-        // Create a map of user IDs to user objects for easier lookup
-        const userMap: Record<number, User> = {};
-        data.forEach((user: User) => {
-          userMap[user.id] = user;
-        });
-        setUsers(userMap);
-      } catch (err) {
-        console.error("Error fetching users:", err);
-      }
-    };
+  // Fetch users for lookup
+  const { data: usersArray = [] } = useQuery({
+    queryKey: ["/api/admin/users"],
+    retry: 1,
+  });
 
-    fetchAuditLogs();
-    fetchUsers();
-  }, []);
+  // Create a map of user IDs to user objects for easier lookup
+  const users: Record<number, User> = {};
+  usersArray.forEach((user: User) => {
+    users[user.id] = user;
+  });
 
   const getActionLabel = (action: string) => {
     // Convert snake_case to Title Case with spaces
@@ -551,8 +520,7 @@ function AuditLogsTable() {
 
 function ApplicationsManagementTable() {
   const navigate = useNavigate();
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -560,24 +528,11 @@ function ApplicationsManagementTable() {
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
 
-  useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        console.log("Fetching applications manually...");
-        setLoading(true);
-        const response = await apiRequest("GET", "/api/admin/applications");
-        const data = await response.json();
-        console.log("Manually fetched applications:", data);
-        setApplications(data);
-      } catch (err) {
-        console.error("Error fetching applications:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchApplications();
-  }, []);
+  // Fetch applications
+  const { data: applications = [], isLoading: loading } = useQuery({
+    queryKey: ["/api/admin/applications"],
+    retry: 1,
+  });
 
   const filteredApplications = applications.filter(app => {
     // Status filter
@@ -624,14 +579,8 @@ function ApplicationsManagementTable() {
     setStatusDialogOpen(true);
   };
 
-  const refreshApplications = async () => {
-    try {
-      const response = await apiRequest("GET", "/api/admin/applications");
-      const data = await response.json();
-      setApplications(data);
-    } catch (err) {
-      console.error("Error refreshing applications:", err);
-    }
+  const refreshApplications = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
   };
 
   return (
@@ -776,11 +725,7 @@ function ApplicationsManagementTable() {
 export default function AdminDashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
-  const [loadingUsers, setLoadingUsers] = useState(true);
+  
 
   // User action dialog state
   const [userActionDialogOpen, setUserActionDialogOpen] = useState(false);
@@ -794,45 +739,22 @@ export default function AdminDashboardPage() {
     }
   }, [user, navigate]);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const response = await apiRequest("GET", "/api/admin/stats");
-        const data = await response.json();
-        setStats(data);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching admin stats:", err);
-        setError("Failed to load admin dashboard statistics");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch admin stats
+  const { data: stats, isLoading: loadingStats, error: statsError } = useQuery({
+    queryKey: ["/api/admin/stats"],
+    enabled: !!user && user.role === "admin",
+    retry: 1,
+  });
 
-    if (user && user.role === "admin") {
-      fetchStats();
-    }
-  }, [user]);
+  // Fetch users
+  const { data: users, isLoading: loadingUsers } = useQuery({
+    queryKey: ["/api/admin/users"],
+    enabled: !!user && user.role === "admin",
+    retry: 1,
+  });
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoadingUsers(true);
-        const response = await apiRequest("GET", "/api/admin/users");
-        const data = await response.json();
-        setUsers(data);
-      } catch (err) {
-        console.error("Error fetching users:", err);
-      } finally {
-        setLoadingUsers(false);
-      }
-    };
-
-    if (user && user.role === "admin") {
-      fetchUsers();
-    }
-  }, [user]);
+  const loading = loadingStats;
+  const error = statsError ? "Failed to load admin dashboard statistics" : null;
 
   // Redirect to login if not authenticated
   if (!user) {
@@ -1075,81 +997,3 @@ export default function AdminDashboardPage() {
   );
 }
 
-interface ExcelUploadDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-}
-
-function ExcelUploadDialog({ isOpen, onClose, onSuccess }: ExcelUploadDialogProps) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    setSelectedFile(file);
-  };
-
-  const handleUpload = async () => {
-    if (!selectedFile) {
-      alert("Please select a file.");
-      return;
-    }
-
-    setUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-
-      const response = await apiRequest("POST", "/api/admin/upload-excel", formData, {
-        "Content-Type": "multipart/form-data",
-      });
-
-      if (response.ok) {
-        alert("File uploaded successfully!");
-        onSuccess(); // Refresh data
-        onClose();
-      } else {
-        const errorData = await response.json();
-        alert(`Upload failed: ${errorData.message || "Unknown error"}`);
-      }
-    } catch (error: any) {
-      console.error("Error uploading file:", error);
-      alert(`Upload failed: ${error.message || "Unknown error"}`);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Upload Excel File</DialogTitle>
-          <DialogDescription>
-            Upload an Excel file containing university and program data.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <Input type="file" onChange={handleFileChange} />
-        </div>
-        <DialogFooter>
-          <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="button" onClick={handleUpload} disabled={uploading}>
-            {uploading ? (
-              <>
-                Uploading...
-                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-              </>
-            ) : (
-              "Upload"
-            )}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
