@@ -10,7 +10,13 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: 1,
+      retry: (failureCount, error: any) => {
+        // Don't retry on 401/403 errors
+        if (error?.status === 401 || error?.status === 403) return false;
+        // Retry once for other errors
+        return failureCount < 1;
+      },
+      retryDelay: 1000,
     },
   },
 });
@@ -57,7 +63,7 @@ export async function apiRequest(
 }
 
 export function getQueryFn<T>(options: GetQueryFnOptions = {}) {
-  return async ({ queryKey }: { queryKey: string[] }): Promise<T> => {
+  return async ({ queryKey }: any): Promise<T> => {
     try {
       const [path] = queryKey;
       const response = await apiRequest("GET", path);
