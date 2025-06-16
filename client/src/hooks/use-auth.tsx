@@ -61,13 +61,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return null;
       }
     },
-    retry: (failureCount, error: any) => {
-      // Don't retry on 401 errors (not authenticated)
-      if (error?.status === 401) return false;
-      // Only retry once for other errors
-      return failureCount < 1;
-    },
-    retryDelay: 1000,
+    retry: false, // Disable retries to prevent unhandled rejections
+    throwOnError: false, // Prevent throwing errors that cause unhandled rejections
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    staleTime: Infinity, // Cache the result to prevent repeated failed requests
   });
 
   const loginMutation = useMutation({
