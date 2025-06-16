@@ -138,12 +138,18 @@ function UniversitiesProgramsManagement() {
   const { data: universities = [], isLoading: loadingUniversities, error: universitiesError } = useQuery<University[]>({
     queryKey: ["/api/admin/universities"],
     retry: 1,
+    throwOnError: false,
+    refetchOnWindowFocus: false,
+    staleTime: 30000,
   });
 
   // Fetch programs
   const { data: programs = [], isLoading: loadingPrograms, error: programsError } = useQuery<Program[]>({
     queryKey: ["/api/admin/programs"],
     retry: 1,
+    throwOnError: false,
+    refetchOnWindowFocus: false,
+    staleTime: 30000,
   });
 
   const loading = loadingUniversities || loadingPrograms;
@@ -560,6 +566,9 @@ function ApplicationsManagementTable() {
   const { data: applications = [], isLoading: loading, error: applicationsError } = useQuery<Application[]>({
     queryKey: ["/api/admin/applications"],
     retry: 1,
+    throwOnError: false,
+    refetchOnWindowFocus: false,
+    staleTime: 30000,
   });
 
   const filteredApplications = applications.filter(app => {
@@ -772,22 +781,25 @@ export default function AdminDashboardPage() {
   const { data: stats, isLoading: loadingStats, error: statsError } = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"],
     enabled: !!user && user.role === "admin",
-    retry: 0,
+    retry: 1,
     refetchOnWindowFocus: false,
     staleTime: 30000,
+    throwOnError: false,
   });
 
   // Fetch users with comprehensive error handling
   const { data: users = [], isLoading: loadingUsers, error: usersError } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
     enabled: !!user && user.role === "admin",
-    retry: 0,
+    retry: 1,
     refetchOnWindowFocus: false,
     staleTime: 30000,
+    throwOnError: false,
   });
 
   const loading = loadingStats;
-  const error = statsError ? "Failed to load admin dashboard statistics" : null;
+  const error = statsError ? "Failed to load admin dashboard statistics" : 
+                usersError ? "Failed to load users data" : null;
 
   // Redirect to login if not authenticated
   if (!user) {
