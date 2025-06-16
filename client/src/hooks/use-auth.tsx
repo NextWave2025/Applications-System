@@ -43,7 +43,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
   } = useQuery({
     queryKey: ["/api/user"],
-    queryFn: getQueryFn({ on401: "returnNull" }),
+    queryFn: async () => {
+      try {
+        const response = await fetch("/api/user", {
+          credentials: "include"
+        });
+        if (response.status === 401) {
+          return null;
+        }
+        if (!response.ok) {
+          throw new Error("Failed to fetch user");
+        }
+        return await response.json();
+      } catch (error) {
+        if ((error as any)?.status === 401) {
+          return null;
+        }
+        throw error;
+      }
+    },
     retry: (failureCount, error: any) => {
       // Don't retry on 401 errors (not authenticated)
       if (error?.status === 401) return false;
@@ -118,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
-        user: user || null,
+        user: (user as User) || null,
         isLoading,
         error,
         loginMutation,
