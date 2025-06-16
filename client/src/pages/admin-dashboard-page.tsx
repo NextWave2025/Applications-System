@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -380,18 +380,20 @@ function AuditLogsTable() {
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch audit logs
+  // Fetch audit logs with proper error handling
   const { data: auditLogs = [], isLoading: loading, error: auditLogsError } = useQuery<AuditLog[]>({
     queryKey: ["/api/admin/audit-logs"],
-    retry: 1,
+    retry: 0,
     refetchOnWindowFocus: false,
+    staleTime: 30000,
   });
 
-  // Fetch users for lookup
+  // Fetch users for lookup with proper error handling
   const { data: usersArray = [], error: usersError } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
-    retry: 1,
+    retry: 0,
     refetchOnWindowFocus: false,
+    staleTime: 30000,
   });
 
   // Create a map of user IDs to user objects for easier lookup
@@ -419,17 +421,26 @@ function AuditLogsTable() {
     return `${user.firstName} ${user.lastName} (${user.username})`;
   };
 
-  // Filter audit logs based on search query and filter
-  const filteredAuditLogs = Array.isArray(auditLogs) ? auditLogs.filter((log: AuditLog) => {
-    const matchesSearch = searchQuery === "" || 
-      log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.resourceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      getUserName(log.userId).toLowerCase().includes(searchQuery.toLowerCase());
+  // Filter audit logs based on search query and filter with error handling
+  const filteredAuditLogs = React.useMemo(() => {
+    if (!Array.isArray(auditLogs)) return [];
     
-    const matchesFilter = filter === "all" || log.resourceType === filter;
-    
-    return matchesSearch && matchesFilter;
-  }) : [];
+    try {
+      return auditLogs.filter((log: AuditLog) => {
+        const matchesSearch = searchQuery === "" || 
+          log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          log.resourceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          getUserName(log.userId).toLowerCase().includes(searchQuery.toLowerCase());
+        
+        const matchesFilter = filter === "all" || log.resourceType === filter;
+        
+        return matchesSearch && matchesFilter;
+      });
+    } catch (error) {
+      console.error("Error filtering audit logs:", error);
+      return [];
+    }
+  }, [auditLogs, searchQuery, filter, usersArray]);
 
   return (
     <div>
@@ -754,20 +765,22 @@ export default function AdminDashboardPage() {
     }
   }, [user, setLocation]);
 
-  // Fetch admin stats
+  // Fetch admin stats with comprehensive error handling
   const { data: stats, isLoading: loadingStats, error: statsError } = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"],
     enabled: !!user && user.role === "admin",
-    retry: 1,
+    retry: 0,
     refetchOnWindowFocus: false,
+    staleTime: 30000,
   });
 
-  // Fetch users
+  // Fetch users with comprehensive error handling
   const { data: users = [], isLoading: loadingUsers, error: usersError } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
     enabled: !!user && user.role === "admin",
-    retry: 1,
+    retry: 0,
     refetchOnWindowFocus: false,
+    staleTime: 30000,
   });
 
   const loading = loadingStats;
@@ -820,7 +833,7 @@ export default function AdminDashboardPage() {
                   <Clock className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.pendingReviews}</div>
+                  <div className="text-2xl font-bold">{stats?.pendingReviews || 0}</div>
                 </CardContent>
               </Card>
               <Card>
@@ -831,7 +844,7 @@ export default function AdminDashboardPage() {
                   <CheckCircle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.approvedApplications}</div>
+                  <div className="text-2xl font-bold">{stats?.approvedApplications || 0}</div>
                 </CardContent>
               </Card>
               <Card>
@@ -842,7 +855,7 @@ export default function AdminDashboardPage() {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.activeAgents}</div>
+                  <div className="text-2xl font-bold">{stats?.activeAgents || 0}</div>
                 </CardContent>
               </Card>
               <Card>
@@ -853,7 +866,7 @@ export default function AdminDashboardPage() {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalStudents}</div>
+                  <div className="text-2xl font-bold">{stats?.totalStudents || 0}</div>
                 </CardContent>
               </Card>
               <Card>
@@ -864,7 +877,7 @@ export default function AdminDashboardPage() {
                   <School className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalUniversities}</div>
+                  <div className="text-2xl font-bold">{stats?.totalUniversities || 0}</div>
                 </CardContent>
               </Card>
             </>
@@ -912,7 +925,7 @@ export default function AdminDashboardPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {users && users.length > 0 ? users.map((user) => (
+                      {users && Array.isArray(users) && users.length > 0 ? users.map((user: User) => (
                         <tr key={user.id} className="border-b">
                           <td className="py-3 px-4">{user.username}</td>
                           <td className="py-3 px-4">{user.firstName} {user.lastName}</td>
