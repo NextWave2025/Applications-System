@@ -134,13 +134,13 @@ function UniversitiesProgramsManagement() {
   const [isExcelUploadOpen, setIsExcelUploadOpen] = useState(false);
 
   // Fetch universities
-  const { data: universities = [], isLoading: loadingUniversities } = useQuery({
+  const { data: universities = [], isLoading: loadingUniversities, error: universitiesError } = useQuery<University[]>({
     queryKey: ["/api/admin/universities"],
     retry: 1,
   });
 
   // Fetch programs
-  const { data: programs = [], isLoading: loadingPrograms } = useQuery({
+  const { data: programs = [], isLoading: loadingPrograms, error: programsError } = useQuery<Program[]>({
     queryKey: ["/api/admin/programs"],
     retry: 1,
   });
@@ -387,7 +387,7 @@ function AuditLogsTable() {
   });
 
   // Fetch users for lookup
-  const { data: usersArray = [] } = useQuery({
+  const { data: usersArray = [] } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
     retry: 1,
   });
@@ -529,7 +529,7 @@ function ApplicationsManagementTable() {
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
 
   // Fetch applications
-  const { data: applications = [], isLoading: loading } = useQuery({
+  const { data: applications = [], isLoading: loading, error: applicationsError } = useQuery<Application[]>({
     queryKey: ["/api/admin/applications"],
     retry: 1,
   });
@@ -740,7 +740,7 @@ export default function AdminDashboardPage() {
   }, [user, navigate]);
 
   // Fetch admin stats
-  const { data: stats, isLoading: loadingStats, error: statsError } = useQuery({
+  const { data: stats, isLoading: loadingStats, error: statsError } = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"],
     enabled: !!user && user.role === "admin",
     retry: 3,
@@ -748,7 +748,7 @@ export default function AdminDashboardPage() {
   });
 
   // Fetch users
-  const { data: users = [], isLoading: loadingUsers, error: usersError } = useQuery({
+  const { data: users = [], isLoading: loadingUsers, error: usersError } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
     enabled: !!user && user.role === "admin",
     retry: 1,
