@@ -388,9 +388,10 @@ function AuditLogsTable() {
   });
 
   // Fetch users for lookup
-  const { data: usersArray = [] } = useQuery<User[]>({
+  const { data: usersArray = [], error: usersError } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
     retry: 1,
+    refetchOnWindowFocus: false,
   });
 
   // Create a map of user IDs to user objects for easier lookup
@@ -757,8 +758,8 @@ export default function AdminDashboardPage() {
   const { data: stats, isLoading: loadingStats, error: statsError } = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"],
     enabled: !!user && user.role === "admin",
-    retry: 3,
-    retryDelay: 1000,
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 
   // Fetch users
@@ -766,6 +767,7 @@ export default function AdminDashboardPage() {
     queryKey: ["/api/admin/users"],
     enabled: !!user && user.role === "admin",
     retry: 1,
+    refetchOnWindowFocus: false,
   });
 
   const loading = loadingStats;
@@ -807,7 +809,7 @@ export default function AdminDashboardPage() {
                   <FileText className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalApplications}</div>
+                  <div className="text-2xl font-bold">{stats?.totalApplications || 0}</div>
                 </CardContent>
               </Card>
               <Card>
