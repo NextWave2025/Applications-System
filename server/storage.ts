@@ -465,13 +465,7 @@ export class DBStorage implements IStorage {
   }
 
   async createApplication(insertApplication: InsertApplication): Promise<Application> {
-    // Ensure studentDateOfBirth is properly formatted as an ISO string if it's a Date object
-    const formattedApplication = { ...insertApplication };
-    if (formattedApplication.studentDateOfBirth instanceof Date) {
-      formattedApplication.studentDateOfBirth = formattedApplication.studentDateOfBirth.toISOString().split('T')[0] as any;
-    }
-
-    const result = await this.db.insert(applications).values([formattedApplication]).returning();
+    const result = await this.db.insert(applications).values(insertApplication as any).returning();
     return result[0];
   }
 
@@ -517,7 +511,7 @@ export class DBStorage implements IStorage {
       statusHistory = [];
     }
     // Add the new entry to the status history
-    statusHistory = [...statusHistory, historyEntry];
+    statusHistory = [...(Array.isArray(statusHistory) ? statusHistory : []), historyEntry];
     updateData.statusHistory = statusHistory;
 
     // Add notes if provided
@@ -584,7 +578,7 @@ export class DBStorage implements IStorage {
 
   // Audit log methods
   async createAuditLog(insertAuditLog: InsertAuditLog): Promise<AuditLog> {
-    const result = await this.db.insert(auditLogs).values(insertAuditLog).returning();
+    const result = await this.db.insert(auditLogs).values(insertAuditLog as any).returning();
     return result[0];
   }
 

@@ -107,13 +107,13 @@ export function registerRoutes(app: Express): Server {
         const programs = await storage.getPrograms(filters);
         console.log(`Found ${programs.length} programs matching filters`);
         res.json(programs);
-      } catch (dbError) {
+      } catch (dbError: any) {
         console.error("Database error fetching programs:", dbError);
-        res.status(500).json({ error: "Database error: " + dbError.message });
+        res.status(500).json({ error: "Database error: " + (dbError?.message || dbError) });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching programs:", error);
-      res.status(500).json({ error: "Failed to fetch programs: " + error.message });
+      res.status(500).json({ error: "Failed to fetch programs: " + (error?.message || error) });
     }
   });
 
@@ -234,6 +234,15 @@ export function registerRoutes(app: Express): Server {
         status: "draft" // Default status
       };
 
+      // Convert Date objects to string format for database
+      if (applicationData.studentDateOfBirth instanceof Date) {
+        applicationData.studentDateOfBirth = applicationData.studentDateOfBirth.toISOString().split('T')[0];
+      } else if (typeof applicationData.studentDateOfBirth === 'string') {
+        // Ensure date string is in YYYY-MM-DD format
+        const date = new Date(applicationData.studentDateOfBirth);
+        applicationData.studentDateOfBirth = date.toISOString().split('T')[0];
+      }
+
       const application = await storage.createApplication(applicationData);
       res.status(201).json(application);
     } catch (error) {
@@ -269,7 +278,7 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ error: "Unauthorized access to this application" });
       }
 
-      const updatedApplication = await storage.updateApplicationStatus(id, status);
+      const updatedApplication = await storage.updateApplicationStatus(id, status, req.user.id);
       res.json(updatedApplication);
     } catch (error) {
       console.error("Error updating application status:", error);
@@ -329,7 +338,7 @@ export function registerRoutes(app: Express): Server {
       res.json(updatedApplication);
     } catch (error) {
       console.error("Error updating application:", error);
-      res.status(500).json({ error: "Failed to update application: " + error.message });
+      res.status(500).json({ error: "Failed to update application: " + (error?.message || error) });
     }
   });
 
