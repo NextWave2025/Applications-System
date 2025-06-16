@@ -941,7 +941,7 @@ export default function AdminDashboardPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {users && Array.isArray(users) && users.length > 0 ? users.map((user: User) => (
+                      {users.length > 0 ? users.map((user: User) => (
                         <tr key={user.id} className="border-b">
                           <td className="py-3 px-4">{user.username}</td>
                           <td className="py-3 px-4">{user.firstName} {user.lastName}</td>

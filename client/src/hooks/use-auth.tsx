@@ -52,14 +52,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return null;
         }
         if (!response.ok) {
-          throw new Error("Failed to fetch user");
+          console.warn("Failed to fetch user:", response.statusText);
+          return null;
         }
         return await response.json();
       } catch (error) {
-        if ((error as any)?.status === 401) {
-          return null;
-        }
-        throw error;
+        console.warn("Auth query error:", error);
+        return null;
       }
     },
     retry: (failureCount, error: any) => {

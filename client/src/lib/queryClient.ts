@@ -13,9 +13,21 @@ export async function apiRequest(
   data?: any,
   headers?: HeadersInit
 ): Promise<Response> {
-  const requestHeaders: HeadersInit = {
-    ...headers,
-  };
+  const requestHeaders = new Headers();
+  
+  if (headers) {
+    if (headers instanceof Headers) {
+      headers.forEach((value, key) => requestHeaders.set(key, value));
+    } else if (Array.isArray(headers)) {
+      headers.forEach(([key, value]) => requestHeaders.set(key, value));
+    } else {
+      Object.entries(headers).forEach(([key, value]) => {
+        if (typeof value === 'string') {
+          requestHeaders.set(key, value);
+        }
+      });
+    }
+  }
   
   let body: string | FormData | undefined;
 
@@ -23,7 +35,7 @@ export async function apiRequest(
     // Don't set Content-Type for FormData, let browser set it with boundary
     body = data;
   } else if (data) {
-    requestHeaders["Content-Type"] = "application/json";
+    requestHeaders.set("Content-Type", "application/json");
     body = JSON.stringify(data);
   }
 
