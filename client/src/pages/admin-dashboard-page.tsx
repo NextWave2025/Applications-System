@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Loader2, Users, FileText, AlertTriangle, CheckCircle, 
-  Clock, School, Search, Calendar, Filter, RefreshCw
+  Clock, School, Search, Calendar, Filter, RefreshCw, Plus, Edit, Trash2
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import StatusChangeDialog from "@/components/status-change-dialog";
 import { UserActionDialog } from "@/components/user-action-dialog";
+import UniversityFormDialog from "@/components/university-form-dialog";
+import ProgramFormDialog from "@/components/program-form-dialog";
 
 interface AdminStats {
   totalApplications: number;
@@ -92,6 +94,277 @@ interface AuditLog {
   createdAt: string;
   previousData?: any;
   newData?: any;
+}
+
+interface University {
+  id: number;
+  name: string;
+  location: string;
+  imageUrl: string;
+}
+
+interface Program {
+  id: number;
+  name: string;
+  universityId: number;
+  tuition: string;
+  duration: string;
+  intake: string;
+  degree: string;
+  studyField: string;
+  requirements: string[];
+  hasScholarship: boolean;
+  imageUrl: string;
+  university?: {
+    name: string;
+    location: string;
+  };
+}
+
+function UniversitiesProgramsManagement() {
+  const [activeTab, setActiveTab] = useState<"universities" | "programs">("universities");
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingUniversity, setEditingUniversity] = useState<University | null>(null);
+  const [editingProgram, setEditingProgram] = useState<Program | null>(null);
+  const [isAddingUniversity, setIsAddingUniversity] = useState(false);
+  const [isAddingProgram, setIsAddingProgram] = useState(false);
+
+  useEffect(() => {
+    fetchUniversities();
+    fetchPrograms();
+  }, []);
+
+  const fetchUniversities = async () => {
+    try {
+      const response = await apiRequest("GET", "/api/admin/universities");
+      const data = await response.json();
+      setUniversities(data);
+    } catch (err) {
+      console.error("Error fetching universities:", err);
+    }
+  };
+
+  const fetchPrograms = async () => {
+    try {
+      const response = await apiRequest("GET", "/api/admin/programs");
+      const data = await response.json();
+      setPrograms(data);
+    } catch (err) {
+      console.error("Error fetching programs:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteUniversity = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this university? This will also delete all associated programs.")) {
+      return;
+    }
+    
+    try {
+      await apiRequest("DELETE", `/api/admin/universities/${id}`);
+      fetchUniversities();
+      fetchPrograms(); // Refresh programs as well
+    } catch (err) {
+      console.error("Error deleting university:", err);
+    }
+  };
+
+  const deleteProgram = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this program?")) {
+      return;
+    }
+    
+    try {
+      await apiRequest("DELETE", `/api/admin/programs/${id}`);
+      fetchPrograms();
+    } catch (err) {
+      console.error("Error deleting program:", err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center p-6">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "universities" | "programs")}>
+        <TabsList>
+          <TabsTrigger value="universities">Universities</TabsTrigger>
+          <TabsTrigger value="programs">Programs</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="universities" className="mt-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>University Management</CardTitle>
+              <Button onClick={() => setIsAddingUniversity(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add University
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="py-3 px-4 text-left">Logo</th>
+                      <th className="py-3 px-4 text-left">Name</th>
+                      <th className="py-3 px-4 text-left">Location</th>
+                      <th className="py-3 px-4 text-left">Programs Count</th>
+                      <th className="py-3 px-4 text-left">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {universities.map((university) => (
+                      <tr key={university.id} className="border-b">
+                        <td className="py-3 px-4">
+                          <img 
+                            src={university.imageUrl} 
+                            alt={university.name}
+                            className="h-10 w-10 object-cover rounded"
+                          />
+                        </td>
+                        <td className="py-3 px-4 font-medium">{university.name}</td>
+                        <td className="py-3 px-4">{university.location}</td>
+                        <td className="py-3 px-4">
+                          {programs.filter(p => p.universityId === university.id).length}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setEditingUniversity(university)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => deleteUniversity(university.id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="programs" className="mt-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Program Management</CardTitle>
+              <Button onClick={() => setIsAddingProgram(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Program
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="py-3 px-4 text-left">Program Name</th>
+                      <th className="py-3 px-4 text-left">University</th>
+                      <th className="py-3 px-4 text-left">Degree</th>
+                      <th className="py-3 px-4 text-left">Duration</th>
+                      <th className="py-3 px-4 text-left">Tuition</th>
+                      <th className="py-3 px-4 text-left">Scholarship</th>
+                      <th className="py-3 px-4 text-left">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {programs.map((program) => {
+                      const university = universities.find(u => u.id === program.universityId);
+                      return (
+                        <tr key={program.id} className="border-b">
+                          <td className="py-3 px-4 font-medium">{program.name}</td>
+                          <td className="py-3 px-4">{university?.name || 'Unknown'}</td>
+                          <td className="py-3 px-4">{program.degree}</td>
+                          <td className="py-3 px-4">{program.duration}</td>
+                          <td className="py-3 px-4">{program.tuition}</td>
+                          <td className="py-3 px-4">
+                            <Badge variant={program.hasScholarship ? "default" : "secondary"}>
+                              {program.hasScholarship ? "Available" : "Not Available"}
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="flex space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setEditingProgram(program)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => deleteProgram(program.id)}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* University Form Dialogs */}
+      <UniversityFormDialog
+        university={editingUniversity}
+        isOpen={!!editingUniversity || isAddingUniversity}
+        onClose={() => {
+          setEditingUniversity(null);
+          setIsAddingUniversity(false);
+        }}
+        onSave={() => {
+          fetchUniversities();
+          setEditingUniversity(null);
+          setIsAddingUniversity(false);
+        }}
+      />
+
+      {/* Program Form Dialogs */}
+      <ProgramFormDialog
+        program={editingProgram}
+        universities={universities}
+        isOpen={!!editingProgram || isAddingProgram}
+        onClose={() => {
+          setEditingProgram(null);
+          setIsAddingProgram(false);
+        }}
+        onSave={() => {
+          fetchPrograms();
+          setEditingProgram(null);
+          setIsAddingProgram(false);
+        }}
+      />
+    </div>
+  );
 }
 
 function AuditLogsTable() {
@@ -647,6 +920,7 @@ export default function AdminDashboardPage() {
         <TabsList>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="applications">Applications</TabsTrigger>
+          <TabsTrigger value="universities-programs">Universities & Programs</TabsTrigger>
           <TabsTrigger value="audit-logs">Audit Logs</TabsTrigger>
         </TabsList>
         <TabsContent value="users" className="mt-6">
@@ -732,6 +1006,9 @@ export default function AdminDashboardPage() {
               <ApplicationsManagementTable />
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="universities-programs" className="mt-6">
+          <UniversitiesProgramsManagement />
         </TabsContent>
         <TabsContent value="audit-logs" className="mt-6">
           <Card>
