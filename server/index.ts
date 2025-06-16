@@ -93,6 +93,10 @@ app.use((req, res, next) => {
 
   process.on('unhandledRejection', (reason, promise) => {
     log(`UNHANDLED REJECTION: ${reason}`);
+    log(`Promise: ${promise}`);
+    if (reason instanceof Error) {
+      log(`Stack: ${reason.stack}`);
+    }
     // Don't exit to keep the server running
   });
 

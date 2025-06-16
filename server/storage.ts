@@ -18,21 +18,25 @@ import createMemoryStore from "memorystore";
 // Database connection
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
-  console.error("Warning: DATABASE_URL environment variable is not set.");
-  console.error("Please make sure you have a .env file in the project root with DATABASE_URL set.");
-  console.error("Example: DATABASE_URL=postgresql://username:password@localhost:5432/database_name");
-
-  // For development, use a default local connection string if one isn't provided
-  const defaultLocalConnectionString = "postgres://neondb_owner_render:kiARnihT25Ngo3Q1gIUwN72QsexjIJdF@dpg-d07rg4qdbo4c73br2udg-a.oregon-postgres.render.com/neondb_twto?sslmode=require";
-  console.error(`Attempting to use default connection string: ${defaultLocalConnectionString}`);
-
-  // Set a default connection string for development
-  process.env.DATABASE_URL = defaultLocalConnectionString;
+  throw new Error("DATABASE_URL environment variable is required");
 }
 
-// Create postgres connection
-const pgConnection = postgres(process.env.DATABASE_URL);
-const db = drizzle(pgConnection);
+// Create postgres connection with error handling
+let pgConnection: any;
+let db: any;
+
+try {
+  pgConnection = postgres(connectionString, {
+    onnotice: () => {}, // Suppress notices
+    transform: {
+      undefined: null
+    }
+  });
+  db = drizzle(pgConnection);
+} catch (error) {
+  console.error("Failed to initialize database connection:", error);
+  throw error;
+}
 
 // Create a memory store for sessions
 const MemoryStore = createMemoryStore(session);
@@ -462,14 +466,12 @@ export class DBStorage implements IStorage {
 
   async createApplication(insertApplication: InsertApplication): Promise<Application> {
     // Ensure studentDateOfBirth is properly formatted as an ISO string if it's a Date object
-    if (insertApplication.studentDateOfBirth instanceof Date) {
-      insertApplication = {
-        ...insertApplication,
-        studentDateOfBirth: insertApplication.studentDateOfBirth.toISOString().split('T')[0]
-      };
+    const formattedApplication = { ...insertApplication };
+    if (formattedApplication.studentDateOfBirth instanceof Date) {
+      formattedApplication.studentDateOfBirth = formattedApplication.studentDateOfBirth.toISOString().split('T')[0] as any;
     }
 
-    const result = await this.db.insert(applications).values(insertApplication).returning();
+    const result = await this.db.insert(applications).values([formattedApplication]).returning();
     return result[0];
   }
 
