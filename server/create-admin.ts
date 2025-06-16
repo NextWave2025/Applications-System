@@ -10,33 +10,35 @@ async function hashPassword(password: string) {
   return `${buf.toString("hex")}.${salt}`;
 }
 
-async function createAdminUser() {
-  console.log("Creating admin user...");
-  
+async function createAdmin() {
   try {
-    // Check if admin user already exists
-    const existingAdmin = await storage.getUserByUsername("admin@example.com");
+    console.log("Creating admin user...");
     
+    // Check if admin already exists
+    const existingAdmin = await storage.getUserByUsername("admin@guide.com");
     if (existingAdmin) {
-      console.log("Admin user already exists!");
+      console.log("Admin user already exists:", existingAdmin.username);
       return;
     }
     
-    // Create admin user
+    // Create new admin user
     const adminUser = await storage.createUser({
-      username: "admin@example.com", // Username must be a valid email format
-      password: await hashPassword("admin123"), // Use a strong password in production
+      username: "admin@guide.com",
+      password: await hashPassword("admin123"),
       firstName: "Admin",
       lastName: "User",
       role: "admin",
       active: true,
-      agencyName: "Guide Admin",
+      agencyName: "Guide Platform",
+      country: "UAE",
+      phoneNumber: "+971-50-123-4567"
     });
     
     console.log("Admin user created successfully:", {
       id: adminUser.id,
       username: adminUser.username,
-      role: adminUser.role
+      role: adminUser.role,
+      active: adminUser.active
     });
     
   } catch (error) {
@@ -45,9 +47,10 @@ async function createAdminUser() {
 }
 
 // Run the function
-createAdminUser()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error("Unhandled error:", error);
-    process.exit(1);
-  });
+createAdmin().then(() => {
+  console.log("Admin creation process completed");
+  process.exit(0);
+}).catch((error) => {
+  console.error("Fatal error:", error);
+  process.exit(1);
+});
