@@ -24,6 +24,7 @@ import UniversityFormDialog from "@/components/university-form-dialog";
 import ProgramFormDialog from "@/components/program-form-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ExcelUploadDialog from "@/components/excel-upload-dialog";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 interface AdminStats {
   totalApplications: number;
@@ -380,20 +381,22 @@ function AuditLogsTable() {
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch audit logs with proper error handling
+  // Fetch audit logs with comprehensive error handling
   const { data: auditLogs = [], isLoading: loading, error: auditLogsError } = useQuery<AuditLog[]>({
     queryKey: ["/api/admin/audit-logs"],
     retry: 0,
     refetchOnWindowFocus: false,
     staleTime: 30000,
+    throwOnError: false,
   });
 
-  // Fetch users for lookup with proper error handling
+  // Fetch users for lookup with comprehensive error handling
   const { data: usersArray = [], error: usersError } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
     retry: 0,
     refetchOnWindowFocus: false,
     staleTime: 30000,
+    throwOnError: false,
   });
 
   // Create a map of user IDs to user objects for easier lookup
@@ -793,11 +796,12 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="container py-10">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <Button onClick={() => setLocation("/")}>Back to Main Dashboard</Button>
-      </div>
+    <ErrorBoundary>
+      <div className="container py-10">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <Button onClick={() => setLocation("/")}>Back to Main Dashboard</Button>
+        </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         {loading ? (
@@ -1035,6 +1039,7 @@ export default function AdminDashboardPage() {
         actionVariant={userActionType === "activate" ? "default" : "destructive"}
       />
     </div>
+    </ErrorBoundary>
   );
 }
 
