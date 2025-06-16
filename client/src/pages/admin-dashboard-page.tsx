@@ -381,7 +381,7 @@ function AuditLogsTable() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch audit logs
-  const { data: auditLogs = [], isLoading: loading } = useQuery({
+  const { data: auditLogs = [], isLoading: loading } = useQuery<AuditLog[]>({
     queryKey: ["/api/admin/audit-logs"],
     retry: 1,
   });
@@ -416,6 +416,18 @@ function AuditLogsTable() {
     if (!user) return `User #${userId}`;
     return `${user.firstName} ${user.lastName} (${user.username})`;
   };
+
+  // Filter audit logs based on search query and filter
+  const filteredAuditLogs = Array.isArray(auditLogs) ? auditLogs.filter((log: AuditLog) => {
+    const matchesSearch = searchQuery === "" || 
+      log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      log.resourceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      getUserName(log.userId).toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesFilter = filter === "all" || log.resourceType === filter;
+    
+    return matchesSearch && matchesFilter;
+  }) : [];
 
   return (
     <div>
@@ -474,14 +486,14 @@ function AuditLogsTable() {
               </tr>
             </thead>
             <tbody>
-              {auditLogs.length === 0 ? (
+              {filteredAuditLogs.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-6 text-center text-muted-foreground">
                     No audit logs found
                   </td>
                 </tr>
               ) : (
-                auditLogs.map((log) => (
+                filteredAuditLogs.map((log) => (
                   <tr key={log.id} className="border-b">
                     <td className="py-3 px-4">
                       {format(new Date(log.createdAt), 'MMM d, yyyy HH:mm:ss')}
@@ -725,6 +737,7 @@ function ApplicationsManagementTable() {
 export default function AdminDashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
 
   // User action dialog state
@@ -990,10 +1003,8 @@ export default function AdminDashboardPage() {
               active: userActionType === "activate" // true if activating, false if deactivating
             });
 
-            // Refresh the user list
-            const response = await apiRequest("GET", "/api/admin/users");
-            const data = await response.json();
-            setUsers(data);
+            // Refresh the user list using query cache invalidation
+            window.location.reload();
           } catch (err) {
             console.error(`Error ${userActionType === "activate" ? "activating" : "deactivating"} user:`, err);
           }
