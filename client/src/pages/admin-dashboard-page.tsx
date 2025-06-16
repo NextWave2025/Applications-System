@@ -198,12 +198,12 @@ function UniversitiesProgramsManagement() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>University Management</CardTitle>
-              <div>
+              <div className="flex gap-2">
                 <Button onClick={() => setIsAddingUniversity(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add University
                 </Button>
-                <Button onClick={() => setIsExcelUploadOpen(true)} className="ml-2">
+                <Button onClick={() => setIsExcelUploadOpen(true)} variant="outline">
                   <Upload className="h-4 w-4 mr-2" />
                   Upload Excel
                 </Button>
@@ -743,11 +743,12 @@ export default function AdminDashboardPage() {
   const { data: stats, isLoading: loadingStats, error: statsError } = useQuery({
     queryKey: ["/api/admin/stats"],
     enabled: !!user && user.role === "admin",
-    retry: 1,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   // Fetch users
-  const { data: users, isLoading: loadingUsers } = useQuery({
+  const { data: users = [], isLoading: loadingUsers, error: usersError } = useQuery({
     queryKey: ["/api/admin/users"],
     enabled: !!user && user.role === "admin",
     retry: 1,
@@ -874,6 +875,13 @@ export default function AdminDashboardPage() {
                 <div className="flex justify-center p-6">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 </div>
+              ) : usersError ? (
+                <div className="flex justify-center p-6">
+                  <div className="text-center">
+                    <AlertTriangle className="h-10 w-10 text-destructive mx-auto mb-2" />
+                    <p className="text-destructive">Failed to load users</p>
+                  </div>
+                </div>
               ) : (
                 <div className="rounded-md border">
                   <table className="w-full text-sm">
@@ -888,7 +896,7 @@ export default function AdminDashboardPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {users.map((user) => (
+                      {users && users.length > 0 ? users.map((user) => (
                         <tr key={user.id} className="border-b">
                           <td className="py-3 px-4">{user.username}</td>
                           <td className="py-3 px-4">{user.firstName} {user.lastName}</td>
@@ -930,7 +938,13 @@ export default function AdminDashboardPage() {
                             </div>
                           </td>
                         </tr>
-                      ))}
+                      )) : (
+                        <tr>
+                          <td colSpan={6} className="py-6 text-center text-muted-foreground">
+                            No users found
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>

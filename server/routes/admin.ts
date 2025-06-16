@@ -29,9 +29,13 @@ router.use(requireAdmin);
 
 // Get admin statistics
 router.get("/stats", async (req, res) => {
+  console.log("Admin stats route called");
+  console.log("User:", req.user);
   try {
+    console.log("Fetching applications...");
     // Get application counts
     const applications = await storage.getAllApplications();
+    console.log(`Found ${applications.length} applications`);
     const totalApplications = applications.length;
     const pendingReviews = applications.filter(app => 
       app.status === "submitted" || app.status === "under-review"
@@ -40,8 +44,10 @@ router.get("/stats", async (req, res) => {
       app.status === "approved"
     ).length;
 
+    console.log("Fetching users...");
     // Get user counts
     const users = await storage.getAllUsers();
+    console.log(`Found ${users.length} users`);
     const activeAgents = users.filter(user => 
       user.role === "agent" && user.active === true
     ).length;
@@ -50,18 +56,23 @@ router.get("/stats", async (req, res) => {
     const studentEmails = new Set(applications.map(app => app.studentEmail));
     const totalStudents = studentEmails.size;
 
+    console.log("Fetching universities...");
     // Get university count
     const universities = await storage.getUniversities();
+    console.log(`Found ${universities.length} universities`);
     const totalUniversities = universities.length;
 
-    res.json({
+    const stats = {
       totalApplications,
       pendingReviews,
       approvedApplications,
       activeAgents,
       totalStudents,
       totalUniversities
-    });
+    };
+    
+    console.log("Sending stats:", stats);
+    res.json(stats);
   } catch (error) {
     console.error("Error fetching admin stats:", error);
     res.status(500).json({ error: "Failed to fetch admin statistics" });
@@ -70,8 +81,12 @@ router.get("/stats", async (req, res) => {
 
 // Get all users
 router.get("/users", async (req, res) => {
+  console.log("Admin users route called");
+  console.log("User:", req.user);
   try {
+    console.log("Fetching all users...");
     const users = await storage.getAllUsers();
+    console.log(`Found ${users.length} users`);
     res.json(users);
   } catch (error) {
     console.error("Error fetching users:", error);
