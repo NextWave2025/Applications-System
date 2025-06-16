@@ -19,13 +19,13 @@ export default function ProgramsPage() {
   const { data: allPrograms = [], isLoading: isLoadingAllPrograms, isError: isErrorAllPrograms } = useQuery<ProgramWithUniversity[]>({
     queryKey: ['/api/programs']
   });
-  
+
   console.log("All programs:", allPrograms);
   console.log("Programs loading state:", { isLoadingAllPrograms, isErrorAllPrograms });
-  
+
   // Use the query client to manually fetch programs if needed
   const queryClient = useQueryClient();
-  
+
   useEffect(() => {
     // Force fetch programs on component mount for reliability
     if (!isLoadingAllPrograms) {
@@ -53,54 +53,54 @@ export default function ProgramsPage() {
       filters.duration.length > 0 || 
       filters.hasScholarship || 
       searchQuery.trim() !== "";
-    
+
     // If no filters are active, just use the allPrograms data
     if (!hasActiveFilters) {
       return null;
     }
-    
+
     // Otherwise, build filter params
     const params = new URLSearchParams();
-    
+
     // Add study level filters
     if (filters.studyLevel.length > 0) {
       filters.studyLevel.forEach(level => params.append('degree', level));
     }
-    
+
     // Add study field filters
     if (filters.studyField.length > 0) {
       filters.studyField.forEach(field => params.append('studyField', field));
     }
-    
+
     // Add university filters
     if (filters.universityIds.length > 0) {
       filters.universityIds.forEach(id => params.append('university', id.toString()));
     }
-    
+
     // Add tuition filter
     if (filters.maxTuition && filters.maxTuition < 200000) {
       params.append('maxTuition', filters.maxTuition.toString());
     }
-    
+
     // Add duration filters
     if (filters.duration.length > 0) {
       filters.duration.forEach(duration => params.append('duration', duration));
     }
-    
+
     // Add scholarship filter
     if (filters.hasScholarship) {
       params.append('hasScholarship', 'true');
     }
-    
+
     // Add search query
     if (searchQuery) {
       params.append('search', searchQuery);
     }
-    
+
     const queryStr = params.toString();
     return queryStr ? `/api/programs?${queryStr}` : '/api/programs';
   }, [filters, searchQuery]);
-  
+
   // Fetch programs based on the memoized filter query
   // Fetch filtered programs only if there are filters active
   const { data: filteredPrograms = [], isLoading: isLoadingFiltered } = useQuery<ProgramWithUniversity[]>({
@@ -108,7 +108,7 @@ export default function ProgramsPage() {
     // Skip this query if there are no active filters (filterQuery is null)
     enabled: filterQuery !== null
   });
-  
+
   // Manually fetch filtered programs when the filter changes
   useEffect(() => {
     if (filterQuery !== null) {
@@ -124,16 +124,18 @@ export default function ProgramsPage() {
         });
     }
   }, [filterQuery, queryClient]);
-  
+
   // Determine which programs to display: filtered programs if filters are active, otherwise all programs
   const isLoading = filterQuery === null ? isLoadingAllPrograms : isLoadingFiltered;
   const programs = filterQuery === null ? allPrograms : filteredPrograms;
-  
-  // Fetch universities for the filter dropdown
+
+  // Fetch universities for filters
   const { data: universities = [] } = useQuery<University[]>({
-    queryKey: ['/api/universities']
+    queryKey: ["/api/universities"],
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
-  
+
   // Also fetch universities manually for reliability
   useEffect(() => {
     if (universities.length === 0) {
@@ -212,7 +214,7 @@ export default function ProgramsPage() {
               <div className="mb-6">
                 <h3 className="font-medium mb-3">Universities</h3>
                 <div className="max-h-40 overflow-y-auto space-y-2 pr-2">
-                  {universities.map((university) => (
+                  {Array.isArray(universities) && universities.map((university) => (
                     <div key={university.id} className="flex items-center">
                       <input 
                         id={`univ-${university.id}`} 
@@ -360,7 +362,7 @@ export default function ProgramsPage() {
               </div>
             </div>
           </aside>
-          
+
           {/* Main content - program cards */}
           <main className="lg:w-3/4">
             {isLoading ? (

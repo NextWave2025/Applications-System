@@ -21,6 +21,7 @@ import StatusChangeDialog from "@/components/status-change-dialog";
 import { UserActionDialog } from "@/components/user-action-dialog";
 import UniversityFormDialog from "@/components/university-form-dialog";
 import ProgramFormDialog from "@/components/program-form-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface AdminStats {
   totalApplications: number;
@@ -206,10 +207,16 @@ function UniversitiesProgramsManagement() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>University Management</CardTitle>
-              <Button onClick={() => setIsAddingUniversity(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add University
-              </Button>
+              <div>
+                <Button onClick={() => setIsAddingUniversity(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add University
+                </Button>
+                <Button onClick={() => setIsExcelUploadOpen(true)} className="ml-2">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Excel
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="rounded-md border">
@@ -362,6 +369,17 @@ function UniversitiesProgramsManagement() {
           fetchPrograms();
           setEditingProgram(null);
           setIsAddingProgram(false);
+        }}
+      />
+
+      {/* Excel Upload Dialog */}
+      <ExcelUploadDialog
+        isOpen={isExcelUploadOpen}
+        onClose={() => setIsExcelUploadOpen(false)}
+        onSuccess={() => {
+          fetchUniversities();
+          fetchPrograms();
+          setIsExcelUploadOpen(false);
         }}
       />
     </div>
