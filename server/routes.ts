@@ -113,7 +113,7 @@ export function registerRoutes(app: Express): Server {
       }
     } catch (error: any) {
       console.error("Error fetching programs:", error);
-      res.status(500).json({ error: "Failed to fetch programs: " + (error?.message || error) });
+      res.status(500).json({ error: "Failed to fetch programs: " + (error?.message || String(error)) });
     }
   });
 
@@ -336,9 +336,9 @@ export function registerRoutes(app: Express): Server {
 
       const updatedApplication = await storage.updateApplication(id, updatedData);
       res.json(updatedApplication);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating application:", error);
-      res.status(500).json({ error: "Failed to update application: " + (error?.message || error) });
+      res.status(500).json({ error: "Failed to update application: " + (error?.message || String(error)) });
     }
   });
 
