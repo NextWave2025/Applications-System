@@ -1,0 +1,38 @@
+[plugin:runtime-error-plugin] universities.map is not a function. (In 'universities.map(
+              (university) => /* @__PURE__ */ jsxDEV("div", { "data-replit-metadata": "client/src/pages/programs-page.tsx:216:18", "data-component-name": "div", className: "flex items-center", children: [
+                /* @__PURE__ */ jsxDEV(
+                  "input",
+                  {
+                    "data-replit-metadata": "client/src/pages/programs-page.tsx:217:22",
+                    "data-component-name": "input",
+                    id: `univ-${university.id}`,
+                    type: "checkbox",
+                    className: "h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary",
+                    checked: filters.universityIds.includes(university.id),
+                    onChange: (e) => {
+                      const updatedIds = e.target.checked ? [...filters.universityIds, university.id] : filters.universityIds.filter((id) => id !== university.id);
+                      handleFilterChange("universityIds", updatedIds);
+                    }
+                  },
+                  void 0,
+                  false,
+                  {
+                    fileName: "/home/runner/workspace/client/src/pages/programs-page.tsx",
+                    lineNumber: 217,
+                    columnNumber: 23
+                  },
+                  this
+                ),
+                /* @__PURE__ */ jsxDEV("label", { "data-replit-metadata": "client/src/pages/programs-page.tsx:229:22", "data-component-name": "label", htmlFor: `univ-${university.id}`, className: "ml-2 text-sm text-gray-700 truncate", children: university.name }, void 0, false, {
+                  fileName: "/home/runner/workspace/client/src/pages/programs-page.tsx",
+                  lineNumber: 229,
+                  columnNumber: 23
+                }, this)
+              ] }, university.id, true, {
+                fileName: "/home/runner/workspace/client/src/pages/programs-page.tsx",
+                lineNumber: 216,
+                columnNumber: 19
+              }, this)
+            )', 'universities.map' is undefined)
+Click outside, press Esc key, or fix the code to dismiss.
+You can also disable this overlay by setting server.hmr.overlay to false in vite.config.js.
