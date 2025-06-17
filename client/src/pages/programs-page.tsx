@@ -5,6 +5,9 @@ import ProgramCard from "@/components/program-card";
 import EnhancedSearch from "@/components/enhanced-search";
 import PDFExport from "@/components/pdf-export";
 import SelectableProgramCard from "@/components/selectable-program-card";
+import EnhancedProgramFilters from "@/components/enhanced-program-filters";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { studyLevels, studyFields, durationOptions, type Program, type University, type ProgramWithUniversity } from "@shared/schema";
 
 export default function ProgramsPage() {

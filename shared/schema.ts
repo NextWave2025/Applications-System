@@ -72,21 +72,54 @@ export const insertUniversitySchema = createInsertSchema(universities).omit({
 export type InsertUniversity = z.infer<typeof insertUniversitySchema>;
 export type University = typeof universities.$inferSelect;
 
-// Study levels
+// Study levels with user-friendly terms
 export const studyLevels = [
-  "Bachelor's Degree",
-  "Master's Degree",
-  "PhD",
-  "Diploma"
+  "Foundation",
+  "Diploma", 
+  "Degree (Undergraduate)",
+  "Postgraduate (Master's / PhD)"
 ];
 
-// Study fields
+// Study fields - main categories only
 export const studyFields = [
   "Business & Management",
   "Engineering",
   "Computer Science & IT",
   "Medicine & Health",
-  "Arts & Humanities"
+  "Arts & Humanities",
+  "Law & Politics",
+  "Media & Design", 
+  "Education & Languages",
+  "Social Sciences"
+];
+
+// UAE locations based on university cities
+export const uaeLocations = [
+  "Dubai",
+  "Abu Dhabi", 
+  "Sharjah",
+  "Ras Al Khaimah",
+  "Ajman",
+  "Fujairah"
+];
+
+// Intake options
+export const intakeOptions = [
+  "January",
+  "May", 
+  "September"
+];
+
+// Top universities in priority order
+export const topUniversities = [
+  "Middlesex University",
+  "Amity University", 
+  "Westford University",
+  "Manipal University",
+  "De Montfort University",
+  "Curtin University",
+  "Symbiosis University",
+  "University of Bolton RAK"
 ];
 
 // Duration options

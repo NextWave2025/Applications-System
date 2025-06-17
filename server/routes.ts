@@ -53,7 +53,18 @@ export function registerRoutes(app: Express): Server {
     try {
       console.log("GET /api/programs request with query:", req.query);
 
-      const { university, degree, studyField, hasScholarship, maxTuition, duration, search } = req.query;
+      const { 
+        university, 
+        degree, 
+        studyField, 
+        hasScholarship, 
+        maxTuition, 
+        minTuition,
+        duration, 
+        search,
+        location,
+        intake
+      } = req.query;
 
       const filters: any = {};
 
@@ -79,8 +90,28 @@ export function registerRoutes(app: Express): Server {
           : [studyField as string];
       }
 
+      if (location) {
+        filters.location = Array.isArray(location)
+          ? location.map(l => l as string)
+          : [location as string];
+      }
+
+      if (intake) {
+        filters.intake = Array.isArray(intake)
+          ? intake.map(i => i as string)
+          : [intake as string];
+      }
+
       if (hasScholarship === 'true') {
         filters.hasScholarship = true;
+      }
+
+      if (minTuition) {
+        try {
+          filters.minTuition = parseInt(minTuition as string);
+        } catch (e) {
+          console.error("Error parsing minTuition filter:", e);
+        }
       }
 
       if (maxTuition) {

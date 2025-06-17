@@ -109,8 +109,11 @@ export interface ProgramFilters {
   studyLevel?: string[];
   studyField?: string[];
   universityIds?: number[];
+  minTuition?: number;
   maxTuition?: number;
   duration?: string[];
+  location?: string[];
+  intake?: string[];
   hasScholarship?: boolean;
   search?: string;
 }
@@ -219,6 +222,16 @@ export class DBStorage implements IStorage {
           conditions.push(inArray(programs.duration, filters.duration));
         }
 
+        // Location filter - filter by university location
+        if (filters.location && filters.location.length > 0) {
+          conditions.push(inArray(universities.location, filters.location));
+        }
+
+        // Intake filter
+        if (filters.intake && filters.intake.length > 0) {
+          conditions.push(inArray(programs.intake, filters.intake));
+        }
+
         // Scholarship filter
         if (filters.hasScholarship !== undefined) {
           conditions.push(eq(programs.hasScholarship, filters.hasScholarship));
@@ -242,13 +255,24 @@ export class DBStorage implements IStorage {
       const result = await query;
       console.log(`Query returned ${result.length} programs`);
 
-      // Handle max tuition filter in memory since tuition is stored as string with "AED/year" suffix
-      if (filters?.maxTuition) {
-        return result.filter((program: ProgramWithUniversity) => {
+      // Handle tuition range filter in memory since tuition is stored as string with "AED/year" suffix
+      let filteredResults = result;
+      
+      if (filters?.minTuition || filters?.maxTuition) {
+        filteredResults = result.filter((program: ProgramWithUniversity) => {
           try {
             // Extract numeric part from "35,000 AED/year" format
             const tuitionValue = parseInt(program.tuition.replace(/[^0-9]/g, ''));
-            return !isNaN(tuitionValue) && tuitionValue <= (filters.maxTuition || 0);
+            if (isNaN(tuitionValue)) return true; // Include by default if parsing fails
+            
+            let inRange = true;
+            if (filters.minTuition) {
+              inRange = inRange && tuitionValue >= filters.minTuition;
+            }
+            if (filters.maxTuition) {
+              inRange = inRange && tuitionValue <= filters.maxTuition;
+            }
+            return inRange;
           } catch (e) {
             console.error("Error parsing tuition:", e, "for program:", program.name);
             return true; // Include by default if parsing fails
@@ -256,7 +280,7 @@ export class DBStorage implements IStorage {
         });
       }
 
-      return result;
+      return filteredResults;
     } catch (error) {
       console.error("Error in getPrograms:", error);
       throw error;
