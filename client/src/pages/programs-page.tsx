@@ -263,6 +263,40 @@ export default function ProgramsPage() {
           </div>
         )}
 
+        {/* Results Count and Active Filters */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            {programs.length} program{programs.length !== 1 ? 's' : ''} found
+            {selectedProgramIds.length > 0 && ` · ${selectedProgramIds.length} selected`}
+          </div>
+          
+          {/* Show active filter count */}
+          {(filters.universityIds.length > 0 || 
+            filters.degreeLevel.length > 0 || 
+            filters.location.length > 0 || 
+            filters.studyField.length > 0 || 
+            filters.intake.length > 0 || 
+            filters.hasScholarship ||
+            filters.tuitionMin > 0 || 
+            filters.tuitionMax < 80000) && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">Active filters:</span>
+              <Badge variant="secondary">
+                {filters.universityIds.length + 
+                 filters.degreeLevel.length + 
+                 filters.location.length + 
+                 filters.studyField.length + 
+                 filters.intake.length + 
+                 (filters.hasScholarship ? 1 : 0) +
+                 ((filters.tuitionMin > 0 || filters.tuitionMax < 80000) ? 1 : 0)} applied
+              </Badge>
+              <Button variant="ghost" size="sm" onClick={resetFilters}>
+                Clear All
+              </Button>
+            </div>
+          )}
+        </div>
+
         {/* Filters and program cards */}
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Enhanced Sidebar filters */}
@@ -319,7 +353,7 @@ export default function ProgramsPage() {
                       key={program.id} 
                       program={program}
                       isSelected={selectedProgramIds.includes(program.id)}
-                      onSelectionChange={handleProgramSelection}
+                      onSelectionChange={(programId, selected) => handleProgramSelection(programId, selected)}
                     />
                   ))}
                 </div>
