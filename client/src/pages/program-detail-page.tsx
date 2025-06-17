@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useLocation } from "wouter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { ProgramWithUniversity } from "@shared/schema";
@@ -8,7 +8,7 @@ export default function ProgramDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [isSaved, setIsSaved] = useState(false);
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const { user, isLoading: authLoading } = useAuth();
   
   // Fetch program details from the API with more stability
@@ -213,10 +213,10 @@ export default function ProgramDetailPage() {
                 onClick={() => {
                   if (!user) {
                     // Redirect to auth page if not authenticated
-                    navigate("/auth", { state: { redirectTo: `/apply/${id}` } });
+                    setLocation("/auth");
                   } else {
                     // Redirect to application form if authenticated
-                    navigate(`/apply/${id}`);
+                    setLocation(`/apply/${id}`);
                   }
                 }}
                 className="w-full mt-6 py-3 bg-primary text-white font-medium rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
