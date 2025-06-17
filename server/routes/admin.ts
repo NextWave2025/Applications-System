@@ -657,10 +657,21 @@ router.post("/upload-excel", upload.single("excel"), async (req, res) => {
     let programsUpdated = 0;
     const errors: string[] = [];
 
+    // Check for sheet names with flexible matching
+    const universitySheetNames = ["Universities", "University", "UNIVERSITIES", "universities", "university"];
+    const programSheetNames = ["Programs", "Program", "PROGRAMS", "programs", "program"];
+    
+    const foundUniversitySheet = universitySheetNames.find(name => workbook.SheetNames.includes(name));
+    const foundProgramSheet = programSheetNames.find(name => workbook.SheetNames.includes(name));
+    
+    console.log("Available sheet names:", workbook.SheetNames);
+    console.log("Found university sheet:", foundUniversitySheet);
+    console.log("Found program sheet:", foundProgramSheet);
+
     // Process Universities sheet
-    if (workbook.SheetNames.includes("Universities")) {
-      console.log("Processing Universities sheet");
-      const universitiesSheet = workbook.Sheets["Universities"];
+    if (foundUniversitySheet) {
+      console.log("Processing Universities sheet:", foundUniversitySheet);
+      const universitiesSheet = workbook.Sheets[foundUniversitySheet];
       const universitiesData = XLSX.utils.sheet_to_json(universitiesSheet);
       console.log("Universities data parsed:", universitiesData.length, "rows");
       console.log("First few rows:", universitiesData.slice(0, 3));
@@ -696,17 +707,9 @@ router.post("/upload-excel", upload.single("excel"), async (req, res) => {
           errors.push(`Row ${i + 2} in Universities sheet: ${error?.message || 'Unknown error'}`);
         }
       }
+    } else {
+      console.log("No Universities sheet found in sheets:", workbook.SheetNames);
     }
-
-    // Also check for alternative sheet names
-    const universitySheetNames = ["Universities", "University", "UNIVERSITIES"];
-    const programSheetNames = ["Programs", "Program", "PROGRAMS"];
-    
-    const foundUniversitySheet = universitySheetNames.find(name => workbook.SheetNames.includes(name));
-    const foundProgramSheet = programSheetNames.find(name => workbook.SheetNames.includes(name));
-    
-    console.log("Found university sheet:", foundUniversitySheet);
-    console.log("Found program sheet:", foundProgramSheet);
 
     // Process Programs sheet
     if (foundProgramSheet) {
