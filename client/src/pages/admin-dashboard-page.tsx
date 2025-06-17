@@ -723,6 +723,7 @@ function ApplicationsManagementTable() {
                 <th className="py-3 px-4 text-left">Student</th>
                 <th className="py-3 px-4 text-left">Program</th>
                 <th className="py-3 px-4 text-left">University</th>
+                <th className="py-3 px-4 text-left">Agent/Account</th>
                 <th className="py-3 px-4 text-left">Status</th>
                 <th className="py-3 px-4 text-left">Updated</th>
                 <th className="py-3 px-4 text-left">Actions</th>
@@ -760,6 +761,14 @@ function ApplicationsManagementTable() {
                           </div>
                         )}
                         <span>{app.program.universityName}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="font-medium text-sm">
+                        {app.agent?.name || 'Unknown Agent'}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {app.agent?.agencyName || 'No Agency'}
                       </div>
                     </td>
                     <td className="py-3 px-4">

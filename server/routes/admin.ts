@@ -264,7 +264,7 @@ router.patch("/applications/:id/archive", async (req, res) => {
     }
 
     // Archive the application (update status to 'archived')
-    await storage.updateApplicationStatus(applicationId, "archived", req.user?.id);
+    await storage.updateApplicationStatus(applicationId, "archived", req.user?.id ?? 1);
     
     console.log(`Application ${applicationId} archived successfully`);
     res.json({ message: "Application archived successfully" });
