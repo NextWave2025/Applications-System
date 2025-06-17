@@ -1,0 +1,95 @@
+Goal:
+Build a clean, responsive, and highly usable program filter system to enhance the program search experience on the frontend. This includes dropdowns, sliders, and buttons that allow users to filter by tuition, degree level, intake, and more.
+
+⸻
+
+✅ Filters to Implement:
+
+1️⃣ University (Searchable Dropdown)
+	•	Do not sort alphabetically
+	•	Display top universities first in this exact order:
+	1.	Middlesex University
+	2.	Amity University
+	3.	Westford University
+	4.	Manipal University
+	5.	De Montfort University
+	6.	Curtin University
+	7.	Symbiosis University
+	8.	University of Bolton RAK
+	•	Append all other universities from the database after the top list.
+	•	Use normal sentence-case font (no all caps)
+	•	Ensure the dropdown is searchable and clean in design.
+
+⸻
+
+2️⃣ Tuition Fee (Slider + Preset Buttons)
+	•	Slider: from min to max tuition (e.g. AED 0 – 80,000)
+	•	Optional quick-filter buttons:
+	•	Under AED 30,000
+	•	AED 30,000–50,000
+	•	AED 50,000–70,000
+	•	Above AED 70,000
+
+⸻
+
+3️⃣ Degree Level (Buttons or Dropdown)
+
+Use clear and user-friendly terms:
+	•	Foundation
+	•	Diploma
+	•	Degree (Undergraduate)
+	•	Postgraduate (Master’s / PhD)
+
+⸻
+
+4️⃣ Location (Dropdown)
+
+Options (based on university city):
+	•	Dubai
+	•	Abu Dhabi
+	•	Sharjah
+	•	Ras Al Khaimah
+	•	Ajman
+	•	Fujairah
+
+Pull location based on university data if not already available.
+
+⸻
+
+5️⃣ Field of Study (Dropdown or Multi-select)
+
+Main categories only (no subfields):
+	•	Business & Management
+	•	Engineering
+	•	Computer Science & IT
+	•	Medicine & Health
+	•	Arts & Humanities
+	•	Law & Politics
+	•	Media & Design
+	•	Education & Languages
+	•	Social Sciences
+
+⸻
+
+6️⃣ Intake (Checkbox or Dropdown)
+
+Available values:
+	•	January
+	•	May
+	•	September
+
+⸻
+
+🔄 Filter Logic & Behavior
+	•	Filters can be applied individually or together (AND logic)
+	•	Recalculate and display result count in real-time
+	•	Add a “Reset All Filters” button
+	•	Ensure mobile responsiveness and clean spacing between filters
+
+⸻
+
+🧱 Stack & Integration
+	•	Frontend: React + Vite (component-based)
+	•	Connect filters to existing search functionality
+	•	Use internal state or query params to pass selected filters to the backend
+	•	Ensure filters reflect correctly in the API call for program search
