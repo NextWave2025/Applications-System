@@ -1,6 +1,6 @@
-import { Route, Switch } from "wouter";
+import { Router, Route, Switch } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./lib/query-client";
+import { queryClient } from "./lib/queryClient";
 import { AuthProvider } from "./hooks/use-auth";
 import { Toaster } from "./components/ui/toaster";
 import { useEffect } from "react";
@@ -49,152 +49,112 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
-          <Routes>
+          <Switch>
             {/* Public routes with MainLayout */}
-            <Route
-              path="/"
-              element={
-                <MainLayout>
-                  <LandingPage />
-                </MainLayout>
-              }
-            />
+            <Route path="/">
+              <MainLayout>
+                <LandingPage />
+              </MainLayout>
+            </Route>
 
-            <Route
-              path="/auth"
-              element={
-                <MainLayout>
-                  <AuthPage />
-                </MainLayout>
-              }
-            />
+            <Route path="/auth">
+              <MainLayout>
+                <AuthPage />
+              </MainLayout>
+            </Route>
 
-            <Route
-              path="/programs"
-              element={
-                <MainLayout>
-                  <ProgramsPage />
-                </MainLayout>
-              }
-            />
+            <Route path="/programs/:id">
+              <MainLayout>
+                <ProgramDetailPage />
+              </MainLayout>
+            </Route>
 
-            <Route
-              path="/programs/:id"
-              element={
-                <MainLayout>
-                  <ProgramDetailPage />
-                </MainLayout>
-              }
-            />
+            <Route path="/programs">
+              <MainLayout>
+                <ProgramsPage />
+              </MainLayout>
+            </Route>
 
-            <Route
-              path="/about"
-              element={
-                <MainLayout>
-                  <AboutPage />
-                </MainLayout>
-              }
-            />
+            <Route path="/about">
+              <MainLayout>
+                <AboutPage />
+              </MainLayout>
+            </Route>
 
-            <Route
-              path="/contact"
-              element={
-                <MainLayout>
-                  <ContactPage />
-                </MainLayout>
-              }
-            />
+            <Route path="/contact">
+              <MainLayout>
+                <ContactPage />
+              </MainLayout>
+            </Route>
 
             {/* Protected routes with DashboardLayout */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <DashboardPage />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/dashboard/applications/:id/edit">
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <ApplicationEditPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            </Route>
 
-            <Route
-              path="/dashboard/programs"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <ProgramsPage />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/dashboard/applications">
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <ApplicationsPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            </Route>
 
-            <Route
-              path="/dashboard/applications"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <ApplicationsPage />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/dashboard/programs">
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <ProgramsPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            </Route>
 
-            <Route
-              path="/dashboard/settings"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <SettingsPage />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/dashboard/settings">
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <SettingsPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            </Route>
 
-            {/* Admin dashboard route */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminDashboardPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/applications/:id"
-              element={
-                <ProtectedRoute>
-                  <ApplicationDetailsPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/dashboard">
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <DashboardPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            </Route>
+
+            {/* Admin dashboard routes */}
+            <Route path="/admin/applications/:id">
+              <ProtectedRoute>
+                <ApplicationDetailsPage />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path="/admin">
+              <ProtectedRoute>
+                <AdminDashboardPage />
+              </ProtectedRoute>
+            </Route>
 
             {/* Application form route */}
-            <Route
-              path="/apply/:id"
-              element={
-                <ProtectedRoute>
-                  <MainLayout>
-                    <ApplicationFormPage />
-                  </MainLayout>
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/apply/:id">
+              <ProtectedRoute>
+                <MainLayout>
+                  <ApplicationFormPage />
+                </MainLayout>
+              </ProtectedRoute>
+            </Route>
 
-            {/* Application edit route */}
-            <Route
-              path="/dashboard/applications/:id/edit"
-              element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <ApplicationEditPage />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              }
-            />
-
-            {/* 404 route */}
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
+            {/* 404 route - must be last */}
+            <Route>
+              <NotFoundPage />
+            </Route>
+          </Switch>
         </Router>
         <Toaster />
       </AuthProvider>

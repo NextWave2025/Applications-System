@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import NextWaveLogo from "../../assets/NextWave-logo-Primary-white.png";
 
 export default function Footer() {
@@ -55,7 +55,7 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Programs</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/programs" className="text-gray-400 hover:text-white">
+                <Link href="/programs" className="text-gray-400 hover:text-white">
                   Explore
                 </Link>
               </li>
@@ -65,12 +65,12 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">About</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/about" className="text-gray-400 hover:text-white">
+                <Link href="/about" className="text-gray-400 hover:text-white">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-gray-400 hover:text-white">
+                <Link href="/contact" className="text-gray-400 hover:text-white">
                   Contact
                 </Link>
               </li>
