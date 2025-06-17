@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 
 export default function FeaturesSection() {
   const features = [
@@ -150,7 +150,7 @@ export default function FeaturesSection() {
 
         <div className="text-center mt-12">
           <Link
-            to="/programs"
+            href="/programs"
             className="btn-primary inline-block"
           >
             Find Your Program

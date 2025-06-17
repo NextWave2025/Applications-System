@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 
 // Import university logos
 import amityUniLogo from "../assets/university-logos/amity_university.jpg";

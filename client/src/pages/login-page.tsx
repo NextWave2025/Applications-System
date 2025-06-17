@@ -11,7 +11,7 @@ export default function LoginPage() {
 
   // Redirect if user is already logged in
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate href="/dashboard" replace />;
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,7 +86,7 @@ export default function LoginPage() {
         <div className="text-center mt-6">
           <p className="text-gray-600">
             Don't have an account?{' '}
-            <Link to="/signup" className="text-gray-900 font-medium">
+            <Link href="/signup" className="text-gray-900 font-medium">
               Sign up
             </Link>
           </p>

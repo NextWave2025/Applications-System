@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { type University } from "@shared/schema";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 
 export default function FeaturedUniversities() {
   const { data: universities = [], isLoading } = useQuery<University[]>({
@@ -50,7 +50,7 @@ export default function FeaturedUniversities() {
 
         <div className="mt-8 text-center">
           <Link
-            to="/programs"
+            href="/programs"
             className="inline-flex items-center text-primary font-medium hover:underline"
           >
             View All Universities

@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import {
   Instagram,
   Linkedin,
@@ -82,7 +82,7 @@ export default function SiteFooter() {
             <ul className="space-y-4">
               <li>
                 <Link
-                  to="/"
+                  href="/"
                   className="text-gray-400 hover:text-primary font-light text-[16px] transition-colors duration-200 flex items-center"
                 >
                   <span className="w-1.5 h-1.5 bg-primary mr-2 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
@@ -91,7 +91,7 @@ export default function SiteFooter() {
               </li>
               <li>
                 <Link
-                  to="/programs"
+                  href="/programs"
                   className="text-gray-400 hover:text-primary font-light text-[16px] transition-colors duration-200 flex items-center"
                 >
                   <span className="w-1.5 h-1.5 bg-primary mr-2 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
@@ -100,7 +100,7 @@ export default function SiteFooter() {
               </li>
               <li>
                 <Link
-                  to="/about"
+                  href="/about"
                   className="text-gray-400 hover:text-primary font-light text-[16px] transition-colors duration-200 flex items-center"
                 >
                   <span className="w-1.5 h-1.5 bg-primary mr-2 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
@@ -109,7 +109,7 @@ export default function SiteFooter() {
               </li>
               <li>
                 <Link
-                  to="/contact"
+                  href="/contact"
                   className="text-gray-400 hover:text-primary font-light text-[16px] transition-colors duration-200 flex items-center"
                 >
                   <span className="w-1.5 h-1.5 bg-primary mr-2 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
@@ -127,7 +127,7 @@ export default function SiteFooter() {
             <ul className="space-y-4">
               <li>
                 <Link
-                  to="/become-agent"
+                  href="/become-agent"
                   className="text-gray-400 hover:text-primary font-light text-[16px] transition-colors duration-200 flex items-center"
                 >
                   <span className="w-1.5 h-1.5 bg-primary mr-2 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
@@ -136,7 +136,7 @@ export default function SiteFooter() {
               </li>
               <li>
                 <Link
-                  to="/login"
+                  href="/login"
                   className="text-gray-400 hover:text-primary font-light text-[16px] transition-colors duration-200 flex items-center"
                 >
                   <span className="w-1.5 h-1.5 bg-primary mr-2 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
@@ -145,7 +145,7 @@ export default function SiteFooter() {
               </li>
               <li>
                 <Link
-                  to="/commissions"
+                  href="/commissions"
                   className="text-gray-400 hover:text-primary font-light text-[16px] transition-colors duration-200 flex items-center"
                 >
                   <span className="w-1.5 h-1.5 bg-primary mr-2 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
@@ -154,7 +154,7 @@ export default function SiteFooter() {
               </li>
               <li>
                 <Link
-                  to="/marketing-materials"
+                  href="/marketing-materials"
                   className="text-gray-400 hover:text-primary font-light text-[16px] transition-colors duration-200 flex items-center"
                 >
                   <span className="w-1.5 h-1.5 bg-primary mr-2 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
@@ -163,7 +163,7 @@ export default function SiteFooter() {
               </li>
               <li>
                 <Link
-                  to="/training"
+                  href="/training"
                   className="text-gray-400 hover:text-primary font-light text-[16px] transition-colors duration-200 flex items-center"
                 >
                   <span className="w-1.5 h-1.5 bg-primary mr-2 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
@@ -211,19 +211,19 @@ export default function SiteFooter() {
           </p>
           <div className="flex space-x-6">
             <Link
-              to="/privacy"
+              href="/privacy"
               className="text-gray-500 hover:text-primary text-sm font-light transition-colors duration-200"
             >
               Privacy Policy
             </Link>
             <Link
-              to="/terms"
+              href="/terms"
               className="text-gray-500 hover:text-primary text-sm font-light transition-colors duration-200"
             >
               Terms of Service
             </Link>
             <Link
-              to="/cookies"
+              href="/cookies"
               className="text-gray-500 hover:text-primary text-sm font-light transition-colors duration-200"
             >
               Cookie Policy

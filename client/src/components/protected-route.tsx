@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate } from "wouter";
 import { useAuth } from "../hooks/use-auth";
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -14,7 +14,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate href="/auth" replace />;
   }
 
   return <>{children}</>;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
 
 export default function AgentCTASection() {
@@ -102,14 +102,14 @@ export default function AgentCTASection() {
 
                 <div className="flex flex-col sm:flex-row gap-4 mb-8">
                   <Link
-                    to="/auth"
+                    href="/auth"
                     state={{ redirectTo: "/dashboard" }}
                     className="btn-primary py-4 px-6 flex items-center justify-center"
                   >
                     Apply Now
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
-                  <Link to="/contact" className="btn-outline-white">
+                  <Link href="/contact" className="btn-outline-white">
                     Contact Sales
                   </Link>
                 </div>

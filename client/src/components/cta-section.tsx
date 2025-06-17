@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 
 export default function CTASection() {
   return (
@@ -15,10 +15,10 @@ export default function CTASection() {
               the process easy and stress-free.
             </p>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-              <Link to="/programs" className="btn-primary-white text-center">
+              <Link href="/programs" className="btn-primary-white text-center">
                 Explore Programs
               </Link>
-              <Link to="/signup" className="btn-outline-white text-center">
+              <Link href="/signup" className="btn-outline-white text-center">
                 Create Account
               </Link>
             </div>
@@ -103,7 +103,7 @@ export default function CTASection() {
                 <p className="text-white/80 text-sm mb-3">
                   Join 5,000+ students who found their path
                 </p>
-                <Link to="/signup" className="btn-primary-white w-full">
+                <Link href="/signup" className="btn-primary-white w-full">
                   Sign Up Now
                 </Link>
               </div>

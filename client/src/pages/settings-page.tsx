@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 export default function SettingsPage() {
-  const navigate = useNavigate();
+  const navigate = useLocation();
   const [activeTab, setActiveTab] = useState<"profile" | "security" | "notifications">("profile");
   
   // Fetch current user data

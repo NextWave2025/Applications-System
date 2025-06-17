@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { useAuth } from "../hooks/use-auth";
 import { formatDistanceToNow, format } from "date-fns";
 import { ApplicationStatus } from "@shared/schema";
@@ -48,7 +48,7 @@ type Application = {
 };
 
 export default function ApplicationsPage() {
-  const navigate = useNavigate();
+  const navigate = useLocation();
   const { user, isLoading: authLoading } = useAuth();
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);

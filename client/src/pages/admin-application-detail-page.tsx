@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 import { 
@@ -70,7 +70,7 @@ interface ApplicationWithDetails {
 export default function AdminApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useLocation();
   const { toast } = useToast();
   const [application, setApplication] = useState<ApplicationWithDetails | null>(null);
   const [loading, setLoading] = useState(true);

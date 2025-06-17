@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import ProgramDetailTabs from "../components/program-detail-tabs";
 import { useState } from "react";
@@ -110,7 +110,7 @@ export default function ProgramDetailPage() {
             The program you're looking for doesn't exist or has been removed. Please check the URL or go back to browse all programs.
           </p>
           <div className="mt-6">
-            <Link to="/programs" className="btn-primary">
+            <Link href="/programs" className="btn-primary">
               Browse All Programs
             </Link>
           </div>
@@ -138,13 +138,13 @@ export default function ProgramDetailPage() {
         <nav className="flex mb-6" aria-label="Breadcrumb">
           <ol className="flex items-center space-x-2 text-sm text-gray-500">
             <li>
-              <Link to="/" className="hover:text-primary">Home</Link>
+              <Link href="/" className="hover:text-primary">Home</Link>
             </li>
             <li className="flex items-center">
               <svg className="h-4 w-4 text-gray-400 mx-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <Link to="/programs" className="hover:text-primary">Programs</Link>
+              <Link href="/programs" className="hover:text-primary">Programs</Link>
             </li>
             <li className="flex items-center">
               <svg className="h-4 w-4 text-gray-400 mx-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

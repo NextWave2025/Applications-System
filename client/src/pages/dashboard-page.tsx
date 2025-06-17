@@ -1,11 +1,11 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ApplicationWithDetails, ApplicationStatus } from "@shared/schema";
 
 export default function DashboardPage() {
-  const navigate = useNavigate();
+  const navigate = useLocation();
   
   // Fetch current user data
   const { data: user, isLoading: isLoadingUser, error: userError } = useQuery({

@@ -17,7 +17,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
+  const [location, setLocation] = useLocation();
 
   // Fetch current user data
   const { data: user, isLoading } = useQuery<User>({
@@ -54,25 +54,25 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex">
-            <Link to="/" className="flex-shrink-0 flex items-center">
+            <Link href="/" className="flex-shrink-0 flex items-center">
               <span className="text-2xl font-bold text-gray-900 mr-4">NextWave</span>
               {!isLoading && user?.isAdmin && <LogoSettings />}
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
               <Link
-                to="/programs"
+                href="/programs"
                 className="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium"
               >
                 Programs
               </Link>
               <Link
-                to="/about"
+                href="/about"
                 className="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium"
               >
                 About Us
               </Link>
               <Link
-                to="/contact"
+                href="/contact"
                 className="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium"
               >
                 Contact
@@ -110,14 +110,14 @@ export default function Header() {
                 {isProfileOpen && (
                   <div className="absolute right-0 w-48 mt-2 py-2 bg-white rounded-md shadow-lg z-10">
                     <Link
-                      to="/dashboard"
+                      href="/dashboard"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       Dashboard
                     </Link>
                     <Link
-                      to="/profile"
+                      href="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsProfileOpen(false)}
                     >
@@ -135,13 +135,13 @@ export default function Header() {
             ) : (
               <>
                 <Link
-                  to="/auth"
+                  href="/auth"
                   className="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium"
                 >
                   Login
                 </Link>
                 <Link
-                  to="/auth"
+                  href="/auth"
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90"
                 >
                   Sign Up
@@ -202,21 +202,21 @@ export default function Header() {
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <Link
-              to="/programs"
+              href="/programs"
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
               onClick={() => setIsMenuOpen(false)}
             >
               Programs
             </Link>
             <Link
-              to="/about"
+              href="/about"
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
               onClick={() => setIsMenuOpen(false)}
             >
               About Us
             </Link>
             <Link
-              to="/contact"
+              href="/contact"
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
               onClick={() => setIsMenuOpen(false)}
             >
@@ -243,14 +243,14 @@ export default function Header() {
                 </div>
                 <div className="mt-3 px-2 space-y-1">
                   <Link
-                    to="/dashboard"
+                    href="/dashboard"
                     className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Dashboard
                   </Link>
                   <Link
-                    to="/profile"
+                    href="/profile"
                     className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -267,14 +267,14 @@ export default function Header() {
             ) : (
               <div className="px-2 space-y-1">
                 <Link
-                  to="/auth"
+                  href="/auth"
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Login
                 </Link>
                 <Link
-                  to="/auth"
+                  href="/auth"
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                 >

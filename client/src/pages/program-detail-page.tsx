@@ -89,7 +89,7 @@ export default function ProgramDetailPage() {
           <div className="text-center py-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Program Not Found</h2>
             <p className="text-gray-600 mb-6">The program you're looking for could not be found or has been removed.</p>
-            <Link to="/programs" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark">
+            <Link href="/programs" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark">
               Back to All Programs
             </Link>
           </div>
@@ -108,13 +108,13 @@ export default function ProgramDetailPage() {
         <nav className="flex mb-6" aria-label="Breadcrumb">
           <ol className="flex items-center space-x-2 text-sm text-gray-500">
             <li>
-              <Link to="/" className="hover:text-primary">Home</Link>
+              <Link href="/" className="hover:text-primary">Home</Link>
             </li>
             <li className="flex items-center">
               <svg className="h-4 w-4 text-gray-400 mx-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <Link to="/programs" className="hover:text-primary">Programs</Link>
+              <Link href="/programs" className="hover:text-primary">Programs</Link>
             </li>
             <li className="flex items-center">
               <svg className="h-4 w-4 text-gray-400 mx-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

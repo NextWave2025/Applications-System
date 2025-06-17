@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 
@@ -81,7 +81,7 @@ export default function HeroSection() {
             </p>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-5 mt-8">
               <Link
-                to="/auth"
+                href="/auth"
                 state={{ redirectTo: "/dashboard" }}
                 className="py-3.5 px-7 bg-primary text-white font-medium rounded-md hover:bg-primary/90 transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg shadow-primary/20 flex items-center justify-center"
               >
@@ -89,7 +89,7 @@ export default function HeroSection() {
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Link>
               <Link
-                to="/programs"
+                href="/programs"
                 className="py-3.5 px-7 bg-transparent text-white border border-white/20 font-medium rounded-md hover:bg-white/5 transition-all duration-300 flex items-center justify-center"
               >
                 Explore Programs

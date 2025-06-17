@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import MainLayout from "../layouts/main-layout";
 
 export default function AboutPage() {
@@ -63,10 +63,10 @@ export default function AboutPage() {
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/contact" className="btn-primary text-center">
+              <Link href="/contact" className="btn-primary text-center">
                 Contact Us
               </Link>
-              <Link to="/programs" className="btn-secondary text-center">
+              <Link href="/programs" className="btn-secondary text-center">
                 Explore Programs
               </Link>
             </div>
