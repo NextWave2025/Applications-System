@@ -54,38 +54,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-        return await response.json();
+        const userData = await response.json();
+        console.log("Auth query successful:", userData);
+        return userData;
       } catch (error) {
         console.error("Auth query error:", error);
+        // Don't throw here to prevent unhandled rejections
         return null;
       }
     },
     retry: false,
     throwOnError: false,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true, // Enable mount refetch to ensure fresh auth state
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+    // Add error boundary to prevent unhandled rejections
+    meta: {
+      errorHandler: (error: Error) => {
+        console.error("Auth query meta error:", error);
+        return null;
+      }
+    }
   });
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
       try {
+        console.log("Attempting login for:", credentials.username);
         const res = await apiRequest("POST", "/api/login", credentials);
-        return await res.json();
+        const userData = await res.json();
+        console.log("Login successful, user data:", userData);
+        return userData;
       } catch (error) {
         console.error("Login mutation error:", error);
         throw error;
       }
     },
     onSuccess: (user: User) => {
+      console.log("Setting user data in query cache:", user);
       queryClient.setQueryData(["/api/user"], user);
+      // Invalidate and refetch all admin queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/admin"] });
       toast({
         title: "Login successful",
         description: "Welcome back!",
       });
     },
     onError: (error: Error) => {
+      console.error("Login error:", error);
       toast({
         title: "Login failed",
         description: error.message,

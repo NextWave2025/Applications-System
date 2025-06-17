@@ -811,6 +811,11 @@ export default function AdminDashboardPage() {
     }
   }, [user, setLocation]);
 
+  // Debug user authentication and role
+  console.log("Current user in dashboard:", user);
+  console.log("User role:", user?.role);
+  console.log("Is admin?", user?.role === "admin");
+
   // Fetch admin stats with comprehensive error handling
   const { data: stats, isLoading: loadingStats, error: statsError } = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"],
@@ -819,6 +824,23 @@ export default function AdminDashboardPage() {
     refetchOnWindowFocus: false,
     staleTime: 30000,
     throwOnError: false,
+    queryFn: async () => {
+      console.log("Fetching admin stats...");
+      try {
+        const response = await fetch("/api/admin/stats", {
+          credentials: "include"
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch stats: ${response.status} ${response.statusText}`);
+        }
+        const data = await response.json();
+        console.log("Admin stats response:", data);
+        return data;
+      } catch (error) {
+        console.error("Admin stats fetch error:", error);
+        throw error;
+      }
+    },
   });
 
   // Fetch users with comprehensive error handling
@@ -829,6 +851,23 @@ export default function AdminDashboardPage() {
     refetchOnWindowFocus: false,
     staleTime: 30000,
     throwOnError: false,
+    queryFn: async () => {
+      console.log("Fetching admin users...");
+      try {
+        const response = await fetch("/api/admin/users", {
+          credentials: "include"
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`);
+        }
+        const data = await response.json();
+        console.log("Admin users response:", data);
+        return data;
+      } catch (error) {
+        console.error("Admin users fetch error:", error);
+        throw error;
+      }
+    },
   });
 
   const loading = loadingStats;
