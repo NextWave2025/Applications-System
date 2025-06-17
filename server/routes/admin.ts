@@ -660,13 +660,16 @@ router.post("/upload-excel", upload.single("excel"), async (req, res) => {
     // Check for sheet names with flexible matching
     const universitySheetNames = ["Universities", "University", "UNIVERSITIES", "universities", "university"];
     const programSheetNames = ["Programs", "Program", "PROGRAMS", "programs", "program"];
+    const consolidatedSheetNames = ["Consolidated Data", "Consolidated", "Data", "All Data"];
     
     const foundUniversitySheet = universitySheetNames.find(name => workbook.SheetNames.includes(name));
     const foundProgramSheet = programSheetNames.find(name => workbook.SheetNames.includes(name));
+    const foundConsolidatedSheet = consolidatedSheetNames.find(name => workbook.SheetNames.includes(name));
     
     console.log("Available sheet names:", workbook.SheetNames);
     console.log("Found university sheet:", foundUniversitySheet);
     console.log("Found program sheet:", foundProgramSheet);
+    console.log("Found consolidated sheet:", foundConsolidatedSheet);
 
     // Process Universities sheet
     if (foundUniversitySheet) {
