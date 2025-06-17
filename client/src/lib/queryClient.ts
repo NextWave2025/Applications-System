@@ -86,3 +86,12 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// Add global unhandled rejection handler
+if (typeof window !== 'undefined') {
+  window.addEventListener('unhandledrejection', (event) => {
+    console.warn('Unhandled promise rejection:', event.reason);
+    // Prevent the default browser behavior of logging to console
+    event.preventDefault();
+  });
+}

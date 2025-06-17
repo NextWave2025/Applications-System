@@ -87,6 +87,10 @@ interface Application {
   paymentConfirmation?: boolean;
   submittedToUniversityDate?: string;
   lastActionBy?: number;
+  agent?: {
+    name: string;
+    agencyName: string;
+  };
 }
 
 interface AuditLog {
@@ -732,7 +736,7 @@ function ApplicationsManagementTable() {
             <tbody>
               {filteredApplications.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-6 text-center text-muted-foreground">
+                  <td colSpan={8} className="py-6 text-center text-muted-foreground">
                     No applications found
                   </td>
                 </tr>
