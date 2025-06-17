@@ -13,13 +13,15 @@ declare global {
     interface User {
       id: number;
       username: string;
-      firstName?: string;
-      lastName?: string;
-      agencyName?: string;
-      country?: string;
-      phoneNumber?: string;
-      website?: string;
+      firstName?: string | null;
+      lastName?: string | null;
+      agencyName?: string | null;
+      country?: string | null;
+      phoneNumber?: string | null;
+      website?: string | null;
       role?: string;
+      active?: boolean;
+      createdAt?: Date;
     }
   }
 }
@@ -70,7 +72,21 @@ export function setupAuth(app: Express) {
           return done(null, false, { message: "Your account is inactive. Please contact an administrator." });
         }
         
-        return done(null, user);
+        // Convert database user to passport user format
+        const passportUser = {
+          id: user.id,
+          username: user.username,
+          firstName: user.firstName || undefined,
+          lastName: user.lastName || undefined,
+          agencyName: user.agencyName || undefined,
+          country: user.country || undefined,
+          phoneNumber: user.phoneNumber || undefined,
+          website: user.website || undefined,
+          role: user.role,
+          active: user.active,
+          createdAt: user.createdAt
+        };
+        return done(null, passportUser);
       } catch (err) {
         return done(err);
       }
@@ -81,7 +97,25 @@ export function setupAuth(app: Express) {
   passport.deserializeUser(async (id: number, done) => {
     try {
       const user = await storage.getUser(id);
-      done(null, user);
+      if (user) {
+        // Convert database user to passport user format
+        const passportUser = {
+          id: user.id,
+          username: user.username,
+          firstName: user.firstName || undefined,
+          lastName: user.lastName || undefined,
+          agencyName: user.agencyName || undefined,
+          country: user.country || undefined,
+          phoneNumber: user.phoneNumber || undefined,
+          website: user.website || undefined,
+          role: user.role,
+          active: user.active,
+          createdAt: user.createdAt
+        };
+        done(null, passportUser);
+      } else {
+        done(null, null);
+      }
     } catch (err) {
       done(err);
     }
@@ -99,9 +133,24 @@ export function setupAuth(app: Express) {
         password: await hashPassword(req.body.password),
       });
 
-      req.login(user, (err) => {
+      // Convert database user to passport user format
+      const passportUser = {
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName || undefined,
+        lastName: user.lastName || undefined,
+        agencyName: user.agencyName || undefined,
+        country: user.country || undefined,
+        phoneNumber: user.phoneNumber || undefined,
+        website: user.website || undefined,
+        role: user.role,
+        active: user.active,
+        createdAt: user.createdAt
+      };
+      
+      req.login(passportUser, (err) => {
         if (err) return next(err);
-        res.status(201).json(user);
+        res.status(201).json(passportUser);
       });
     } catch (err) {
       next(err);
@@ -109,12 +158,24 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
+    console.log("Login attempt for user:", req.body.username);
     passport.authenticate("local", (err: Error | null, user: User | false, info: any) => {
-      if (err) return next(err);
-      if (!user) return res.status(401).json({ error: "Invalid credentials" });
+      if (err) {
+        console.error("Authentication error:", err);
+        return next(err);
+      }
+      if (!user) {
+        console.log("Authentication failed for user:", req.body.username, "Info:", info);
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
 
+      console.log("Authentication successful for user:", user.username, "Role:", user.role);
       req.login(user, (err: Error | null) => {
-        if (err) return next(err);
+        if (err) {
+          console.error("Login session error:", err);
+          return next(err);
+        }
+        console.log("Session created successfully for user:", user.username);
         return res.status(200).json(user);
       });
     })(req, res, next);
@@ -128,7 +189,13 @@ export function setupAuth(app: Express) {
   });
 
   app.get("/api/user", (req, res) => {
-    if (!req.isAuthenticated()) return res.status(401).json({ error: "Not authenticated" });
+    console.log("User session check - isAuthenticated:", req.isAuthenticated());
+    console.log("User session check - user:", req.user);
+    if (!req.isAuthenticated()) {
+      console.log("User not authenticated, returning 401");
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    console.log("Returning user data:", req.user);
     res.json(req.user);
   });
 }
