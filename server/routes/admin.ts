@@ -635,12 +635,21 @@ router.get("/applications/:id/status-history", async (req, res) => {
 // Excel Upload Route
 router.post("/upload-excel", upload.single("excel"), async (req, res) => {
   try {
+    console.log("Excel upload started");
     if (!req.file) {
+      console.log("No file uploaded");
       return res.status(400).json({ error: "No file uploaded" });
     }
 
+    console.log("File received:", {
+      filename: req.file.originalname,
+      size: req.file.size,
+      mimetype: req.file.mimetype
+    });
+
     // Parse Excel file
     const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+    console.log("Workbook parsed, sheet names:", workbook.SheetNames);
     
     let universitiesCreated = 0;
     let universitiesUpdated = 0;
@@ -650,8 +659,11 @@ router.post("/upload-excel", upload.single("excel"), async (req, res) => {
 
     // Process Universities sheet
     if (workbook.SheetNames.includes("Universities")) {
+      console.log("Processing Universities sheet");
       const universitiesSheet = workbook.Sheets["Universities"];
       const universitiesData = XLSX.utils.sheet_to_json(universitiesSheet);
+      console.log("Universities data parsed:", universitiesData.length, "rows");
+      console.log("First few rows:", universitiesData.slice(0, 3));
 
       for (let i = 0; i < universitiesData.length; i++) {
         const row = universitiesData[i] as any;
@@ -680,20 +692,34 @@ router.post("/upload-excel", upload.single("excel"), async (req, res) => {
             await storage.createUniversity(universityData);
             universitiesCreated++;
           }
-        } catch (error) {
-          errors.push(`Row ${i + 2} in Universities sheet: ${error.message}`);
+        } catch (error: any) {
+          errors.push(`Row ${i + 2} in Universities sheet: ${error?.message || 'Unknown error'}`);
         }
       }
     }
 
+    // Also check for alternative sheet names
+    const universitySheetNames = ["Universities", "University", "UNIVERSITIES"];
+    const programSheetNames = ["Programs", "Program", "PROGRAMS"];
+    
+    const foundUniversitySheet = universitySheetNames.find(name => workbook.SheetNames.includes(name));
+    const foundProgramSheet = programSheetNames.find(name => workbook.SheetNames.includes(name));
+    
+    console.log("Found university sheet:", foundUniversitySheet);
+    console.log("Found program sheet:", foundProgramSheet);
+
     // Process Programs sheet
-    if (workbook.SheetNames.includes("Programs")) {
-      const programsSheet = workbook.Sheets["Programs"];
+    if (foundProgramSheet) {
+      console.log("Processing Programs sheet:", foundProgramSheet);
+      const programsSheet = workbook.Sheets[foundProgramSheet];
       const programsData = XLSX.utils.sheet_to_json(programsSheet);
+      console.log("Programs data parsed:", programsData.length, "rows");
+      console.log("First few program rows:", programsData.slice(0, 3));
       
       // Get updated universities list
       const universities = await storage.getUniversities();
       const universityMap = new Map(universities.map(u => [u.name.toLowerCase(), u.id]));
+      console.log("University mapping created:", universityMap.size, "universities");
 
       for (let i = 0; i < programsData.length; i++) {
         const row = programsData[i] as any;
