@@ -18,7 +18,7 @@ export default function EnhancedSearch({ programs, onSearchResults, className }:
         { name: "name", weight: 0.7 },
         { name: "university.name", weight: 0.5 },
         { name: "degree", weight: 0.3 },
-        { name: "study_field", weight: 0.3 },
+        { name: "studyField", weight: 0.3 },
         { name: "requirements", weight: 0.1 }
       ],
       threshold: 0.4, // Lower = more strict, Higher = more fuzzy
@@ -102,7 +102,7 @@ function enhanceSearchResults(query: string, fuzzyResults: ProgramWithUniversity
   Object.entries(semanticMappings).forEach(([key, synonyms]) => {
     if (queryLower.includes(key) || synonyms.some(synonym => queryLower.includes(synonym))) {
       const relatedPrograms = allPrograms.filter(program => {
-        const programText = `${program.name} ${program.university?.name || ''} ${program.degree} ${program.study_field}`.toLowerCase();
+        const programText = `${program.name} ${program.university?.name || ''} ${program.degree} ${program.studyField}`.toLowerCase();
         return synonyms.some(synonym => programText.includes(synonym)) || programText.includes(key);
       });
       relatedPrograms.forEach(program => semanticMatches.add(program));
@@ -110,10 +110,12 @@ function enhanceSearchResults(query: string, fuzzyResults: ProgramWithUniversity
   });
 
   // Combine fuzzy results with semantic matches
-  const combinedResults = new Set([...fuzzyResults, ...semanticMatches]);
+  const combinedResults = [...fuzzyResults, ...Array.from(semanticMatches)];
   
-  // Sort by relevance (fuzzy results first, then semantic matches)
-  const sortedResults = Array.from(combinedResults);
+  // Remove duplicates and sort by relevance
+  const uniqueResults = combinedResults.filter((program, index, self) => 
+    index === self.findIndex(p => p.id === program.id)
+  );
   
-  return sortedResults;
+  return uniqueResults;
 }

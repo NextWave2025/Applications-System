@@ -2,10 +2,15 @@ import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import ProgramCard from "@/components/program-card";
+import EnhancedSearch from "@/components/enhanced-search";
+import PDFExport from "@/components/pdf-export";
+import SelectableProgramCard from "@/components/selectable-program-card";
 import { studyLevels, studyFields, durationOptions, type Program, type University, type ProgramWithUniversity } from "@shared/schema";
 
 export default function ProgramsPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [displayedPrograms, setDisplayedPrograms] = useState<ProgramWithUniversity[]>([]);
+  const [selectedProgramIds, setSelectedProgramIds] = useState<number[]>([]);
   const [filters, setFilters] = useState({
     universityIds: [] as number[],
     studyLevel: [] as string[],
@@ -127,7 +132,10 @@ export default function ProgramsPage() {
 
   // Determine which programs to display: filtered programs if filters are active, otherwise all programs
   const isLoading = filterQuery === null ? isLoadingAllPrograms : isLoadingFiltered;
-  const programs = filterQuery === null ? allPrograms : filteredPrograms;
+  const basePrograms = filterQuery === null ? allPrograms : filteredPrograms;
+
+  // Use displayed programs for search results, fallback to base programs
+  const programs = displayedPrograms.length > 0 ? displayedPrograms : basePrograms;
 
   // Fetch universities for filters
   const { data: universities = [] } = useQuery<University[]>({
@@ -169,7 +177,27 @@ export default function ProgramsPage() {
       maxTuition: 200000,
     });
     setSearchQuery("");
+    setDisplayedPrograms([]);
+    setSelectedProgramIds([]);
   };
+
+  const handleSearchResults = (results: ProgramWithUniversity[]) => {
+    setDisplayedPrograms(results);
+  };
+
+  const handleProgramSelection = (programId: number, selected: boolean) => {
+    setSelectedProgramIds(prev => 
+      selected 
+        ? [...prev, programId]
+        : prev.filter(id => id !== programId)
+    );
+  };
+
+  const handleSelectionChange = (programIds: number[]) => {
+    setSelectedProgramIds(programIds);
+  };
+
+  const selectedPrograms = programs.filter(program => selectedProgramIds.includes(program.id));
 
   return (
     <div>
@@ -182,21 +210,23 @@ export default function ProgramsPage() {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search bar */}
-        <div className="relative max-w-xl mx-auto mb-8">
-          <input
-            type="text"
-            placeholder="Search programs or universities"
-            className="w-full pl-4 pr-10 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+        {/* Enhanced Search bar */}
+        <div className="max-w-xl mx-auto mb-8">
+          <EnhancedSearch 
+            programs={basePrograms}
+            onSearchResults={handleSearchResults}
           />
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-            <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
         </div>
+
+        {/* PDF Export Bar - Only show when programs are selected */}
+        {selectedPrograms.length > 0 && (
+          <div className="mb-6">
+            <PDFExport 
+              selectedPrograms={selectedPrograms}
+              onSelectionChange={handleSelectionChange}
+            />
+          </div>
+        )}
 
         {/* Filters and program cards */}
         <div className="flex flex-col lg:flex-row gap-8">
