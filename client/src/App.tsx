@@ -22,7 +22,7 @@ import NotFoundPage from "./pages/not-found";
 import MainLayout from "./layouts/main-layout";
 import DashboardLayout from "./layouts/dashboard-layout";
 import { ProtectedRoute } from "./components/protected-route";
-import AdminApplicationDetailPage from "./pages/admin-application-detail-page";
+import ApplicationDetailsPage from "./pages/application-details-page";
 
 export default function App() {
   useEffect(() => {
@@ -159,7 +159,14 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-          <Route path="/admin/applications/:id" element={<AdminApplicationDetailPage />} />
+            <Route
+              path="/admin/applications/:id"
+              element={
+                <ProtectedRoute>
+                  <ApplicationDetailsPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Application form route */}
             <Route

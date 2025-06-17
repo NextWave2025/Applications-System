@@ -82,6 +82,7 @@ export interface IStorage {
     }
   ): Promise<Application>;
   updateApplication(id: number, application: Partial<Application>): Promise<Application>;
+  deleteApplication(id: number): Promise<void>;
 
   // Document methods
   getDocumentById(id: number): Promise<Document | undefined>;
@@ -554,6 +555,14 @@ export class DBStorage implements IStorage {
       .returning();
 
     return result[0];
+  }
+
+  async deleteApplication(id: number): Promise<void> {
+    // First delete associated documents
+    await this.db.delete(documents).where(eq(documents.applicationId, id));
+    
+    // Then delete the application
+    await this.db.delete(applications).where(eq(applications.id, id));
   }
 
   // Document methods

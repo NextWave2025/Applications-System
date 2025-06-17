@@ -737,7 +737,11 @@ function ApplicationsManagementTable() {
                 </tr>
               ) : (
                 filteredApplications.map((app) => (
-                  <tr key={app.id} className="border-b">
+                  <tr 
+                    key={app.id} 
+                    className="border-b hover:bg-gray-50 cursor-pointer"
+                    onClick={() => setLocation(`/admin/applications/${app.id}`)}
+                  >
                     <td className="py-3 px-4">{app.id}</td>
                     <td className="py-3 px-4">
                       <div className="font-medium">{app.studentFirstName} {app.studentLastName}</div>
@@ -781,7 +785,10 @@ function ApplicationsManagementTable() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => setLocation(`/admin/applications/${app.id}`)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLocation(`/admin/applications/${app.id}`);
+                          }}
                         >
                           View Details
                         </Button>

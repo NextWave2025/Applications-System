@@ -150,6 +150,130 @@ router.get("/applications", async (req, res) => {
   }
 });
 
+// Get single application by ID
+router.get("/applications/:id", async (req, res) => {
+  try {
+    const applicationId = parseInt(req.params.id);
+    if (isNaN(applicationId)) {
+      return res.status(400).json({ error: "Invalid application ID" });
+    }
+
+    console.log(`Fetching application details for ID: ${applicationId}`);
+    const application = await storage.getApplicationById(applicationId);
+    
+    if (!application) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+
+    console.log("Application details fetched successfully");
+    res.json(application);
+  } catch (error) {
+    console.error("Error fetching application details:", error);
+    res.status(500).json({ error: "Failed to fetch application details" });
+  }
+});
+
+// Download single document
+router.get("/applications/:id/documents/:documentType", async (req, res) => {
+  try {
+    const applicationId = parseInt(req.params.id);
+    const documentType = req.params.documentType;
+
+    if (isNaN(applicationId)) {
+      return res.status(400).json({ error: "Invalid application ID" });
+    }
+
+    console.log(`Downloading document ${documentType} for application ${applicationId}`);
+    
+    // For now, return a mock PDF response - in production this would fetch from storage
+    const mockPdfContent = Buffer.from(`Mock ${documentType} document for application ${applicationId}`);
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${documentType}_${applicationId}.pdf"`);
+    res.send(mockPdfContent);
+  } catch (error) {
+    console.error("Error downloading document:", error);
+    res.status(500).json({ error: "Failed to download document" });
+  }
+});
+
+// Download all documents as ZIP
+router.get("/applications/:id/documents/bulk", async (req, res) => {
+  try {
+    const applicationId = parseInt(req.params.id);
+
+    if (isNaN(applicationId)) {
+      return res.status(400).json({ error: "Invalid application ID" });
+    }
+
+    console.log(`Downloading all documents for application ${applicationId}`);
+    
+    // For now, return a mock ZIP response - in production this would create a ZIP file
+    const mockZipContent = Buffer.from(`Mock ZIP file containing all documents for application ${applicationId}`);
+    
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="application_${applicationId}_documents.zip"`);
+    res.send(mockZipContent);
+  } catch (error) {
+    console.error("Error downloading documents:", error);
+    res.status(500).json({ error: "Failed to download documents" });
+  }
+});
+
+// Delete application
+router.delete("/applications/:id", async (req, res) => {
+  try {
+    const applicationId = parseInt(req.params.id);
+    if (isNaN(applicationId)) {
+      return res.status(400).json({ error: "Invalid application ID" });
+    }
+
+    console.log(`Deleting application ${applicationId}`);
+    
+    // Check if application exists
+    const application = await storage.getApplicationById(applicationId);
+    if (!application) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+
+    // Delete the application
+    await storage.deleteApplication(applicationId);
+    
+    console.log(`Application ${applicationId} deleted successfully`);
+    res.json({ message: "Application deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting application:", error);
+    res.status(500).json({ error: "Failed to delete application" });
+  }
+});
+
+// Archive application
+router.patch("/applications/:id/archive", async (req, res) => {
+  try {
+    const applicationId = parseInt(req.params.id);
+    if (isNaN(applicationId)) {
+      return res.status(400).json({ error: "Invalid application ID" });
+    }
+
+    console.log(`Archiving application ${applicationId}`);
+    
+    // Check if application exists
+    const application = await storage.getApplicationById(applicationId);
+    if (!application) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+
+    // Archive the application (update status to 'archived')
+    await storage.updateApplicationStatus(applicationId, "archived", req.user?.id);
+    
+    console.log(`Application ${applicationId} archived successfully`);
+    res.json({ message: "Application archived successfully" });
+  } catch (error) {
+    console.error("Error archiving application:", error);
+    res.status(500).json({ error: "Failed to archive application" });
+  }
+});
+
 // Update application status with enhanced validation and tracking
 router.patch("/applications/:id/status", async (req, res) => {
   try {
