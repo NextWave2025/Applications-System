@@ -29,11 +29,10 @@ export default function AuthPage() {
   const [loginError, setLoginError] = useState("");
   const [signupError, setSignupError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useLocation();
-  const location = useLocation();
+  const [, setLocation] = useLocation();
   
   // Check if there's a redirect URL from a program application
-  const redirectTo = location.state?.redirectTo || "/dashboard";
+  const redirectTo = "/dashboard";
   
   // Use auth context
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
@@ -42,9 +41,9 @@ export default function AuthPage() {
   useEffect(() => {
     if (!isLoading && user) {
       console.log("User already authenticated, redirecting to:", redirectTo);
-      navigate(redirectTo);
+      setLocation(redirectTo);
     }
-  }, [user, isLoading, navigate, redirectTo]);
+  }, [user, isLoading, setLocation, redirectTo]);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),

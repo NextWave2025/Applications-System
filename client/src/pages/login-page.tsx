@@ -1,18 +1,21 @@
 import React from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth';
 
 export default function LoginPage() {
   const { user, loginMutation } = useAuth();
+  const [, setLocation] = useLocation();
   const [credentials, setCredentials] = React.useState({
     username: '',
     password: '',
   });
 
   // Redirect if user is already logged in
-  if (user) {
-    return <Navigate href="/dashboard" replace />;
-  }
+  React.useEffect(() => {
+    if (user) {
+      setLocation('/dashboard');
+    }
+  }, [user, setLocation]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

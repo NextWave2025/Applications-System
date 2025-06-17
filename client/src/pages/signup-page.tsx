@@ -1,9 +1,10 @@
 import React from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth';
 
 export default function SignupPage() {
   const { user, registerMutation } = useAuth();
+  const [, setLocation] = useLocation();
   const [userData, setUserData] = React.useState({
     firstName: '',
     lastName: '',
@@ -17,9 +18,11 @@ export default function SignupPage() {
   });
 
   // Redirect if user is already logged in
-  if (user) {
-    return <Navigate href="/dashboard" replace />;
-  }
+  React.useEffect(() => {
+    if (user) {
+      setLocation('/dashboard');
+    }
+  }, [user, setLocation]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

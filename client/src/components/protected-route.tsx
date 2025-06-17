@@ -1,9 +1,16 @@
-import { ReactNode } from "react";
-import { Navigate } from "wouter";
+import { ReactNode, useEffect } from "react";
+import { useLocation } from "wouter";
 import { useAuth } from "../hooks/use-auth";
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      setLocation("/auth");
+    }
+  }, [user, isLoading, setLocation]);
 
   if (isLoading) {
     return (
@@ -14,7 +21,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   }
 
   if (!user) {
-    return <Navigate href="/auth" replace />;
+    return null; // Will redirect via useEffect
   }
 
   return <>{children}</>;
