@@ -854,9 +854,14 @@ router.post("/upload-excel", upload.single("excel"), async (req, res) => {
       console.log("First few rows:", consolidatedData.slice(0, 3));
 
       // Extract unique universities from consolidated data
-      const universityNames = [...new Set(consolidatedData.map((row: any) => 
-        row['University name'] || row['University Name'] || row['university'] || row['University']
-      ).filter(Boolean))];
+      const universityNamesSet = new Set<string>();
+      consolidatedData.forEach((row: any) => {
+        const universityName = row['University name'] || row['University Name'] || row['university'] || row['University'];
+        if (universityName) {
+          universityNamesSet.add(universityName);
+        }
+      });
+      const universityNames = Array.from(universityNamesSet);
       
       console.log("Found unique universities in consolidated data:", universityNames.length);
 
@@ -905,10 +910,10 @@ router.post("/upload-excel", upload.single("excel"), async (req, res) => {
           }
 
           // Parse requirements
-          let requirements = [];
+          const requirements: string[] = [];
           const reqField = row['General Entry Requirements and Documents'] || row['Requirements'] || row['requirements'];
           if (reqField) {
-            requirements = [reqField];
+            requirements.push(String(reqField));
           }
 
           // Map degree level to study field

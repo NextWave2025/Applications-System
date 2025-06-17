@@ -604,19 +604,25 @@ function ApplicationsManagementTable() {
   const { data: applications = [], isLoading: loading, error: applicationsError } = useQuery<Application[]>({
     queryKey: ["/api/admin/applications"],
     queryFn: async () => {
-      console.log("Fetching admin applications from frontend...");
-      const response = await fetch("/api/admin/applications", {
-        credentials: "include"
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to fetch applications: ${response.status} ${response.statusText}`);
+      try {
+        console.log("Fetching admin applications from frontend...");
+        const response = await fetch("/api/admin/applications", {
+          credentials: "include"
+        });
+        if (!response.ok) {
+          console.error(`Failed to fetch applications: ${response.status} ${response.statusText}`);
+          return [];
+        }
+        const data = await response.json();
+        console.log("Admin applications response:", data);
+        console.log("Number of applications received:", data.length);
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error("Error fetching applications:", error);
+        return [];
       }
-      const data = await response.json();
-      console.log("Admin applications response:", data);
-      console.log("Number of applications received:", data.length);
-      return data;
     },
-    retry: 1,
+    retry: 0,
     throwOnError: false,
     refetchOnWindowFocus: false,
     staleTime: 30000,
@@ -852,26 +858,41 @@ export default function AdminDashboardPage() {
   // Fetch admin stats with comprehensive error handling
   const { data: stats, isLoading: loadingStats, error: statsError } = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"],
-    enabled: !!user && user.role === "admin",
-    retry: 1,
+    enabled: !!user && (user.role === "admin" || user.role === "super_admin"),
+    retry: 0,
     refetchOnWindowFocus: false,
     staleTime: 30000,
     throwOnError: false,
     queryFn: async () => {
-      console.log("Fetching admin stats...");
       try {
+        console.log("Fetching admin stats...");
         const response = await fetch("/api/admin/stats", {
           credentials: "include"
         });
         if (!response.ok) {
-          throw new Error(`Failed to fetch stats: ${response.status} ${response.statusText}`);
+          console.error(`Failed to fetch stats: ${response.status} ${response.statusText}`);
+          return {
+            totalApplications: 0,
+            pendingReviews: 0,
+            approvedApplications: 0,
+            activeAgents: 0,
+            totalStudents: 0,
+            totalUniversities: 0
+          };
         }
         const data = await response.json();
         console.log("Admin stats response:", data);
         return data;
       } catch (error) {
         console.error("Admin stats fetch error:", error);
-        throw error;
+        return {
+          totalApplications: 0,
+          pendingReviews: 0,
+          approvedApplications: 0,
+          activeAgents: 0,
+          totalStudents: 0,
+          totalUniversities: 0
+        };
       }
     },
   });
@@ -879,26 +900,27 @@ export default function AdminDashboardPage() {
   // Fetch users with comprehensive error handling
   const { data: users = [], isLoading: loadingUsers, error: usersError } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
-    enabled: !!user && user.role === "admin",
-    retry: 1,
+    enabled: !!user && (user.role === "admin" || user.role === "super_admin"),
+    retry: 0,
     refetchOnWindowFocus: false,
     staleTime: 30000,
     throwOnError: false,
     queryFn: async () => {
-      console.log("Fetching admin users...");
       try {
+        console.log("Fetching admin users...");
         const response = await fetch("/api/admin/users", {
           credentials: "include"
         });
         if (!response.ok) {
-          throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`);
+          console.error(`Failed to fetch users: ${response.status} ${response.statusText}`);
+          return [];
         }
         const data = await response.json();
         console.log("Admin users response:", data);
-        return data;
+        return Array.isArray(data) ? data : [];
       } catch (error) {
         console.error("Admin users fetch error:", error);
-        throw error;
+        return [];
       }
     },
   });
