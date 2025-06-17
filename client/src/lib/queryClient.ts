@@ -77,11 +77,12 @@ export const queryClient = new QueryClient({
       refetchInterval: false,
       refetchOnWindowFocus: false,
       staleTime: 60000, // 1 minute 
-      retry: 1,
+      retry: false, // Disable retries to prevent unhandled rejections
       throwOnError: false,
     },
     mutations: {
       retry: false,
+      throwOnError: false,
     },
   },
 });
