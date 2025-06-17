@@ -714,6 +714,115 @@ router.post("/upload-excel", upload.single("excel"), async (req, res) => {
       console.log("No Universities sheet found in sheets:", workbook.SheetNames);
     }
 
+    // Process Consolidated Data sheet (universities and programs together)
+    if (foundConsolidatedSheet && !foundUniversitySheet && !foundProgramSheet) {
+      console.log("Processing Consolidated Data sheet:", foundConsolidatedSheet);
+      const consolidatedSheet = workbook.Sheets[foundConsolidatedSheet];
+      const consolidatedData = XLSX.utils.sheet_to_json(consolidatedSheet);
+      console.log("Consolidated data parsed:", consolidatedData.length, "rows");
+      console.log("First few rows:", consolidatedData.slice(0, 3));
+
+      // Extract unique universities from consolidated data
+      const universityNames = [...new Set(consolidatedData.map((row: any) => 
+        row['University name'] || row['University Name'] || row['university'] || row['University']
+      ).filter(Boolean))];
+      
+      console.log("Found unique universities in consolidated data:", universityNames.length);
+
+      // Create universities first
+      const universityMap = new Map();
+      for (const universityName of universityNames) {
+        try {
+          const existingUniversities = await storage.getUniversities();
+          const existingUniversity = existingUniversities.find(u => 
+            u.name.toLowerCase() === universityName.toLowerCase()
+          );
+
+          if (existingUniversity) {
+            universityMap.set(universityName, existingUniversity.id);
+          } else {
+            const universityData = {
+              name: universityName,
+              location: "UAE",
+              imageUrl: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
+            };
+            const newUniversity = await storage.createUniversity(universityData);
+            universityMap.set(universityName, newUniversity.id);
+            universitiesCreated++;
+          }
+        } catch (error: any) {
+          errors.push(`Error creating university "${universityName}": ${error?.message || 'Unknown error'}`);
+        }
+      }
+
+      // Now process programs from consolidated data
+      for (let i = 0; i < consolidatedData.length; i++) {
+        const row = consolidatedData[i] as any;
+        try {
+          const universityName = row['University name'] || row['University Name'] || row['university'] || row['University'];
+          const programName = row['Name of Degree'] || row['Program Name'] || row['name'] || row['Name'];
+          
+          if (!universityName || !programName) {
+            errors.push(`Row ${i + 2} in Consolidated Data: Missing university name or program name`);
+            continue;
+          }
+
+          const universityId = universityMap.get(universityName);
+          if (!universityId) {
+            errors.push(`Row ${i + 2} in Consolidated Data: University "${universityName}" not found`);
+            continue;
+          }
+
+          // Parse requirements
+          let requirements = [];
+          const reqField = row['General Entry Requirements and Documents'] || row['Requirements'] || row['requirements'];
+          if (reqField) {
+            requirements = [reqField];
+          }
+
+          // Map degree level to study field
+          const degreeLevel = row['Degree Level'] || row['Level'] || 'Certificate';
+          let studyField = 'General Studies';
+          if (degreeLevel.toLowerCase().includes('business')) studyField = 'Business';
+          else if (degreeLevel.toLowerCase().includes('engineering')) studyField = 'Engineering';
+          else if (degreeLevel.toLowerCase().includes('medical')) studyField = 'Medicine';
+          else if (degreeLevel.toLowerCase().includes('law')) studyField = 'Law';
+          else if (degreeLevel.toLowerCase().includes('education')) studyField = 'Education';
+
+          // Check if program already exists
+          const existingPrograms = await storage.getPrograms();
+          const existingProgram = existingPrograms.find(p => 
+            p.name.toLowerCase() === programName.toLowerCase() && 
+            p.universityId === universityId
+          );
+
+          const programData = {
+            name: programName,
+            universityId: universityId,
+            tuition: row['Tuition'] || row['Fees'] || '0 AED/year',
+            duration: row['Duration'] || '1 year',
+            intake: row['Intakes'] || row['Intake'] || 'September',
+            degree: degreeLevel,
+            studyField: studyField,
+            requirements: requirements,
+            hasScholarship: Boolean(row['Scholarship'] || row['hasScholarship']),
+            imageUrl: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
+          };
+
+          if (existingProgram) {
+            await storage.updateProgram(existingProgram.id, programData);
+            programsUpdated++;
+          } else {
+            await storage.createProgram(programData);
+            programsCreated++;
+          }
+
+        } catch (error: any) {
+          errors.push(`Row ${i + 2} in Consolidated Data: ${error?.message || 'Unknown error'}`);
+        }
+      }
+    }
+
     // Process Programs sheet
     if (foundProgramSheet) {
       console.log("Processing Programs sheet:", foundProgramSheet);
