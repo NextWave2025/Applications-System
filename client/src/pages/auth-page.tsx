@@ -73,7 +73,7 @@ export default function AuthPage() {
     try {
       await loginMutation.mutateAsync(data);
       // After successful login, navigate to the redirect URL or dashboard
-      navigate(redirectTo);
+      setLocation(redirectTo);
     } catch (error: any) {
       console.error("Login error:", error);
       setLoginError(error.message || "Login failed. Please try again.");
@@ -92,7 +92,7 @@ export default function AuthPage() {
         role: "agent", // Set the role to agent
       });
       // After successful registration, navigate to the redirect URL or dashboard
-      navigate(redirectTo);
+      setLocation(redirectTo);
     } catch (error: any) {
       console.error("Registration error:", error);
       setSignupError(error.message || "Registration failed. Please try again.");
