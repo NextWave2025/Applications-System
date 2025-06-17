@@ -1,9 +1,12 @@
 /**
  * Script to create a test Excel file and test the upload functionality
  */
-const XLSX = require('xlsx');
-const fs = require('fs');
-const path = require('path');
+import XLSX from 'xlsx';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Create sample data
 const universitiesData = [
