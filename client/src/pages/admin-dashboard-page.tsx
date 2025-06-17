@@ -137,6 +137,20 @@ function UniversitiesProgramsManagement() {
   // Fetch universities
   const { data: universities = [], isLoading: loadingUniversities, error: universitiesError } = useQuery<University[]>({
     queryKey: ["/api/admin/universities"],
+    queryFn: async () => {
+      try {
+        const response = await fetch("/api/admin/universities", {
+          credentials: "include"
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch universities: ${response.statusText}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching universities:", error);
+        throw error;
+      }
+    },
     retry: 1,
     throwOnError: false,
     refetchOnWindowFocus: false,
@@ -146,6 +160,20 @@ function UniversitiesProgramsManagement() {
   // Fetch programs
   const { data: programs = [], isLoading: loadingPrograms, error: programsError } = useQuery<Program[]>({
     queryKey: ["/api/admin/programs"],
+    queryFn: async () => {
+      try {
+        const response = await fetch("/api/admin/programs", {
+          credentials: "include"
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch programs: ${response.statusText}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching programs:", error);
+        throw error;
+      }
+    },
     retry: 1,
     throwOnError: false,
     refetchOnWindowFocus: false,
@@ -192,6 +220,12 @@ function UniversitiesProgramsManagement() {
       </div>
     );
   }
+
+  // Debug logging
+  console.log("Universities data:", universities);
+  console.log("Programs data:", programs);
+  console.log("Universities error:", universitiesError);
+  console.log("Programs error:", programsError);
 
   return (
     <div className="space-y-6">

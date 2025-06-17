@@ -32,10 +32,22 @@ export default function ExcelUploadDialog({ isOpen, onClose, onSuccess }: ExcelU
       const formData = new FormData();
       formData.append("excel", selectedFile);
 
-      const response = await apiRequest("POST", "/api/admin/upload-excel", formData);
+      // Use fetch directly for file upload to avoid JSON parsing issues
+      const response = await fetch("/api/admin/upload-excel", {
+        method: "POST",
+        body: formData,
+        credentials: "include", // Important for authentication
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Upload failed: ${errorText}`);
+      }
 
       const result = await response.json();
-      alert("File uploaded successfully!");
+      console.log("Upload result:", result);
+      
+      alert(`File uploaded successfully! Created ${result.universitiesCreated} universities and ${result.programsCreated} programs.`);
       onSuccess(); // Refresh data
       onClose();
     } catch (error: any) {
