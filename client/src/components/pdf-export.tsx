@@ -80,6 +80,10 @@ export default function PDFExport({ selectedPrograms, onSelectionChange, classNa
           yPosition += 8;
         }
 
+        // Availability (Intake)
+        pdf.text(`Availability: ${program.intake || 'Contact university for details'}`, margin, yPosition);
+        yPosition += 8;
+
         // Requirements
         if (program.requirements && Array.isArray(program.requirements) && program.requirements.length > 0) {
           pdf.text(`Requirements:`, margin, yPosition);

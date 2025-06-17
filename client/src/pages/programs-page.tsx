@@ -137,13 +137,6 @@ export default function ProgramsPage() {
   // Use displayed programs for search results, fallback to base programs
   const programs = displayedPrograms.length > 0 ? displayedPrograms : basePrograms;
 
-  // Initialize displayed programs when base programs load
-  useEffect(() => {
-    if (basePrograms.length > 0 && displayedPrograms.length === 0) {
-      setDisplayedPrograms(basePrograms);
-    }
-  }, [basePrograms, displayedPrograms.length]);
-
   // Fetch universities for filters
   const { data: universities = [] } = useQuery<University[]>({
     queryKey: ["/api/universities"],
@@ -190,6 +183,8 @@ export default function ProgramsPage() {
 
   const handleSearchResults = (results: ProgramWithUniversity[]) => {
     setDisplayedPrograms(results);
+    // Clear selections when search results change
+    setSelectedProgramIds([]);
   };
 
   const handleProgramSelection = (programId: number, selected: boolean) => {
@@ -412,7 +407,7 @@ export default function ProgramsPage() {
               <div className="text-center py-12">
                 <p className="text-gray-500">Error loading programs. Please try again later.</p>
               </div>
-            ) : programs.length > 0 ? (
+            ) : programs && programs.length > 0 ? (
               <div className="space-y-4">
                 {/* Selection controls */}
                 <div className="flex items-center justify-between py-2 border-b border-gray-200">

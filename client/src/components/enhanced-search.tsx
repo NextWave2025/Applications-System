@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Fuse from "fuse.js";
 import { type ProgramWithUniversity } from "@shared/schema";
 
@@ -13,6 +13,8 @@ export default function EnhancedSearch({ programs, onSearchResults, className }:
 
   // Configure Fuse.js for fuzzy search
   const fuse = useMemo(() => {
+    if (!programs || programs.length === 0) return null;
+    
     const options = {
       keys: [
         { name: "name", weight: 0.7 },
@@ -32,11 +34,23 @@ export default function EnhancedSearch({ programs, onSearchResults, className }:
     return new Fuse(programs, options);
   }, [programs]);
 
+  // Initialize with all programs when component mounts or programs change
+  useEffect(() => {
+    if (programs && programs.length > 0 && !searchQuery) {
+      onSearchResults(programs);
+    }
+  }, [programs, onSearchResults, searchQuery]);
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     
     if (!query.trim()) {
       onSearchResults(programs);
+      return;
+    }
+
+    if (!fuse) {
+      onSearchResults([]);
       return;
     }
 
