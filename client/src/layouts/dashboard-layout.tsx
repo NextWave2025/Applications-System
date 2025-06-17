@@ -1,5 +1,5 @@
 import { ReactNode, useState, useRef, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { 
   Home, 
@@ -21,8 +21,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [location] = useLocation();
 
   // Get current user data
   const { data: user } = useQuery({
@@ -56,7 +55,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   // Check if a link is active
   const isActiveLink = (path: string) => {
-    return location.pathname === path;
+    return location === path;
   };
 
   const navItems = [
@@ -154,7 +153,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-gray-900"
                 >
                   <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center uppercase font-semibold">
-                    {user?.username?.charAt(0) || 'A'}
+                    {(user as any)?.username?.charAt(0) || 'A'}
                   </div>
                 </button>
                 
