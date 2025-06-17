@@ -739,7 +739,7 @@ router.post("/upload-excel", upload.single("excel"), async (req, res) => {
           let requirements = [];
           if (row.requirements) {
             if (typeof row.requirements === 'string') {
-              requirements = row.requirements.split(',').map(req => req.trim()).filter(req => req);
+              requirements = row.requirements.split(',').map((req: string) => req.trim()).filter((req: string) => req);
             } else if (Array.isArray(row.requirements)) {
               requirements = row.requirements;
             }
@@ -772,8 +772,8 @@ router.post("/upload-excel", upload.single("excel"), async (req, res) => {
             await storage.createProgram(programData);
             programsCreated++;
           }
-        } catch (error) {
-          errors.push(`Row ${i + 2} in Programs sheet: ${error.message}`);
+        } catch (error: any) {
+          errors.push(`Row ${i + 2} in Programs sheet: ${error?.message || 'Unknown error'}`);
         }
       }
     }
