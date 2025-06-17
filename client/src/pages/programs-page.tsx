@@ -137,6 +137,13 @@ export default function ProgramsPage() {
   // Use displayed programs for search results, fallback to base programs
   const programs = displayedPrograms.length > 0 ? displayedPrograms : basePrograms;
 
+  // Initialize displayed programs when base programs load
+  useEffect(() => {
+    if (basePrograms.length > 0 && displayedPrograms.length === 0) {
+      setDisplayedPrograms(basePrograms);
+    }
+  }, [basePrograms, displayedPrograms.length]);
+
   // Fetch universities for filters
   const { data: universities = [] } = useQuery<University[]>({
     queryKey: ["/api/universities"],
@@ -406,10 +413,42 @@ export default function ProgramsPage() {
                 <p className="text-gray-500">Error loading programs. Please try again later.</p>
               </div>
             ) : programs.length > 0 ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {programs.map(program => (
-                  <ProgramCard key={program.id} program={program} />
-                ))}
+              <div className="space-y-4">
+                {/* Selection controls */}
+                <div className="flex items-center justify-between py-2 border-b border-gray-200">
+                  <div className="text-sm text-gray-600">
+                    {programs.length} program{programs.length !== 1 ? 's' : ''} found
+                    {selectedProgramIds.length > 0 && ` · ${selectedProgramIds.length} selected`}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setSelectedProgramIds(programs.map(p => p.id))}
+                      className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      Select All
+                    </button>
+                    {selectedProgramIds.length > 0 && (
+                      <button
+                        onClick={() => setSelectedProgramIds([])}
+                        className="text-sm text-gray-600 hover:text-gray-800"
+                      >
+                        Clear Selection
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Program cards with selection */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {programs.map(program => (
+                    <SelectableProgramCard 
+                      key={program.id} 
+                      program={program}
+                      isSelected={selectedProgramIds.includes(program.id)}
+                      onSelectionChange={handleProgramSelection}
+                    />
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="text-center py-12">
