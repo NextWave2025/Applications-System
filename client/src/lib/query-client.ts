@@ -10,12 +10,13 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: false, // Disable retries to prevent unhandled rejections
-      throwOnError: false, // Prevent throwing errors that cause unhandled rejections
+      retry: false,
+      throwOnError: false,
       refetchOnWindowFocus: false,
     },
     mutations: {
       retry: false,
+      throwOnError: false,
     },
   },
 });

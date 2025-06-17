@@ -3,6 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/query-client";
 import { AuthProvider } from "./hooks/use-auth";
 import { Toaster } from "./components/ui/toaster";
+import { useEffect } from "react";
 
 import LandingPage from "./pages/landing-page";
 import ProgramsPage from "./pages/programs-page";
@@ -24,6 +25,26 @@ import { ProtectedRoute } from "./components/protected-route";
 import AdminApplicationDetailPage from "./pages/admin-application-detail-page";
 
 export default function App() {
+  useEffect(() => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error("Unhandled promise rejection:", event.reason);
+      console.error("Stack:", event.reason?.stack);
+      event.preventDefault(); // Prevent the default browser behavior
+    };
+
+    const handleError = (event: ErrorEvent) => {
+      console.error("Global error:", event.error);
+      console.error("Error details:", event.message, "at", event.filename, ":", event.lineno);
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    window.addEventListener('error', handleError);
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener('error', handleError);
+    };
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

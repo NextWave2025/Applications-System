@@ -44,38 +44,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useQuery({
     queryKey: ["/api/user"],
     queryFn: async () => {
-      try {
-        const response = await fetch("/api/user", {
-          credentials: "include"
-        });
-        if (response.status === 401 || response.status === 403) {
-          return null;
-        }
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        const userData = await response.json();
-        console.log("Auth query successful:", userData);
-        return userData;
-      } catch (error) {
-        console.error("Auth query error:", error);
-        // Don't throw here to prevent unhandled rejections
+      const response = await fetch("/api/user", {
+        credentials: "include"
+      });
+      if (response.status === 401 || response.status === 403) {
         return null;
       }
+      if (!response.ok) {
+        console.warn(`Auth query failed: ${response.status} ${response.statusText}`);
+        return null;
+      }
+      const userData = await response.json();
+      console.log("Auth query successful:", userData);
+      return userData;
     },
     retry: false,
     throwOnError: false,
     refetchOnWindowFocus: false,
-    refetchOnMount: true, // Enable mount refetch to ensure fresh auth state
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-    // Add error boundary to prevent unhandled rejections
-    meta: {
-      errorHandler: (error: Error) => {
-        console.error("Auth query meta error:", error);
-        return null;
-      }
-    }
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   const loginMutation = useMutation({
