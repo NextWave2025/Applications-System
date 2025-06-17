@@ -22,7 +22,7 @@ interface FilterState {
   hasScholarship: boolean;
 }
 
-export default function ProgramsPage() {
+export default function ProgramsPageEnhanced() {
   const [searchQuery, setSearchQuery] = useState("");
   const [displayedPrograms, setDisplayedPrograms] = useState<ProgramWithUniversity[]>([]);
   const [selectedProgramIds, setSelectedProgramIds] = useState<number[]>([]);
@@ -134,7 +134,6 @@ export default function ProgramsPage() {
     return queryStr ? `/api/programs?${queryStr}` : '/api/programs';
   }, [filters, searchQuery]);
 
-  // Fetch programs based on the memoized filter query
   // Fetch filtered programs only if there are filters active
   const { data: filteredPrograms = [], isLoading: isLoadingFiltered } = useQuery<ProgramWithUniversity[]>({
     queryKey: [filterQuery],
@@ -263,6 +262,40 @@ export default function ProgramsPage() {
           </div>
         )}
 
+        {/* Results Count and Active Filters */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            {programs.length} program{programs.length !== 1 ? 's' : ''} found
+            {selectedProgramIds.length > 0 && ` · ${selectedProgramIds.length} selected`}
+          </div>
+          
+          {/* Show active filter count */}
+          {(filters.universityIds.length > 0 || 
+            filters.degreeLevel.length > 0 || 
+            filters.location.length > 0 || 
+            filters.studyField.length > 0 || 
+            filters.intake.length > 0 || 
+            filters.hasScholarship ||
+            filters.tuitionMin > 0 || 
+            filters.tuitionMax < 80000) && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">Active filters:</span>
+              <Badge variant="secondary">
+                {filters.universityIds.length + 
+                 filters.degreeLevel.length + 
+                 filters.location.length + 
+                 filters.studyField.length + 
+                 filters.intake.length + 
+                 (filters.hasScholarship ? 1 : 0) +
+                 ((filters.tuitionMin > 0 || filters.tuitionMax < 80000) ? 1 : 0)} applied
+              </Badge>
+              <Button variant="ghost" size="sm" onClick={resetFilters}>
+                Clear All
+              </Button>
+            </div>
+          )}
+        </div>
+
         {/* Filters and program cards */}
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Enhanced Sidebar filters */}
@@ -291,8 +324,7 @@ export default function ProgramsPage() {
                 {/* Selection controls */}
                 <div className="flex items-center justify-between py-2 border-b border-gray-200">
                   <div className="text-sm text-gray-600">
-                    {programs.length} program{programs.length !== 1 ? 's' : ''} found
-                    {selectedProgramIds.length > 0 && ` · ${selectedProgramIds.length} selected`}
+                    Showing {programs.length} result{programs.length !== 1 ? 's' : ''}
                   </div>
                   <div className="flex items-center space-x-2">
                     <button
@@ -312,28 +344,41 @@ export default function ProgramsPage() {
                   </div>
                 </div>
 
-                {/* Program cards with selection */}
+                {/* Program cards grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {programs.map(program => (
-                    <SelectableProgramCard 
-                      key={program.id} 
+                  {programs.map((program) => (
+                    <SelectableProgramCard
+                      key={program.id}
                       program={program}
-                      isSelected={selectedProgramIds.includes(program.id)}
-                      onSelectionChange={handleProgramSelection}
+                      selected={selectedProgramIds.includes(program.id)}
+                      onSelectionChange={(selected) => handleProgramSelection(program.id, selected)}
                     />
                   ))}
                 </div>
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-500">No programs found matching your criteria. Try adjusting your filters.</p>
-                {filterQuery !== null && (
-                  <button 
+                <div className="text-gray-400 mb-4">
+                  <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No programs found</h3>
+                <p className="text-gray-500 mb-4">Try adjusting your filters or search terms</p>
+                {(filters.universityIds.length > 0 || 
+                  filters.degreeLevel.length > 0 || 
+                  filters.location.length > 0 || 
+                  filters.studyField.length > 0 || 
+                  filters.intake.length > 0 || 
+                  filters.hasScholarship ||
+                  filters.tuitionMin > 0 || 
+                  filters.tuitionMax < 80000) && (
+                  <Button 
                     onClick={resetFilters}
-                    className="mt-4 py-2 px-4 bg-primary text-white rounded-md hover:bg-primary-dark"
+                    className="mt-4"
                   >
-                    Reset Filters
-                  </button>
+                    Reset All Filters
+                  </Button>
                 )}
               </div>
             )}
