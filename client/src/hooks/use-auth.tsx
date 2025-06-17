@@ -52,10 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return null;
         }
         if (!response.ok) {
-          return null;
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         return await response.json();
       } catch (error) {
+        console.error("Auth query error:", error);
         return null;
       }
     },
@@ -69,8 +70,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      const res = await apiRequest("POST", "/api/login", credentials);
-      return await res.json();
+      try {
+        const res = await apiRequest("POST", "/api/login", credentials);
+        return await res.json();
+      } catch (error) {
+        console.error("Login mutation error:", error);
+        throw error;
+      }
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
