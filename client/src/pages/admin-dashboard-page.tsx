@@ -599,6 +599,19 @@ function ApplicationsManagementTable() {
   // Fetch applications
   const { data: applications = [], isLoading: loading, error: applicationsError } = useQuery<Application[]>({
     queryKey: ["/api/admin/applications"],
+    queryFn: async () => {
+      console.log("Fetching admin applications from frontend...");
+      const response = await fetch("/api/admin/applications", {
+        credentials: "include"
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch applications: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log("Admin applications response:", data);
+      console.log("Number of applications received:", data.length);
+      return data;
+    },
     retry: 1,
     throwOnError: false,
     refetchOnWindowFocus: false,

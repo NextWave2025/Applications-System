@@ -12,8 +12,8 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
     return res.status(401).json({ error: "Authentication required" });
   }
   
-  // Check if user has admin role
-  if (req.user?.role !== "admin") {
+  // Check if user has admin or super_admin role
+  if (req.user?.role !== "admin" && req.user?.role !== "super_admin") {
     console.log("Admin role check failed, user role:", req.user?.role);
     return res.status(403).json({ error: "Admin access required" });
   }

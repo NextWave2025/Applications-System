@@ -131,11 +131,18 @@ router.patch("/users/:id/status", async (req, res) => {
 // Get all applications
 router.get("/applications", async (req, res) => {
   console.log("Admin applications route called");
-  console.log("User:", req.user);
+  console.log("User role:", req.user?.role);
+  console.log("User ID:", req.user?.id);
   try {
     console.log("Fetching all applications...");
     const applications = await storage.getAllApplications();
-    console.log(`Found ${applications.length} applications`);
+    console.log(`Found ${applications.length} applications for admin dashboard`);
+    
+    // Log first few applications for debugging
+    if (applications.length > 0) {
+      console.log("Sample application data:", JSON.stringify(applications[0], null, 2));
+    }
+    
     res.json(applications);
   } catch (error) {
     console.error("Error fetching applications:", error);
