@@ -48,24 +48,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const response = await fetch("/api/user", {
           credentials: "include"
         });
-        if (response.status === 401) {
+        if (response.status === 401 || response.status === 403) {
           return null;
         }
         if (!response.ok) {
-          console.warn("Failed to fetch user:", response.statusText);
           return null;
         }
         return await response.json();
       } catch (error) {
-        console.warn("Auth query error:", error);
         return null;
       }
     },
-    retry: false, // Disable retries to prevent unhandled rejections
-    throwOnError: false, // Prevent throwing errors that cause unhandled rejections
+    retry: false,
+    throwOnError: false,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
-    staleTime: Infinity, // Cache the result to prevent repeated failed requests
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
   const loginMutation = useMutation({

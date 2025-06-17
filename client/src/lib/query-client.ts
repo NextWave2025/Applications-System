@@ -10,13 +10,12 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: (failureCount, error: any) => {
-        // Don't retry on 401/403 errors
-        if (error?.status === 401 || error?.status === 403) return false;
-        // Retry once for other errors
-        return failureCount < 1;
-      },
-      retryDelay: 1000,
+      retry: false, // Disable retries to prevent unhandled rejections
+      throwOnError: false, // Prevent throwing errors that cause unhandled rejections
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: false,
     },
   },
 });
