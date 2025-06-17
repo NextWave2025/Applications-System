@@ -4,7 +4,8 @@
  */
 
 import fs from 'fs';
-import { Client } from 'pg';
+import pg from 'pg';
+const { Client } = pg;
 
 // Database connection
 const client = new Client({
@@ -74,16 +75,19 @@ async function fixUniversityProgramMapping() {
           // Insert the program
           await client.query(`
             INSERT INTO programs (
-              name, university_id, degree_level, intake_periods, 
-              entry_requirements, teaching_language, created_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, NOW())
+              name, university_id, degree, intake, 
+              requirements, tuition, duration, study_field, image_url
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
           `, [
             programName,
             universityId,
             degreeLevel || 'Bachelor',
-            record['Intakes'] ? [record['Intakes']] : ['September'],
-            record['General Entry Requirements'] || 'Standard entry requirements apply',
-            record['Language of teaching'] || 'English'
+            record['Intakes'] || 'September',
+            JSON.stringify([record['General Entry Requirements'] || 'Standard entry requirements apply']),
+            'Contact university for details',
+            'Standard duration',
+            'General Studies',
+            '/api/placeholder/400/300'
           ]);
           fixedCount++;
         }
