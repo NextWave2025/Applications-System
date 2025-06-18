@@ -70,7 +70,7 @@ interface Application {
 
 export default function ApplicationDetailsPage() {
   const { id } = useParams();
-  const [, setLocation] = useLocation();
+  const [, navigate] = useLocation();
   const { toast } = useToast();
   const [copyDialogOpen, setCopyDialogOpen] = useState(false);
 
@@ -106,7 +106,7 @@ export default function ApplicationDetailsPage() {
         description: "The application has been successfully deleted.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
-      setLocation("/admin/dashboard");
+      navigate("/admin");
     },
     onError: () => {
       toast({
@@ -325,7 +325,7 @@ Generated on: ${new Date().toLocaleString()}
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Application Not Found</h2>
           <p className="text-gray-600 mb-6">The requested application could not be found.</p>
-          <Button onClick={() => setLocation("/admin/dashboard")}>
+          <Button onClick={() => navigate("/admin")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Button>
@@ -341,7 +341,7 @@ Generated on: ${new Date().toLocaleString()}
         <div className="flex items-center space-x-4">
           <Button
             variant="ghost"
-            onClick={() => setLocation("/admin/dashboard")}
+            onClick={() => navigate("/admin")}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
