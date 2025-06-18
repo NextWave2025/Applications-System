@@ -6,7 +6,7 @@ import EnhancedSearch from "@/components/enhanced-search";
 import PDFExport from "@/components/pdf-export";
 import SelectableProgramCard from "@/components/selectable-program-card";
 import ProgramCardNew from "@/components/program-card-new";
-import EnhancedProgramFilters from "@/components/enhanced-program-filters";
+import ResponsiveFilterPanel from "@/components/responsive-filter-panel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { studyLevels, studyFields, durationOptions, type Program, type University, type ProgramWithUniversity } from "@shared/schema";
@@ -299,56 +299,69 @@ export default function ProgramsPage() {
         </div>
 
         {/* Filters and program cards */}
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col xl:flex-row gap-6 lg:gap-8">
           {/* Enhanced Sidebar filters */}
-          <aside className="lg:w-1/4">
-            <EnhancedProgramFilters 
-              onFiltersChange={handleFilterChange}
-              onResultsCountChange={handleResultsCountChange}
-              className="sticky top-6"
-            />
+          <aside className="xl:w-80 lg:w-72 flex-shrink-0">
+            <div className="sticky top-6">
+              <ResponsiveFilterPanel 
+                onFiltersChange={handleFilterChange}
+                onResultsCountChange={handleResultsCountChange}
+                className="w-full"
+              />
+            </div>
           </aside>
 
           {/* Main content - program cards */}
-          <main className="lg:w-3/4">
+          <main className="flex-1 min-w-0">
             {isLoading ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4 lg:gap-6">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="animate-pulse h-64 rounded-lg bg-gray-200" />
+                  <div key={i} className="animate-pulse h-80 rounded-xl bg-gray-200" />
                 ))}
               </div>
             ) : isErrorAllPrograms ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500">Error loading programs. Please try again later.</p>
+              <div className="text-center py-16">
+                <div className="max-w-md mx-auto">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Programs</h3>
+                  <p className="text-gray-600">Unable to load programs. Please try again later.</p>
+                </div>
               </div>
             ) : programs && programs.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {/* Selection controls */}
-                <div className="flex items-center justify-between py-2 border-b border-gray-200">
-                  <div className="text-sm text-gray-600">
-                    {programs.length} program{programs.length !== 1 ? 's' : ''} found
-                    {selectedProgramIds.length > 0 && ` · ${selectedProgramIds.length} selected`}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-gray-50 rounded-lg border">
+                  <div className="text-sm font-medium text-gray-700">
+                    <span className="text-lg font-bold text-gray-900">{programs.length}</span> program{programs.length !== 1 ? 's' : ''} found
+                    {selectedProgramIds.length > 0 && (
+                      <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-xs font-medium">
+                        {selectedProgramIds.length} selected
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <button
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => setSelectedProgramIds(programs.map(p => p.id))}
-                      className="text-sm text-blue-600 hover:text-blue-800"
+                      className="text-xs font-medium"
                     >
                       Select All
-                    </button>
+                    </Button>
                     {selectedProgramIds.length > 0 && (
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setSelectedProgramIds([])}
-                        className="text-sm text-gray-600 hover:text-gray-800"
+                        className="text-xs font-medium text-gray-600 hover:text-gray-800"
                       >
                         Clear Selection
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
 
-                {/* Program cards with selection */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Program cards with enhanced responsive grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4 lg:gap-6">
                   {programs.map(program => (
                     <ProgramCardNew 
                       key={program.id}
@@ -361,16 +374,19 @@ export default function ProgramsPage() {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-500">No programs found matching your criteria. Try adjusting your filters.</p>
-                {filterQuery !== null && (
-                  <button 
-                    onClick={resetFilters}
-                    className="mt-4 py-2 px-4 bg-primary text-white rounded-md hover:bg-primary-dark"
-                  >
-                    Reset Filters
-                  </button>
-                )}
+              <div className="text-center py-16">
+                <div className="max-w-md mx-auto">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Programs Found</h3>
+                  <p className="text-gray-600 mb-6">No programs match your current criteria. Try adjusting your filters.</p>
+                  {filterQuery !== null && (
+                    <Button 
+                      onClick={resetFilters}
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                    >
+                      Reset All Filters
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
           </main>
