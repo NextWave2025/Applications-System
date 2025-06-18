@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { ApplicationWithDetails, ApplicationStatus } from "@shared/schema";
 
 export default function DashboardPage() {
-  const navigate = useLocation();
+  const [location, navigate] = useLocation();
   
   // Fetch current user data
   const { data: user, isLoading: isLoadingUser, error: userError } = useQuery({

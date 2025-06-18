@@ -591,7 +591,7 @@ function AuditLogsTable() {
 }
 
 function ApplicationsManagementTable() {
-  const [location, setLocation] = useLocation();
+  const [location, navigate] = useLocation();
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -751,7 +751,7 @@ function ApplicationsManagementTable() {
                   <tr 
                     key={app.id} 
                     className="border-b hover:bg-gray-50 cursor-pointer"
-                    onClick={() => setLocation(`/admin/applications/${app.id}`)}
+                    onClick={() => navigate(`/admin/applications/${app.id}`)}
                   >
                     <td className="py-3 px-4">{app.id}</td>
                     <td className="py-3 px-4">
@@ -806,7 +806,7 @@ function ApplicationsManagementTable() {
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setLocation(`/admin/applications/${app.id}`);
+                            navigate(`/admin/applications/${app.id}`);
                           }}
                         >
                           View Details
@@ -834,7 +834,7 @@ function ApplicationsManagementTable() {
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
-  const [location, setLocation] = useLocation();
+  const [location, navigate] = useLocation();
   const queryClient = useQueryClient();
   
 
@@ -846,9 +846,9 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     // If the user is not an admin, redirect to the dashboard
     if (user && user.role !== "admin") {
-      setLocation("/");
+      navigate("/");
     }
-  }, [user, setLocation]);
+  }, [user, navigate]);
 
   // Debug user authentication and role
   console.log("Current user in dashboard:", user);
@@ -931,7 +931,7 @@ export default function AdminDashboardPage() {
 
   // Redirect to login if not authenticated
   if (!user) {
-    setLocation("/auth");
+    navigate("/auth");
     return null;
   }
 
@@ -940,7 +940,7 @@ export default function AdminDashboardPage() {
       <div className="container py-10">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <Button onClick={() => setLocation("/")}>Back to Main Dashboard</Button>
+          <Button onClick={() => navigate("/")}>Back to Main Dashboard</Button>
         </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
