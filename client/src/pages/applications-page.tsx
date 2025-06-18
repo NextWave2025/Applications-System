@@ -48,7 +48,7 @@ type Application = {
 };
 
 export default function ApplicationsPage() {
-  const navigate = useLocation();
+  const [location, navigate] = useLocation();
   const { user, isLoading: authLoading } = useAuth();
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
