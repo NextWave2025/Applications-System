@@ -8,6 +8,7 @@ import { useAuth } from "../hooks/use-auth";
 import { queryClient } from "../lib/query-client";
 import { useToast } from "../hooks/use-toast";
 import { ProgramWithUniversity } from "@shared/schema";
+import { Upload, X, FileText, Plus } from "lucide-react";
 
 // Define application form schema
 const applicationSchema = z.object({
@@ -36,10 +37,16 @@ type ApplicationFormData = z.infer<typeof applicationSchema>;
 export default function ApplicationFormPage() {
   const { id } = useParams<{ id: string }>();
   const { user, isLoading: authLoading } = useAuth();
-  const navigate = useLocation();
+  const [location, navigate] = useLocation();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedDocuments, setSelectedDocuments] = useState<File[]>([]);
+  const [documents, setDocuments] = useState<Array<{
+    id: string;
+    file: File | null;
+    documentType: string;
+    description: string;
+    isUploading: boolean;
+  }>>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   // Fetch program details
@@ -113,7 +120,8 @@ export default function ApplicationFormPage() {
     },
     onSuccess: (data) => {
       // Upload documents if any
-      if (selectedDocuments.length > 0) {
+      const documentsWithFiles = documents.filter(doc => doc.file);
+      if (documentsWithFiles.length > 0) {
         uploadDocuments(data.id);
       } else {
         // No documents to upload, show success message and redirect
@@ -135,40 +143,70 @@ export default function ApplicationFormPage() {
     },
   });
 
-  // Handle document selection
-  const handleDocumentSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      setSelectedDocuments((prev) => [...prev, ...newFiles]);
-    }
+  // Add new document slot
+  const addDocumentSlot = () => {
+    const newDoc = {
+      id: Math.random().toString(36).substr(2, 9),
+      file: null,
+      documentType: "",
+      description: "",
+      isUploading: false,
+    };
+    setDocuments(prev => [...prev, newDoc]);
   };
 
-  // Remove a document from selection
-  const handleRemoveDocument = (index: number) => {
-    setSelectedDocuments((prev) => prev.filter((_, i) => i !== index));
+  // Remove document slot
+  const removeDocumentSlot = (docId: string) => {
+    setDocuments(prev => prev.filter(doc => doc.id !== docId));
+  };
+
+  // Update document file
+  const updateDocumentFile = (docId: string, file: File) => {
+    setDocuments(prev => prev.map(doc => 
+      doc.id === docId ? { ...doc, file } : doc
+    ));
+  };
+
+  // Update document description
+  const updateDocumentDescription = (docId: string, description: string) => {
+    setDocuments(prev => prev.map(doc => 
+      doc.id === docId ? { ...doc, description } : doc
+    ));
   };
 
   // Upload documents
   const uploadDocuments = async (applicationId: number) => {
     try {
-      for (let i = 0; i < selectedDocuments.length; i++) {
-        const file = selectedDocuments[i];
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("applicationId", applicationId.toString());
-        formData.append("documentType", getDocumentType(file.name));
-        formData.append("filename", file.name);
-        formData.append("originalFilename", file.name);
-        formData.append("fileSize", file.size.toString());
-        formData.append("mimeType", file.type);
+      const documentsWithFiles = documents.filter(doc => doc.file);
+      
+      for (let i = 0; i < documentsWithFiles.length; i++) {
+        const doc = documentsWithFiles[i];
+        
+        // Mark as uploading
+        setDocuments(prev => prev.map(d => 
+          d.id === doc.id ? { ...d, isUploading: true } : d
+        ));
 
-        await fetch("/api/documents", {
+        const formData = new FormData();
+        formData.append("file", doc.file!);
+        formData.append("applicationId", applicationId.toString());
+        formData.append("documentType", doc.description || getDocumentType(doc.file!.name));
+        formData.append("filename", doc.file!.name);
+        formData.append("originalFilename", doc.file!.name);
+        formData.append("fileSize", doc.file!.size.toString());
+        formData.append("mimeType", doc.file!.type);
+
+        const response = await fetch("/api/documents", {
           method: "POST",
           body: formData,
         });
 
+        if (!response.ok) {
+          throw new Error(`Failed to upload ${doc.description || doc.file!.name}`);
+        }
+
         // Update progress
-        setUploadProgress(Math.round(((i + 1) / selectedDocuments.length) * 100));
+        setUploadProgress(Math.round(((i + 1) / documentsWithFiles.length) * 100));
       }
 
       // All documents uploaded successfully
@@ -181,11 +219,13 @@ export default function ApplicationFormPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to upload documents. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to upload documents. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
+      // Reset uploading states
+      setDocuments(prev => prev.map(doc => ({ ...doc, isUploading: false })));
     }
   };
 
@@ -555,16 +595,9 @@ export default function ApplicationFormPage() {
                     className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
                   >
                     <option value="">Select an option</option>
-                    {program.intake && Array.isArray(program.intake) ? 
-                      program.intake.map((intake, index) => (
-                        <option key={index} value={intake}>
-                          {intake}
-                        </option>
-                      )) : 
-                      program.intake && (
-                        <option value={program.intake}>{program.intake}</option>
-                      )
-                    }
+                    <option value="January">January</option>
+                    <option value="September">September</option>
+                    <option value="May">May</option>
                   </select>
                   {form.formState.errors.intakeDate && (
                     <p className="mt-1 text-sm text-red-600">
@@ -587,78 +620,92 @@ export default function ApplicationFormPage() {
                   ></textarea>
                 </div>
 
-                {/* Documents upload */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Upload Documents
-                  </label>
-                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                    <div className="space-y-1 text-center">
-                      <svg
-                        className="mx-auto h-12 w-12 text-gray-400"
-                        stroke="currentColor"
-                        fill="none"
-                        viewBox="0 0 48 48"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      <div className="flex text-sm text-gray-600">
-                        <label
-                          htmlFor="file-upload"
-                          className="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary-dark focus-within:outline-none"
-                        >
-                          <span>Upload files</span>
-                          <input
-                            id="file-upload"
-                            name="file-upload"
-                            type="file"
-                            multiple
-                            className="sr-only"
-                            onChange={handleDocumentSelect}
-                          />
-                        </label>
-                        <p className="pl-1">or drag and drop</p>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        Passport, transcripts, certificates, etc.
-                      </p>
-                    </div>
-                  </div>
+                {/* Documents upload section */}
+                <div className="pt-6 pb-2">
+                  <h3 className="text-lg font-medium text-gray-900">Supporting Documents</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Upload your supporting documents. Each document should have a clear description.
+                  </p>
                 </div>
 
-                {/* Selected documents list */}
-                {selectedDocuments.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">Selected Documents</h3>
-                    <ul className="space-y-2">
-                      {selectedDocuments.map((file, index) => (
-                        <li key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
-                          <span className="text-sm text-gray-700">{file.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveDocument(index)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                {/* Individual document uploads */}
+                <div className="space-y-4">
+                  {documents.map((doc) => (
+                    <div key={doc.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Document description */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Document Description
+                          </label>
+                          <input
+                            type="text"
+                            value={doc.description}
+                            onChange={(e) => updateDocumentDescription(doc.id, e.target.value)}
+                            placeholder="e.g., Passport, Transcript, IELTS Certificate"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+                          />
+                        </div>
+
+                        {/* File upload */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Select File
+                          </label>
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="file"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  updateDocumentFile(doc.id, file);
+                                }
+                              }}
+                              className="flex-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-primary/90"
+                              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeDocumentSlot(doc.id)}
+                              className="p-2 text-red-500 hover:text-red-700"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Show selected file info */}
+                      {doc.file && (
+                        <div className="mt-3 flex items-center space-x-2 text-sm text-gray-600">
+                          <FileText className="h-4 w-4" />
+                          <span>{doc.file.name}</span>
+                          <span className="text-gray-400">
+                            ({(doc.file.size / 1024 / 1024).toFixed(2)} MB)
+                          </span>
+                          {doc.isUploading && (
+                            <div className="flex items-center space-x-1">
+                              <div className="h-3 w-3 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                              <span className="text-primary">Uploading...</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Add document button */}
+                  <button
+                    type="button"
+                    onClick={addDocumentSlot}
+                    className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <Plus className="h-5 w-5" />
+                      <span>Add Document</span>
+                    </div>
+                  </button>
+                </div>
 
                 {/* Submit button */}
                 <div className="pt-4">
