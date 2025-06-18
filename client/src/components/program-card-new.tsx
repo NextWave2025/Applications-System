@@ -1,4 +1,7 @@
 import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, BookOpen, Star, Clock, MapPin, DollarSign } from "lucide-react";
 import { type ProgramWithUniversity } from "@shared/schema";
 
 interface ProgramCardNewProps {
@@ -46,96 +49,117 @@ export default function ProgramCardNew({
   };
 
   return (
-    <div className={`relative bg-white rounded-lg shadow-sm border-2 transition-all duration-200 hover:shadow-md ${
-      isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+    <div className={`relative bg-white rounded-xl shadow-sm border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${
+      isSelected ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-gray-200 hover:border-gray-300'
     }`}>
       {/* Selection checkbox */}
       {showSelection && (
-        <div className="absolute top-3 right-3 z-10">
+        <div className="absolute top-4 right-4 z-10">
           <input
             type="checkbox"
             checked={isSelected}
             onChange={handleSelectionChange}
-            className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
           />
         </div>
       )}
 
-      {/* Program content */}
-      <Link href={`/programs/${program.id}`}>
-        <div className="p-6 cursor-pointer">
-          {/* University logo and name */}
-          <div className="flex items-center mb-4">
-            <div className="w-8 h-8 bg-gray-100 rounded-sm mr-3 flex items-center justify-center">
+      <div className="p-5 sm:p-6">
+        {/* University header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg mr-3 flex items-center justify-center shadow-sm">
               {program.university?.imageUrl ? (
                 <img
                   src={program.university.imageUrl}
                   alt={program.university.name}
-                  className="w-6 h-6 object-contain"
+                  className="w-7 h-7 object-contain"
                 />
               ) : (
-                <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                <BookOpen className="w-5 h-5 text-blue-600" />
               )}
             </div>
-            <span className="text-sm text-gray-600 font-medium">
-              {program.university?.name || 'University'}
-            </span>
-          </div>
-
-          {/* Program title */}
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 line-clamp-2">
-            {program.name}
-          </h3>
-
-          {/* Program details grid */}
-          <div className="space-y-3">
-            {/* Degree level */}
-            <div className="flex items-center text-sm text-gray-600">
-              <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-              </svg>
-              <span>{program.degree || "Degree"}</span>
-            </div>
-
-            {/* Duration */}
-            <div className="flex items-center text-sm text-gray-600">
-              <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>{formatDuration(program.duration)}</span>
-            </div>
-
-            {/* Tuition fee */}
-            <div className="flex items-center text-sm">
-              <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-              </svg>
-              <span className="font-semibold text-gray-900">{formatTuition(program.tuition)}</span>
-            </div>
-
-            {/* Intake */}
-            <div className="flex items-center text-sm text-gray-600">
-              <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span>{formatIntake(program.intake)}</span>
+            <div>
+              <p className="text-sm font-semibold text-gray-900 leading-tight">
+                {program.university?.name || 'University'}
+              </p>
+              <p className="text-xs text-gray-500">
+                {program.university?.location || 'UAE'}
+              </p>
             </div>
           </div>
-
-          {/* Scholarship badge */}
           {program.hasScholarship && (
-            <div className="mt-4">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Scholarship Available
-              </span>
-            </div>
+            <Badge className="bg-green-100 text-green-700 border-green-200 text-xs font-medium">
+              <Star className="w-3 h-3 mr-1" />
+              Scholarship
+            </Badge>
           )}
         </div>
-      </Link>
+
+        {/* Program title */}
+        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 line-clamp-2 leading-tight">
+          {program.name}
+        </h3>
+
+        {/* Program details */}
+        <div className="space-y-2.5 mb-5">
+          {/* Degree level */}
+          <div className="flex items-center text-sm text-gray-700">
+            <BookOpen className="w-4 h-4 mr-3 text-blue-500 flex-shrink-0" />
+            <span className="font-medium">{program.degree || "Degree"}</span>
+          </div>
+
+          {/* Duration */}
+          <div className="flex items-center text-sm text-gray-700">
+            <Clock className="w-4 h-4 mr-3 text-green-500 flex-shrink-0" />
+            <span>{formatDuration(program.duration)}</span>
+          </div>
+
+          {/* Location */}
+          <div className="flex items-center text-sm text-gray-700">
+            <MapPin className="w-4 h-4 mr-3 text-orange-500 flex-shrink-0" />
+            <span>{program.university?.location || 'UAE'}</span>
+          </div>
+
+          {/* Tuition fee */}
+          <div className="flex items-center text-sm">
+            <DollarSign className="w-4 h-4 mr-3 text-purple-500 flex-shrink-0" />
+            <span className="font-bold text-gray-900 text-base">{formatTuition(program.tuition)}</span>
+          </div>
+        </div>
+
+        {/* Intake badge */}
+        <div className="mb-5">
+          <Badge variant="outline" className="text-xs font-medium">
+            Next Intake: {formatIntake(program.intake)}
+          </Badge>
+        </div>
+
+        {/* Call to action buttons */}
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Link href={`/programs/${program.id}`} className="flex-1">
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 text-sm"
+            >
+              <span>View Details</span>
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="px-4 py-2.5 border-gray-300 hover:bg-gray-50 font-medium text-sm sm:w-auto w-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              // Add quick apply or contact functionality here
+            }}
+          >
+            Quick Apply
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
