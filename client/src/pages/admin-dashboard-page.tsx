@@ -600,6 +600,30 @@ function ApplicationsManagementTable() {
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
 
+  // Update application status function
+  const updateApplicationStatus = async (applicationId: number, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/admin/applications/${applicationId}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update application status");
+      }
+
+      // Refresh applications data
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
+      
+    } catch (error) {
+      console.error("Error updating application status:", error);
+    }
+  };
+
   // Fetch applications
   const { data: applications = [], isLoading: loading, error: applicationsError } = useQuery<Application[]>({
     queryKey: ["/api/admin/applications"],
@@ -782,36 +806,44 @@ function ApplicationsManagementTable() {
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <Badge 
-                        variant="outline" 
-                        className={getStatusBadgeStyles(app.status)}
+                      <Select
+                        value={app.status}
+                        onValueChange={(newStatus) => updateApplicationStatus(app.id, newStatus)}
                       >
-                        {app.status.replace('-', ' ')}
-                      </Badge>
+                        <SelectTrigger className="w-36" onClick={(e) => e.stopPropagation()}>
+                          <SelectValue>
+                            <Badge 
+                              variant="outline" 
+                              className={getStatusBadgeStyles(app.status)}
+                            >
+                              {app.status.replace('-', ' ')}
+                            </Badge>
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="draft">Draft</SelectItem>
+                          <SelectItem value="submitted">Submitted</SelectItem>
+                          <SelectItem value="under-review">Under Review</SelectItem>
+                          <SelectItem value="approved">Approved</SelectItem>
+                          <SelectItem value="rejected">Rejected</SelectItem>
+                          <SelectItem value="incomplete">Incomplete</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </td>
                     <td className="py-3 px-4">
                       {format(new Date(app.updatedAt), 'MMM d, yyyy')}
                     </td>
                     <td className="py-3 px-4">
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openChangeStatusDialog(app)}
-                        >
-                          Change Status
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/admin/applications/${app.id}`);
-                          }}
-                        >
-                          View Details
-                        </Button>
-                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/admin/applications/${app.id}`);
+                        }}
+                      >
+                        View Details
+                      </Button>
                     </td>
                   </tr>
                 ))

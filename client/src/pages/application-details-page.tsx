@@ -267,6 +267,47 @@ Generated on: ${new Date().toLocaleString()}
     }
   };
 
+  const copyDocumentLink = (doc: any) => {
+    const link = `${window.location.origin}/api/documents/${doc.id}`;
+    navigator.clipboard.writeText(link);
+    toast({
+      title: "Link Copied",
+      description: "Document link has been copied to your clipboard.",
+    });
+  };
+
+  const downloadSingleDocument = async (doc: any) => {
+    try {
+      const response = await fetch(`/api/documents/${doc.id}`, {
+        credentials: "include"
+      });
+      if (!response.ok) {
+        throw new Error("Failed to download document");
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = doc.originalFilename || doc.filename || `document_${doc.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "Download Started",
+        description: `${doc.originalFilename || doc.filename} is being downloaded.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Download Failed",
+        description: "Failed to download document. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const downloadAllDocuments = async () => {
     try {
       const response = await fetch(`/api/admin/applications/${id}/documents/bulk`, {
@@ -564,32 +605,68 @@ Generated on: ${new Date().toLocaleString()}
           {/* Documents */}
           <Card>
             <CardHeader>
-              <CardTitle>Documents</CardTitle>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center">
+                  <FileText className="h-5 w-5 mr-2" />
+                  Uploaded Documents ({application.uploadedDocuments?.length || 0})
+                </span>
+                {application.uploadedDocuments && application.uploadedDocuments.length > 0 && (
+                  <Button onClick={downloadAllDocuments} variant="outline" size="sm">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download All
+                  </Button>
+                )}
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {application.documents && Object.entries(application.documents).map(([key, submitted]) => (
-                <div key={key} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    {submitted ? (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <XCircle className="h-4 w-4 text-red-600" />
-                    )}
-                    <span className="text-sm capitalize">
-                      {key.replace(/([A-Z])/g, ' $1').trim()}
-                    </span>
-                  </div>
-                  {submitted && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => downloadDocument(key)}
-                    >
-                      <Download className="h-3 w-3" />
-                    </Button>
-                  )}
+            <CardContent>
+              {application.uploadedDocuments && application.uploadedDocuments.length > 0 ? (
+                <div className="space-y-3">
+                  {application.uploadedDocuments.map((doc, index) => (
+                    <div key={index} className="border rounded-lg p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <FileText className="h-4 w-4 text-blue-500" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{doc.originalFilename || doc.filename}</p>
+                            <p className="text-xs text-muted-foreground">{doc.documentType}</p>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => copyDocumentLink(doc)}
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => downloadSingleDocument(doc)}
+                          >
+                            <Download className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                      {doc.fileSize && (
+                        <div className="text-xs text-muted-foreground">
+                          Size: {(doc.fileSize / 1024 / 1024).toFixed(2)} MB
+                        </div>
+                      )}
+                      {doc.uploadedAt && (
+                        <div className="text-xs text-muted-foreground">
+                          Uploaded: {new Date(doc.uploadedAt).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
+              ) : (
+                <div className="text-center py-6 text-muted-foreground">
+                  <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>No documents uploaded</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
