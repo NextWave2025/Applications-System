@@ -6,6 +6,7 @@ import { setupAuth } from "./auth";
 import multer from "multer";
 import path from "path";
 import adminRouter from "./routes/admin";
+import { sendApplicationStatusNotification } from "./email-service";
 
 export function registerRoutes(app: Express): Server {
   // sets up /api/register, /api/login, /api/logout, /api/user

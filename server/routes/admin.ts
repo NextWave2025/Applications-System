@@ -5,6 +5,7 @@ import { requireAdmin } from "../middleware/admin";
 import multer from "multer";
 import * as XLSX from "xlsx";
 import path from "path";
+import { sendApplicationStatusNotification } from "../email-service";
 
 const router = Router();
 
@@ -360,6 +361,36 @@ router.patch("/applications/:id/status", async (req, res) => {
         paymentConfirmation: paymentConfirmation || undefined
       }
     });
+
+    // Send email notifications for status changes
+    try {
+      // Get agent information for the notification
+      const agent = await storage.getUserById(application.userId);
+      
+      if (agent && currentStatus !== status) {
+        console.log(`Sending email notification for application ${applicationId} status change: ${currentStatus} -> ${status}`);
+        
+        await sendApplicationStatusNotification({
+          applicationId,
+          studentName: `${application.studentFirstName} ${application.studentLastName}`,
+          studentEmail: application.studentEmail,
+          agentEmail: agent.username || '', // username is the email field
+          agentName: `${agent.firstName} ${agent.lastName}`,
+          programName: application.program?.name || 'Unknown Program',
+          universityName: application.program?.universityName || 'Unknown University',
+          status,
+          previousStatus: currentStatus,
+          notes,
+          rejectionReason,
+          conditionalOfferTerms
+        });
+        
+        console.log(`Email notifications sent successfully for application ${applicationId}`);
+      }
+    } catch (emailError) {
+      console.error(`Failed to send email notifications for application ${applicationId}:`, emailError);
+      // Don't fail the status update if email fails
+    }
     
     res.json(updatedApplication);
   } catch (error) {

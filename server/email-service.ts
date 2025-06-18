@@ -1,0 +1,265 @@
+import sgMail from '@sendgrid/mail';
+
+if (!process.env.SENDGRID_API_KEY) {
+  throw new Error("SENDGRID_API_KEY environment variable must be set");
+}
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+interface EmailParams {
+  to: string;
+  cc?: string[];
+  subject: string;
+  html: string;
+  from?: string;
+}
+
+export async function sendEmail(params: EmailParams): Promise<boolean> {
+  try {
+    const msg = {
+      to: params.to,
+      cc: params.cc,
+      from: params.from || 'notifications@studyabroad.ae',
+      subject: params.subject,
+      html: params.html,
+    };
+
+    await sgMail.send(msg);
+    console.log(`Email sent successfully to ${params.to}`);
+    return true;
+  } catch (error) {
+    console.error('SendGrid email error:', error);
+    return false;
+  }
+}
+
+export interface ApplicationNotificationData {
+  applicationId: number;
+  studentName: string;
+  studentEmail: string;
+  agentEmail: string;
+  agentName: string;
+  programName: string;
+  universityName: string;
+  status: string;
+  previousStatus?: string;
+  notes?: string;
+  offerLetterUrl?: string;
+  conditionalOfferTerms?: string;
+  rejectionReason?: string;
+}
+
+export async function sendApplicationStatusNotification(data: ApplicationNotificationData): Promise<boolean> {
+  const { 
+    applicationId, 
+    studentName, 
+    studentEmail, 
+    agentEmail, 
+    agentName,
+    programName, 
+    universityName, 
+    status, 
+    previousStatus,
+    notes,
+    offerLetterUrl,
+    conditionalOfferTerms,
+    rejectionReason
+  } = data;
+
+  const statusMessages = {
+    submitted: {
+      subject: `Application Submitted - ${programName} at ${universityName}`,
+      studentMessage: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">Application Successfully Submitted</h2>
+          <p>Dear ${studentName},</p>
+          <p>Your application for <strong>${programName}</strong> at <strong>${universityName}</strong> has been successfully submitted.</p>
+          <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Application Details:</h3>
+            <p><strong>Application ID:</strong> #${applicationId}</p>
+            <p><strong>Program:</strong> ${programName}</p>
+            <p><strong>University:</strong> ${universityName}</p>
+            <p><strong>Status:</strong> <span style="color: #059669; font-weight: bold;">Submitted</span></p>
+          </div>
+          <p>Your application is now under review. We will keep you updated on any progress.</p>
+          <p>If you have any questions, please contact your education consultant: ${agentName}</p>
+          <p>Best regards,<br>Study Abroad Team</p>
+        </div>
+      `,
+      agentMessage: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">New Application Submitted</h2>
+          <p>Dear ${agentName},</p>
+          <p>A new application has been submitted by ${studentName}.</p>
+          <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Application Details:</h3>
+            <p><strong>Application ID:</strong> #${applicationId}</p>
+            <p><strong>Student:</strong> ${studentName} (${studentEmail})</p>
+            <p><strong>Program:</strong> ${programName}</p>
+            <p><strong>University:</strong> ${universityName}</p>
+            <p><strong>Status:</strong> <span style="color: #059669; font-weight: bold;">Submitted</span></p>
+          </div>
+          <p>Please review the application in your admin dashboard.</p>
+          <p>Best regards,<br>Study Abroad System</p>
+        </div>
+      `
+    },
+    'under-review': {
+      subject: `Application Under Review - ${programName} at ${universityName}`,
+      studentMessage: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">Application Under Review</h2>
+          <p>Dear ${studentName},</p>
+          <p>Your application for <strong>${programName}</strong> at <strong>${universityName}</strong> is now under review.</p>
+          <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Application Details:</h3>
+            <p><strong>Application ID:</strong> #${applicationId}</p>
+            <p><strong>Program:</strong> ${programName}</p>
+            <p><strong>University:</strong> ${universityName}</p>
+            <p><strong>Status:</strong> <span style="color: #d97706; font-weight: bold;">Under Review</span></p>
+          </div>
+          ${notes ? `<div style="background-color: #eff6ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #1e40af; margin-top: 0;">Additional Notes:</h4>
+            <p>${notes}</p>
+          </div>` : ''}
+          <p>We will notify you once the review process is complete.</p>
+          <p>Best regards,<br>Study Abroad Team</p>
+        </div>
+      `,
+      agentMessage: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">Application Status Updated</h2>
+          <p>Dear ${agentName},</p>
+          <p>Application #${applicationId} for ${studentName} has been updated to "Under Review".</p>
+          <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Application Details:</h3>
+            <p><strong>Student:</strong> ${studentName} (${studentEmail})</p>
+            <p><strong>Program:</strong> ${programName}</p>
+            <p><strong>University:</strong> ${universityName}</p>
+            <p><strong>Status:</strong> <span style="color: #d97706; font-weight: bold;">Under Review</span></p>
+          </div>
+          <p>Best regards,<br>Study Abroad System</p>
+        </div>
+      `
+    },
+    approved: {
+      subject: `🎉 Application Approved - ${programName} at ${universityName}`,
+      studentMessage: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #059669;">Congratulations! Your Application Has Been Approved</h2>
+          <p>Dear ${studentName},</p>
+          <p>We are delighted to inform you that your application for <strong>${programName}</strong> at <strong>${universityName}</strong> has been <strong>approved</strong>!</p>
+          <div style="background-color: #ecfdf5; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #059669;">
+            <h3 style="color: #065f46; margin-top: 0;">Application Details:</h3>
+            <p><strong>Application ID:</strong> #${applicationId}</p>
+            <p><strong>Program:</strong> ${programName}</p>
+            <p><strong>University:</strong> ${universityName}</p>
+            <p><strong>Status:</strong> <span style="color: #059669; font-weight: bold;">Approved</span></p>
+          </div>
+          ${offerLetterUrl ? `<div style="background-color: #eff6ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #1e40af; margin-top: 0;">📄 Offer Letter Available</h4>
+            <p>Your official offer letter is now available for download.</p>
+            <a href="${offerLetterUrl}" style="display: inline-block; background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">Download Offer Letter</a>
+          </div>` : ''}
+          ${conditionalOfferTerms ? `<div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #92400e; margin-top: 0;">📋 Conditional Offer Terms</h4>
+            <p>${conditionalOfferTerms}</p>
+          </div>` : ''}
+          ${notes ? `<div style="background-color: #eff6ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #1e40af; margin-top: 0;">Additional Notes:</h4>
+            <p>${notes}</p>
+          </div>` : ''}
+          <p>Please contact your education consultant ${agentName} for next steps regarding enrollment and visa procedures.</p>
+          <p>Congratulations once again on this achievement!</p>
+          <p>Best regards,<br>Study Abroad Team</p>
+        </div>
+      `,
+      agentMessage: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #059669;">Application Approved</h2>
+          <p>Dear ${agentName},</p>
+          <p>Great news! Application #${applicationId} for ${studentName} has been approved.</p>
+          <div style="background-color: #ecfdf5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #065f46; margin-top: 0;">Application Details:</h3>
+            <p><strong>Student:</strong> ${studentName} (${studentEmail})</p>
+            <p><strong>Program:</strong> ${programName}</p>
+            <p><strong>University:</strong> ${universityName}</p>
+            <p><strong>Status:</strong> <span style="color: #059669; font-weight: bold;">Approved</span></p>
+          </div>
+          <p>Please follow up with the student for next steps.</p>
+          <p>Best regards,<br>Study Abroad System</p>
+        </div>
+      `
+    },
+    rejected: {
+      subject: `Application Update - ${programName} at ${universityName}`,
+      studentMessage: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #dc2626;">Application Status Update</h2>
+          <p>Dear ${studentName},</p>
+          <p>We regret to inform you that your application for <strong>${programName}</strong> at <strong>${universityName}</strong> has not been successful at this time.</p>
+          <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
+            <h3 style="color: #991b1b; margin-top: 0;">Application Details:</h3>
+            <p><strong>Application ID:</strong> #${applicationId}</p>
+            <p><strong>Program:</strong> ${programName}</p>
+            <p><strong>University:</strong> ${universityName}</p>
+            <p><strong>Status:</strong> <span style="color: #dc2626; font-weight: bold;">Not Successful</span></p>
+          </div>
+          ${rejectionReason ? `<div style="background-color: #fffbeb; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #92400e; margin-top: 0;">Feedback:</h4>
+            <p>${rejectionReason}</p>
+          </div>` : ''}
+          ${notes ? `<div style="background-color: #eff6ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #1e40af; margin-top: 0;">Additional Notes:</h4>
+            <p>${notes}</p>
+          </div>` : ''}
+          <p>Please don't be discouraged. Your education consultant ${agentName} will be in touch to discuss alternative options and next steps.</p>
+          <p>Best regards,<br>Study Abroad Team</p>
+        </div>
+      `,
+      agentMessage: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #dc2626;">Application Rejected</h2>
+          <p>Dear ${agentName},</p>
+          <p>Application #${applicationId} for ${studentName} has been rejected.</p>
+          <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #991b1b; margin-top: 0;">Application Details:</h3>
+            <p><strong>Student:</strong> ${studentName} (${studentEmail})</p>
+            <p><strong>Program:</strong> ${programName}</p>
+            <p><strong>University:</strong> ${universityName}</p>
+            <p><strong>Status:</strong> <span style="color: #dc2626; font-weight: bold;">Rejected</span></p>
+          </div>
+          <p>Please reach out to the student to discuss alternative options.</p>
+          <p>Best regards,<br>Study Abroad System</p>
+        </div>
+      `
+    }
+  };
+
+  const templates = statusMessages[status as keyof typeof statusMessages];
+  if (!templates) {
+    console.log(`No email template found for status: ${status}`);
+    return false;
+  }
+
+  try {
+    // Send email to student
+    const studentEmailSent = await sendEmail({
+      to: studentEmail,
+      subject: templates.subject,
+      html: templates.studentMessage,
+    });
+
+    // Send email to agent
+    const agentEmailSent = await sendEmail({
+      to: agentEmail,
+      subject: templates.subject,
+      html: templates.agentMessage,
+    });
+
+    return studentEmailSent && agentEmailSent;
+  } catch (error) {
+    console.error('Error sending application status notification:', error);
+    return false;
+  }
+}
