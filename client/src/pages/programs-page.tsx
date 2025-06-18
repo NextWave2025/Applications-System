@@ -5,6 +5,7 @@ import ProgramCard from "@/components/program-card";
 import EnhancedSearch from "@/components/enhanced-search";
 import PDFExport from "@/components/pdf-export";
 import SelectableProgramCard from "@/components/selectable-program-card";
+import ProgramCardNew from "@/components/program-card-new";
 import EnhancedProgramFilters from "@/components/enhanced-program-filters";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -349,11 +350,12 @@ export default function ProgramsPage() {
                 {/* Program cards with selection */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {programs.map(program => (
-                    <SelectableProgramCard 
-                      key={program.id} 
+                    <ProgramCardNew 
+                      key={program.id}
                       program={program}
                       isSelected={selectedProgramIds.includes(program.id)}
                       onSelectionChange={(programId, selected) => handleProgramSelection(programId, selected)}
+                      showSelection={true}
                     />
                   ))}
                 </div>
