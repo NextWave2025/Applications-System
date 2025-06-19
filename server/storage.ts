@@ -440,6 +440,8 @@ export class DBStorage implements IStorage {
 
           return {
             ...application,
+            // Add combined student name for compatibility
+            studentName: `${application.studentFirstName} ${application.studentLastName}`,
             program: {
               name: program?.name || "",
               universityName: program?.university.name || "",
@@ -447,8 +449,9 @@ export class DBStorage implements IStorage {
               degree: program?.degree || ""
             },
             agent: {
-              name: user ? `${user.firstName} ${user.lastName}` : "",
-              agencyName: user?.agencyName || ""
+              name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : "",
+              agencyName: user?.agencyName || "",
+              email: user?.username || "" // Agent email for notifications
             },
             documents: docs
           };
@@ -474,16 +477,26 @@ export class DBStorage implements IStorage {
     // Get program details with university info
     const program = await this.getProgramById(application.programId);
 
+    // Get user (agent) details
+    const user = await this.getUser(application.userId);
+
     // Get documents for this application
     const docs = await this.getDocumentsByApplicationId(application.id);
 
     return {
       ...application,
+      // Add combined student name for compatibility
+      studentName: `${application.studentFirstName} ${application.studentLastName}`,
       program: {
         name: program?.name || "",
         universityName: program?.university.name || "",
         universityLogo: program?.university.imageUrl || "",
         degree: program?.degree || ""
+      },
+      agent: {
+        name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : "",
+        agencyName: user?.agencyName || "",
+        email: user?.username || "" // Agent email for notifications
       },
       documents: docs
     };
