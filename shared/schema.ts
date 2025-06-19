@@ -258,6 +258,7 @@ export type DocumentType = typeof documentTypes[number];
 
 // Application with related info (for queries)
 export type ApplicationWithDetails = Application & { 
+  studentName?: string; // Combined first and last name for compatibility
   program: {
     name: string;
     universityName: string;
@@ -268,6 +269,7 @@ export type ApplicationWithDetails = Application & {
   agent?: {
     name: string;
     agencyName: string;
+    email: string;
   }
 };
 

@@ -40,39 +40,50 @@ import {
 
 interface Application {
   id: number;
-  studentName: string;
+  studentFirstName: string;
+  studentLastName: string;
+  studentName?: string;
   studentEmail: string;
   studentPhone?: string;
-  studentAddress?: string;
-  programName: string;
-  universityName: string;
-  degreeLevel: string;
-  intake: string;
-  submissionDate: string;
+  studentDateOfBirth?: string;
+  studentNationality?: string;
+  studentGender?: string;
   status: string;
-  lastUpdated: string;
-  agentName?: string;
-  agentCompany?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  intakeDate?: string;
   notes?: string;
-  documents?: {
-    passport?: boolean;
-    transcript?: boolean;
-    englishCertificate?: boolean;
-    recommendationLetters?: boolean;
-    statementOfPurpose?: boolean;
+  highestQualification?: string;
+  qualificationName?: string;
+  institutionName?: string;
+  graduationYear?: string;
+  cgpa?: string;
+  program?: {
+    name: string;
+    universityName: string;
+    universityLogo: string;
+    degree: string;
   };
-  personalStatement?: string;
-  academicBackground?: string;
-  workExperience?: string;
-  englishProficiency?: string;
-  additionalDocuments?: string[];
+  agent?: {
+    name: string;
+    agencyName: string;
+    email: string;
+  };
+  documents?: Array<{
+    id: number;
+    documentType: string;
+    originalFilename: string;
+    filename: string;
+    fileSize: number;
+    mimeType: string;
+    uploadedAt: string;
+  }>;
 }
 
 export default function ApplicationDetailsPage() {
   const { id } = useParams();
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const [copyDialogOpen, setCopyDialogOpen] = useState(false);
 
   // Fetch application details
   const { data: application, isLoading, error } = useQuery<Application>({
@@ -178,49 +189,43 @@ export default function ApplicationDetailsPage() {
   const copyApplicationDetails = () => {
     if (!application) return;
 
+    const studentName = application.studentName || `${application.studentFirstName} ${application.studentLastName}`;
     const details = `
 APPLICATION DETAILS
 ==================
 
 Student Information:
-- Name: ${application.studentName}
+- Name: ${studentName}
 - Email: ${application.studentEmail}
 - Phone: ${application.studentPhone || "Not provided"}
-- Address: ${application.studentAddress || "Not provided"}
+- Date of Birth: ${application.studentDateOfBirth || "Not provided"}
+- Nationality: ${application.studentNationality || "Not provided"}
+- Gender: ${application.studentGender || "Not provided"}
 
 Program Information:
-- Program: ${application.programName}
-- University: ${application.universityName}
-- Degree Level: ${application.degreeLevel}
-- Intake: ${application.intake}
+- Program: ${application.program?.name || "Not specified"}
+- University: ${application.program?.universityName || "Not specified"}
+- Degree Level: ${application.program?.degree || "Not specified"}
+- Intake: ${application.intakeDate || "Not specified"}
+
+Academic Information:
+- Highest Qualification: ${application.highestQualification || "Not provided"}
+- Qualification Name: ${application.qualificationName || "Not provided"}
+- Institution: ${application.institutionName || "Not provided"}
+- Graduation Year: ${application.graduationYear || "Not provided"}
+- CGPA: ${application.cgpa || "Not provided"}
 
 Application Status:
 - Status: ${application.status.toUpperCase()}
-- Submission Date: ${new Date(application.submissionDate).toLocaleDateString()}
-- Last Updated: ${new Date(application.lastUpdated).toLocaleDateString()}
+- Submitted: ${application.createdAt ? new Date(application.createdAt).toLocaleDateString() : "Not available"}
+- Last Updated: ${application.updatedAt ? new Date(application.updatedAt).toLocaleDateString() : "Not available"}
 
 Agent Information:
-- Agent Name: ${application.agentName || "Not assigned"}
-- Agent Company: ${application.agentCompany || "Not provided"}
+- Agent Name: ${application.agent?.name || "Not assigned"}
+- Agency: ${application.agent?.agencyName || "Not provided"}
 
-Academic Background:
-${application.academicBackground || "Not provided"}
-
-Work Experience:
-${application.workExperience || "Not provided"}
-
-English Proficiency:
-${application.englishProficiency || "Not provided"}
-
-Personal Statement:
-${application.personalStatement || "Not provided"}
-
-Documents Status:
-- Passport: ${application.documents?.passport ? "✓ Submitted" : "✗ Missing"}
-- Transcript: ${application.documents?.transcript ? "✓ Submitted" : "✗ Missing"}
-- English Certificate: ${application.documents?.englishCertificate ? "✓ Submitted" : "✗ Missing"}
-- Recommendation Letters: ${application.documents?.recommendationLetters ? "✓ Submitted" : "✗ Missing"}
-- Statement of Purpose: ${application.documents?.statementOfPurpose ? "✓ Submitted" : "✗ Missing"}
+Documents:
+${application.documents?.map(doc => `- ${doc.documentType}: ${doc.originalFilename}`).join('\n') || "No documents uploaded"}
 
 Notes:
 ${application.notes || "No notes"}
@@ -232,47 +237,6 @@ Generated on: ${new Date().toLocaleString()}
     toast({
       title: "Copied to Clipboard",
       description: "Application details have been copied to your clipboard.",
-    });
-  };
-
-  const downloadDocument = async (documentType: string) => {
-    try {
-      const response = await fetch(`/api/admin/applications/${id}/documents/${documentType}`, {
-        credentials: "include"
-      });
-      if (!response.ok) {
-        throw new Error("Failed to download document");
-      }
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${application?.studentName}_${documentType}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      toast({
-        title: "Download Started",
-        description: `${documentType} document is being downloaded.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Download Failed",
-        description: "Failed to download document. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const copyDocumentLink = (doc: any) => {
-    const link = `${window.location.origin}/api/documents/${doc.id}`;
-    navigator.clipboard.writeText(link);
-    toast({
-      title: "Link Copied",
-      description: "Document link has been copied to your clipboard.",
     });
   };
 
@@ -320,8 +284,9 @@ Generated on: ${new Date().toLocaleString()}
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
+      const studentName = application?.studentName || `${application?.studentFirstName}_${application?.studentLastName}` || "student";
       a.href = url;
-      a.download = `${application?.studentName}_all_documents.zip`;
+      a.download = `${studentName}_all_documents.zip`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -374,6 +339,8 @@ Generated on: ${new Date().toLocaleString()}
       </div>
     );
   }
+
+  const studentName = application.studentName || `${application.studentFirstName} ${application.studentLastName}`;
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
@@ -454,7 +421,7 @@ Generated on: ${new Date().toLocaleString()}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-500">Full Name</label>
-                  <p className="text-lg font-semibold">{application.studentName}</p>
+                  <p className="text-lg font-semibold">{studentName}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Email</label>
@@ -472,13 +439,22 @@ Generated on: ${new Date().toLocaleString()}
                     </p>
                   </div>
                 )}
-                {application.studentAddress && (
+                {application.studentDateOfBirth && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Address</label>
-                    <p className="flex items-center">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      {application.studentAddress}
-                    </p>
+                    <label className="text-sm font-medium text-gray-500">Date of Birth</label>
+                    <p className="text-sm">{application.studentDateOfBirth}</p>
+                  </div>
+                )}
+                {application.studentNationality && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Nationality</label>
+                    <p className="text-sm">{application.studentNationality}</p>
+                  </div>
+                )}
+                {application.studentGender && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Gender</label>
+                    <p className="text-sm">{application.studentGender}</p>
                   </div>
                 )}
               </div>
@@ -497,58 +473,70 @@ Generated on: ${new Date().toLocaleString()}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-500">Program</label>
-                  <p className="text-lg font-semibold">{application.programName}</p>
+                  <p className="text-lg font-semibold">{application.program?.name || "Not specified"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">University</label>
                   <p className="flex items-center">
                     <Building className="h-4 w-4 mr-2" />
-                    {application.universityName}
+                    {application.program?.universityName || "Not specified"}
                   </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Degree Level</label>
-                  <p>{application.degreeLevel}</p>
+                  <p className="text-lg">{application.program?.degree || "Not specified"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Intake</label>
                   <p className="flex items-center">
                     <Calendar className="h-4 w-4 mr-2" />
-                    {application.intake}
+                    {application.intakeDate || "Not specified"}
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Academic & Professional Details */}
-          {(application.academicBackground || application.workExperience || application.personalStatement) && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Academic & Professional Background</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {application.academicBackground && (
+          {/* Academic Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Academic Background</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {application.highestQualification && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Academic Background</label>
-                    <p className="mt-1 whitespace-pre-wrap">{application.academicBackground}</p>
+                    <label className="text-sm font-medium text-gray-500">Highest Qualification</label>
+                    <p className="text-sm">{application.highestQualification}</p>
                   </div>
                 )}
-                {application.workExperience && (
+                {application.qualificationName && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Work Experience</label>
-                    <p className="mt-1 whitespace-pre-wrap">{application.workExperience}</p>
+                    <label className="text-sm font-medium text-gray-500">Qualification Name</label>
+                    <p className="text-sm">{application.qualificationName}</p>
                   </div>
                 )}
-                {application.personalStatement && (
+                {application.institutionName && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Personal Statement</label>
-                    <p className="mt-1 whitespace-pre-wrap">{application.personalStatement}</p>
+                    <label className="text-sm font-medium text-gray-500">Institution</label>
+                    <p className="text-sm">{application.institutionName}</p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          )}
+                {application.graduationYear && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Graduation Year</label>
+                    <p className="text-sm">{application.graduationYear}</p>
+                  </div>
+                )}
+                {application.cgpa && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">CGPA</label>
+                    <p className="text-sm">{application.cgpa}</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Sidebar */}
@@ -562,113 +550,88 @@ Generated on: ${new Date().toLocaleString()}
               <div className="flex items-center space-x-2">
                 {getStatusIcon(application.status)}
                 <Badge variant={getStatusVariant(application.status)}>
-                  {application.status.replace("-", " ").toUpperCase()}
+                  {application.status.toUpperCase()}
                 </Badge>
               </div>
               <Separator />
-              <div className="space-y-2">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Submitted</label>
-                  <p className="text-sm">{new Date(application.submissionDate).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Last Updated</label>
-                  <p className="text-sm">{new Date(application.lastUpdated).toLocaleDateString()}</p>
-                </div>
+              <div>
+                <label className="text-sm font-medium text-gray-500">Submitted</label>
+                <p className="text-sm">{application.createdAt ? new Date(application.createdAt).toLocaleDateString() : "Invalid Date"}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-500">Last Updated</label>
+                <p className="text-sm">{application.updatedAt ? new Date(application.updatedAt).toLocaleDateString() : "Invalid Date"}</p>
               </div>
             </CardContent>
           </Card>
 
+          {/* Uploaded Documents */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <FileText className="h-5 w-5 mr-2" />
+                Uploaded Documents ({application.documents?.length || 0})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {application.documents && application.documents.length > 0 ? (
+                <div className="space-y-3">
+                  {application.documents.map((doc) => (
+                    <div key={doc.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-2 flex-1 min-w-0">
+                        <FileText className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium truncate">{doc.originalFilename}</p>
+                          <p className="text-xs text-gray-500">{doc.documentType}</p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => downloadSingleDocument(doc)}
+                      >
+                        <Download className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                  <p className="text-gray-500 text-sm">No documents uploaded</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Agent Information */}
-          {(application.agentName || application.agentCompany) && (
+          {application.agent && (
             <Card>
               <CardHeader>
                 <CardTitle>Agent Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                {application.agentName && (
+              <CardContent className="space-y-4">
+                {application.agent.name && (
                   <div>
                     <label className="text-sm font-medium text-gray-500">Agent Name</label>
-                    <p>{application.agentName}</p>
+                    <p className="text-sm">{application.agent.name}</p>
                   </div>
                 )}
-                {application.agentCompany && (
+                {application.agent.agencyName && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Company</label>
-                    <p>{application.agentCompany}</p>
+                    <label className="text-sm font-medium text-gray-500">Agency</label>
+                    <p className="text-sm">{application.agent.agencyName}</p>
+                  </div>
+                )}
+                {application.agent.email && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Email</label>
+                    <p className="text-sm">{application.agent.email}</p>
                   </div>
                 )}
               </CardContent>
             </Card>
           )}
-
-          {/* Documents */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center">
-                  <FileText className="h-5 w-5 mr-2" />
-                  Uploaded Documents ({application.uploadedDocuments?.length || 0})
-                </span>
-                {application.uploadedDocuments && application.uploadedDocuments.length > 0 && (
-                  <Button onClick={downloadAllDocuments} variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download All
-                  </Button>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {application.uploadedDocuments && application.uploadedDocuments.length > 0 ? (
-                <div className="space-y-3">
-                  {application.uploadedDocuments.map((doc, index) => (
-                    <div key={index} className="border rounded-lg p-3 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <FileText className="h-4 w-4 text-blue-500" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{doc.originalFilename || doc.filename}</p>
-                            <p className="text-xs text-muted-foreground">{doc.documentType}</p>
-                          </div>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => copyDocumentLink(doc)}
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => downloadSingleDocument(doc)}
-                          >
-                            <Download className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      {doc.fileSize && (
-                        <div className="text-xs text-muted-foreground">
-                          Size: {(doc.fileSize / 1024 / 1024).toFixed(2)} MB
-                        </div>
-                      )}
-                      {doc.uploadedAt && (
-                        <div className="text-xs text-muted-foreground">
-                          Uploaded: {new Date(doc.uploadedAt).toLocaleDateString()}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-6 text-muted-foreground">
-                  <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p>No documents uploaded</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
 
           {/* Notes */}
           {application.notes && (
@@ -677,7 +640,7 @@ Generated on: ${new Date().toLocaleString()}
                 <CardTitle>Notes</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm whitespace-pre-wrap">{application.notes}</p>
+                <p className="text-sm text-gray-700">{application.notes}</p>
               </CardContent>
             </Card>
           )}
