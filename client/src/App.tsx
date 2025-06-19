@@ -29,7 +29,8 @@ export default function App() {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error("Unhandled promise rejection:", event.reason);
       console.error("Stack:", event.reason?.stack);
-      event.preventDefault(); // Prevent the default browser behavior
+      console.error("Promise:", event.promise);
+      // Don't prevent default to see the full error in browser
     };
 
     const handleError = (event: ErrorEvent) => {
