@@ -241,7 +241,7 @@ export default function ApplicationsPage() {
                 <tr 
                   key={application.id} 
                   className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => navigate(`/dashboard/applications/${application.id}/edit`)}
+                  onClick={() => setLocation(`/dashboard/applications/${application.id}/edit`)}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -284,7 +284,7 @@ export default function ApplicationsPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent row click from triggering
-                        navigate(`/dashboard/applications/${application.id}`);
+                        setLocation(`/dashboard/applications/${application.id}`);
                       }}
                       className="text-primary hover:text-primary-dark mr-3"
                     >
@@ -293,7 +293,7 @@ export default function ApplicationsPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent row click from triggering
-                        navigate(`/dashboard/applications/${application.id}/edit`);
+                        setLocation(`/dashboard/applications/${application.id}/edit`);
                       }}
                       className="text-blue-600 hover:text-blue-800"
                     >
@@ -325,7 +325,7 @@ export default function ApplicationsPage() {
           <p className="mt-1 text-sm text-gray-500">Start by creating your first student application.</p>
           <div className="mt-6">
             <button
-              onClick={() => navigate("/programs")}
+              onClick={() => setLocation("/programs")}
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
             >
               Browse Programs
