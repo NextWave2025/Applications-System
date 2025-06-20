@@ -873,7 +873,7 @@ export default function ApplicationEditPage() {
                 <div className="pt-6 flex items-center justify-end space-x-4">
                   <button
                     type="button"
-                    onClick={() => navigate("/dashboard/applications")}
+                    onClick={() => setLocation("/dashboard/applications")}
                     className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
                     Cancel
