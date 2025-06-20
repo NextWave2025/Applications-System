@@ -246,29 +246,53 @@ Documents Included:
 
     // Add each document to the ZIP
     for (const doc of documents) {
-      if (doc.fileData) {
+      if (doc.fileData && doc.fileData.length > 0) {
         try {
           // Convert base64 back to binary buffer
-          const fileBuffer = Buffer.from(doc.fileData, 'base64');
+          let fileBuffer;
           
-          // Create a safe filename
+          // Check if it's already base64 encoded or raw data
+          if (typeof doc.fileData === 'string') {
+            // Remove data URL prefix if present (data:image/jpeg;base64,...)
+            const base64Data = doc.fileData.includes(',') 
+              ? doc.fileData.split(',')[1] 
+              : doc.fileData;
+            fileBuffer = Buffer.from(base64Data, 'base64');
+          } else {
+            // If it's already a buffer or binary data
+            fileBuffer = Buffer.from(doc.fileData);
+          }
+          
+          // Create a safe filename with extension
           let filename = doc.originalFilename || `${doc.documentType}_${doc.id}`;
+          
+          // Ensure filename has proper extension
+          if (!filename.includes('.') && doc.mimeType) {
+            const ext = doc.mimeType.split('/')[1];
+            filename += `.${ext}`;
+          }
           
           // Remove any path separators and invalid characters
           filename = filename.replace(/[/\\:*?"<>|]/g, '_');
           
-          // Add file to ZIP with proper buffer
-          zip.file(filename, fileBuffer, { binary: true });
+          // Add file to ZIP with proper options
+          zip.file(filename, fileBuffer, { 
+            binary: true,
+            createFolders: false,
+            date: new Date(doc.uploadedAt || Date.now())
+          });
           
-          console.log(`Added document to ZIP: ${filename} (${fileBuffer.length} bytes)`);
+          console.log(`Added document to ZIP: ${filename} (${fileBuffer.length} bytes, type: ${doc.mimeType})`);
         } catch (bufferError) {
           console.error(`Error processing document ${doc.id}:`, bufferError);
           // Add error note instead of the file
           zip.file(`ERROR_${doc.originalFilename || doc.id}.txt`, 
-                   `Error: Could not process this document - ${doc.originalFilename}`);
+                   `Error: Could not process this document - ${doc.originalFilename}\nError: ${bufferError.message}`);
         }
       } else {
-        console.log(`No file data for document ${doc.id}`);
+        console.log(`No file data for document ${doc.id} - fileData length: ${doc.fileData?.length || 0}`);
+        zip.file(`MISSING_${doc.originalFilename || doc.id}.txt`, 
+                 `This document could not be included - no file data available`);
       }
     }
 
