@@ -205,9 +205,9 @@ export default function ApplicationEditPage() {
   // If not authenticated, redirect to login
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate("/auth", { state: { redirectTo: `/dashboard/applications/${id}/edit` } });
+      setLocation("/auth", { state: { redirectTo: `/dashboard/applications/${id}/edit` } });
     }
-  }, [authLoading, user, navigate, id]);
+  }, [authLoading, user, setLocation, id]);
 
   // Update application mutation
   const updateMutation = useMutation({
@@ -242,7 +242,7 @@ export default function ApplicationEditPage() {
         });
         queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
         queryClient.invalidateQueries({ queryKey: [`/api/applications/${id}`] });
-        navigate("/dashboard/applications");
+        setLocation("/dashboard/applications");
       }
     },
     onError: (error: Error) => {
@@ -298,7 +298,7 @@ export default function ApplicationEditPage() {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
       queryClient.invalidateQueries({ queryKey: [`/api/applications/${id}`] });
-      navigate("/dashboard/applications");
+      setLocation("/dashboard/applications");
     } catch (error) {
       toast({
         title: "Error",
@@ -353,7 +353,7 @@ export default function ApplicationEditPage() {
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Application Not Found</h1>
         <p className="text-gray-600 mb-6">The application you're trying to edit does not exist or you don't have permission to access it.</p>
         <button
-          onClick={() => navigate("/dashboard/applications")}
+          onClick={() => setLocation("/dashboard/applications")}
           className="px-4 py-2 bg-primary text-white rounded-md"
         >
           Back to Applications
@@ -378,7 +378,7 @@ export default function ApplicationEditPage() {
         <nav className="flex mb-6" aria-label="Breadcrumb">
           <ol className="flex items-center space-x-2 text-sm text-gray-500">
             <li>
-              <button onClick={() => navigate("/dashboard")} className="hover:text-primary">
+              <button onClick={() => setLocation("/dashboard")} className="hover:text-primary">
                 Dashboard
               </button>
             </li>
@@ -386,7 +386,7 @@ export default function ApplicationEditPage() {
               <svg className="h-4 w-4 text-gray-400 mx-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <button onClick={() => navigate("/dashboard/applications")} className="hover:text-primary">
+              <button onClick={() => setLocation("/dashboard/applications")} className="hover:text-primary">
                 Applications
               </button>
             </li>
