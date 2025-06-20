@@ -97,6 +97,14 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
+            <Route path="/dashboard/applications/:id">
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <ApplicationDetailsPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            </Route>
+
             <Route path="/dashboard/applications">
               <ProtectedRoute>
                 <DashboardLayout>

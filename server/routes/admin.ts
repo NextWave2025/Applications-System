@@ -246,64 +246,60 @@ Documents Included:
 
     // Add each document to the ZIP
     for (const doc of documents) {
-      if (doc.fileData && doc.fileData.length > 0) {
+      // Use correct field names from database schema
+      const fileData = doc.file_data || doc.fileData;
+      const originalFilename = doc.original_filename || doc.originalFilename;
+      const mimeType = doc.mime_type || doc.mimeType;
+      const uploadedAt = doc.uploaded_at || doc.uploadedAt;
+      
+      if (fileData && fileData.length > 0) {
         try {
-          // Convert base64 back to binary buffer
-          let fileBuffer;
+          console.log(`Processing document ${doc.id}: ${originalFilename} (${mimeType})`);
           
-          // Check if it's already base64 encoded or raw data
-          if (typeof doc.fileData === 'string') {
-            // Remove data URL prefix if present (data:image/jpeg;base64,...)
-            const base64Data = doc.fileData.includes(',') 
-              ? doc.fileData.split(',')[1] 
-              : doc.fileData;
-            fileBuffer = Buffer.from(base64Data, 'base64');
-          } else {
-            // If it's already a buffer or binary data
-            fileBuffer = Buffer.from(doc.fileData);
-          }
+          // Convert base64 to binary buffer
+          const fileBuffer = Buffer.from(fileData, 'base64');
           
           // Create a safe filename with extension
-          let filename = doc.originalFilename || `${doc.documentType}_${doc.id}`;
+          let filename = originalFilename || `${doc.document_type || doc.documentType}_${doc.id}`;
           
           // Ensure filename has proper extension
-          if (!filename.includes('.') && doc.mimeType) {
-            const ext = doc.mimeType.split('/')[1];
+          if (!filename.includes('.') && mimeType) {
+            const ext = mimeType.split('/')[1];
             filename += `.${ext}`;
           }
           
           // Remove any path separators and invalid characters
           filename = filename.replace(/[/\\:*?"<>|]/g, '_');
           
-          // Add file to ZIP with proper options
-          zip.file(filename, fileBuffer, { 
-            binary: true,
-            createFolders: false,
-            date: new Date(doc.uploadedAt || Date.now())
-          });
+          // Add file to ZIP
+          zip.file(filename, fileBuffer);
           
-          console.log(`Added document to ZIP: ${filename} (${fileBuffer.length} bytes, type: ${doc.mimeType})`);
+          console.log(`Successfully added to ZIP: ${filename} (${fileBuffer.length} bytes)`);
         } catch (bufferError) {
           console.error(`Error processing document ${doc.id}:`, bufferError);
-          // Add error note instead of the file
-          zip.file(`ERROR_${doc.originalFilename || doc.id}.txt`, 
-                   `Error: Could not process this document - ${doc.originalFilename}\nError: ${bufferError.message}`);
+          zip.file(`ERROR_${originalFilename || doc.id}.txt`, 
+                   `Error: Could not process this document - ${originalFilename}`);
         }
       } else {
-        console.log(`No file data for document ${doc.id} - fileData length: ${doc.fileData?.length || 0}`);
-        zip.file(`MISSING_${doc.originalFilename || doc.id}.txt`, 
+        console.log(`No file data for document ${doc.id}`);
+        zip.file(`MISSING_${originalFilename || doc.id}.txt`, 
                  `This document could not be included - no file data available`);
       }
     }
 
     // Generate the ZIP file with proper compression
+    console.log(`Generating ZIP file with ${Object.keys(zip.files).length} files`);
+    
     const zipBuffer = await zip.generateAsync({ 
       type: "nodebuffer",
       compression: "DEFLATE",
       compressionOptions: {
-        level: 6
-      }
+        level: 1
+      },
+      platform: "UNIX"
     });
+    
+    console.log(`Generated ZIP buffer size: ${zipBuffer.length} bytes`);
     const studentName = `${application.studentFirstName}_${application.studentLastName}`.replace(/\s+/g, '_');
     
     res.setHeader('Content-Type', 'application/zip');
