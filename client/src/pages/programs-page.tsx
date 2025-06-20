@@ -238,16 +238,16 @@ export default function ProgramsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="border-b pb-6">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-semibold text-gray-900">Explore Programs</h1>
-          <p className="text-gray-600 mt-2">Discover academic programs offered by top universities in the UAE</p>
+      <div className="border-b pb-4 sm:pb-6">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900">Explore Programs</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">Discover academic programs offered by top universities in the UAE</p>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8">
         {/* Enhanced Search bar */}
-        <div className="max-w-xl mx-auto mb-8">
+        <div className="max-w-full sm:max-w-xl mx-auto mb-6 sm:mb-8">
           <EnhancedSearch 
             programs={basePrograms}
             onSearchResults={handleSearchResults}
@@ -256,7 +256,7 @@ export default function ProgramsPage() {
 
         {/* PDF Export Bar - Only show when programs are selected */}
         {selectedPrograms.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <PDFExport 
               selectedPrograms={selectedPrograms}
               onSelectionChange={handleSelectionChange}
@@ -265,8 +265,8 @@ export default function ProgramsPage() {
         )}
 
         {/* Results Count and Active Filters */}
-        <div className="mb-6 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+          <div className="text-xs sm:text-sm text-gray-600">
             {programs.length} program{programs.length !== 1 ? 's' : ''} found
             {selectedProgramIds.length > 0 && ` · ${selectedProgramIds.length} selected`}
           </div>
@@ -281,8 +281,8 @@ export default function ProgramsPage() {
             filters.tuitionMin > 0 || 
             filters.tuitionMax < 80000) && (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">Active filters:</span>
-              <Badge variant="secondary">
+              <span className="text-xs sm:text-sm text-gray-500">Active filters:</span>
+              <Badge variant="secondary" className="text-xs">
                 {filters.universityIds.length + 
                  filters.degreeLevel.length + 
                  filters.location.length + 
@@ -291,7 +291,7 @@ export default function ProgramsPage() {
                  (filters.hasScholarship ? 1 : 0) +
                  ((filters.tuitionMin > 0 || filters.tuitionMax < 80000) ? 1 : 0)} applied
               </Badge>
-              <Button variant="ghost" size="sm" onClick={resetFilters}>
+              <Button variant="ghost" size="sm" onClick={resetFilters} className="text-xs sm:text-sm">
                 Clear All
               </Button>
             </div>
@@ -299,10 +299,10 @@ export default function ProgramsPage() {
         </div>
 
         {/* Filters and program cards */}
-        <div className="flex flex-col xl:flex-row gap-6 lg:gap-8">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
           {/* Enhanced Sidebar filters */}
-          <aside className="xl:w-80 lg:w-72 flex-shrink-0">
-            <div className="sticky top-6">
+          <aside className="lg:w-80 xl:w-96 flex-shrink-0">
+            <div className="lg:sticky lg:top-6">
               <ResponsiveFilterPanel 
                 onFiltersChange={handleFilterChange}
                 onResultsCountChange={handleResultsCountChange}
@@ -314,36 +314,36 @@ export default function ProgramsPage() {
           {/* Main content - program cards */}
           <main className="flex-1 min-w-0">
             {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4 lg:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="animate-pulse h-80 rounded-xl bg-gray-200" />
+                  <div key={i} className="animate-pulse h-64 sm:h-80 rounded-xl bg-gray-200" />
                 ))}
               </div>
             ) : isErrorAllPrograms ? (
-              <div className="text-center py-16">
-                <div className="max-w-md mx-auto">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Programs</h3>
-                  <p className="text-gray-600">Unable to load programs. Please try again later.</p>
+              <div className="text-center py-12 sm:py-16">
+                <div className="max-w-md mx-auto px-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Error Loading Programs</h3>
+                  <p className="text-sm sm:text-base text-gray-600">Unable to load programs. Please try again later.</p>
                 </div>
               </div>
             ) : programs && programs.length > 0 ? (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Selection controls */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-gray-50 rounded-lg border">
-                  <div className="text-sm font-medium text-gray-700">
-                    <span className="text-lg font-bold text-gray-900">{programs.length}</span> program{programs.length !== 1 ? 's' : ''} found
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg border">
+                  <div className="text-xs sm:text-sm font-medium text-gray-700">
+                    <span className="text-base sm:text-lg font-bold text-gray-900">{programs.length}</span> program{programs.length !== 1 ? 's' : ''} found
                     {selectedProgramIds.length > 0 && (
                       <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-xs font-medium">
                         {selectedProgramIds.length} selected
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setSelectedProgramIds(programs.map(p => p.id))}
-                      className="text-xs font-medium"
+                      className="text-xs font-medium flex-1 sm:flex-none"
                     >
                       Select All
                     </Button>
@@ -352,7 +352,7 @@ export default function ProgramsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setSelectedProgramIds([])}
-                        className="text-xs font-medium text-gray-600 hover:text-gray-800"
+                        className="text-xs font-medium text-gray-600 hover:text-gray-800 flex-1 sm:flex-none"
                       >
                         Clear Selection
                       </Button>
@@ -361,7 +361,7 @@ export default function ProgramsPage() {
                 </div>
 
                 {/* Program cards with enhanced responsive grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4 lg:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                   {programs.map(program => (
                     <ProgramCardNew 
                       key={program.id}
@@ -374,14 +374,14 @@ export default function ProgramsPage() {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-16">
-                <div className="max-w-md mx-auto">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Programs Found</h3>
-                  <p className="text-gray-600 mb-6">No programs match your current criteria. Try adjusting your filters.</p>
+              <div className="text-center py-12 sm:py-16">
+                <div className="max-w-md mx-auto px-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">No Programs Found</h3>
+                  <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">No programs match your current criteria. Try adjusting your filters.</p>
                   {filterQuery !== null && (
                     <Button 
                       onClick={resetFilters}
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium w-full sm:w-auto"
                     >
                       Reset All Filters
                     </Button>

@@ -381,7 +381,7 @@ export default function ApplicationsPage() {
           </div>
         </>
       ) : (
-        <div className="text-center py-16 bg-gray-50 rounded-lg">
+        <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
           <svg 
             className="mx-auto h-12 w-12 text-gray-400" 
             fill="none" 
