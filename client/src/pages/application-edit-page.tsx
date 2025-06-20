@@ -58,7 +58,7 @@ type ApplicationFormData = z.infer<typeof applicationSchema>;
 export default function ApplicationEditPage() {
   const { id } = useParams<{ id: string }>();
   const { user, isLoading: authLoading } = useAuth();
-  const navigate = useLocation();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState<File[]>([]);

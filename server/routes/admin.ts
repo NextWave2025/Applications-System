@@ -6,6 +6,7 @@ import multer from "multer";
 import * as XLSX from "xlsx";
 import path from "path";
 import { sendApplicationStatusNotification } from "../email-service";
+import JSZip from "jszip";
 
 const router = Router();
 
@@ -222,20 +223,48 @@ router.get("/applications/:id/documents/bulk", async (req, res) => {
       return res.status(404).json({ error: "No documents found for this application" });
     }
 
-    // Create a simple ZIP-like archive content
-    let zipContent = `Archive for Application #${applicationId} - ${application.studentFirstName} ${application.studentLastName}\n`;
-    zipContent += `Program: ${application.program?.name || 'Unknown'}\n`;
-    zipContent += `University: ${application.program?.universityName || 'Unknown'}\n`;
-    zipContent += `Created: ${new Date().toISOString()}\n\n`;
-    zipContent += `Documents included:\n`;
+    // Create a proper ZIP file
+    const zip = new JSZip();
     
-    documents.forEach((doc, index) => {
-      zipContent += `${index + 1}. ${doc.originalFilename} (${doc.documentType})\n`;
-    });
-    
-    zipContent += `\nNote: This is a placeholder ZIP. In production, actual document files would be included.`;
-    
-    const zipBuffer = Buffer.from(zipContent, 'utf8');
+    // Add application info file
+    const applicationInfo = `Application Information
+========================
+
+Application ID: ${applicationId}
+Student Name: ${application.studentFirstName} ${application.studentLastName}
+Student Email: ${application.studentEmail}
+Program: ${application.program?.name || 'Unknown'}
+University: ${application.program?.universityName || 'Unknown'}
+Status: ${application.status}
+Created: ${new Date(application.createdAt).toLocaleString()}
+
+Documents Included:
+==================
+`;
+
+    zip.file("application-info.txt", applicationInfo);
+
+    // Add each document to the ZIP
+    for (const doc of documents) {
+      if (doc.fileData) {
+        try {
+          // Convert base64 back to binary buffer
+          const fileBuffer = Buffer.from(doc.fileData, 'base64');
+          
+          // Add file to ZIP with proper filename
+          const filename = doc.originalFilename || `${doc.documentType}_${doc.id}`;
+          zip.file(filename, fileBuffer);
+        } catch (bufferError) {
+          console.error(`Error processing document ${doc.id}:`, bufferError);
+          // Add error note instead of the file
+          zip.file(`ERROR_${doc.originalFilename || doc.id}.txt`, 
+                   `Error: Could not process this document - ${doc.originalFilename}`);
+        }
+      }
+    }
+
+    // Generate the ZIP file
+    const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
     const studentName = `${application.studentFirstName}_${application.studentLastName}`.replace(/\s+/g, '_');
     
     res.setHeader('Content-Type', 'application/zip');
