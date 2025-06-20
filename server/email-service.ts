@@ -16,6 +16,11 @@ interface EmailParams {
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
   try {
+    if (!process.env.SENDGRID_API_KEY) {
+      console.error('SENDGRID_API_KEY not configured');
+      return false;
+    }
+
     const msg = {
       to: params.to,
       cc: params.cc,
@@ -24,11 +29,15 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       html: params.html,
     };
 
-    await sgMail.send(msg);
-    console.log(`Email sent successfully to ${params.to}`);
+    console.log(`Attempting to send email to ${params.to} with subject: ${params.subject}`);
+    const result = await sgMail.send(msg);
+    console.log(`Email sent successfully to ${params.to}`, result[0].statusCode);
     return true;
   } catch (error) {
     console.error('SendGrid email error:', error);
+    if (error.response) {
+      console.error('SendGrid error response:', error.response.body);
+    }
     return false;
   }
 }

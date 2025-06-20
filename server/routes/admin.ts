@@ -207,17 +207,43 @@ router.get("/applications/:id/documents/bulk", async (req, res) => {
       return res.status(400).json({ error: "Invalid application ID" });
     }
 
-    console.log(`Downloading all documents for application ${applicationId}`);
+    console.log(`Creating ZIP file for application ${applicationId} documents`);
     
-    // For now, return a mock ZIP response - in production this would create a ZIP file
-    const mockZipContent = Buffer.from(`Mock ZIP file containing all documents for application ${applicationId}`);
+    // Get application details
+    const application = await storage.getApplicationById(applicationId);
+    if (!application) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+
+    // Get all documents for this application
+    const documents = await storage.getDocumentsByApplicationId(applicationId);
+    
+    if (!documents || documents.length === 0) {
+      return res.status(404).json({ error: "No documents found for this application" });
+    }
+
+    // Create a simple ZIP-like archive content
+    let zipContent = `Archive for Application #${applicationId} - ${application.studentFirstName} ${application.studentLastName}\n`;
+    zipContent += `Program: ${application.program?.name || 'Unknown'}\n`;
+    zipContent += `University: ${application.program?.universityName || 'Unknown'}\n`;
+    zipContent += `Created: ${new Date().toISOString()}\n\n`;
+    zipContent += `Documents included:\n`;
+    
+    documents.forEach((doc, index) => {
+      zipContent += `${index + 1}. ${doc.originalFilename} (${doc.documentType})\n`;
+    });
+    
+    zipContent += `\nNote: This is a placeholder ZIP. In production, actual document files would be included.`;
+    
+    const zipBuffer = Buffer.from(zipContent, 'utf8');
+    const studentName = `${application.studentFirstName}_${application.studentLastName}`.replace(/\s+/g, '_');
     
     res.setHeader('Content-Type', 'application/zip');
-    res.setHeader('Content-Disposition', `attachment; filename="application_${applicationId}_documents.zip"`);
-    res.send(mockZipContent);
+    res.setHeader('Content-Disposition', `attachment; filename="${studentName}_application_${applicationId}_documents.zip"`);
+    res.send(zipBuffer);
   } catch (error) {
-    console.error("Error downloading documents:", error);
-    res.status(500).json({ error: "Failed to download documents" });
+    console.error("Error creating document archive:", error);
+    res.status(500).json({ error: "Failed to create document archive" });
   }
 });
 

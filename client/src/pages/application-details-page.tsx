@@ -243,27 +243,42 @@ Generated on: ${new Date().toLocaleString()}
   const downloadSingleDocument = async (doc: any) => {
     try {
       const response = await fetch(`/api/documents/${doc.id}`, {
-        credentials: "include"
+        credentials: "include",
+        headers: {
+          'Accept': '*/*'
+        }
       });
+      
       if (!response.ok) {
         throw new Error("Failed to download document");
       }
       
+      // Get the actual file blob with proper content type
       const blob = await response.blob();
+      const contentDisposition = response.headers.get('content-disposition');
+      const filename = doc.originalFilename || doc.filename || `document_${doc.id}`;
+      
+      // Create download link with proper file handling
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = doc.originalFilename || doc.filename || `document_${doc.id}`;
+      a.download = filename;
+      a.style.display = 'none';
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      
+      // Clean up
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 100);
       
       toast({
         title: "Download Started",
-        description: `${doc.originalFilename || doc.filename} is being downloaded.`,
+        description: `${filename} is being downloaded.`,
       });
     } catch (error) {
+      console.error("Document download error:", error);
       toast({
         title: "Download Failed",
         description: "Failed to download document. Please try again.",

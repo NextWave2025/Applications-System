@@ -611,7 +611,7 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Document download route for admin and application owners
-  app.get("/api/documents/:id/download", async (req, res) => {
+  app.get("/api/documents/:id", async (req, res) => {
     try {
       if (!req.isAuthenticated()) {
         return res.status(401).json({ error: "Authentication required" });
@@ -640,17 +640,26 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ error: "Access denied" });
       }
 
-      // In a real application, you would serve the actual file from storage
-      // For now, we'll return the document metadata
-      res.json({
-        id: document.id,
-        originalFilename: document.originalFilename,
-        documentType: document.documentType,
-        downloadUrl: `/uploads/${document.filename}`, // Use filename instead of filePath
-        fileSize: document.fileSize,
-        mimeType: document.mimeType,
-        message: "In production, this would serve the actual file"
-      });
+      // Serve the actual file data
+      if (!document.fileData) {
+        return res.status(404).json({ error: "File data not found" });
+      }
+
+      try {
+        // Convert base64 back to binary buffer
+        const fileBuffer = Buffer.from(document.fileData, 'base64');
+        
+        // Set proper headers for file download
+        res.setHeader('Content-Type', document.mimeType || 'application/octet-stream');
+        res.setHeader('Content-Disposition', `attachment; filename="${document.originalFilename}"`);
+        res.setHeader('Content-Length', fileBuffer.length);
+        
+        // Send the file buffer
+        res.send(fileBuffer);
+      } catch (bufferError) {
+        console.error("Error converting file data:", bufferError);
+        return res.status(500).json({ error: "File data corrupted" });
+      }
     } catch (error) {
       console.error("Error downloading document:", error);
       res.status(500).json({ error: "Failed to download document" });
