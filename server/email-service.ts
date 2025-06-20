@@ -33,9 +33,9 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     const result = await sgMail.send(msg);
     console.log(`Email sent successfully to ${params.to}`, result[0].statusCode);
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('SendGrid email error:', error);
-    if (error.response) {
+    if (error?.response) {
       console.error('SendGrid error response:', error.response.body);
     }
     return false;
@@ -74,6 +74,10 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
     conditionalOfferTerms,
     rejectionReason
   } = data;
+
+  console.log(`Preparing email notifications for application ${applicationId}`);
+  console.log(`Student email: ${studentEmail}, Agent email: ${agentEmail}`);
+  console.log(`Status change: ${previousStatus} -> ${status}`);
 
   const statusMessages = {
     submitted: {
@@ -252,6 +256,9 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
   }
 
   try {
+    console.log(`Sending student notification to: ${studentEmail}`);
+    console.log(`Sending agent notification to: ${agentEmail}`);
+    
     // Send email to student
     const studentEmailSent = await sendEmail({
       to: studentEmail,
@@ -266,8 +273,18 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
       html: templates.agentMessage,
     });
 
+    console.log(`Email results - Student: ${studentEmailSent}, Agent: ${agentEmailSent}`);
+    
+    if (!studentEmailSent) {
+      console.error(`Failed to send notification to student: ${studentEmail}`);
+    }
+    
+    if (!agentEmailSent) {
+      console.error(`Failed to send notification to agent: ${agentEmail}`);
+    }
+
     return studentEmailSent && agentEmailSent;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending application status notification:', error);
     return false;
   }
