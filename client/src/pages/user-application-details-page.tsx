@@ -1,11 +1,22 @@
 import { useState } from "react";
 import { useParams, useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   ArrowLeft,
   Download,
@@ -22,18 +33,73 @@ import {
   Clock,
   XCircle,
   Edit,
+  Archive,
+  Trash2,
 } from "lucide-react";
+import { apiRequest } from "@/lib/query-client";
 
 export default function UserApplicationDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const [downloadingDocs, setDownloadingDocs] = useState(false);
+  const queryClient = useQueryClient();
 
   // Fetch application details
   const { data: application, isLoading, error } = useQuery({
     queryKey: [`/api/applications/${id}`],
     enabled: !!id,
+  });
+
+  // Archive application mutation
+  const archiveApplication = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/applications/${id}/archive`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!response.ok) throw new Error("Failed to archive");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/applications/${id}`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
+      toast({
+        title: "Application Archived",
+        description: "The application has been successfully archived.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Archive Failed",
+        description: "Could not archive the application. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete application mutation
+  const deleteApplication = useMutation({
+    mutationFn: async () => {
+      return apiRequest(`/api/applications/${id}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
+      toast({
+        title: "Application Deleted",
+        description: "The application has been permanently deleted.",
+      });
+      setLocation("/dashboard/applications");
+    },
+    onError: () => {
+      toast({
+        title: "Delete Failed",
+        description: "Could not delete the application. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   const getStatusIcon = (status: string) => {
@@ -165,13 +231,13 @@ export default function UserApplicationDetailsPage() {
         </div>
         <div className="flex items-center space-x-3">
           <Button
-            onClick={() => setLocation(`/dashboard/applications/${application.id}/edit`)}
+            onClick={() => setLocation(`/dashboard/applications/${application?.id}/edit`)}
             variant="outline"
           >
             <Edit className="mr-2 h-4 w-4" />
             Edit Application
           </Button>
-          {application.documents && application.documents.length > 0 && (
+          {application?.documents && application.documents.length > 0 && (
             <Button
               onClick={handleBulkDownload}
               disabled={downloadingDocs}
@@ -181,6 +247,53 @@ export default function UserApplicationDetailsPage() {
               {downloadingDocs ? "Downloading..." : "Download All Documents"}
             </Button>
           )}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline">
+                <Archive className="mr-2 h-4 w-4" />
+                Archive
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Archive Application</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will archive the application. You can still view it later but it won't appear in active applications.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => archiveApplication.mutate()}>
+                  Archive
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Application</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the application and all associated documents.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={() => deleteApplication.mutate()}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Delete Permanently
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 

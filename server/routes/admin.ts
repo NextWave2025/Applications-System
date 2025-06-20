@@ -246,47 +246,74 @@ Documents Included:
 
     // Add each document to the ZIP
     console.log(`Processing ${documents.length} documents for ZIP`);
+    let validDocuments = 0;
     
     for (const doc of documents) {
-      console.log(`Document ${doc.id} structure:`, Object.keys(doc));
+      console.log(`Document ${doc.id}: ${doc.originalFilename}, fileData length: ${doc.fileData?.length || 0}`);
       
       if (doc.fileData && doc.fileData.length > 0) {
         try {
-          console.log(`Processing document ${doc.id}: ${doc.originalFilename} (${doc.mimeType})`);
+          // Validate base64 string
+          const base64Pattern = /^[A-Za-z0-9+/]*={0,2}$/;
+          if (!base64Pattern.test(doc.fileData)) {
+            console.error(`Invalid base64 data for document ${doc.id}`);
+            zip.file(`ERROR_${doc.originalFilename || doc.id}.txt`, 
+                     `Error: Invalid file data format`);
+            continue;
+          }
           
-          // Convert base64 to binary buffer
+          // Convert base64 to binary buffer with error handling
           const fileBuffer = Buffer.from(doc.fileData, 'base64');
+          console.log(`Converted document ${doc.id} to buffer: ${fileBuffer.length} bytes`);
+          
+          // Validate buffer size
+          if (fileBuffer.length === 0) {
+            console.error(`Empty buffer for document ${doc.id}`);
+            zip.file(`ERROR_${doc.originalFilename || doc.id}.txt`, 
+                     `Error: Empty file data`);
+            continue;
+          }
           
           // Create a safe filename
-          let filename = doc.originalFilename || `${doc.documentType}_${doc.id}`;
+          let filename = doc.originalFilename || `document_${doc.id}`;
           
-          // Ensure filename has proper extension
+          // Ensure filename has proper extension based on mime type
           if (!filename.includes('.') && doc.mimeType) {
-            const ext = doc.mimeType.split('/')[1];
+            const mimeToExt: Record<string, string> = {
+              'application/pdf': 'pdf',
+              'image/jpeg': 'jpg',
+              'image/jpg': 'jpg',
+              'image/png': 'png',
+              'application/msword': 'doc',
+              'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+              'text/plain': 'txt'
+            };
+            const ext = mimeToExt[doc.mimeType] || doc.mimeType?.split('/')[1] || 'bin';
             filename += `.${ext}`;
           }
           
-          // Remove any path separators and invalid characters
+          // Remove invalid characters
           filename = filename.replace(/[/\\:*?"<>|]/g, '_');
           
-          // Add file to ZIP with explicit options
-          zip.file(filename, fileBuffer, {
-            binary: true,
-            createFolders: false
-          });
+          // Add file to ZIP
+          zip.file(filename, fileBuffer);
+          validDocuments++;
           
           console.log(`Successfully added to ZIP: ${filename} (${fileBuffer.length} bytes)`);
-        } catch (bufferError) {
-          console.error(`Error processing document ${doc.id}:`, bufferError);
+        } catch (error) {
+          console.error(`Error processing document ${doc.id}:`, error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           zip.file(`ERROR_${doc.originalFilename || doc.id}.txt`, 
-                   `Error: Could not process this document - ${doc.originalFilename}`);
+                   `Error processing document: ${errorMessage}`);
         }
       } else {
-        console.log(`No file data for document ${doc.id} - fileData: ${doc.fileData ? 'exists' : 'missing'}`);
+        console.log(`No valid file data for document ${doc.id}`);
         zip.file(`MISSING_${doc.originalFilename || doc.id}.txt`, 
-                 `This document could not be included - no file data available`);
+                 `This document has no file data attached`);
       }
     }
+    
+    console.log(`Successfully processed ${validDocuments} out of ${documents.length} documents`);
 
     // Check if ZIP has any files before generating
     const fileCount = Object.keys(zip.files).length;
