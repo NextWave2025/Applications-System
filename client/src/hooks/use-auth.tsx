@@ -95,9 +95,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onError: (error: Error) => {
       console.error("Login error:", error);
+      // Ensure error is properly handled
+      const message = error?.message || "Login failed. Please try again.";
       toast({
         title: "Login failed",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     },
@@ -105,8 +107,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: RegisterData) => {
-      const res = await apiRequest("POST", "/api/register", credentials);
-      return await res.json();
+      try {
+        const res = await apiRequest("POST", "/api/register", credentials);
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({ message: 'Registration failed' }));
+          throw new Error(errorData.message || 'Registration failed');
+        }
+        return await res.json();
+      } catch (error) {
+        console.error("Registration error:", error);
+        throw error instanceof Error ? error : new Error('Registration failed');
+      }
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
@@ -116,9 +127,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onError: (error: Error) => {
+      console.error("Registration mutation error:", error);
+      const message = error?.message || "Registration failed. Please try again.";
       toast({
         title: "Registration failed",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     },
