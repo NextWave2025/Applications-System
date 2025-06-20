@@ -86,18 +86,20 @@ export default function DashboardPage() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Welcome, {user.agencyName || user.username}</h1>
-          <p className="text-gray-600">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-2 sm:mb-4">
+            Welcome, {(user as any)?.agencyName || (user as any)?.username}
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600">
             This is your agent dashboard where you can manage your applications, explore programs, and update your profile.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="text-3xl font-bold text-primary mb-2">{activeApplicationsCount}</div>
-            <div className="text-lg font-medium text-gray-800">Active Applications</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">{activeApplicationsCount}</div>
+            <div className="text-sm sm:text-lg font-medium text-gray-800">Active Applications</div>
             <div className="mt-2">
               <button 
                 onClick={() => navigate("/dashboard/applications")}
@@ -107,13 +109,13 @@ export default function DashboardPage() {
               </button>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="text-3xl font-bold text-primary mb-2">{completedApplicationsCount}</div>
-            <div className="text-lg font-medium text-gray-800">Completed Applications</div>
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">{completedApplicationsCount}</div>
+            <div className="text-sm sm:text-lg font-medium text-gray-800">Completed Applications</div>
             <div className="mt-2">
               <button 
                 onClick={() => navigate("/dashboard/applications")}
-                className="text-sm text-primary hover:underline"
+                className="text-xs sm:text-sm text-primary hover:underline"
               >
                 View completed applications
               </button>
@@ -121,19 +123,19 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Recent Activity</h2>
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Recent Activity</h2>
           {recentApplications.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {recentApplications.map((app) => (
-                <div key={app.id} className="border-b border-gray-100 pb-4">
-                  <div className="flex justify-between mb-1">
-                    <div className="font-medium text-gray-800">{app.program.name}</div>
-                    <div className={`text-xs px-2.5 py-0.5 rounded-full ${getStatusColor(app.status)}`}>
+                <div key={app.id} className="border-b border-gray-100 pb-3 sm:pb-4">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
+                    <div className="font-medium text-gray-800 text-sm sm:text-base break-words">{app.program.name}</div>
+                    <div className={`text-xs px-2.5 py-0.5 rounded-full w-fit ${getStatusColor(app.status)}`}>
                       {app.status.replace('-', ' ')}
                     </div>
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-xs sm:text-sm text-gray-600 break-words">
                     {app.studentFirstName} {app.studentLastName} • {app.program.universityName}
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
@@ -144,37 +146,37 @@ export default function DashboardPage() {
               <div className="pt-2">
                 <button 
                   onClick={() => navigate("/dashboard/applications")}
-                  className="text-sm text-primary hover:underline"
+                  className="text-xs sm:text-sm text-primary hover:underline"
                 >
                   View all applications
                 </button>
               </div>
             </div>
           ) : (
-            <div className="text-gray-600 italic">
+            <div className="text-gray-600 italic text-sm sm:text-base text-center py-4">
               No recent activity to display. Start by browsing programs and submitting applications.
             </div>
           )}
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Get Started</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Get Started</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div 
-              className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer flex flex-col h-full"
+              className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50 cursor-pointer flex flex-col h-full transition-colors"
               onClick={() => navigate("/programs")}
             >
-              <h3 className="font-semibold text-gray-800 mb-2">Browse Programs</h3>
-              <p className="text-gray-600 text-sm">
+              <h3 className="font-semibold text-gray-800 mb-2 text-sm sm:text-base">Browse Programs</h3>
+              <p className="text-gray-600 text-xs sm:text-sm">
                 Explore over 900 programs from top UAE universities.
               </p>
             </div>
             <div 
-              className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer flex flex-col h-full"
+              className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50 cursor-pointer flex flex-col h-full transition-colors"
               onClick={() => navigate("/dashboard/settings")}
             >
-              <h3 className="font-semibold text-gray-800 mb-2">Complete Your Profile</h3>
-              <p className="text-gray-600 text-sm">
+              <h3 className="font-semibold text-gray-800 mb-2 text-sm sm:text-base">Complete Your Profile</h3>
+              <p className="text-gray-600 text-xs sm:text-sm">
                 Add your agency details to enhance your partnership opportunities.
               </p>
             </div>
@@ -182,15 +184,15 @@ export default function DashboardPage() {
         </div>
         
         {/* Admin Section - Only visible to admin users */}
-        {user.role === "admin" && (
-          <div className="bg-white rounded-lg shadow-md p-6 mt-6 border-l-4 border-blue-500">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Admin Controls</h2>
-            <p className="text-gray-600 mb-4">
+        {(user as any)?.role === "admin" && (
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mt-4 sm:mt-6 border-l-4 border-blue-500">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Admin Controls</h2>
+            <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
               You have administrator privileges. Access the admin dashboard to manage users, applications, and view system statistics.
             </p>
             <button 
               onClick={() => navigate("/admin")}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+              className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm sm:text-base"
             >
               Go to Admin Dashboard
             </button>

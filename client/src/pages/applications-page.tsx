@@ -153,44 +153,46 @@ export default function ApplicationsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">My Applications</h1>
-        <p className="text-gray-600">Manage and track your student applications</p>
+    <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">My Applications</h1>
+        <p className="text-sm sm:text-base text-gray-600">Manage and track your student applications</p>
       </div>
 
       {/* Filters */}
-      <div className="mb-6 flex items-center space-x-2">
-        <span className="text-sm text-gray-500">Filter by status:</span>
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setFilterStatus(null)}
-            className={`px-3 py-1 text-xs rounded-full border ${
-              filterStatus === null 
-                ? "bg-primary text-white border-primary" 
-                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-            }`}
-          >
-            All
-          </button>
-          {["draft", "submitted", "under-review", "approved", "rejected", "incomplete"].map((status) => (
+      <div className="mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+          <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">Filter by status:</span>
+          <div className="flex flex-wrap gap-1 sm:gap-2">
             <button
-              key={status}
-              onClick={() => setFilterStatus(status)}
-              className={`px-3 py-1 text-xs rounded-full border ${
-                filterStatus === status 
+              onClick={() => setFilterStatus(null)}
+              className={`px-2 sm:px-3 py-1 text-xs rounded-full border transition-colors ${
+                filterStatus === null 
                   ? "bg-primary text-white border-primary" 
                   : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
               }`}
             >
-              {status === "draft" ? "Draft" : ""}
-              {status === "submitted" ? "Submitted" : ""}
-              {status === "under-review" ? "Under Review" : ""}
-              {status === "approved" ? "Approved" : ""}
-              {status === "rejected" ? "Rejected" : ""}
-              {status === "incomplete" ? "Incomplete" : ""}
+              All
             </button>
-          ))}
+            {["draft", "submitted", "under-review", "approved", "rejected", "incomplete"].map((status) => (
+              <button
+                key={status}
+                onClick={() => setFilterStatus(status)}
+                className={`px-2 sm:px-3 py-1 text-xs rounded-full border transition-colors ${
+                  filterStatus === status 
+                    ? "bg-primary text-white border-primary" 
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                {status === "draft" ? "Draft" : ""}
+                {status === "submitted" ? "Submitted" : ""}
+                {status === "under-review" ? "Under Review" : ""}
+                {status === "approved" ? "Approved" : ""}
+                {status === "rejected" ? "Rejected" : ""}
+                {status === "incomplete" ? "Incomplete" : ""}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -212,30 +214,32 @@ export default function ApplicationsPage() {
           </button>
         </div>
       ) : applications.length > 0 ? (
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Program
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Student
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Submitted
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Last Updated
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden lg:block bg-white shadow rounded-lg overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Program
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Student
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Submitted
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Last Updated
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredApplications.map((application) => (
                 <tr 
@@ -304,7 +308,78 @@ export default function ApplicationsPage() {
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden space-y-4">
+            {filteredApplications.map((application) => (
+              <div 
+                key={application.id}
+                className="bg-white shadow rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setLocation(`/dashboard/applications/${application.id}/edit`)}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center flex-1 min-w-0">
+                    {application.program?.universityLogo ? (
+                      <img 
+                        src={application.program.universityLogo} 
+                        alt={application.program.universityName} 
+                        className="h-8 w-8 mr-3 object-contain flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="h-8 w-8 bg-gray-200 rounded-full mr-3 flex items-center justify-center text-gray-500 text-xs flex-shrink-0">
+                        {application.program?.universityName?.charAt(0) || "U"}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium text-gray-900 truncate">{application.program?.name}</div>
+                      <div className="text-xs text-gray-500 truncate">{application.program?.universityName}</div>
+                    </div>
+                  </div>
+                  <StatusBadge status={application.status} />
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500">Student:</span>
+                    <span className="text-sm text-gray-900">{application.studentFirstName} {application.studentLastName}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500">Submitted:</span>
+                    <span className="text-xs text-gray-700">{formatDate(application.createdAt).relative}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500">Updated:</span>
+                    <span className="text-xs text-gray-700">{formatDate(application.updatedAt).relative}</span>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 mt-4 pt-3 border-t border-gray-100">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLocation(`/dashboard/applications/${application.id}`);
+                    }}
+                    className="flex-1 px-3 py-2 text-xs bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                  >
+                    View Details
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLocation(`/dashboard/applications/${application.id}/edit`);
+                    }}
+                    className="flex-1 px-3 py-2 text-xs bg-primary text-white rounded-md hover:bg-primary-dark transition-colors"
+                  >
+                    Edit
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       ) : (
         <div className="text-center py-16 bg-gray-50 rounded-lg">
           <svg 
