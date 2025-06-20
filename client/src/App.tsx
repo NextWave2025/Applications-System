@@ -23,6 +23,7 @@ import MainLayout from "./layouts/main-layout";
 import DashboardLayout from "./layouts/dashboard-layout";
 import { ProtectedRoute } from "./components/protected-route";
 import ApplicationDetailsPage from "./pages/application-details-page";
+import UserApplicationDetailsPage from "./pages/user-application-details-page";
 
 export default function App() {
   useEffect(() => {
@@ -100,7 +101,7 @@ export default function App() {
             <Route path="/dashboard/applications/:id">
               <ProtectedRoute>
                 <DashboardLayout>
-                  <ApplicationDetailsPage />
+                  <UserApplicationDetailsPage />
                 </DashboardLayout>
               </ProtectedRoute>
             </Route>

@@ -245,58 +245,63 @@ Documents Included:
     zip.file("application-info.txt", applicationInfo);
 
     // Add each document to the ZIP
+    console.log(`Processing ${documents.length} documents for ZIP`);
+    
     for (const doc of documents) {
-      // Use correct field names from database schema
-      const fileData = doc.file_data || doc.fileData;
-      const originalFilename = doc.original_filename || doc.originalFilename;
-      const mimeType = doc.mime_type || doc.mimeType;
-      const uploadedAt = doc.uploaded_at || doc.uploadedAt;
+      console.log(`Document ${doc.id} structure:`, Object.keys(doc));
       
-      if (fileData && fileData.length > 0) {
+      if (doc.fileData && doc.fileData.length > 0) {
         try {
-          console.log(`Processing document ${doc.id}: ${originalFilename} (${mimeType})`);
+          console.log(`Processing document ${doc.id}: ${doc.originalFilename} (${doc.mimeType})`);
           
           // Convert base64 to binary buffer
-          const fileBuffer = Buffer.from(fileData, 'base64');
+          const fileBuffer = Buffer.from(doc.fileData, 'base64');
           
-          // Create a safe filename with extension
-          let filename = originalFilename || `${doc.document_type || doc.documentType}_${doc.id}`;
+          // Create a safe filename
+          let filename = doc.originalFilename || `${doc.documentType}_${doc.id}`;
           
           // Ensure filename has proper extension
-          if (!filename.includes('.') && mimeType) {
-            const ext = mimeType.split('/')[1];
+          if (!filename.includes('.') && doc.mimeType) {
+            const ext = doc.mimeType.split('/')[1];
             filename += `.${ext}`;
           }
           
           // Remove any path separators and invalid characters
           filename = filename.replace(/[/\\:*?"<>|]/g, '_');
           
-          // Add file to ZIP
-          zip.file(filename, fileBuffer);
+          // Add file to ZIP with explicit options
+          zip.file(filename, fileBuffer, {
+            binary: true,
+            createFolders: false
+          });
           
           console.log(`Successfully added to ZIP: ${filename} (${fileBuffer.length} bytes)`);
         } catch (bufferError) {
           console.error(`Error processing document ${doc.id}:`, bufferError);
-          zip.file(`ERROR_${originalFilename || doc.id}.txt`, 
-                   `Error: Could not process this document - ${originalFilename}`);
+          zip.file(`ERROR_${doc.originalFilename || doc.id}.txt`, 
+                   `Error: Could not process this document - ${doc.originalFilename}`);
         }
       } else {
-        console.log(`No file data for document ${doc.id}`);
-        zip.file(`MISSING_${originalFilename || doc.id}.txt`, 
+        console.log(`No file data for document ${doc.id} - fileData: ${doc.fileData ? 'exists' : 'missing'}`);
+        zip.file(`MISSING_${doc.originalFilename || doc.id}.txt`, 
                  `This document could not be included - no file data available`);
       }
     }
 
-    // Generate the ZIP file with proper compression
-    console.log(`Generating ZIP file with ${Object.keys(zip.files).length} files`);
+    // Check if ZIP has any files before generating
+    const fileCount = Object.keys(zip.files).length;
+    console.log(`Generating ZIP file with ${fileCount} files`);
+    
+    if (fileCount === 0) {
+      return res.status(404).json({ error: "No files to include in ZIP" });
+    }
     
     const zipBuffer = await zip.generateAsync({ 
       type: "nodebuffer",
       compression: "DEFLATE",
       compressionOptions: {
-        level: 1
-      },
-      platform: "UNIX"
+        level: 6
+      }
     });
     
     console.log(`Generated ZIP buffer size: ${zipBuffer.length} bytes`);
