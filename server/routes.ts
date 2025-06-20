@@ -283,6 +283,64 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Archive application
+  app.patch("/api/applications/:id/archive", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid application ID" });
+      }
+
+      const application = await storage.getApplicationById(id);
+      if (!application) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+
+      if (application.userId !== req.user.id) {
+        return res.status(403).json({ error: "Unauthorized access to this application" });
+      }
+
+      const updatedApplication = await storage.updateApplicationStatus(id, "archived", req.user.id);
+      res.json(updatedApplication);
+    } catch (error) {
+      console.error("Error archiving application:", error);
+      res.status(500).json({ error: "Failed to archive application" });
+    }
+  });
+
+  // Delete application
+  app.delete("/api/applications/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid application ID" });
+      }
+
+      const application = await storage.getApplicationById(id);
+      if (!application) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+
+      if (application.userId !== req.user.id) {
+        return res.status(403).json({ error: "Unauthorized access to this application" });
+      }
+
+      await storage.deleteApplication(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting application:", error);
+      res.status(500).json({ error: "Failed to delete application" });
+    }
+  });
+
   // Update application status
   app.patch("/api/applications/:id/status", async (req, res) => {
     try {

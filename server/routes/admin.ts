@@ -253,20 +253,11 @@ Documents Included:
       
       if (doc.fileData && doc.fileData.length > 0) {
         try {
-          // Validate base64 string
-          const base64Pattern = /^[A-Za-z0-9+/]*={0,2}$/;
-          if (!base64Pattern.test(doc.fileData)) {
-            console.error(`Invalid base64 data for document ${doc.id}`);
-            zip.file(`ERROR_${doc.originalFilename || doc.id}.txt`, 
-                     `Error: Invalid file data format`);
-            continue;
-          }
-          
-          // Convert base64 to binary buffer with error handling
+          // Direct base64 to buffer conversion without validation that might corrupt data
           const fileBuffer = Buffer.from(doc.fileData, 'base64');
-          console.log(`Converted document ${doc.id} to buffer: ${fileBuffer.length} bytes`);
+          console.log(`Document ${doc.id}: Original base64 length ${doc.fileData.length}, Buffer length ${fileBuffer.length}`);
           
-          // Validate buffer size
+          // Validate buffer has actual content
           if (fileBuffer.length === 0) {
             console.error(`Empty buffer for document ${doc.id}`);
             zip.file(`ERROR_${doc.originalFilename || doc.id}.txt`, 
@@ -277,12 +268,12 @@ Documents Included:
           // Create a safe filename
           let filename = doc.originalFilename || `document_${doc.id}`;
           
-          // Ensure filename has proper extension based on mime type
+          // Ensure filename has proper extension
           if (!filename.includes('.') && doc.mimeType) {
             const mimeToExt: Record<string, string> = {
               'application/pdf': 'pdf',
               'image/jpeg': 'jpg',
-              'image/jpg': 'jpg',
+              'image/jpg': 'jpg', 
               'image/png': 'png',
               'application/msword': 'doc',
               'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
@@ -292,14 +283,23 @@ Documents Included:
             filename += `.${ext}`;
           }
           
-          // Remove invalid characters
+          // Remove invalid characters from filename
           filename = filename.replace(/[/\\:*?"<>|]/g, '_');
           
-          // Add file to ZIP
-          zip.file(filename, fileBuffer);
+          // Add file to ZIP with raw binary data
+          zip.file(filename, fileBuffer, {
+            binary: true,
+            compression: "DEFLATE"
+          });
           validDocuments++;
           
-          console.log(`Successfully added to ZIP: ${filename} (${fileBuffer.length} bytes)`);
+          console.log(`Added to ZIP: ${filename} (${fileBuffer.length} bytes, ${doc.mimeType})`);
+          
+          // Verify the file was added correctly
+          const addedFile = zip.file(filename);
+          if (addedFile) {
+            console.log(`Verification: File ${filename} added successfully to ZIP`);
+          }
         } catch (error) {
           console.error(`Error processing document ${doc.id}:`, error);
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';

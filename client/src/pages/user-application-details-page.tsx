@@ -38,6 +38,39 @@ import {
 } from "lucide-react";
 import { apiRequest } from "@/lib/query-client";
 
+type ApplicationData = {
+  id: number;
+  studentFirstName: string;
+  studentLastName: string;
+  studentEmail: string;
+  studentPhone: string;
+  studentDateOfBirth: string;
+  studentNationality: string;
+  studentGender: string;
+  highestQualification: string;
+  qualificationName: string;
+  institutionName: string;
+  graduationYear: string;
+  cgpa?: string;
+  intakeDate: string;
+  status: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  program?: {
+    name: string;
+    universityName: string;
+    degree: string;
+    universityLogo?: string;
+  };
+  documents?: Array<{
+    id: number;
+    originalFilename: string;
+    documentType: string;
+    mimeType: string;
+  }>;
+};
+
 export default function UserApplicationDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const [location, setLocation] = useLocation();
@@ -46,7 +79,7 @@ export default function UserApplicationDetailsPage() {
   const queryClient = useQueryClient();
 
   // Fetch application details
-  const { data: application, isLoading, error } = useQuery({
+  const { data: application, isLoading, error } = useQuery<ApplicationData>({
     queryKey: [`/api/applications/${id}`],
     enabled: !!id,
   });
@@ -81,9 +114,12 @@ export default function UserApplicationDetailsPage() {
   // Delete application mutation
   const deleteApplication = useMutation({
     mutationFn: async () => {
-      return apiRequest(`/api/applications/${id}`, {
+      const response = await fetch(`/api/applications/${id}`, {
         method: "DELETE",
+        headers: { "Content-Type": "application/json" }
       });
+      if (!response.ok) throw new Error("Failed to delete");
+      return response.status === 204 ? {} : response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
