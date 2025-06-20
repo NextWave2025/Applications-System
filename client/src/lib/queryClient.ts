@@ -46,8 +46,13 @@ export async function apiRequest(
     credentials: "include",
   });
 
-  await throwIfResNotOk(response);
-  return response;
+  try {
+    await throwIfResNotOk(response);
+    return response;
+  } catch (error) {
+    console.error("API request error:", error);
+    throw error;
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
@@ -56,18 +61,23 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
-      credentials: "include",
-    });
+    try {
+      const res = await fetch(queryKey[0] as string, {
+        credentials: "include",
+      });
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
+
+      await throwIfResNotOk(res);
+      const data = await res.json();
+      console.log("Query response for", queryKey[0], ":", data);
+      return data;
+    } catch (error) {
+      console.warn("Query error for", queryKey[0], ":", error);
+      throw error;
     }
-
-    await throwIfResNotOk(res);
-    const data = await res.json();
-    console.log("Query response for", queryKey[0], ":", data);
-    return data;
   };
 
 export const queryClient = new QueryClient({
@@ -87,11 +97,17 @@ export const queryClient = new QueryClient({
   },
 });
 
-// Add global unhandled rejection handler
+// Add comprehensive global error handlers
 if (typeof window !== 'undefined') {
   window.addEventListener('unhandledrejection', (event) => {
-    console.warn('Unhandled promise rejection:', event.reason);
-    // Prevent the default browser behavior of logging to console
+    console.warn('Unhandled promise rejection caught:', event.reason);
+    // Always prevent the default behavior to stop browser console errors
+    event.preventDefault();
+  });
+
+  window.addEventListener('error', (event) => {
+    console.warn('Global error caught:', event.error);
+    // Prevent default to avoid console spam
     event.preventDefault();
   });
 }

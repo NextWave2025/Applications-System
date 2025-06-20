@@ -44,19 +44,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useQuery({
     queryKey: ["/api/user"],
     queryFn: async () => {
-      const response = await fetch("/api/user", {
-        credentials: "include"
-      });
-      if (response.status === 401 || response.status === 403) {
+      try {
+        const response = await fetch("/api/user", {
+          credentials: "include"
+        });
+        if (response.status === 401 || response.status === 403) {
+          return null;
+        }
+        if (!response.ok) {
+          console.warn(`Auth query failed: ${response.status} ${response.statusText}`);
+          return null;
+        }
+        const userData = await response.json();
+        console.log("Auth query successful:", userData);
+        return userData;
+      } catch (error) {
+        console.warn("Auth query error:", error);
         return null;
       }
-      if (!response.ok) {
-        console.warn(`Auth query failed: ${response.status} ${response.statusText}`);
-        return null;
-      }
-      const userData = await response.json();
-      console.log("Auth query successful:", userData);
-      return userData;
     },
     retry: false,
     throwOnError: false,
