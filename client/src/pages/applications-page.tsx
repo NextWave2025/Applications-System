@@ -48,7 +48,7 @@ type Application = {
 };
 
 export default function ApplicationsPage() {
-  const [location, navigate] = useLocation();
+  const [location, setLocation] = useLocation();
   const { user, isLoading: authLoading } = useAuth();
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -143,7 +143,7 @@ export default function ApplicationsPage() {
         <h2 className="text-2xl font-semibold text-gray-900 mb-4">Authentication Required</h2>
         <p className="text-gray-600 mb-6">You need to be logged in to view your applications.</p>
         <button
-          onClick={() => navigate("/auth", { state: { redirectTo: "/dashboard/applications" } })}
+          onClick={() => setLocation("/auth", { state: { redirectTo: "/dashboard/applications" } })}
           className="px-4 py-2 bg-primary text-white rounded-md"
         >
           Sign In

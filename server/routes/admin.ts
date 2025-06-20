@@ -251,20 +251,35 @@ Documents Included:
           // Convert base64 back to binary buffer
           const fileBuffer = Buffer.from(doc.fileData, 'base64');
           
-          // Add file to ZIP with proper filename
-          const filename = doc.originalFilename || `${doc.documentType}_${doc.id}`;
-          zip.file(filename, fileBuffer);
+          // Create a safe filename
+          let filename = doc.originalFilename || `${doc.documentType}_${doc.id}`;
+          
+          // Remove any path separators and invalid characters
+          filename = filename.replace(/[/\\:*?"<>|]/g, '_');
+          
+          // Add file to ZIP with proper buffer
+          zip.file(filename, fileBuffer, { binary: true });
+          
+          console.log(`Added document to ZIP: ${filename} (${fileBuffer.length} bytes)`);
         } catch (bufferError) {
           console.error(`Error processing document ${doc.id}:`, bufferError);
           // Add error note instead of the file
           zip.file(`ERROR_${doc.originalFilename || doc.id}.txt`, 
                    `Error: Could not process this document - ${doc.originalFilename}`);
         }
+      } else {
+        console.log(`No file data for document ${doc.id}`);
       }
     }
 
-    // Generate the ZIP file
-    const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
+    // Generate the ZIP file with proper compression
+    const zipBuffer = await zip.generateAsync({ 
+      type: "nodebuffer",
+      compression: "DEFLATE",
+      compressionOptions: {
+        level: 6
+      }
+    });
     const studentName = `${application.studentFirstName}_${application.studentLastName}`.replace(/\s+/g, '_');
     
     res.setHeader('Content-Type', 'application/zip');
