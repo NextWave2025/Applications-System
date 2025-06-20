@@ -249,43 +249,38 @@ export default function UserApplicationDetailsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 max-w-7xl">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <Button 
             variant="outline" 
             onClick={() => setLocation("/dashboard/applications")}
+            className="w-fit"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Applications
+            <span className="hidden sm:inline">Back to Applications</span>
+            <span className="sm:hidden">Back</span>
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Application Details</h1>
-            <p className="text-gray-600">ID: {application.id}</p>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Application Details</h1>
+            <p className="text-sm sm:text-base text-gray-600">ID: {application.id}</p>
           </div>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <Button
             onClick={() => setLocation(`/dashboard/applications/${application?.id}/edit`)}
             variant="outline"
+            className="w-full sm:w-auto"
           >
             <Edit className="mr-2 h-4 w-4" />
-            Edit Application
+            <span className="hidden sm:inline">Edit Application</span>
+            <span className="sm:hidden">Edit</span>
           </Button>
-          {application?.documents && application.documents.length > 0 && (
-            <Button
-              onClick={handleBulkDownload}
-              disabled={downloadingDocs}
-              variant="outline"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              {downloadingDocs ? "Downloading..." : "Download All Documents"}
-            </Button>
-          )}
+
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline">
+              <Button variant="outline" className="w-full sm:w-auto">
                 <Archive className="mr-2 h-4 w-4" />
                 Archive
               </Button>
@@ -307,7 +302,7 @@ export default function UserApplicationDetailsPage() {
           </AlertDialog>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive">
+              <Button variant="destructive" className="w-full sm:w-auto">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </Button>
@@ -333,52 +328,52 @@ export default function UserApplicationDetailsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="xl:col-span-2 space-y-4 sm:space-y-6">
           {/* Student Information */}
           <Card>
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
               <User className="h-5 w-5 text-blue-600 mr-2" />
-              <CardTitle className="text-lg">Student Information</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Student Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Full Name</label>
-                  <p className="text-gray-900">{application.studentFirstName} {application.studentLastName}</p>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">Full Name</label>
+                  <p className="text-sm sm:text-base text-gray-900 break-words">{application.studentFirstName} {application.studentLastName}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Email</label>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">Email</label>
                   <div className="flex items-center">
-                    <Mail className="h-4 w-4 text-gray-400 mr-2" />
-                    <p className="text-gray-900">{application.studentEmail}</p>
+                    <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 mr-2 flex-shrink-0" />
+                    <p className="text-sm sm:text-base text-gray-900 break-all">{application.studentEmail}</p>
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Phone</label>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">Phone</label>
                   <div className="flex items-center">
-                    <Phone className="h-4 w-4 text-gray-400 mr-2" />
-                    <p className="text-gray-900">{application.studentPhone}</p>
+                    <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 mr-2 flex-shrink-0" />
+                    <p className="text-sm sm:text-base text-gray-900">{application.studentPhone}</p>
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Date of Birth</label>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">Date of Birth</label>
                   <div className="flex items-center">
-                    <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-                    <p className="text-gray-900">{new Date(application.studentDateOfBirth).toLocaleDateString()}</p>
+                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 mr-2 flex-shrink-0" />
+                    <p className="text-sm sm:text-base text-gray-900">{new Date(application.studentDateOfBirth).toLocaleDateString()}</p>
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Nationality</label>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">Nationality</label>
                   <div className="flex items-center">
-                    <MapPin className="h-4 w-4 text-gray-400 mr-2" />
-                    <p className="text-gray-900">{application.studentNationality}</p>
+                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 mr-2 flex-shrink-0" />
+                    <p className="text-sm sm:text-base text-gray-900">{application.studentNationality}</p>
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Gender</label>
-                  <p className="text-gray-900 capitalize">{application.studentGender}</p>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">Gender</label>
+                  <p className="text-sm sm:text-base text-gray-900 capitalize">{application.studentGender}</p>
                 </div>
               </div>
             </CardContent>
@@ -388,30 +383,30 @@ export default function UserApplicationDetailsPage() {
           <Card>
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
               <GraduationCap className="h-5 w-5 text-green-600 mr-2" />
-              <CardTitle className="text-lg">Program Information</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Program Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Program</label>
-                  <p className="text-gray-900 font-medium">{application.program?.name || 'N/A'}</p>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">Program</label>
+                  <p className="text-sm sm:text-base text-gray-900 font-medium break-words">{application.program?.name || 'N/A'}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">University</label>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">University</label>
                   <div className="flex items-center">
-                    <Building className="h-4 w-4 text-gray-400 mr-2" />
-                    <p className="text-gray-900">{application.program?.universityName || 'N/A'}</p>
+                    <Building className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 mr-2 flex-shrink-0" />
+                    <p className="text-sm sm:text-base text-gray-900 break-words">{application.program?.universityName || 'N/A'}</p>
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Degree Level</label>
-                  <p className="text-gray-900">{application.program?.degree || 'N/A'}</p>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">Degree Level</label>
+                  <p className="text-sm sm:text-base text-gray-900">{application.program?.degree || 'N/A'}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Intake</label>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">Intake</label>
                   <div className="flex items-center">
-                    <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-                    <p className="text-gray-900">{application.intakeDate}</p>
+                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 mr-2 flex-shrink-0" />
+                    <p className="text-sm sm:text-base text-gray-900">{application.intakeDate}</p>
                   </div>
                 </div>
               </div>
@@ -421,30 +416,30 @@ export default function UserApplicationDetailsPage() {
           {/* Academic Background */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Academic Background</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Academic Background</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Highest Qualification</label>
-                  <p className="text-gray-900">{application.highestQualification}</p>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">Highest Qualification</label>
+                  <p className="text-sm sm:text-base text-gray-900 break-words">{application.highestQualification}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Name of Degree</label>
-                  <p className="text-gray-900">{application.qualificationName}</p>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">Name of Degree</label>
+                  <p className="text-sm sm:text-base text-gray-900 break-words">{application.qualificationName}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Institution Name</label>
-                  <p className="text-gray-900">{application.institutionName}</p>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">Institution Name</label>
+                  <p className="text-sm sm:text-base text-gray-900 break-words">{application.institutionName}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Graduation Year</label>
-                  <p className="text-gray-900">{application.graduationYear}</p>
+                  <label className="text-xs sm:text-sm font-medium text-gray-500">Graduation Year</label>
+                  <p className="text-sm sm:text-base text-gray-900">{application.graduationYear}</p>
                 </div>
                 {application.cgpa && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">CGPA/Grade</label>
-                    <p className="text-gray-900">{application.cgpa}</p>
+                    <label className="text-xs sm:text-sm font-medium text-gray-500">CGPA/Grade</label>
+                    <p className="text-sm sm:text-base text-gray-900">{application.cgpa}</p>
                   </div>
                 )}
               </div>
@@ -454,39 +449,40 @@ export default function UserApplicationDetailsPage() {
           {/* Documents */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <FileText className="h-5 w-5 text-purple-600 mr-2" />
-                Uploaded Documents ({application.documents?.length || 0})
+              <CardTitle className="text-base sm:text-lg flex items-center">
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 mr-2" />
+                <span className="text-sm sm:text-lg">Uploaded Documents ({application.documents?.length || 0})</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {application.documents && application.documents.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {application.documents.map((doc: any) => (
                     <div
                       key={doc.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg gap-3 sm:gap-0"
                     >
-                      <div className="flex items-center">
-                        <FileText className="h-5 w-5 text-gray-400 mr-3" />
-                        <div>
-                          <p className="font-medium text-gray-900">{doc.originalFilename}</p>
-                          <p className="text-sm text-gray-500 capitalize">{doc.documentType}</p>
+                      <div className="flex items-center min-w-0">
+                        <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 mr-2 sm:mr-3 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm sm:text-base font-medium text-gray-900 truncate">{doc.originalFilename}</p>
+                          <p className="text-xs sm:text-sm text-gray-500 capitalize">{doc.documentType}</p>
                         </div>
                       </div>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleDownloadDocument(doc.id, doc.originalFilename)}
+                        className="w-full sm:w-auto"
                       >
-                        <Download className="h-4 w-4 mr-1" />
+                        <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                         Download
                       </Button>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-4">No documents uploaded yet</p>
+                <p className="text-gray-500 text-center py-6 text-sm sm:text-base">No documents uploaded yet</p>
               )}
             </CardContent>
           </Card>
