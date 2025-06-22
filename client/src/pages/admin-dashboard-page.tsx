@@ -686,7 +686,7 @@ function ApplicationsManagementTable() {
       case "rejected":
         return "bg-red-100 text-red-800";
       case "incomplete":
-        return "bg-blue-100 text-blue-800";
+        return "bg-orange-100 text-orange-800";
       default:
         return "bg-gray-100 text-gray-800";
     }

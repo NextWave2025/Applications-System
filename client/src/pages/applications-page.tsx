@@ -114,7 +114,7 @@ export default function ApplicationsPage() {
         label = "Rejected";
         break;
       case "incomplete":
-        color = "bg-blue-100 text-blue-800";
+        color = "bg-orange-100 text-orange-800";
         label = "Incomplete";
         break;
       default:

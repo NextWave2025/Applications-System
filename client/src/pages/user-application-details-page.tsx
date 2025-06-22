@@ -147,7 +147,7 @@ export default function UserApplicationDetailsPage() {
       case "under-review":
         return <Clock className="h-5 w-5 text-yellow-500" />;
       case "incomplete":
-        return <AlertTriangle className="h-5 w-5 text-blue-500" />;
+        return <AlertTriangle className="h-5 w-5 text-orange-500" />;
       default:
         return <FileText className="h-5 w-5 text-blue-500" />;
     }
@@ -162,7 +162,7 @@ export default function UserApplicationDetailsPage() {
       case "under-review":
         return "bg-yellow-100 text-yellow-800";
       case "incomplete":
-        return "bg-blue-100 text-blue-800";
+        return "bg-orange-100 text-orange-800";
       case "submitted":
         return "bg-blue-100 text-blue-800";
       default:
