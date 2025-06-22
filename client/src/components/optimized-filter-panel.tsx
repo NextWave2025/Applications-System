@@ -184,7 +184,7 @@ export default function OptimizedFilterPanel({
               "flex items-center gap-2 text-sm p-2 rounded-md transition-all duration-300",
               searchStatus === 'searching' && "bg-blue-50 text-blue-700",
               searchStatus === 'found' && "bg-green-50 text-green-700",
-              searchStatus === 'notfound' && "bg-orange-50 text-orange-700"
+              searchStatus === 'notfound' && "bg-blue-50 text-blue-700"
             )}>
               {searchStatus === 'searching' && (
                 <>

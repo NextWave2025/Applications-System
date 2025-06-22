@@ -411,7 +411,7 @@ export default function ResponsiveFilterPanel({
         <Collapsible open={expandedSections.location} onOpenChange={() => toggleSection('location')}>
           <CollapsibleTrigger className="flex items-center justify-between w-full p-0 hover:no-underline group">
             <div className="flex items-center">
-              <MapPin className="w-4 h-4 mr-2 text-orange-500" />
+              <MapPin className="w-4 h-4 mr-2 text-blue-500" />
               <Label className="text-sm font-semibold text-gray-900 cursor-pointer">
                 Location
               </Label>

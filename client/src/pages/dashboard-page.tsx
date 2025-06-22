@@ -79,7 +79,7 @@ export default function DashboardPage() {
       case "under-review": return "bg-yellow-200 text-yellow-800";
       case "approved": return "bg-green-200 text-green-800";
       case "rejected": return "bg-red-200 text-red-800";
-      case "incomplete": return "bg-orange-200 text-orange-800";
+      case "incomplete": return "bg-blue-200 text-blue-800";
       default: return "bg-gray-200 text-gray-800";
     }
   };

@@ -117,7 +117,7 @@ export default function ProgramCardNew({
 
           {/* Location */}
           <div className="flex items-center text-sm text-gray-700">
-            <MapPin className="w-4 h-4 mr-3 text-orange-500 flex-shrink-0" />
+            <MapPin className="w-4 h-4 mr-3 text-blue-500 flex-shrink-0" />
             <span>{program.university?.location || 'UAE'}</span>
           </div>
 

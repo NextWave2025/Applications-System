@@ -165,7 +165,7 @@ export default function ApplicationDetailsPage() {
       case "under-review":
         return <Clock className="h-4 w-4 text-yellow-600" />;
       case "incomplete":
-        return <AlertTriangle className="h-4 w-4 text-orange-600" />;
+        return <AlertTriangle className="h-4 w-4 text-blue-600" />;
       default:
         return <FileText className="h-4 w-4 text-blue-600" />;
     }
