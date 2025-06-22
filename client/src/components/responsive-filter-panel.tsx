@@ -10,7 +10,6 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { 
   Search, 
   ChevronDown, 
@@ -23,7 +22,9 @@ import {
   Award,
   Building2,
   RotateCcw,
-  ChevronUp
+  Loader2,
+  CheckCircle,
+  AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { studyLevels, studyFields, uaeLocations, intakeOptions, topUniversities, type University } from "@shared/schema";
@@ -43,6 +44,8 @@ interface ResponsiveFilterPanelProps {
   className?: string;
   onFiltersChange?: (filters: FilterState) => void;
   onResultsCountChange?: (count: number) => void;
+  isSearching?: boolean;
+  searchResultsCount?: number;
 }
 
 export default function ResponsiveFilterPanel({

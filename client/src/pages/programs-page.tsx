@@ -6,7 +6,7 @@ import EnhancedSearch from "@/components/enhanced-search";
 import PDFExport from "@/components/pdf-export";
 import SelectableProgramCard from "@/components/selectable-program-card";
 import ProgramCardNew from "@/components/program-card-new";
-import ResponsiveFilterPanel from "@/components/responsive-filter-panel";
+import OptimizedFilterPanel from "@/components/optimized-filter-panel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { studyLevels, studyFields, durationOptions, type Program, type University, type ProgramWithUniversity } from "@shared/schema";
@@ -27,6 +27,7 @@ export default function ProgramsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [displayedPrograms, setDisplayedPrograms] = useState<ProgramWithUniversity[]>([]);
   const [selectedProgramIds, setSelectedProgramIds] = useState<number[]>([]);
+  const [isFilterSearching, setIsFilterSearching] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     universityIds: [],
     tuitionMin: 0,
@@ -193,6 +194,12 @@ export default function ProgramsPage() {
     setFilters(newFilters);
     setDisplayedPrograms([]);
     setSelectedProgramIds([]);
+    setIsFilterSearching(true);
+    
+    // Simulate search delay for animation
+    setTimeout(() => {
+      setIsFilterSearching(false);
+    }, 1200);
   };
 
   const resetFilters = () => {
@@ -299,13 +306,15 @@ export default function ProgramsPage() {
         </div>
 
         {/* Filters and program cards */}
-        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
-          {/* Enhanced Sidebar filters */}
-          <aside className="lg:w-80 xl:w-96 flex-shrink-0">
-            <div className="lg:sticky lg:top-6">
-              <ResponsiveFilterPanel 
+        <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 lg:gap-6">
+          {/* Optimized Sidebar filters - Narrower for better card display */}
+          <aside className="lg:w-72 xl:w-80 flex-shrink-0">
+            <div className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+              <OptimizedFilterPanel 
                 onFiltersChange={handleFilterChange}
                 onResultsCountChange={handleResultsCountChange}
+                isSearching={isFilterSearching}
+                searchResultsCount={programs.length}
                 className="w-full"
               />
             </div>
