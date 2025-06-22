@@ -80,15 +80,15 @@ export const studyLevels = [
   "Postgraduate (Master's / PhD)"
 ];
 
-// Study fields - main categories only
+// Study fields - core areas only (sorted by popularity)
 export const studyFields = [
   "Business & Management",
+  "Computer Science & IT", 
   "Engineering",
-  "Computer Science & IT",
   "Medicine & Health",
   "Arts & Humanities",
+  "Media & Design",
   "Law & Politics",
-  "Media & Design", 
   "Education & Languages",
   "Social Sciences"
 ];
