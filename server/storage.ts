@@ -251,7 +251,10 @@ export class DBStorage implements IStorage {
         query = query.where(and(...conditions)) as any;
       }
 
-      console.log("Executing ORM query...");
+      // Add random ordering to display programs from all universities randomly
+      query = query.orderBy(sql`RANDOM()`) as any;
+
+      console.log("Executing ORM query with random ordering...");
       const result = await query;
       console.log(`Query returned ${result.length} programs`);
 
