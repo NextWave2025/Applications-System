@@ -93,14 +93,13 @@ export const studyFields = [
   "Social Sciences"
 ];
 
-// UAE locations based on university cities
+// UAE locations based on actual university cities (sorted alphabetically)
 export const uaeLocations = [
-  "Dubai",
-  "Abu Dhabi", 
-  "Sharjah",
-  "Ras Al Khaimah",
+  "Abu Dhabi",
   "Ajman",
-  "Fujairah"
+  "Dubai", 
+  "Ras Al Khaimah",
+  "Sharjah"
 ];
 
 // Intake options
