@@ -72,7 +72,7 @@ export const insertUniversitySchema = createInsertSchema(universities).omit({
 export type InsertUniversity = z.infer<typeof insertUniversitySchema>;
 export type University = typeof universities.$inferSelect;
 
-// Study levels with user-friendly terms
+// Study levels with user-friendly terms (sorted by education progression)
 export const studyLevels = [
   "Foundation",
   "Diploma", 
