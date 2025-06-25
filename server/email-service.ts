@@ -356,3 +356,64 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
     return false;
   }
 }
+
+export async function sendWelcomeEmail(userEmail: string, userName: string): Promise<boolean> {
+  const welcomeHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+      <div style="background-color: #2563eb; padding: 40px 20px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Welcome to NextWave</h1>
+        <p style="color: #e0e7ff; margin: 10px 0 0 0; font-size: 16px;">Your Journey to Study Abroad Starts Here</p>
+      </div>
+      
+      <div style="padding: 40px 20px;">
+        <h2 style="color: #1f2937; margin-bottom: 20px;">Thank you for joining NextWave Admissions, ${userName}!</h2>
+        
+        <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px;">
+          We're excited to have you on board! NextWave is your trusted partner for studying abroad in the UAE, 
+          connecting you with top universities and programs across Dubai, Abu Dhabi, Sharjah, and beyond.
+        </p>
+        
+        <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #2563eb; margin-top: 0;">What's Next?</h3>
+          <ul style="color: #4b5563; line-height: 1.8;">
+            <li>Browse over 1,000+ programs from 31 top UAE universities</li>
+            <li>Use our advanced filters to find your perfect program</li>
+            <li>Get personalized guidance from our education consultants</li>
+            <li>Apply directly through our streamlined application system</li>
+          </ul>
+        </div>
+        
+        <div style="background-color: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb;">
+          <h3 style="color: #1e40af; margin-top: 0;">Featured Universities</h3>
+          <p style="color: #1e40af; margin: 0;">
+            Explore programs from leading institutions in Dubai, Abu Dhabi, Sharjah, Ajman, and Ras Al Khaimah. 
+            From business and engineering to computer science and healthcare - find your ideal academic path.
+          </p>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://nextwave.ae/programs" style="display: inline-block; background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
+            Explore Programs Now
+          </a>
+        </div>
+        
+        <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
+          Need help getting started? Our team is here to assist you every step of the way. 
+          Simply reply to this email or contact our support team.
+        </p>
+      </div>
+      
+      <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+        <p style="color: #6b7280; margin: 0; font-size: 14px;">
+          © 2025 NextWave Admissions. Empowering students to achieve their dreams of studying abroad.
+        </p>
+      </div>
+    </div>
+  `;
+
+  return await sendEmail({
+    to: userEmail,
+    subject: 'Welcome to NextWave - Your Study Abroad Journey Begins!',
+    html: welcomeHtml
+  });
+}

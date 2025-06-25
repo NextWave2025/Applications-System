@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { sendEmail, sendApplicationStatusNotification } from "../email-service";
+import { sendEmail, sendApplicationStatusNotification, sendWelcomeEmail } from "../email-service";
 
 export function setupEmailTestRoutes(app: Express) {
   // Test endpoint for basic email sending
@@ -99,6 +99,44 @@ export function setupEmailTestRoutes(app: Express) {
       console.error("Notification test endpoint error:", error);
       res.status(500).json({ 
         error: "Notification test failed", 
+        details: error?.message || "Unknown error"
+      });
+    }
+  });
+
+  // Test endpoint for welcome email
+  app.post("/api/test/welcome", async (req, res) => {
+    try {
+      const { email, name } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ 
+          error: "Missing required field: email" 
+        });
+      }
+
+      const userName = name || "New User";
+      console.log(`Testing welcome email to: ${email} for user: ${userName}`);
+      
+      const result = await sendWelcomeEmail(email, userName);
+
+      if (result) {
+        res.json({ 
+          success: true, 
+          message: "Welcome email sent successfully",
+          sentTo: email,
+          userName: userName
+        });
+      } else {
+        res.status(500).json({ 
+          success: false, 
+          error: "Welcome email failed to send"
+        });
+      }
+    } catch (error: any) {
+      console.error("Welcome email test endpoint error:", error);
+      res.status(500).json({ 
+        error: "Welcome email test failed", 
         details: error?.message || "Unknown error"
       });
     }
