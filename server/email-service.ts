@@ -30,10 +30,8 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       return false;
     }
 
-    // IMPORTANT: This email must be verified in your SendGrid account
-    // Go to SendGrid Dashboard > Settings > Sender Authentication
-    // Add and verify this sender email or use a verified email from your account
-    const verifiedSenderEmail = params.from || 'noreply@nextwave.ae';
+    // Using verified SendGrid sender email
+    const verifiedSenderEmail = params.from || 'nextwaveadmission@gmail.com';
     
     const msg = {
       to: params.to,
