@@ -86,7 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (user: User) => {
       console.log("Setting user data in query cache:", user);
       queryClient.setQueryData(["/api/user"], user);
-      // Invalidate and refetch all admin queries to ensure fresh data
+      // Force immediate refetch to ensure state consistency
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin"] });
       toast({
         title: "Login successful",
@@ -95,7 +96,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onError: (error: Error) => {
       console.error("Login error:", error);
-      // Ensure error is properly handled
       const message = error?.message || "Login failed. Please try again.";
       toast({
         title: "Login failed",
@@ -121,9 +121,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
+      // Force immediate refetch to ensure state consistency
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       toast({
         title: "Registration successful",
-        description: "Welcome to Guide!",
+        description: "Welcome to NextWave!",
       });
     },
     onError: (error: Error) => {

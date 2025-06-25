@@ -38,18 +38,41 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       cc: params.cc,
       from: {
         email: verifiedSenderEmail,
-        name: 'NextWave Study Abroad'
+        name: 'NextWave Admissions'
+      },
+      replyTo: {
+        email: verifiedSenderEmail,
+        name: 'NextWave Support Team'
       },
       subject: params.subject,
       html: params.html,
-      // Add tracking settings
+      text: params.html.replace(/<[^>]*>/g, ''), // Plain text version
+      // Anti-spam headers and settings
+      headers: {
+        'List-Unsubscribe': '<mailto:nextwaveadmission@gmail.com?subject=unsubscribe>',
+        'X-Priority': '3',
+        'X-MSMail-Priority': 'Normal',
+        'Importance': 'Normal'
+      },
+      // Tracking settings
       trackingSettings: {
         clickTracking: {
-          enable: true
+          enable: true,
+          enableText: false
         },
         openTracking: {
-          enable: true
+          enable: true,
+          substitutionTag: '%open-track%'
+        },
+        subscriptionTracking: {
+          enable: false
         }
+      },
+      // Content settings to improve deliverability
+      categories: ['welcome', 'registration'],
+      customArgs: {
+        'email_type': 'welcome',
+        'user_type': 'new_registration'
       }
     };
 
@@ -357,61 +380,106 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
 
 export async function sendWelcomeEmail(userEmail: string, userName: string): Promise<boolean> {
   const welcomeHtml = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-      <div style="background-color: #2563eb; padding: 40px 20px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Welcome to NextWave</h1>
-        <p style="color: #e0e7ff; margin: 10px 0 0 0; font-size: 16px;">Your Journey to Study Abroad Starts Here</p>
-      </div>
-      
-      <div style="padding: 40px 20px;">
-        <h2 style="color: #1f2937; margin-bottom: 20px;">Thank you for joining NextWave Admissions, ${userName}!</h2>
-        
-        <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px;">
-          We're excited to have you on board! NextWave is your trusted partner for studying abroad in the UAE, 
-          connecting you with top universities and programs across Dubai, Abu Dhabi, Sharjah, and beyond.
-        </p>
-        
-        <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3 style="color: #2563eb; margin-top: 0;">What's Next?</h3>
-          <ul style="color: #4b5563; line-height: 1.8;">
-            <li>Browse over 1,000+ programs from 31 top UAE universities</li>
-            <li>Use our advanced filters to find your perfect program</li>
-            <li>Get personalized guidance from our education consultants</li>
-            <li>Apply directly through our streamlined application system</li>
-          </ul>
-        </div>
-        
-        <div style="background-color: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb;">
-          <h3 style="color: #1e40af; margin-top: 0;">Featured Universities</h3>
-          <p style="color: #1e40af; margin: 0;">
-            Explore programs from leading institutions in Dubai, Abu Dhabi, Sharjah, Ajman, and Ras Al Khaimah. 
-            From business and engineering to computer science and healthcare - find your ideal academic path.
-          </p>
-        </div>
-        
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="https://nextwave.ae/programs" style="display: inline-block; background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
-            Explore Programs Now
-          </a>
-        </div>
-        
-        <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
-          Need help getting started? Our team is here to assist you every step of the way. 
-          Simply reply to this email or contact our support team.
-        </p>
-      </div>
-      
-      <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
-        <p style="color: #6b7280; margin: 0; font-size: 14px;">
-          © 2025 NextWave Admissions. Empowering students to achieve their dreams of studying abroad.
-        </p>
-      </div>
-    </div>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Welcome to NextWave Admissions</title>
+    </head>
+    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
+      <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 20px 0; text-align: center;">
+            <table role="presentation" style="width: 600px; max-width: 100%; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+              <!-- Header -->
+              <tr>
+                <td style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); padding: 40px 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                  <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">NextWave Admissions</h1>
+                  <p style="color: #e0e7ff; margin: 12px 0 0 0; font-size: 18px; font-weight: 300;">Your Gateway to UAE Education Excellence</p>
+                </td>
+              </tr>
+              
+              <!-- Main Content -->
+              <tr>
+                <td style="padding: 40px 30px;">
+                  <h2 style="color: #1f2937; margin: 0 0 24px 0; font-size: 26px; font-weight: 600;">Welcome, ${userName}!</h2>
+                  
+                  <p style="color: #4b5563; line-height: 1.8; margin: 0 0 24px 0; font-size: 16px;">
+                    Thank you for choosing NextWave as your trusted partner for studying in the UAE. We're committed to helping you achieve your academic dreams through our comprehensive education services.
+                  </p>
+                  
+                  <!-- Key Benefits Box -->
+                  <table role="presentation" style="width: 100%; background-color: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; margin: 30px 0;">
+                    <tr>
+                      <td style="padding: 25px;">
+                        <h3 style="color: #2563eb; margin: 0 0 20px 0; font-size: 20px; font-weight: 600;">Your Study Abroad Journey Includes:</h3>
+                        <ul style="color: #374151; line-height: 1.8; margin: 0; padding-left: 20px; font-size: 15px;">
+                          <li style="margin-bottom: 8px;">Access to 1,000+ programs from 31 prestigious UAE universities</li>
+                          <li style="margin-bottom: 8px;">Advanced search and filtering tools for program discovery</li>
+                          <li style="margin-bottom: 8px;">Dedicated education consultants for personalized guidance</li>
+                          <li style="margin-bottom: 8px;">Streamlined application process with document management</li>
+                          <li style="margin-bottom: 0;">Real-time application tracking and status updates</li>
+                        </ul>
+                      </td>
+                    </tr>
+                  </table>
+                  
+                  <!-- Universities Highlight -->
+                  <table role="presentation" style="width: 100%; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 10px; border-left: 4px solid #2563eb; margin: 30px 0;">
+                    <tr>
+                      <td style="padding: 25px;">
+                        <h3 style="color: #1e40af; margin: 0 0 15px 0; font-size: 20px; font-weight: 600;">Top UAE Universities</h3>
+                        <p style="color: #1e40af; margin: 0; line-height: 1.6; font-size: 15px;">
+                          Discover programs from leading institutions across Dubai, Abu Dhabi, Sharjah, Ajman, and Ras Al Khaimah. 
+                          Whether you're interested in business, engineering, computer science, healthcare, or any other field, 
+                          we'll help you find the perfect academic path.
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                  
+                  <!-- Call to Action -->
+                  <table role="presentation" style="width: 100%; margin: 35px 0; text-align: center;">
+                    <tr>
+                      <td>
+                        <a href="https://nextwave.ae/programs" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">Explore Programs Now</a>
+                      </td>
+                    </tr>
+                  </table>
+                  
+                  <!-- Support Information -->
+                  <div style="background-color: #fefefe; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 30px 0;">
+                    <p style="color: #6b7280; margin: 0; line-height: 1.6; font-size: 14px; text-align: center;">
+                      <strong>Need assistance?</strong> Our expert team is ready to help you every step of the way.<br>
+                      Reply to this email or visit our support center for immediate assistance.
+                    </p>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Footer -->
+              <tr>
+                <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb; border-radius: 0 0 8px 8px;">
+                  <p style="color: #6b7280; margin: 0 0 10px 0; font-size: 14px; line-height: 1.5;">
+                    © 2025 NextWave Admissions | UAE Education Consultancy
+                  </p>
+                  <p style="color: #9ca3af; margin: 0; font-size: 12px;">
+                    This email was sent to ${userEmail} because you registered for a NextWave account.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
   `;
 
   return await sendEmail({
     to: userEmail,
-    subject: 'Welcome to NextWave - Your Study Abroad Journey Begins!',
+    subject: '🎓 Welcome to NextWave - Your UAE Study Journey Begins!',
     html: welcomeHtml
   });
 }

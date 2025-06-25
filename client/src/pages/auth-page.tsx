@@ -74,10 +74,8 @@ export default function AuthPage() {
       const result = await loginMutation.mutateAsync(data);
       console.log("Login successful, result:", result);
       
-      // Small delay to ensure the auth state is updated
-      setTimeout(() => {
-        setLocation(redirectTo);
-      }, 100);
+      // Immediately redirect after successful login
+      setLocation(redirectTo);
     } catch (error: any) {
       console.error("Login error:", error);
       setLoginError(error.message || "Login failed. Please try again.");
@@ -97,10 +95,8 @@ export default function AuthPage() {
       });
       console.log("Registration successful, result:", result);
       
-      // Small delay to ensure the auth state is updated
-      setTimeout(() => {
-        setLocation(redirectTo);
-      }, 100);
+      // Immediately redirect after successful registration
+      setLocation(redirectTo);
     } catch (error: any) {
       console.error("Registration error:", error);
       setSignupError(error.message || "Registration failed. Please try again.");

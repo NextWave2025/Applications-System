@@ -6,6 +6,7 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import { User } from "@shared/schema";
+import { sendWelcomeEmail } from "./email-service";
 
 declare global {
   namespace Express {
@@ -148,8 +149,19 @@ export function setupAuth(app: Express) {
         createdAt: user.createdAt
       };
       
-      req.login(passportUser, (err) => {
+      req.login(passportUser, async (err) => {
         if (err) return next(err);
+        
+        // Send welcome email after successful registration
+        try {
+          const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username;
+          await sendWelcomeEmail(user.username, userName);
+          console.log(`Welcome email sent to ${user.username}`);
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+          // Don't fail registration if email fails
+        }
+        
         res.status(201).json(passportUser);
       });
     } catch (err) {
