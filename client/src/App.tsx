@@ -22,7 +22,7 @@ import NotFoundPage from "./pages/not-found";
 
 import MainLayout from "./layouts/main-layout";
 import DashboardLayout from "./layouts/dashboard-layout";
-import { ProtectedRoute } from "./components/protected-route";
+import ProtectedRoute from "./components/protected-route";
 import ApplicationDetailsPage from "./pages/application-details-page";
 import UserApplicationDetailsPage from "./pages/user-application-details-page";
 
