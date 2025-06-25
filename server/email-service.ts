@@ -30,7 +30,9 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       return false;
     }
 
-    // Use verified sender domain - ensure this email is verified in your SendGrid account
+    // IMPORTANT: This email must be verified in your SendGrid account
+    // Go to SendGrid Dashboard > Settings > Sender Authentication
+    // Add and verify this sender email or use a verified email from your account
     const verifiedSenderEmail = params.from || 'noreply@nextwave.ae';
     
     const msg = {
@@ -58,7 +60,8 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     console.log('From:', verifiedSenderEmail);
     console.log('Subject:', params.subject);
     console.log('HTML length:', params.html.length);
-    console.log('Sandbox mode disabled:', true);
+    console.log('API Key configured:', !!process.env.SENDGRID_API_KEY);
+    console.log('WARNING: Ensure sender email is verified in SendGrid dashboard');
     
     console.log('Attempting to send email via SendGrid...');
     const result = await sgMail.send(msg);
@@ -88,6 +91,15 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
           console.error(`Error ${index + 1}:`, err.message);
           console.error(`Field:`, err.field);
           console.error(`Help:`, err.help);
+          
+          // Specific guidance for common errors
+          if (err.field === 'from' && err.message.includes('verified Sender Identity')) {
+            console.error('\n🔧 SOLUTION: Verify your sender email in SendGrid:');
+            console.error('1. Login to SendGrid Dashboard');
+            console.error('2. Go to Settings > Sender Authentication');
+            console.error('3. Add and verify the sender email: ' + verifiedSenderEmail);
+            console.error('4. OR use an already verified email address');
+          }
         });
       }
     }

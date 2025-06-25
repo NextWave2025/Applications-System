@@ -23,7 +23,9 @@ UAE-focused university program listing application with comprehensive filtering,
 - Routing: wouter for client-side navigation
 
 ## Recent Changes
-- **Dec 25, 2025**: Enhanced SendGrid email service with comprehensive error logging, disabled sandbox mode, and proper sender domain configuration
+- **Dec 25, 2025**: Diagnosed SendGrid issue - sender email verification required in SendGrid dashboard
+- **Dec 25, 2025**: Added email testing endpoints at /api/test/email and /api/test/notification for debugging
+- **Dec 25, 2025**: Enhanced SendGrid error logging with specific troubleshooting guidance
 - **Dec 25, 2025**: Implemented random program ordering using ORDER BY RANDOM() to ensure equal visibility across all universities
 - **Dec 24, 2025**: Updated filter system with UAE city categorization and semantic color coding
 

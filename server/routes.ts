@@ -7,6 +7,7 @@ import multer from "multer";
 import path from "path";
 import adminRouter from "./routes/admin";
 import { sendApplicationStatusNotification } from "./email-service";
+import { setupEmailTestRoutes } from "./routes/email-test";
 
 export function registerRoutes(app: Express): Server {
   // sets up /api/register, /api/login, /api/logout, /api/user
@@ -14,6 +15,9 @@ export function registerRoutes(app: Express): Server {
 
   // Mount admin routes
   app.use('/api/admin', adminRouter);
+  
+  // Setup email testing routes
+  setupEmailTestRoutes(app);
 
   // Configure multer for file uploads
   const multerStorage = multer.memoryStorage(); // Use memory storage for simplicity
