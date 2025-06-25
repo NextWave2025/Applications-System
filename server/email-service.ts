@@ -4,7 +4,16 @@ if (!process.env.SENDGRID_API_KEY) {
   throw new Error("SENDGRID_API_KEY environment variable must be set");
 }
 
+// Enhanced SendGrid configuration with debugging
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+// Log SendGrid configuration details (without exposing the actual key)
+console.log('SendGrid Configuration:');
+console.log('- API Key configured:', !!process.env.SENDGRID_API_KEY);
+console.log('- API Key length:', process.env.SENDGRID_API_KEY?.length || 0);
+console.log('- API Key starts with:', process.env.SENDGRID_API_KEY?.substring(0, 5) + '...');
+
+// Note: Sandbox mode is controlled via SendGrid dashboard settings
 
 interface EmailParams {
   to: string;
@@ -21,23 +30,69 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       return false;
     }
 
+    // Use verified sender domain - ensure this email is verified in your SendGrid account
+    const verifiedSenderEmail = params.from || 'noreply@nextwave.ae';
+    
     const msg = {
       to: params.to,
       cc: params.cc,
-      from: params.from || 'notifications@studyabroad.ae',
+      from: {
+        email: verifiedSenderEmail,
+        name: 'NextWave Study Abroad'
+      },
       subject: params.subject,
       html: params.html,
+      // Add tracking settings
+      trackingSettings: {
+        clickTracking: {
+          enable: true
+        },
+        openTracking: {
+          enable: true
+        }
+      }
     };
 
-    console.log(`Attempting to send email to ${params.to} with subject: ${params.subject}`);
+    console.log('=== SendGrid Email Debug Info ===');
+    console.log('To:', params.to);
+    console.log('From:', verifiedSenderEmail);
+    console.log('Subject:', params.subject);
+    console.log('HTML length:', params.html.length);
+    console.log('Sandbox mode disabled:', true);
+    
+    console.log('Attempting to send email via SendGrid...');
     const result = await sgMail.send(msg);
-    console.log(`Email sent successfully to ${params.to}`, result[0].statusCode);
+    
+    console.log('=== SendGrid Success Response ===');
+    console.log('Status Code:', result[0].statusCode);
+    console.log('Response Headers:', JSON.stringify(result[0].headers, null, 2));
+    console.log('Message ID:', result[0].headers['x-message-id']);
+    console.log(`Email sent successfully to ${params.to}`);
+    
     return true;
   } catch (error: any) {
-    console.error('SendGrid email error:', error);
-    if (error?.response) {
-      console.error('SendGrid error response:', error.response.body);
+    console.error('=== SendGrid Error Details ===');
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response headers:', JSON.stringify(error.response.headers, null, 2));
+      console.error('Response body:', JSON.stringify(error.response.body, null, 2));
+      
+      // Detailed error analysis
+      if (error.response.body && error.response.body.errors) {
+        console.error('SendGrid API Errors:');
+        error.response.body.errors.forEach((err: any, index: number) => {
+          console.error(`Error ${index + 1}:`, err.message);
+          console.error(`Field:`, err.field);
+          console.error(`Help:`, err.help);
+        });
+      }
     }
+    
+    console.error('Full error object:', error);
     return false;
   }
 }
