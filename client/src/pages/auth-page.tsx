@@ -32,7 +32,7 @@ export default function AuthPage() {
   const [, setLocation] = useLocation();
   
   // Check if there's a redirect URL from a program application
-  const redirectTo = "/dashboard";
+  const redirectTo = localStorage.getItem("redirectAfterLogin") || "/dashboard";
   
   // Use auth context
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
@@ -74,7 +74,8 @@ export default function AuthPage() {
       const result = await loginMutation.mutateAsync(data);
       console.log("Login successful, result:", result);
       
-      // Immediately redirect after successful login
+      // Clear stored redirect and navigate
+      localStorage.removeItem("redirectAfterLogin");
       setLocation(redirectTo);
     } catch (error: any) {
       console.error("Login error:", error);
@@ -95,7 +96,8 @@ export default function AuthPage() {
       });
       console.log("Registration successful, result:", result);
       
-      // Immediately redirect after successful registration
+      // Clear stored redirect and navigate
+      localStorage.removeItem("redirectAfterLogin");
       setLocation(redirectTo);
     } catch (error: any) {
       console.error("Registration error:", error);

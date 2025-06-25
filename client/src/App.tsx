@@ -132,7 +132,7 @@ export default function App() {
             </Route>
 
             <Route path="/dashboard">
-              <ProtectedRoute>
+              <ProtectedRoute redirectTo="/dashboard">
                 <DashboardLayout>
                   <DashboardPage />
                 </DashboardLayout>

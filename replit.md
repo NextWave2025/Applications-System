@@ -23,6 +23,8 @@ UAE-focused university program listing application with comprehensive filtering,
 - Routing: wouter for client-side navigation
 
 ## Recent Changes
+- **Dec 25, 2025**: Fixed login redirection issue - authentication now properly redirects to dashboard immediately after successful login
+- **Dec 25, 2025**: Enhanced authentication state management with forced query invalidation for consistent state updates
 - **Dec 25, 2025**: Integrated automatic welcome email on user registration with anti-spam measures (proper HTML structure, unsubscribe headers, plain text version)
 - **Dec 25, 2025**: Enhanced email template with professional HTML table layout and anti-spam headers to avoid spam folder
 - **Dec 25, 2025**: Email system fully operational using verified sender nextwaveadmission@gmail.com

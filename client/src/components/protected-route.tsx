@@ -2,26 +2,38 @@ import { ReactNode, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "../hooks/use-auth";
 
-export function ProtectedRoute({ children }: { children: ReactNode }) {
+interface ProtectedRouteProps {
+  children: ReactNode;
+  redirectTo?: string;
+}
+
+export default function ProtectedRoute({ children, redirectTo }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
 
   useEffect(() => {
     if (!isLoading && !user) {
+      console.log("User not authenticated, redirecting to auth");
+      // Store the intended destination for post-login redirect
+      if (redirectTo && location !== "/auth") {
+        localStorage.setItem("redirectAfterLogin", redirectTo);
+      }
       setLocation("/auth");
     }
-  }, [user, isLoading, setLocation]);
+  }, [user, isLoading, setLocation, redirectTo, location]);
 
+  // Show loading while checking authentication
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
 
+  // Don't render if not authenticated
   if (!user) {
-    return null; // Will redirect via useEffect
+    return null;
   }
 
   return <>{children}</>;
