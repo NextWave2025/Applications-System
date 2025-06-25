@@ -139,6 +139,12 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
+            <Route path="/email-test">
+              <MainLayout>
+                <EmailTestPage />
+              </MainLayout>
+            </Route>
+
             {/* Admin dashboard routes */}
             <Route path="/admin/applications/:id">
               <ProtectedRoute>
