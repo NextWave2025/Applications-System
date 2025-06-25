@@ -7,7 +7,7 @@ if (!process.env.SENDGRID_API_KEY) {
 // Get platform URL from environment or use default
 const PLATFORM_URL = process.env.REPLIT_DOMAIN 
   ? `https://${process.env.REPLIT_DOMAIN}` 
-  : 'https://nextwave-platform.replit.app';
+  : 'https://study-tracker-pro-guidemiddleast.replit.app';
 
 // Enhanced SendGrid configuration with debugging
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -509,11 +509,45 @@ export async function sendWelcomeEmail(userEmail: string, userName: string): Pro
                     </tr>
                   </table>
                   
-                  <!-- Call to Action -->
+                  <!-- Call to Action Buttons -->
                   <table role="presentation" style="width: 100%; margin: 35px 0; text-align: center;">
                     <tr>
                       <td>
-                        <a href="${PLATFORM_URL}/programs" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">Explore Programs Now</a>
+                        <a href="${PLATFORM_URL}/programs" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); margin: 0 10px 10px 0;">Explore Programs</a>
+                        <a href="${PLATFORM_URL}/dashboard" style="display: inline-block; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3); margin: 0 0 10px 10px;">My Dashboard</a>
+                      </td>
+                    </tr>
+                  </table>
+                  
+                  <!-- Quick Links Section -->
+                  <table role="presentation" style="width: 100%; background-color: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; margin: 25px 0;">
+                    <tr>
+                      <td style="padding: 20px; text-align: center;">
+                        <h4 style="color: #1f2937; margin: 0 0 15px 0; font-size: 16px; font-weight: 600;">Quick Links</h4>
+                        <table role="presentation" style="width: 100%;">
+                          <tr>
+                            <td style="text-align: center; padding: 5px;">
+                              <a href="${PLATFORM_URL}/programs" style="color: #2563eb; text-decoration: none; font-size: 14px; font-weight: 500;">Browse Programs</a>
+                            </td>
+                            <td style="text-align: center; padding: 5px;">
+                              <a href="${PLATFORM_URL}/dashboard/applications" style="color: #2563eb; text-decoration: none; font-size: 14px; font-weight: 500;">My Applications</a>
+                            </td>
+                            <td style="text-align: center; padding: 5px;">
+                              <a href="${PLATFORM_URL}/dashboard/settings" style="color: #2563eb; text-decoration: none; font-size: 14px; font-weight: 500;">Account Settings</a>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="text-align: center; padding: 5px;">
+                              <a href="${PLATFORM_URL}/about" style="color: #2563eb; text-decoration: none; font-size: 14px; font-weight: 500;">About Us</a>
+                            </td>
+                            <td style="text-align: center; padding: 5px;">
+                              <a href="${PLATFORM_URL}/contact" style="color: #2563eb; text-decoration: none; font-size: 14px; font-weight: 500;">Contact Support</a>
+                            </td>
+                            <td style="text-align: center; padding: 5px;">
+                              <a href="${PLATFORM_URL}" style="color: #2563eb; text-decoration: none; font-size: 14px; font-weight: 500;">Home</a>
+                            </td>
+                          </tr>
+                        </table>
                       </td>
                     </tr>
                   </table>

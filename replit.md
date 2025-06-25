@@ -23,6 +23,10 @@ UAE-focused university program listing application with comprehensive filtering,
 - Routing: wouter for client-side navigation
 
 ## Recent Changes
+- **Dec 25, 2025**: Updated all email notifications with proper platform links and call-to-action buttons linking to dashboard, applications, program browser, and admin panel
+- **Dec 25, 2025**: Enhanced welcome email with comprehensive quick links section and dual call-to-action buttons for programs and dashboard
+- **Dec 25, 2025**: Implemented dynamic platform URL detection using REPLIT_DOMAIN environment variable for proper link generation
+- **Dec 25, 2025**: Fixed deployment issue with ProtectedRoute import/export mismatch - changed from named to default import
 - **Dec 25, 2025**: Fixed login redirection issue - authentication now properly redirects to dashboard immediately after successful login
 - **Dec 25, 2025**: Enhanced authentication state management with forced query invalidation for consistent state updates
 - **Dec 25, 2025**: Integrated automatic welcome email on user registration with anti-spam measures (proper HTML structure, unsubscribe headers, plain text version)
