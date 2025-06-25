@@ -4,6 +4,11 @@ if (!process.env.SENDGRID_API_KEY) {
   throw new Error("SENDGRID_API_KEY environment variable must be set");
 }
 
+// Get platform URL from environment or use default
+const PLATFORM_URL = process.env.REPLIT_DOMAIN 
+  ? `https://${process.env.REPLIT_DOMAIN}` 
+  : 'https://nextwave-platform.replit.app';
+
 // Enhanced SendGrid configuration with debugging
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -183,6 +188,16 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
             <p><strong>Status:</strong> <span style="color: #059669; font-weight: bold;">Submitted</span></p>
           </div>
           <p>Your application is now under review. We will keep you updated on any progress.</p>
+          
+          <!-- Call to Action -->
+          <table role="presentation" style="width: 100%; margin: 25px 0; text-align: center;">
+            <tr>
+              <td>
+                <a href="${PLATFORM_URL}/dashboard/applications/${applicationId}" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">View Application Status</a>
+              </td>
+            </tr>
+          </table>
+          
           <p>If you have any questions, please contact your education consultant: ${agentName}</p>
           <p>Best regards,<br>Study Abroad Team</p>
         </div>
@@ -200,6 +215,15 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
             <p><strong>University:</strong> ${universityName}</p>
             <p><strong>Status:</strong> <span style="color: #059669; font-weight: bold;">Submitted</span></p>
           </div>
+          <!-- Call to Action -->
+          <table role="presentation" style="width: 100%; margin: 25px 0; text-align: center;">
+            <tr>
+              <td>
+                <a href="${PLATFORM_URL}/admin/applications/${applicationId}" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">Review Application</a>
+              </td>
+            </tr>
+          </table>
+          
           <p>Please review the application in your admin dashboard.</p>
           <p>Best regards,<br>Study Abroad System</p>
         </div>
@@ -224,6 +248,16 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
             <p>${notes}</p>
           </div>` : ''}
           <p>We will notify you once the review process is complete.</p>
+          
+          <!-- Call to Action -->
+          <table role="presentation" style="width: 100%; margin: 25px 0; text-align: center;">
+            <tr>
+              <td>
+                <a href="${PLATFORM_URL}/dashboard/applications/${applicationId}" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">Track Application Progress</a>
+              </td>
+            </tr>
+          </table>
+          
           <p>Best regards,<br>Study Abroad Team</p>
         </div>
       `,
@@ -270,6 +304,15 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
             <h4 style="color: #1e40af; margin-top: 0;">Additional Notes:</h4>
             <p>${notes}</p>
           </div>` : ''}
+          <!-- Call to Action -->
+          <table role="presentation" style="width: 100%; margin: 25px 0; text-align: center;">
+            <tr>
+              <td>
+                <a href="${PLATFORM_URL}/dashboard/applications/${applicationId}" style="display: inline-block; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">View Offer Details</a>
+              </td>
+            </tr>
+          </table>
+          
           <p>Please contact your education consultant ${agentName} for next steps regarding enrollment and visa procedures.</p>
           <p>Congratulations once again on this achievement!</p>
           <p>Best regards,<br>Study Abroad Team</p>
@@ -287,6 +330,15 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
             <p><strong>University:</strong> ${universityName}</p>
             <p><strong>Status:</strong> <span style="color: #059669; font-weight: bold;">Approved</span></p>
           </div>
+          <!-- Call to Action -->
+          <table role="presentation" style="width: 100%; margin: 25px 0; text-align: center;">
+            <tr>
+              <td>
+                <a href="${PLATFORM_URL}/admin/applications/${applicationId}" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">View Application Details</a>
+              </td>
+            </tr>
+          </table>
+          
           <p>Please follow up with the student for next steps.</p>
           <p>Best regards,<br>Study Abroad System</p>
         </div>
@@ -314,6 +366,15 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
             <h4 style="color: #1e40af; margin-top: 0;">Additional Notes:</h4>
             <p>${notes}</p>
           </div>` : ''}
+          <!-- Call to Action -->
+          <table role="presentation" style="width: 100%; margin: 25px 0; text-align: center;">
+            <tr>
+              <td>
+                <a href="${PLATFORM_URL}/programs" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">Explore Other Programs</a>
+              </td>
+            </tr>
+          </table>
+          
           <p>Please don't be discouraged. Your education consultant ${agentName} will be in touch to discuss alternative options and next steps.</p>
           <p>Best regards,<br>Study Abroad Team</p>
         </div>
@@ -330,6 +391,15 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
             <p><strong>University:</strong> ${universityName}</p>
             <p><strong>Status:</strong> <span style="color: #dc2626; font-weight: bold;">Rejected</span></p>
           </div>
+          <!-- Call to Action -->
+          <table role="presentation" style="width: 100%; margin: 25px 0; text-align: center;">
+            <tr>
+              <td>
+                <a href="${PLATFORM_URL}/admin/applications/${applicationId}" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">View Application</a>
+              </td>
+            </tr>
+          </table>
+          
           <p>Please reach out to the student to discuss alternative options.</p>
           <p>Best regards,<br>Study Abroad System</p>
         </div>
@@ -443,7 +513,7 @@ export async function sendWelcomeEmail(userEmail: string, userName: string): Pro
                   <table role="presentation" style="width: 100%; margin: 35px 0; text-align: center;">
                     <tr>
                       <td>
-                        <a href="https://nextwave.ae/programs" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">Explore Programs Now</a>
+                        <a href="${PLATFORM_URL}/programs" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">Explore Programs Now</a>
                       </td>
                     </tr>
                   </table>
