@@ -11,6 +11,7 @@ import {
   LogOut,
   User
 } from "lucide-react";
+import NextWaveLogo from "@/components/nextwave-logo";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -18,7 +19,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const [location] = useLocation();
@@ -69,7 +70,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="flex h-screen bg-gray-100">
       {/* Mobile Header with Menu Toggle and NextWave Logo */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-primary text-white px-4 py-3 flex justify-between items-center shadow-md">
-        <h1 className="text-lg font-bold">NextWave</h1>
+        <NextWaveLogo size="sm" className="text-white" />
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="text-white p-2 rounded-md hover:bg-white/10"

@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import Logo from "@/polymet/components/logo";
+import NextWaveLogo from "@/components/nextwave-logo";
 
 interface AdminSidebarProps {
   open?: boolean;
@@ -58,7 +58,7 @@ export default function AdminSidebar({
             open ? "opacity-100" : "opacity-0"
           )}
         >
-          {open && <Logo />}
+          {open && <NextWaveLogo size="md" />}
         </div>
         <Button
           variant="ghost"
