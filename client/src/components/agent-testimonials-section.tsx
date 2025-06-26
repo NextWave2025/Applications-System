@@ -67,7 +67,7 @@ export default function AgentTestimonialsSection() {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-3xl mx-auto mb-16 text-center">
-          <div className="guide-badge-with-dot mb-6">Success Stories</div>
+          <div className="nextwave-badge-with-dot mb-6">Success Stories</div>
           <h2 className="text-5xl md:text-[64px] font-bold text-gray-900 mb-6 leading-tight tracking-tight">
             What Our <span className="text-primary">Agents</span> Say
           </h2>

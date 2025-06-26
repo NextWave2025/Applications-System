@@ -1,6 +1,6 @@
-# Guide Platform Deployment Guide
+# NextWave Platform Deployment Guide
 
-This document provides detailed instructions for deploying the Guide Platform to AWS Elastic Beanstalk.
+This document provides detailed instructions for deploying the NextWave Platform to AWS Elastic Beanstalk.
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ This script will:
 1. Log in to your AWS Management Console
 2. Navigate to the Elastic Beanstalk service
 3. Click "Create Application"
-4. Enter the application name (e.g., "Guide-Platform")
+4. Enter the application name (e.g., "NextWave-Platform")
 5. Select "Web server environment"
 6. Platform: Node.js
 7. Platform branch: Node.js 18 (or latest LTS)

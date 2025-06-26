@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Guide Platform Project Cleanup Script
+# NextWave Platform Project Cleanup Script
 # This script removes non-essential files from the project for production deployment
 
 # Text colors
@@ -9,7 +9,7 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}Guide Platform - Project Cleanup${NC}"
+echo -e "${GREEN}NextWave Platform - Project Cleanup${NC}"
 echo "-------------------------------------------"
 
 # Define arrays of files to remove

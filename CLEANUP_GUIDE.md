@@ -80,7 +80,7 @@ If the provided cleanup script doesn't work in your environment, you can manuall
 After removing these files, your project structure should look like this:
 
 ```
-guide-platform/
+nextwave-platform/
 ├── client/                 # Frontend code
 ├── server/                 # Backend code
 │   ├── middleware/         # Express middleware

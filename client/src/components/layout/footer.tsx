@@ -32,7 +32,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="https://www.linkedin.com/company/startwithguide/"
+                href="https://www.linkedin.com/company/nextwave-admissions/"
                 target="_blank"
                 className="text-gray-400 hover:text-white"
               >

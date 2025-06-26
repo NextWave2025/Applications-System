@@ -168,12 +168,12 @@ If you encounter PostgreSQL connection issues:
 
 2. Check that your connection string in `.env` is correct:
    ```
-   DATABASE_URL=postgresql://username:password@localhost:5432/guide_db
+   DATABASE_URL=postgresql://username:password@localhost:5432/nextwave_db
    ```
    
 3. Ensure your PostgreSQL user has appropriate permissions:
    ```sql
-   GRANT ALL PRIVILEGES ON DATABASE guide_db TO your_username;
+   GRANT ALL PRIVILEGES ON DATABASE nextwave_db TO your_username;
    ```
 
 ### Session Secret Security
@@ -214,8 +214,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
    
    - Verify PostgreSQL is running with `pg_isready` command
    - Check your database credentials in the .env file
-   - Make sure the database exists: `createdb guide_db`
-   - Test the connection with: `psql -d postgresql://username:password@localhost:5432/guide_db -c "SELECT 1;"`
+   - Make sure the database exists: `createdb nextwave_db`
+   - Test the connection with: `psql -d postgresql://username:password@localhost:5432/nextwave_db -c "SELECT 1;"`
    - For Windows users, ensure PostgreSQL service is running in Services panel
 
 3. **Port Conflicts**

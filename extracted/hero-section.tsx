@@ -44,7 +44,7 @@ export default function HeroSection() {
             Top Universities
           </h1>
           <p className="mt-6 text-lg text-gray-300 max-w-2xl">
-            Guide helps education agents connect international students with
+            NextWave helps education agents connect international students with
             premier UAE universities. Maximize your commissions while providing
             students with life-changing opportunities.
           </p>
