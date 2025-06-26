@@ -186,16 +186,10 @@ export default function DashboardPage() {
         {/* Admin Section - Only visible to admin users */}
         {(user as any)?.role === "admin" && (
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mt-4 sm:mt-6 border-l-4 border-blue-500">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Admin Controls</h2>
-            <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
-              You have administrator privileges. Access the admin dashboard to manage users, applications, and view system statistics.
+            <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Admin Access</h2>
+            <p className="text-sm sm:text-base text-gray-600">
+              You have administrator privileges. Use the admin navigation in the sidebar to access management features including My Applications, Admin Control, and system statistics.
             </p>
-            <button 
-              onClick={() => navigate("/admin")}
-              className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm sm:text-base"
-            >
-              Go to Admin Dashboard
-            </button>
           </div>
         )}
       </div>

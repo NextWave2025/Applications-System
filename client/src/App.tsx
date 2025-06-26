@@ -24,6 +24,7 @@ import NotFoundPage from "./pages/not-found";
 
 import MainLayout from "./layouts/main-layout";
 import DashboardLayout from "./layouts/dashboard-layout";
+import AdminLayout from "./layouts/admin-layout";
 import ProtectedRoute from "./components/protected-route";
 import ApplicationDetailsPage from "./pages/application-details-page";
 import UserApplicationDetailsPage from "./pages/user-application-details-page";
@@ -150,31 +151,41 @@ export default function App() {
             {/* Admin dashboard routes */}
             <Route path="/admin/applications/:id">
               <ProtectedRoute>
-                <ApplicationDetailsPage />
+                <AdminLayout>
+                  <ApplicationDetailsPage />
+                </AdminLayout>
               </ProtectedRoute>
             </Route>
 
             <Route path="/admin/my-applications">
               <ProtectedRoute>
-                <AdminMyApplicationsPage />
+                <AdminLayout>
+                  <AdminMyApplicationsPage />
+                </AdminLayout>
               </ProtectedRoute>
             </Route>
 
             <Route path="/admin/control">
               <ProtectedRoute>
-                <AdminControlPage />
+                <AdminLayout>
+                  <AdminControlPage />
+                </AdminLayout>
               </ProtectedRoute>
             </Route>
 
             <Route path="/admin/dashboard">
               <ProtectedRoute>
-                <AdminDashboardPage />
+                <AdminLayout>
+                  <AdminDashboardPage />
+                </AdminLayout>
               </ProtectedRoute>
             </Route>
 
             <Route path="/admin">
               <ProtectedRoute>
-                <AdminDashboardPage />
+                <AdminLayout>
+                  <AdminDashboardPage />
+                </AdminLayout>
               </ProtectedRoute>
             </Route>
 

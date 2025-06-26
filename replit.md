@@ -23,12 +23,14 @@ UAE-focused university program listing application with comprehensive filtering,
 - Routing: wouter for client-side navigation
 
 ## Recent Changes
+- **Dec 26, 2025**: Completed admin navigation restructure - created dedicated AdminLayout with sidebar navigation including Admin Control, My Applications, and all management features accessible from sidebar
+- **Dec 26, 2025**: Fixed nested link issues in NextWave logo component to avoid DOM nesting errors while maintaining home navigation functionality
+- **Dec 26, 2025**: Removed Admin Control button from dashboard page since admin features are now accessible through sidebar navigation in admin layout
 - **Dec 26, 2025**: Implemented NextWave logo component with home navigation - added reusable NextWaveLogo component with graduation cap icon that links to homepage across all layouts
 - **Dec 26, 2025**: Updated sidebar default state to open - dashboard sidebar now opens by default for better user experience unless manually collapsed
 - **Dec 26, 2025**: Enhanced branding consistency - replaced "Guide" with "NextWave" in landing page process section and updated all headers/sidebars to use NextWave logo component
 - **Dec 26, 2025**: Reorganized super admin navigation structure - moved "Admin Control" to sidebar navigation and consolidated "Application Management" into "My Applications" section for better user experience
 - **Dec 26, 2025**: Created dedicated admin pages (admin-control-page.tsx, admin-my-applications-page.tsx) with updated routing structure (/admin/control, /admin/my-applications)
-- **Dec 26, 2025**: Updated admin sidebar navigation to include "Admin Control" link and renamed "Applications" to "My Applications" for clearer functionality separation
 - **Dec 26, 2025**: Completed comprehensive platform rebranding - replaced all instances of "Guide" with "NextWave" across documentation, UI components, CSS classes, and configuration files
 - **Dec 26, 2025**: Updated CSS classes from "guide-" prefix to "nextwave-" prefix for consistent branding
 - **Dec 26, 2025**: Modified authentication pages, hero sections, testimonials, and footer links to reflect NextWave branding
