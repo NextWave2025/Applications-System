@@ -43,10 +43,8 @@ export default function NextWaveLogo({ className = "", size = "md", asButton = f
   }
 
   return (
-    <Link href="/">
-      <a className={baseClasses}>
-        {content}
-      </a>
+    <Link href="/" className={baseClasses}>
+      {content}
     </Link>
   );
 }
