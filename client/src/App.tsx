@@ -13,7 +13,7 @@ import ApplicationEditPage from "./pages/application-edit-page";
 import ApplicationsPage from "./pages/applications-page";
 import AuthPage from "./pages/auth-page";
 import DashboardPage from "./pages/dashboard-page";
-import AdminDashboardPage from "./pages/admin-dashboard-page";
+import AdminDashboardPage from "./pages/admin-dashboard-simple";
 import AdminControlPage from "./pages/admin-control-page";
 import AdminMyApplicationsPage from "./pages/admin-my-applications-page";
 import SettingsPage from "./pages/settings-page";
