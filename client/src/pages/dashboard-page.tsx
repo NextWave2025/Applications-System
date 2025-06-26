@@ -30,6 +30,13 @@ export default function DashboardPage() {
     }
   }, [isLoadingUser, user, navigate]);
 
+  // Redirect admin users to admin dashboard
+  useEffect(() => {
+    if (!isLoadingUser && user && (user as any)?.role === "admin") {
+      navigate("/admin");
+    }
+  }, [isLoadingUser, user, navigate]);
+
   // Show loading state
   if (isLoading) {
     return (
