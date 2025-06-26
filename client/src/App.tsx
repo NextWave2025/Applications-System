@@ -57,19 +57,19 @@ export default function App() {
       <CurrencyProvider>
         <AuthProvider>
           <Router>
-          <Switch>
-            {/* Public routes with MainLayout */}
-            <Route path="/">
-              <MainLayout>
-                <LandingPage />
-              </MainLayout>
-            </Route>
+            <Switch>
+              {/* Public routes with MainLayout */}
+              <Route path="/">
+                <MainLayout>
+                  <LandingPage />
+                </MainLayout>
+              </Route>
 
-            <Route path="/auth">
-              <MainLayout>
-                <AuthPage />
-              </MainLayout>
-            </Route>
+              <Route path="/auth">
+                <MainLayout>
+                  <AuthPage />
+                </MainLayout>
+              </Route>
 
             <Route path="/programs/:id">
               <MainLayout>
@@ -205,9 +205,10 @@ export default function App() {
               <NotFoundPage />
             </Route>
           </Switch>
-        </Router>
-        <Toaster />
-      </AuthProvider>
+          </Router>
+          <Toaster />
+        </AuthProvider>
+      </CurrencyProvider>
     </QueryClientProvider>
   );
 }

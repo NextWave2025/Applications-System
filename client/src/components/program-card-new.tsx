@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, BookOpen, Star, Clock, MapPin, DollarSign } from "lucide-react";
 import { type ProgramWithUniversity } from "@shared/schema";
+import PriceDisplay from "@/components/price-display";
 
 interface ProgramCardNewProps {
   program: ProgramWithUniversity;
@@ -18,17 +19,16 @@ export default function ProgramCardNew({
   showSelection = false 
 }: ProgramCardNewProps) {
   
-  const formatTuition = (tuition: string) => {
+  const getTuitionAmount = (tuition: string): number | null => {
     if (!tuition || tuition === "0 AED/year") {
-      return "Contact for pricing";
+      return null;
     }
     // Extract numbers from string to handle different formats
     const numericValue = tuition.replace(/[^0-9]/g, '');
     if (numericValue && numericValue !== "0") {
-      const formattedValue = new Intl.NumberFormat('en-US').format(parseInt(numericValue));
-      return `AED ${formattedValue}`;
+      return parseInt(numericValue);
     }
-    return tuition;
+    return null;
   };
 
   const formatDuration = (duration: string) => {
