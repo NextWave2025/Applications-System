@@ -9,6 +9,23 @@ const PLATFORM_URL = process.env.REPLIT_DOMAIN
   ? `https://${process.env.REPLIT_DOMAIN}` 
   : 'https://study-tracker-pro-guidemiddleast.replit.app';
 
+// Function to convert HTML to clean plain text
+function convertHtmlToPlainText(html: string): string {
+  return html
+    .replace(/<style[^>]*>.*?<\/style>/gi, '') // Remove style tags
+    .replace(/<script[^>]*>.*?<\/script>/gi, '') // Remove script tags
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
+    .replace(/&amp;/g, '&') // Replace HTML entities
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .replace(/\n\s*\n/g, '\n\n') // Normalize line breaks
+    .trim();
+}
+
 // Enhanced SendGrid configuration with debugging
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -51,13 +68,19 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       },
       subject: params.subject,
       html: params.html,
-      text: params.html.replace(/<[^>]*>/g, ''), // Plain text version
-      // Anti-spam headers and settings
+      text: convertHtmlToPlainText(params.html), // Improved plain text version
+      // Enhanced anti-spam headers and settings
       headers: {
         'List-Unsubscribe': '<mailto:nextwaveadmission@gmail.com?subject=unsubscribe>',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
         'X-Priority': '3',
         'X-MSMail-Priority': 'Normal',
-        'Importance': 'Normal'
+        'Importance': 'Normal',
+        'X-Mailer': 'NextWave Educational Platform',
+        'X-Auto-Response-Suppress': 'OOF, DR, RN, NRN',
+        'Return-Path': `<${verifiedSenderEmail}>`,
+        'Message-ID': `<${Date.now()}-${Math.random().toString(36).substr(2, 9)}@nextwave-platform>`,
+        'Date': new Date().toUTCString()
       },
       // Tracking settings
       trackingSettings: {
@@ -74,10 +97,29 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
         }
       },
       // Content settings to improve deliverability
-      categories: ['welcome', 'registration'],
+      categories: ['transactional', 'educational'],
       customArgs: {
-        'email_type': 'welcome',
-        'user_type': 'new_registration'
+        'email_type': 'transactional',
+        'service': 'educational_platform',
+        'domain': 'nextwave-admissions'
+      },
+      // Mail settings for better deliverability
+      mailSettings: {
+        sandboxMode: {
+          enable: false
+        },
+        bypassListManagement: {
+          enable: false
+        },
+        footer: {
+          enable: true,
+          text: 'NextWave Admissions - UAE Educational Services',
+          html: '<p style="color: #666; font-size: 12px; text-align: center;">NextWave Admissions - UAE Educational Services</p>'
+        },
+        spamCheck: {
+          enable: true,
+          threshold: 1
+        }
       }
     };
 
@@ -123,7 +165,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
             console.error('\n🔧 SOLUTION: Verify your sender email in SendGrid:');
             console.error('1. Login to SendGrid Dashboard');
             console.error('2. Go to Settings > Sender Authentication');
-            console.error('3. Add and verify the sender email: ' + verifiedSenderEmail);
+            console.error('3. Add and verify the sender email: ' + (params.from || 'nextwaveadmission@gmail.com'));
             console.error('4. OR use an already verified email address');
           }
         });
@@ -174,7 +216,7 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
 
   const statusMessages = {
     submitted: {
-      subject: `Application Submitted - ${programName} at ${universityName}`,
+      subject: `Your Application Has Been Submitted Successfully - ${programName}`,
       studentMessage: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #2563eb;">Application Successfully Submitted</h2>
@@ -230,7 +272,7 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
       `
     },
     'under-review': {
-      subject: `Application Under Review - ${programName} at ${universityName}`,
+      subject: `Application Update: Now Under Review - ${programName}`,
       studentMessage: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #2563eb;">Application Under Review</h2>
@@ -278,7 +320,7 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
       `
     },
     approved: {
-      subject: `🎉 Application Approved - ${programName} at ${universityName}`,
+      subject: `Congratulations! Your Application Has Been Approved - ${programName}`,
       studentMessage: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #059669;">Congratulations! Your Application Has Been Approved</h2>
@@ -345,7 +387,7 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
       `
     },
     rejected: {
-      subject: `Application Update - ${programName} at ${universityName}`,
+      subject: `Application Status Update - ${programName}`,
       studentMessage: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #dc2626;">Application Status Update</h2>
@@ -583,7 +625,7 @@ export async function sendWelcomeEmail(userEmail: string, userName: string): Pro
 
   return await sendEmail({
     to: userEmail,
-    subject: '🎓 Welcome to NextWave - Your UAE Study Journey Begins!',
+    subject: 'Welcome to NextWave - Your UAE Study Journey Begins',
     html: welcomeHtml
   });
 }
