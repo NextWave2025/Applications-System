@@ -73,7 +73,7 @@ export default function WhyChooseUAESection() {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-3xl mx-auto mb-20 text-center">
-          <div className="guide-badge-with-dot mb-6">Student Advantages</div>
+          <div className="nextwave-badge-with-dot mb-6">Student Advantages</div>
           <h2 className="text-5xl md:text-[64px] font-bold text-gray-900 mb-6 leading-tight tracking-tight">
             Why Choose <span className="text-primary">UAE</span> for Your
             Education?

@@ -23,6 +23,10 @@ UAE-focused university program listing application with comprehensive filtering,
 - Routing: wouter for client-side navigation
 
 ## Recent Changes
+- **Dec 26, 2025**: Completed comprehensive platform rebranding - replaced all instances of "Guide" with "NextWave" across documentation, UI components, CSS classes, and configuration files
+- **Dec 26, 2025**: Updated CSS classes from "guide-" prefix to "nextwave-" prefix for consistent branding
+- **Dec 26, 2025**: Modified authentication pages, hero sections, testimonials, and footer links to reflect NextWave branding
+- **Dec 26, 2025**: Updated all documentation files (README.md, LOCAL_DEVELOPMENT.md, DEPLOYMENT.md, CLEANUP_GUIDE.md) with NextWave references
 - **Dec 26, 2025**: Implemented comprehensive anti-spam email optimizations including enhanced headers, authentication markers, and professional content structure
 - **Dec 26, 2025**: Unified email branding to "NextWave Admissions Team" across all notifications for consistent professional identity
 - **Dec 26, 2025**: Enhanced welcome email with step-by-step platform usage guide and detailed feature explanations
