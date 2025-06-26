@@ -64,7 +64,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       },
       replyTo: {
         email: verifiedSenderEmail,
-        name: 'NextWave Support Team'
+        name: 'NextWave Admissions'
       },
       subject: params.subject,
       html: params.html,
@@ -241,7 +241,7 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
           </table>
           
           <p>If you have any questions, please contact your education consultant: ${agentName}</p>
-          <p>Best regards,<br>Study Abroad Team</p>
+          <p>Best regards,<br>NextWave Admissions Team</p>
         </div>
       `,
       agentMessage: `
@@ -267,7 +267,7 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
           </table>
           
           <p>Please review the application in your admin dashboard.</p>
-          <p>Best regards,<br>Study Abroad System</p>
+          <p>Best regards,<br>NextWave Admissions Team</p>
         </div>
       `
     },
@@ -300,7 +300,7 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
             </tr>
           </table>
           
-          <p>Best regards,<br>Study Abroad Team</p>
+          <p>Best regards,<br>NextWave Admissions Team</p>
         </div>
       `,
       agentMessage: `
@@ -315,7 +315,7 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
             <p><strong>University:</strong> ${universityName}</p>
             <p><strong>Status:</strong> <span style="color: #d97706; font-weight: bold;">Under Review</span></p>
           </div>
-          <p>Best regards,<br>Study Abroad System</p>
+          <p>Best regards,<br>NextWave Admissions Team</p>
         </div>
       `
     },
@@ -357,7 +357,7 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
           
           <p>Please contact your education consultant ${agentName} for next steps regarding enrollment and visa procedures.</p>
           <p>Congratulations once again on this achievement!</p>
-          <p>Best regards,<br>Study Abroad Team</p>
+          <p>Best regards,<br>NextWave Admissions Team</p>
         </div>
       `,
       agentMessage: `
@@ -382,7 +382,7 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
           </table>
           
           <p>Please follow up with the student for next steps.</p>
-          <p>Best regards,<br>Study Abroad System</p>
+          <p>Best regards,<br>NextWave Admissions Team</p>
         </div>
       `
     },
@@ -418,7 +418,7 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
           </table>
           
           <p>Please don't be discouraged. Your education consultant ${agentName} will be in touch to discuss alternative options and next steps.</p>
-          <p>Best regards,<br>Study Abroad Team</p>
+          <p>Best regards,<br>NextWave Admissions Team</p>
         </div>
       `,
       agentMessage: `
@@ -443,7 +443,7 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
           </table>
           
           <p>Please reach out to the student to discuss alternative options.</p>
-          <p>Best regards,<br>Study Abroad System</p>
+          <p>Best regards,<br>NextWave Admissions Team</p>
         </div>
       `
     }
@@ -518,8 +518,24 @@ export async function sendWelcomeEmail(userEmail: string, userName: string): Pro
                   <h2 style="color: #1f2937; margin: 0 0 24px 0; font-size: 26px; font-weight: 600;">Welcome, ${userName}!</h2>
                   
                   <p style="color: #4b5563; line-height: 1.8; margin: 0 0 24px 0; font-size: 16px;">
-                    Thank you for choosing NextWave as your trusted partner for studying in the UAE. We're committed to helping you achieve your academic dreams through our comprehensive education services.
+                    Welcome to NextWave Admissions! We're excited to have you join our platform. As your trusted education partner, we're here to guide you through every step of your UAE study journey, from program discovery to university enrollment.
                   </p>
+                  
+                  <!-- Getting Started Section -->
+                  <table role="presentation" style="width: 100%; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 10px; border-left: 4px solid #0ea5e9; margin: 25px 0;">
+                    <tr>
+                      <td style="padding: 25px;">
+                        <h3 style="color: #0369a1; margin: 0 0 15px 0; font-size: 20px; font-weight: 600;">Getting Started - Your Next Steps</h3>
+                        <ol style="color: #0369a1; line-height: 1.8; margin: 0; padding-left: 20px; font-size: 15px;">
+                          <li style="margin-bottom: 12px;"><strong>Explore Programs:</strong> Browse over 1,000+ academic programs from 31 top UAE universities using our advanced search filters</li>
+                          <li style="margin-bottom: 12px;"><strong>Save Favorites:</strong> Create a shortlist of programs that match your interests and career goals</li>
+                          <li style="margin-bottom: 12px;"><strong>Submit Applications:</strong> Apply directly through our streamlined application system with document upload</li>
+                          <li style="margin-bottom: 12px;"><strong>Track Progress:</strong> Monitor your application status in real-time through your personal dashboard</li>
+                          <li style="margin-bottom: 0;"><strong>Get Support:</strong> Connect with our education consultants for personalized guidance throughout your journey</li>
+                        </ol>
+                      </td>
+                    </tr>
+                  </table>
                   
                   <!-- Key Benefits Box -->
                   <table role="presentation" style="width: 100%; background-color: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; margin: 30px 0;">
@@ -594,11 +610,42 @@ export async function sendWelcomeEmail(userEmail: string, userName: string): Pro
                     </tr>
                   </table>
                   
+                  <!-- Platform Features -->
+                  <table role="presentation" style="width: 100%; background-color: #fefefe; border: 1px solid #e5e7eb; border-radius: 8px; margin: 25px 0;">
+                    <tr>
+                      <td style="padding: 20px;">
+                        <h4 style="color: #1f2937; margin: 0 0 15px 0; font-size: 16px; font-weight: 600; text-align: center;">How to Use the Platform</h4>
+                        <table role="presentation" style="width: 100%;">
+                          <tr>
+                            <td style="width: 50%; padding: 10px; vertical-align: top;">
+                              <strong style="color: #2563eb;">Search & Filter:</strong><br>
+                              <span style="color: #6b7280; font-size: 14px;">Use our advanced filters to find programs by field of study, degree level, city, and university ranking.</span>
+                            </td>
+                            <td style="width: 50%; padding: 10px; vertical-align: top;">
+                              <strong style="color: #2563eb;">Application Management:</strong><br>
+                              <span style="color: #6b7280; font-size: 14px;">Submit multiple applications, upload documents, and track status changes in one centralized dashboard.</span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width: 50%; padding: 10px; vertical-align: top;">
+                              <strong style="color: #2563eb;">Expert Guidance:</strong><br>
+                              <span style="color: #6b7280; font-size: 14px;">Get personalized support from education consultants who understand UAE admission requirements.</span>
+                            </td>
+                            <td style="width: 50%; padding: 10px; vertical-align: top;">
+                              <strong style="color: #2563eb;">Real-time Updates:</strong><br>
+                              <span style="color: #6b7280; font-size: 14px;">Receive instant notifications about application progress, acceptance letters, and next steps.</span>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                  
                   <!-- Support Information -->
-                  <div style="background-color: #fefefe; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 30px 0;">
+                  <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 30px 0;">
                     <p style="color: #6b7280; margin: 0; line-height: 1.6; font-size: 14px; text-align: center;">
-                      <strong>Need assistance?</strong> Our expert team is ready to help you every step of the way.<br>
-                      Reply to this email or visit our support center for immediate assistance.
+                      <strong>Need assistance?</strong> Our NextWave Admissions team is ready to help you every step of the way.<br>
+                      Reply to this email, contact our support team, or use the help section in your dashboard for immediate assistance.
                     </p>
                   </div>
                 </td>
