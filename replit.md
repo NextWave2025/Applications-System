@@ -23,6 +23,9 @@ UAE-focused university program listing application with comprehensive filtering,
 - Routing: wouter for client-side navigation
 
 ## Recent Changes
+- **Dec 26, 2025**: Implemented NextWave logo component with home navigation - added reusable NextWaveLogo component with graduation cap icon that links to homepage across all layouts
+- **Dec 26, 2025**: Updated sidebar default state to open - dashboard sidebar now opens by default for better user experience unless manually collapsed
+- **Dec 26, 2025**: Enhanced branding consistency - replaced "Guide" with "NextWave" in landing page process section and updated all headers/sidebars to use NextWave logo component
 - **Dec 26, 2025**: Reorganized super admin navigation structure - moved "Admin Control" to sidebar navigation and consolidated "Application Management" into "My Applications" section for better user experience
 - **Dec 26, 2025**: Created dedicated admin pages (admin-control-page.tsx, admin-my-applications-page.tsx) with updated routing structure (/admin/control, /admin/my-applications)
 - **Dec 26, 2025**: Updated admin sidebar navigation to include "Admin Control" link and renamed "Applications" to "My Applications" for clearer functionality separation

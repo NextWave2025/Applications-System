@@ -96,9 +96,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       >
         {/* Desktop Logo/Title */}
         <div className="hidden lg:flex justify-between items-center p-4 border-b border-white/10">
-          <h1 className={`font-bold transition-opacity duration-200 ${sidebarExpanded ? 'opacity-100 text-xl' : 'opacity-0 w-0 overflow-hidden'}`}>
-            NextWave
-          </h1>
+          <div className={`transition-opacity duration-200 ${sidebarExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
+            <NextWaveLogo size="md" className="text-white" />
+          </div>
           <button 
             onClick={() => setSidebarExpanded(!sidebarExpanded)}
             className="text-white hover:bg-white/10 p-1 rounded-md transition-colors"

@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import CustomLogo from '../custom-logo';
+import NextWaveLogo from '../nextwave-logo';
 import LogoSettings from '../logo-settings';
 
 // User type definition
@@ -55,7 +55,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           <div className="flex">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <span className="text-2xl font-bold text-gray-900 mr-4">NextWave</span>
+              <NextWaveLogo size="md" className="mr-4" />
               {!isLoading && user?.isAdmin && <LogoSettings />}
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
