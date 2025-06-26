@@ -4,9 +4,11 @@ import { GraduationCap } from "lucide-react";
 interface NextWaveLogoProps {
   className?: string;
   size?: "sm" | "md" | "lg";
+  asButton?: boolean;
+  onClick?: () => void;
 }
 
-export default function NextWaveLogo({ className = "", size = "md" }: NextWaveLogoProps) {
+export default function NextWaveLogo({ className = "", size = "md", asButton = false, onClick }: NextWaveLogoProps) {
   const sizeClasses = {
     sm: "text-lg",
     md: "text-xl",
@@ -19,15 +21,31 @@ export default function NextWaveLogo({ className = "", size = "md" }: NextWaveLo
     lg: "h-8 w-8"
   };
 
+  const content = (
+    <>
+      <div className="flex items-center justify-center bg-primary rounded-lg p-1.5">
+        <GraduationCap className={`${iconSizes[size]} text-white`} />
+      </div>
+      <span className={`font-bold text-gray-900 ${sizeClasses[size]}`}>
+        NextWave
+      </span>
+    </>
+  );
+
+  const baseClasses = `flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer ${className}`;
+
+  if (asButton) {
+    return (
+      <button onClick={onClick} className={baseClasses}>
+        {content}
+      </button>
+    );
+  }
+
   return (
     <Link href="/">
-      <a className={`flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer ${className}`}>
-        <div className="flex items-center justify-center bg-primary rounded-lg p-1.5">
-          <GraduationCap className={`${iconSizes[size]} text-white`} />
-        </div>
-        <span className={`font-bold text-gray-900 ${sizeClasses[size]}`}>
-          NextWave
-        </span>
+      <a className={baseClasses}>
+        {content}
       </a>
     </Link>
   );
