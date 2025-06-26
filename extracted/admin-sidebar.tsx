@@ -96,10 +96,10 @@ export default function AdminSidebar({
             </span>
           </Link>
           <Link
-            to="/admin/applications"
+            to="/admin/my-applications"
             className={cn(
               "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all hover:bg-black/5",
-              isActive("/admin/applications")
+              isActive("/admin/my-applications")
                 ? "bg-black text-white hover:bg-black/90"
                 : "text-black"
             )}
@@ -111,7 +111,7 @@ export default function AdminSidebar({
                 open ? "opacity-100" : "opacity-0"
               )}
             >
-              {open && "Applications"}
+              {open && "My Applications"}
             </span>
           </Link>
           <Link
@@ -226,6 +226,25 @@ export default function AdminSidebar({
               )}
             >
               {open && "Analytics"}
+            </span>
+          </Link>
+          <Link
+            to="/admin/control"
+            className={cn(
+              "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all hover:bg-black/5",
+              isActive("/admin/control")
+                ? "bg-black text-white hover:bg-black/90"
+                : "text-black"
+            )}
+          >
+            <SettingsIcon className="h-4 w-4" />
+            <span
+              className={cn(
+                "transition-opacity",
+                open ? "opacity-100" : "opacity-0"
+              )}
+            >
+              {open && "Admin Control"}
             </span>
           </Link>
           <div
