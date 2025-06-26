@@ -28,7 +28,7 @@ export default function SimpleProcessSection() {
     {
       number: 1,
       title: "Sign up",
-      description: "Apply to become an approved Guide agent",
+      description: "Apply to become an approved NextWave agent",
       icon: <UserPlus className="h-6 w-6" />,
     },
     {
