@@ -10,7 +10,7 @@ async function testEmailNotification() {
     applicationId: 4,
     studentName: "John Doe",
     studentEmail: "john.doe@example.com",
-    agentEmail: "agent@startwithguide.com",
+    agentEmail: "agent@nextwaveadmissions.com",
     agentName: "Test Agent",
     programName: "Computer Science",
     universityName: "Test University",

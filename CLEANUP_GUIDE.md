@@ -1,6 +1,6 @@
-# Guide Platform - Project Cleanup Guide
+# NextWave Platform - Project Cleanup Guide
 
-This document provides instructions for manually cleaning up unnecessary files in the Guide Platform project before production deployment.
+This document provides instructions for manually cleaning up unnecessary files in the NextWave Platform project before production deployment.
 
 ## Files to Remove
 

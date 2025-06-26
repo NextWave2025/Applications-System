@@ -35,7 +35,7 @@ export default function Logo({ className, variant = "default" }: LogoProps) {
           variant === "white" ? "text-white" : "text-black"
         )}
       >
-        Guide
+        NextWave
       </span>
     </div>
   );

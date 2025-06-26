@@ -115,11 +115,11 @@
     @apply w-2 h-2 bg-primary rounded-full mr-2;
   }
   
-  .guide-divider {
+  .nextwave-divider {
     @apply h-1 bg-primary/20 rounded-full;
   }
   
-  .guide-divider::after {
+  .nextwave-divider::after {
     content: "";
     @apply block h-full w-1/2 bg-primary rounded-full;
   }

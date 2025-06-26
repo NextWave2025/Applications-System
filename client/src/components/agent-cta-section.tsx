@@ -46,7 +46,7 @@ export default function AgentCTASection() {
             <div
               className={`transition-all duration-1000 ease-out transform ${isVisible ? "translate-x-0 opacity-100" : "-translate-x-10 opacity-0"}`}
             >
-              <div className="guide-badge-with-dot mb-6">
+              <div className="nextwave-badge-with-dot mb-6">
                 Start Your Journey
               </div>
               <h2 className="heading-2 mb-6">

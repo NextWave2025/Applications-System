@@ -1,8 +1,8 @@
-# Guide Platform - Project Documentation
+# NextWave Platform - Project Documentation
 
 ## Project Overview
 
-Guide is a dynamic web platform designed to simplify educational program discovery for UAE students, offering an intuitive and engaging user experience for exploring academic opportunities. The platform features 31 universities and 913 programs with comprehensive details for prospective students.
+NextWave is a dynamic web platform designed to simplify educational program discovery for UAE students, offering an intuitive and engaging user experience for exploring academic opportunities. The platform features 31 universities and 913 programs with comprehensive details for prospective students.
 
 ## Project Architecture
 
@@ -37,7 +37,7 @@ Guide is a dynamic web platform designed to simplify educational program discove
 ## Directory Structure
 
 ```
-guide-platform/
+nextwave-platform/
 ├── client/                 # Frontend code
 │   ├── src/                # React application source
 │   │   ├── components/     # Reusable UI components

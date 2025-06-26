@@ -1,6 +1,6 @@
-# Guide Platform - Local Development Guide
+# NextWave Platform - Local Development Guide
 
-This document provides comprehensive instructions for setting up and running the Guide Platform on your local machine.
+This document provides comprehensive instructions for setting up and running the NextWave Platform on your local machine.
 
 ## Setting Up Your Local Environment
 
@@ -16,7 +16,7 @@ Before beginning, ensure you have installed:
 
 ```bash
 git clone <your-repository-url>
-cd guide-platform
+cd nextwave-platform
 ```
 
 ### Step 2: Install Dependencies
@@ -37,7 +37,7 @@ cp .env.example .env
 
 ```
 # Database Connection
-DATABASE_URL=postgresql://username:password@localhost:5432/guide_db
+DATABASE_URL=postgresql://username:password@localhost:5432/nextwave_db
 
 # Session Configuration
 SESSION_SECRET=your_secret_session_key
@@ -47,7 +47,7 @@ PORT=5000
 NODE_ENV=development
 ```
 
-Replace `username`, `password` with your PostgreSQL credentials. You'll need to create a database named `guide_db` (or choose another name and update the URL accordingly).
+Replace `username`, `password` with your PostgreSQL credentials. You'll need to create a database named `nextwave_db` (or choose another name and update the URL accordingly).
 
 ### Step 4: Database Setup
 
@@ -55,11 +55,11 @@ Replace `username`, `password` with your PostgreSQL credentials. You'll need to 
 
 ```bash
 # Using PostgreSQL command line tools
-createdb guide_db
+createdb nextwave_db
 
 # Or using psql
 psql -U postgres
-CREATE DATABASE guide_db;
+CREATE DATABASE nextwave_db;
 \q
 ```
 

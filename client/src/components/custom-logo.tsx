@@ -35,7 +35,7 @@ export default function CustomLogo({ className = "", variant = "default" }: Cust
     );
   }
   
-  // Use the new Guide logo SVG
+  // Use the new NextWave logo SVG
   return (
     <div className={`flex items-center ${className}`}>
       {variant === "white" ? (
