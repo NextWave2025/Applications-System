@@ -93,6 +93,47 @@ export default function App() {
               </MainLayout>
             </Route>
 
+            {/* Admin routes - These must come BEFORE dashboard routes to avoid conflicts */}
+            <Route path="/admin/applications/:id">
+              <ProtectedRoute>
+                <AdminLayout>
+                  <ApplicationDetailsPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            </Route>
+
+            <Route path="/admin/my-applications">
+              <ProtectedRoute>
+                <AdminLayout>
+                  <AdminMyApplicationsPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            </Route>
+
+            <Route path="/admin/control">
+              <ProtectedRoute>
+                <AdminLayout>
+                  <AdminControlPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            </Route>
+
+            <Route path="/admin/dashboard">
+              <ProtectedRoute>
+                <AdminLayout>
+                  <AdminDashboardPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            </Route>
+
+            <Route path="/admin">
+              <ProtectedRoute>
+                <AdminLayout>
+                  <AdminDashboardPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            </Route>
+
             {/* Protected routes with DashboardLayout */}
             <Route path="/dashboard/applications/:id/edit">
               <ProtectedRoute>
@@ -146,47 +187,6 @@ export default function App() {
               <MainLayout>
                 <EmailTestPage />
               </MainLayout>
-            </Route>
-
-            {/* Admin dashboard routes */}
-            <Route path="/admin/applications/:id">
-              <ProtectedRoute>
-                <AdminLayout>
-                  <ApplicationDetailsPage />
-                </AdminLayout>
-              </ProtectedRoute>
-            </Route>
-
-            <Route path="/admin/my-applications">
-              <ProtectedRoute>
-                <AdminLayout>
-                  <AdminMyApplicationsPage />
-                </AdminLayout>
-              </ProtectedRoute>
-            </Route>
-
-            <Route path="/admin/control">
-              <ProtectedRoute>
-                <AdminLayout>
-                  <AdminControlPage />
-                </AdminLayout>
-              </ProtectedRoute>
-            </Route>
-
-            <Route path="/admin/dashboard">
-              <ProtectedRoute>
-                <AdminLayout>
-                  <AdminDashboardPage />
-                </AdminLayout>
-              </ProtectedRoute>
-            </Route>
-
-            <Route path="/admin">
-              <ProtectedRoute>
-                <AdminLayout>
-                  <AdminDashboardPage />
-                </AdminLayout>
-              </ProtectedRoute>
             </Route>
 
             {/* Application form route */}
