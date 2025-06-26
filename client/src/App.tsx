@@ -71,32 +71,32 @@ export default function App() {
                 </MainLayout>
               </Route>
 
-            <Route path="/programs/:id">
-              <MainLayout>
-                <ProgramDetailPage />
-              </MainLayout>
-            </Route>
+              <Route path="/programs/:id">
+                <MainLayout>
+                  <ProgramDetailPage />
+                </MainLayout>
+              </Route>
 
-            <Route path="/programs">
-              <MainLayout>
-                <ProgramsPage />
-              </MainLayout>
-            </Route>
+              <Route path="/programs">
+                <MainLayout>
+                  <ProgramsPage />
+                </MainLayout>
+              </Route>
 
-            <Route path="/about">
+              <Route path="/about">
               <MainLayout>
                 <AboutPage />
               </MainLayout>
             </Route>
 
-            <Route path="/contact">
+              <Route path="/contact">
               <MainLayout>
                 <ContactPage />
               </MainLayout>
             </Route>
 
             {/* Admin routes - These must come BEFORE dashboard routes to avoid conflicts */}
-            <Route path="/admin/applications/:id">
+              <Route path="/admin/applications/:id">
               <ProtectedRoute>
                 <AdminLayout>
                   <ApplicationDetailsPage />
@@ -104,7 +104,7 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
-            <Route path="/admin/my-applications">
+              <Route path="/admin/my-applications">
               <ProtectedRoute>
                 <AdminLayout>
                   <AdminMyApplicationsPage />
@@ -112,7 +112,7 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
-            <Route path="/admin/control">
+              <Route path="/admin/control">
               <ProtectedRoute>
                 <AdminLayout>
                   <AdminControlPage />
@@ -120,7 +120,7 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
-            <Route path="/admin/dashboard">
+              <Route path="/admin/dashboard">
               <ProtectedRoute>
                 <AdminLayout>
                   <AdminDashboardPage />
@@ -128,7 +128,7 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
-            <Route path="/admin">
+              <Route path="/admin">
               <ProtectedRoute>
                 <AdminLayout>
                   <AdminDashboardPage />
@@ -137,7 +137,7 @@ export default function App() {
             </Route>
 
             {/* Protected routes with DashboardLayout */}
-            <Route path="/dashboard/applications/:id/edit">
+              <Route path="/dashboard/applications/:id/edit">
               <ProtectedRoute>
                 <DashboardLayout>
                   <ApplicationEditPage />
@@ -145,7 +145,7 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
-            <Route path="/dashboard/applications/:id">
+              <Route path="/dashboard/applications/:id">
               <ProtectedRoute>
                 <DashboardLayout>
                   <UserApplicationDetailsPage />
@@ -153,7 +153,7 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
-            <Route path="/dashboard/applications">
+              <Route path="/dashboard/applications">
               <ProtectedRoute>
                 <DashboardLayout>
                   <ApplicationsPage />
@@ -161,7 +161,7 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
-            <Route path="/dashboard/programs">
+              <Route path="/dashboard/programs">
               <ProtectedRoute>
                 <DashboardLayout>
                   <ProgramsPage />
@@ -169,7 +169,7 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
-            <Route path="/dashboard/settings">
+              <Route path="/dashboard/settings">
               <ProtectedRoute>
                 <DashboardLayout>
                   <SettingsPage />
@@ -177,7 +177,7 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
-            <Route path="/dashboard">
+              <Route path="/dashboard">
               <ProtectedRoute redirectTo="/dashboard">
                 <DashboardLayout>
                   <DashboardPage />
@@ -185,14 +185,14 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
-            <Route path="/email-test">
+              <Route path="/email-test">
               <MainLayout>
                 <EmailTestPage />
               </MainLayout>
             </Route>
 
             {/* Application form route */}
-            <Route path="/apply/:id">
+              <Route path="/apply/:id">
               <ProtectedRoute>
                 <MainLayout>
                   <ApplicationFormPage />
@@ -201,7 +201,7 @@ export default function App() {
             </Route>
 
             {/* 404 route - must be last */}
-            <Route>
+              <Route>
               <NotFoundPage />
             </Route>
           </Switch>

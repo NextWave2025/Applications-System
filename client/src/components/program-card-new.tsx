@@ -124,7 +124,15 @@ export default function ProgramCardNew({
           {/* Tuition fee */}
           <div className="flex items-center text-sm">
             <DollarSign className="w-4 h-4 mr-3 text-purple-500 flex-shrink-0" />
-            <span className="font-bold text-gray-900 text-base">{formatTuition(program.tuition)}</span>
+            {getTuitionAmount(program.tuition) ? (
+              <PriceDisplay 
+                amountInAED={getTuitionAmount(program.tuition)!} 
+                size="md"
+                className="font-bold text-gray-900"
+              />
+            ) : (
+              <span className="font-bold text-gray-900 text-base">Contact for pricing</span>
+            )}
           </div>
         </div>
 
