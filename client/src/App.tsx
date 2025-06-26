@@ -2,6 +2,7 @@ import { Router, Route, Switch } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { AuthProvider } from "./hooks/use-auth";
+import { CurrencyProvider } from "./hooks/use-currency";
 import { Toaster } from "./components/ui/toaster";
 import { useEffect } from "react";
 
@@ -53,8 +54,9 @@ export default function App() {
   }, []);
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router>
+      <CurrencyProvider>
+        <AuthProvider>
+          <Router>
           <Switch>
             {/* Public routes with MainLayout */}
             <Route path="/">
