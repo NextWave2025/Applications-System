@@ -395,12 +395,12 @@ export default function AdminMyApplicationsPage() {
                             </div>
                           </td>
                           <td className="px-4 py-4">
-                            <div className="text-sm text-gray-900">{application.program.name}</div>
-                            <div className="text-sm text-gray-500">{application.program.degreeLevel}</div>
+                            <div className="text-sm text-gray-900">{application.program?.name || 'N/A'}</div>
+                            <div className="text-sm text-gray-500">{application.program?.degreeLevel || 'N/A'}</div>
                           </td>
                           <td className="px-4 py-4">
-                            <div className="text-sm text-gray-900">{application.program.university.name}</div>
-                            <div className="text-sm text-gray-500">{application.program.university.city}</div>
+                            <div className="text-sm text-gray-900">{application.program?.university?.name || 'N/A'}</div>
+                            <div className="text-sm text-gray-500">{application.program?.university?.city || 'N/A'}</div>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             <div className="flex items-center">
@@ -473,9 +473,9 @@ export default function AdminMyApplicationsPage() {
                     <CardContent>
                       <div className="space-y-3">
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{application.program.name}</p>
+                          <p className="text-sm font-medium text-gray-900">{application.program?.name || 'N/A'}</p>
                           <p className="text-sm text-gray-500">
-                            {application.program.degreeLevel} • {application.program.university.name}
+                            {application.program?.degreeLevel || 'N/A'} • {application.program?.university?.name || 'N/A'}
                           </p>
                         </div>
                         
@@ -516,7 +516,17 @@ export default function AdminMyApplicationsPage() {
         <StatusChangeDialog
           open={statusDialogOpen}
           onOpenChange={setStatusDialogOpen}
-          application={selectedApplication}
+          application={selectedApplication ? {
+            id: selectedApplication.id,
+            studentFirstName: selectedApplication.studentFirstName,
+            studentLastName: selectedApplication.studentLastName,
+            status: selectedApplication.status,
+            program: {
+              name: selectedApplication.program?.name || 'N/A',
+              universityName: selectedApplication.program?.university?.name || 'N/A'
+            },
+            statusHistory: selectedApplication.statusHistory
+          } : null}
           onStatusChanged={refreshApplications}
         />
       </div>

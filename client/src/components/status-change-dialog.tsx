@@ -17,7 +17,12 @@ interface Application {
   status: string;
   program: {
     name: string;
-    universityName: string;
+    universityName?: string;
+    degreeLevel?: string;
+    university?: {
+      name: string;
+      city: string;
+    };
   };
   statusHistory?: Array<{
     fromStatus: string;
@@ -143,7 +148,7 @@ export default function StatusChangeDialog({
                 </div>
                 <div>
                   <span className="text-muted-foreground">University:</span>
-                  <p className="font-medium">{application.program.universityName}</p>
+                  <p className="font-medium">{application.program.universityName || application.program.university?.name || 'N/A'}</p>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Current Status:</span>
