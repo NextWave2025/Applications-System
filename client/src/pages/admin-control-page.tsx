@@ -385,7 +385,7 @@ export default function AdminControlPage() {
                 <div className="col-span-full flex justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin" />
                 </div>
-              ) : (
+              ) : universities && universities.length > 0 ? (
                 universities.map((university) => (
                   <Card key={university.id}>
                     <CardHeader>
