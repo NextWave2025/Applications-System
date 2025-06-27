@@ -81,14 +81,21 @@ export default function AdminStudentsPage() {
     return true;
   });
 
+  // Helper function to safely parse dates
+  const parseDate = (dateString: string | null | undefined) => {
+    if (!dateString) return new Date(0);
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? new Date(0) : date;
+  };
+
   const sortedApplications = [...filteredApplications].sort((a, b) => {
     switch (sortBy) {
       case "newest":
-        return new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime();
+        return parseDate(b.submissionDate).getTime() - parseDate(a.submissionDate).getTime();
       case "oldest":
-        return new Date(a.submissionDate).getTime() - new Date(b.submissionDate).getTime();
+        return parseDate(a.submissionDate).getTime() - parseDate(b.submissionDate).getTime();
       case "updated":
-        return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
+        return parseDate(b.lastUpdated).getTime() - parseDate(a.lastUpdated).getTime();
       case "student":
         return `${a.studentFirstName} ${a.studentLastName}`.localeCompare(`${b.studentFirstName} ${b.studentLastName}`);
       case "status":
@@ -328,7 +335,7 @@ export default function AdminStudentsPage() {
                         </div>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {format(new Date(application.submissionDate), "MMM d, yyyy")}
+                        {application.submissionDate ? format(parseDate(application.submissionDate), "MMM d, yyyy") : "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex gap-2">
