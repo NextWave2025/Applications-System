@@ -43,6 +43,13 @@ interface Application {
     lastName: string;
     agencyName: string;
   };
+  statusHistory?: Array<{
+    fromStatus: string;
+    toStatus: string;
+    timestamp: string;
+    userId: number;
+    notes: string;
+  }>;
   documents?: {
     passport: boolean;
     transcript: boolean;
@@ -516,17 +523,7 @@ export default function AdminMyApplicationsPage() {
         <StatusChangeDialog
           open={statusDialogOpen}
           onOpenChange={setStatusDialogOpen}
-          application={selectedApplication ? {
-            id: selectedApplication.id,
-            studentFirstName: selectedApplication.studentFirstName,
-            studentLastName: selectedApplication.studentLastName,
-            status: selectedApplication.status,
-            program: {
-              name: selectedApplication.program?.name || 'N/A',
-              universityName: selectedApplication.program?.university?.name || 'N/A'
-            },
-            statusHistory: selectedApplication.statusHistory
-          } : null}
+          application={selectedApplication}
           onStatusChanged={refreshApplications}
         />
       </div>
