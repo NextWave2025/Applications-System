@@ -17,6 +17,11 @@ import DashboardPage from "./pages/dashboard-page";
 import AdminDashboardPage from "./pages/admin-dashboard-simple";
 import AdminControlPage from "./pages/admin-control-page";
 import AdminMyApplicationsPage from "./pages/admin-my-applications-page";
+import AdminUniversitiesPage from "./pages/admin-universities-page";
+import AdminProgramsPage from "./pages/admin-programs-page";
+import AdminAgentsPage from "./pages/admin-agents-page";
+import AdminStudentsPage from "./pages/admin-students-page";
+import AdminAnalyticsPage from "./pages/admin-analytics-page";
 import SettingsPage from "./pages/settings-page";
 import AboutPage from "./pages/about-page";
 import ContactPage from "./pages/contact-page";
@@ -108,6 +113,46 @@ export default function App() {
               <ProtectedRoute>
                 <AdminLayout>
                   <AdminMyApplicationsPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            </Route>
+
+              <Route path="/admin/universities">
+              <ProtectedRoute>
+                <AdminLayout>
+                  <AdminUniversitiesPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            </Route>
+
+              <Route path="/admin/programs">
+              <ProtectedRoute>
+                <AdminLayout>
+                  <AdminProgramsPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            </Route>
+
+              <Route path="/admin/agents">
+              <ProtectedRoute>
+                <AdminLayout>
+                  <AdminAgentsPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            </Route>
+
+              <Route path="/admin/students">
+              <ProtectedRoute>
+                <AdminLayout>
+                  <AdminStudentsPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            </Route>
+
+              <Route path="/admin/analytics">
+              <ProtectedRoute>
+                <AdminLayout>
+                  <AdminAnalyticsPage />
                 </AdminLayout>
               </ProtectedRoute>
             </Route>
