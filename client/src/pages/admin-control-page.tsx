@@ -217,9 +217,8 @@ export default function AdminControlPage() {
     if (!selectedUniversity) return;
     
     try {
-      await apiRequest(`/api/universities/${selectedUniversity.id}`, {
-        method: "DELETE",
-      });
+      const endpoint = `/api/universities/${selectedUniversity.id}`;
+      await apiRequest("DELETE", endpoint);
       queryClient.invalidateQueries({ queryKey: ["/api/universities"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
       setUniversityDeleteDialogOpen(false);
@@ -233,9 +232,8 @@ export default function AdminControlPage() {
     if (!selectedProgram) return;
     
     try {
-      await apiRequest(`/api/programs/${selectedProgram.id}`, {
-        method: "DELETE",
-      });
+      const endpoint = `/api/programs/${selectedProgram.id}`;
+      await apiRequest("DELETE", endpoint);
       queryClient.invalidateQueries({ queryKey: ["/api/programs"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
       setProgramDeleteDialogOpen(false);

@@ -75,12 +75,19 @@ export default function AdminAgentsPage() {
     return true;
   });
 
+  // Helper function to safely parse dates
+  const parseDate = (dateString: string | null | undefined) => {
+    if (!dateString) return new Date(0);
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? new Date(0) : date;
+  };
+
   const sortedAgents = [...filteredAgents].sort((a, b) => {
     switch (sortBy) {
       case "newest":
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return parseDate(b.createdAt).getTime() - parseDate(a.createdAt).getTime();
       case "oldest":
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        return parseDate(a.createdAt).getTime() - parseDate(b.createdAt).getTime();
       case "name":
         return `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`);
       case "agency":
@@ -248,7 +255,7 @@ export default function AdminAgentsPage() {
                         </Badge>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {format(new Date(agent.createdAt), "MMM d, yyyy")}
+                        {agent.createdAt ? format(parseDate(agent.createdAt), "MMM d, yyyy") : "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex gap-2">
