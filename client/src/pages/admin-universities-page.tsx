@@ -177,15 +177,7 @@ export default function AdminUniversitiesPage() {
     }
   };
 
-  // Move to proper location after user check
-
-  const handleSelectAll = () => {
-    if (selectedUniversities.length === filteredUniversities.length) {
-      setSelectedUniversities([]);
-    } else {
-      setSelectedUniversities(filteredUniversities.map(u => u.id));
-    }
-  };
+  // Function will be defined after filteredUniversities
 
   const openEditDialog = (university: University) => {
     setSelectedUniversity(university);
@@ -210,9 +202,31 @@ export default function AdminUniversitiesPage() {
     return null;
   }
 
-
+  // Define filter logic after user check
+  const filteredUniversities = universities.filter(university => {
+    if (statusFilter === "active" && !university.active) return false;
+    if (statusFilter === "inactive" && university.active) return false;
+    if (typeFilter !== "all" && university.type !== typeFilter) return false;
+    if (cityFilter !== "all" && university.city !== cityFilter) return false;
+    
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return university.name.toLowerCase().includes(query) || 
+             university.city.toLowerCase().includes(query);
+    }
+    return true;
+  });
 
   const cities = Array.from(new Set(universities.map(uni => uni.city))).sort();
+  const types = Array.from(new Set(universities.map(uni => uni.type).filter(Boolean) as string[])).sort();
+
+  const handleSelectAll = () => {
+    if (selectedUniversities.length === filteredUniversities.length) {
+      setSelectedUniversities([]);
+    } else {
+      setSelectedUniversities(filteredUniversities.map(u => u.id));
+    }
+  };
 
   return (
     <div className="space-y-6">
