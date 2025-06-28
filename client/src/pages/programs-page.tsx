@@ -244,27 +244,35 @@ export default function ProgramsPage() {
   };
 
   const handleBulkConversionComplete = (results: Array<{programId: number, originalAmount: number, convertedAmount: number, currency: string, rate: number}>) => {
-    const newConversions = { ...currencyConversions };
-    
-    results.forEach(result => {
-      if (!newConversions[result.programId]) {
-        newConversions[result.programId] = [];
-      }
+    try {
+      const newConversions = { ...currencyConversions };
       
-      // Remove existing conversion for this currency if any
-      newConversions[result.programId] = newConversions[result.programId].filter(
-        conversion => conversion.currency !== result.currency
-      );
-      
-      // Add new conversion
-      newConversions[result.programId].push({
-        currency: result.currency,
-        amount: result.convertedAmount,
-        rate: result.rate
+      results.forEach(result => {
+        try {
+          if (!newConversions[result.programId]) {
+            newConversions[result.programId] = [];
+          }
+          
+          // Remove existing conversion for this currency if any
+          newConversions[result.programId] = newConversions[result.programId].filter(
+            conversion => conversion.currency !== result.currency
+          );
+          
+          // Add new conversion
+          newConversions[result.programId].push({
+            currency: result.currency,
+            amount: result.convertedAmount,
+            rate: result.rate
+          });
+        } catch (resultError) {
+          console.error(`Error processing conversion result for program ${result.programId}:`, resultError);
+        }
       });
-    });
-    
-    setCurrencyConversions(newConversions);
+      
+      setCurrencyConversions(newConversions);
+    } catch (error) {
+      console.error('Error handling bulk conversion completion:', error);
+    }
   };
 
   const selectedPrograms = programs.filter(program => selectedProgramIds.includes(program.id));

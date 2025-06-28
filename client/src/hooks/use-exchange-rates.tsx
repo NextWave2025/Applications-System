@@ -75,21 +75,59 @@ interface ExchangeRatesResponse {
 }
 
 async function fetchExchangeRates(baseCurrency: string = 'AED'): Promise<ExchangeRatesResponse> {
-  // Using exchangerate-api.com which provides free tier with good limits
-  // Alternative: Use fixer.io, currencylayer.com, or exchangerate.host
-  const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${baseCurrency}`);
-  
-  if (!response.ok) {
-    throw new Error(`Failed to fetch exchange rates: ${response.statusText}`);
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    
+    const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${baseCurrency}`, {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch exchange rates: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    // Validate response structure
+    if (!data || typeof data !== 'object' || !data.rates) {
+      throw new Error('Invalid exchange rate response format');
+    }
+    
+    return {
+      success: true,
+      rates: data.rates,
+      timestamp: data.time_last || Date.now(),
+      base: data.base || baseCurrency
+    };
+  } catch (error) {
+    console.error('Exchange rate fetch error:', error);
+    
+    // Return fallback rates to prevent application crashes
+    const fallbackRates: Record<string, number> = {
+      'USD': 0.27, 'EUR': 0.25, 'GBP': 0.21, 'JPY': 30.2, 'CAD': 0.36,
+      'AUD': 0.40, 'CHF': 0.24, 'CNY': 1.95, 'INR': 22.8, 'SAR': 1.02,
+      'QAR': 0.99, 'KWD': 0.08, 'BHD': 0.10, 'OMR': 0.10, 'EGP': 8.5,
+      'JOD': 0.19, 'LBP': 408, 'PKR': 75.2, 'BDT': 29.1, 'LKR': 84.5,
+      'PHP': 15.1, 'SGD': 0.36, 'MYR': 1.21, 'THB': 9.2, 'VND': 6520,
+      'KRW': 356, 'TWD': 8.6, 'HKD': 2.12, 'IDR': 4150, 'RUB': 25.8,
+      'TRY': 9.1, 'ZAR': 4.8
+    };
+    
+    return {
+      success: false,
+      rates: fallbackRates,
+      timestamp: Date.now(),
+      base: baseCurrency,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
   }
-  
-  const data = await response.json();
-  return {
-    success: true,
-    rates: data.rates,
-    timestamp: data.time_last || Date.now(),
-    base: data.base
-  };
 }
 
 export function useExchangeRates(baseCurrency: string = 'AED') {
@@ -102,7 +140,15 @@ export function useExchangeRates(baseCurrency: string = 'AED') {
     refetch 
   } = useQuery({
     queryKey: ['exchange-rates', baseCurrency],
-    queryFn: () => fetchExchangeRates(baseCurrency),
+    queryFn: async () => {
+      try {
+        return await fetchExchangeRates(baseCurrency);
+      } catch (error) {
+        console.error('Exchange rate fetch error:', error);
+        setError(error instanceof Error ? error.message : 'Failed to fetch exchange rates');
+        throw error;
+      }
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (renamed from cacheTime)
     retry: 3,

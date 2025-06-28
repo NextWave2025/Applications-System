@@ -78,21 +78,26 @@ export function BulkCurrencyConverter({
 
     try {
       for (const program of selectedPrograms) {
-        const tuitionAmount = extractTuitionAmount(program);
-        
-        if (tuitionAmount && tuitionAmount > 0) {
-          const convertedValue = convertAmount(tuitionAmount, fromCurrency, selectedCurrency);
-          const rate = getExchangeRate(fromCurrency, selectedCurrency);
+        try {
+          const tuitionAmount = extractTuitionAmount(program);
           
-          if (convertedValue !== null && rate !== null) {
-            results.push({
-              programId: program.id,
-              originalAmount: tuitionAmount,
-              convertedAmount: convertedValue,
-              currency: selectedCurrency,
-              rate: rate
-            });
+          if (tuitionAmount && tuitionAmount > 0) {
+            const convertedValue = convertAmount(tuitionAmount, fromCurrency, selectedCurrency);
+            const rate = getExchangeRate(fromCurrency, selectedCurrency);
+            
+            if (convertedValue !== null && rate !== null) {
+              results.push({
+                programId: program.id,
+                originalAmount: tuitionAmount,
+                convertedAmount: convertedValue,
+                currency: selectedCurrency,
+                rate: rate
+              });
+            }
           }
+        } catch (programError) {
+          console.error(`Error converting program ${program.id}:`, programError);
+          // Continue with other programs
         }
       }
 
@@ -104,8 +109,12 @@ export function BulkCurrencyConverter({
       
       setAppliedCurrencies(prev => new Set(Array.from(prev).concat(selectedCurrency)));
       
-      // Notify parent component
-      onConversionComplete?.(results);
+      // Notify parent component with proper error handling
+      try {
+        onConversionComplete?.(results);
+      } catch (callbackError) {
+        console.error('Error in conversion callback:', callbackError);
+      }
       
       // Reset selection
       setSelectedCurrency('');
@@ -190,9 +199,21 @@ export function BulkCurrencyConverter({
             </SelectTrigger>
             <SelectContent>
               {/* Popular currencies first */}
-              <optgroup label="Popular">
-                {availableCurrencies
-                  .filter(currency => ['USD', 'EUR', 'GBP', 'INR', 'SAR', 'QAR'].includes(currency.code))
+              {availableCurrencies
+                .filter(currency => ['USD', 'EUR', 'GBP', 'INR', 'SAR', 'QAR'].includes(currency.code))
+                .map(currency => (
+                  <SelectItem key={currency.code} value={currency.code}>
+                    <div className="flex items-center">
+                      <span className="mr-2">{currency.flag}</span>
+                      <span className="font-medium">{currency.code}</span>
+                      <span className="ml-2 text-xs text-gray-500">{currency.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              
+              {availableCurrencies.length > 6 && 
+                availableCurrencies
+                  .filter(currency => !['USD', 'EUR', 'GBP', 'INR', 'SAR', 'QAR'].includes(currency.code))
                   .map(currency => (
                     <SelectItem key={currency.code} value={currency.code}>
                       <div className="flex items-center">
@@ -201,24 +222,8 @@ export function BulkCurrencyConverter({
                         <span className="ml-2 text-xs text-gray-500">{currency.name}</span>
                       </div>
                     </SelectItem>
-                  ))}
-              </optgroup>
-              
-              {availableCurrencies.length > 6 && (
-                <optgroup label="All Currencies">
-                  {availableCurrencies
-                    .filter(currency => !['USD', 'EUR', 'GBP', 'INR', 'SAR', 'QAR'].includes(currency.code))
-                    .map(currency => (
-                      <SelectItem key={currency.code} value={currency.code}>
-                        <div className="flex items-center">
-                          <span className="mr-2">{currency.flag}</span>
-                          <span className="font-medium">{currency.code}</span>
-                          <span className="ml-2 text-xs text-gray-500">{currency.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                </optgroup>
-              )}
+                  ))
+              }
             </SelectContent>
           </Select>
           
