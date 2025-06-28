@@ -7,7 +7,7 @@ import PDFExport from "@/components/pdf-export";
 import SelectableProgramCard from "@/components/selectable-program-card";
 import ProgramCardNew from "@/components/program-card-new";
 import OptimizedFilterPanel from "@/components/optimized-filter-panel";
-// import BulkCurrencyConverter from "@/components/bulk-currency-converter"; // Temporarily disabled
+import BulkCurrencyConverter from "@/components/bulk-currency-converter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { studyLevels, studyFields, durationOptions, type Program, type University, type ProgramWithUniversity } from "@shared/schema";
@@ -313,21 +313,23 @@ export default function ProgramsPage() {
           />
         </div>
 
-        {/* PDF Export - Only show when programs are selected */}
+        {/* PDF Export and Bulk Currency Converter - Only show when programs are selected */}
         {selectedPrograms.length > 0 && (
           <div className="mb-4 sm:mb-6 space-y-4">
-            <PDFExport 
-              selectedPrograms={selectedPrograms}
-              onSelectionChange={handleSelectionChange}
-              currencyConversions={currencyConversions}
-            />
-            {/* Bulk Currency Converter temporarily disabled to fix selection issues */}
-            {/* <BulkCurrencyConverter
-              selectedPrograms={selectedPrograms}
-              fromCurrency="AED"
-              onConversionComplete={handleBulkConversionComplete}
-              className="w-full"
-            /> */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <PDFExport 
+                selectedPrograms={selectedPrograms}
+                onSelectionChange={handleSelectionChange}
+                currencyConversions={currencyConversions}
+                className="flex-1"
+              />
+              <BulkCurrencyConverter
+                selectedPrograms={selectedPrograms}
+                fromCurrency="AED"
+                onConversionComplete={handleBulkConversionComplete}
+                className="flex-1"
+              />
+            </div>
           </div>
         )}
 
