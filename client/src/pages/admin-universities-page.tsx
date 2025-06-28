@@ -50,6 +50,20 @@ export default function AdminUniversitiesPage() {
     ranking: 0
   });
 
+  // Program management states
+  const [programsTab, setProgramsTab] = useState(false);
+  const [universityPrograms, setUniversityPrograms] = useState<any[]>([]);
+  const [newProgram, setNewProgram] = useState({
+    name: "",
+    degreeLevel: "",
+    fieldOfStudy: "",
+    duration: "",
+    intake: "",
+    tuitionFee: 0,
+    description: ""
+  });
+  const [editingProgramIndex, setEditingProgramIndex] = useState<number | null>(null);
+
   useEffect(() => {
     if (user && user.role !== "admin" && user.role !== "super_admin") {
       navigate("/");

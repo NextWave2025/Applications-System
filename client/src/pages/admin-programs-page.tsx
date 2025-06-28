@@ -243,7 +243,7 @@ export default function AdminProgramsPage() {
 
   const degreeLevels = Array.from(new Set(programs.map(p => p.degreeLevel))).sort();
   const fields = Array.from(new Set(programs.map(p => p.fieldOfStudy))).sort();
-  const universityNames = Array.from(new Set(programs.map(p => p.university?.name).filter(Boolean))).sort();
+  const universityNames = Array.from(new Set(programs.map(p => p.university?.name).filter(Boolean) as string[])).sort();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-AE', {
@@ -326,7 +326,7 @@ export default function AdminProgramsPage() {
             <SelectContent>
               <SelectItem value="all">All Universities</SelectItem>
               {universityNames.map(uni => (
-                <SelectItem key={uni} value={uni}>{uni}</SelectItem>
+                <SelectItem key={uni} value={uni || ""}>{uni}</SelectItem>
               ))}
             </SelectContent>
           </Select>

@@ -878,6 +878,151 @@ router.delete("/programs/:id", async (req, res) => {
   }
 });
 
+// Agent management endpoints
+router.post("/agents", async (req, res) => {
+  try {
+    const agentSchema = z.object({
+      username: z.string().min(1),
+      firstName: z.string().min(1),
+      lastName: z.string().min(1),
+      password: z.string().min(6),
+      agencyName: z.string().optional(),
+      phone: z.string().optional(),
+      country: z.string().optional(),
+      role: z.enum(["agent", "admin"]).default("agent")
+    });
+    
+    const agentData = agentSchema.parse(req.body);
+    
+    // Create the agent
+    const agent = await storage.createUser(agentData);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "create_agent",
+      resourceType: "user",
+      resourceId: agent.id,
+      newData: { ...agentData, password: '[REDACTED]' }
+    });
+    
+    res.json(agent);
+  } catch (error) {
+    console.error("Error creating agent:", error);
+    res.status(500).json({ error: "Failed to create agent" });
+  }
+});
+
+router.put("/users/:id", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const updateSchema = z.object({
+      username: z.string().min(1).optional(),
+      firstName: z.string().min(1).optional(),
+      lastName: z.string().min(1).optional(),
+      agencyName: z.string().optional(),
+      phone: z.string().optional(),
+      country: z.string().optional()
+    });
+    
+    const updateData = updateSchema.parse(req.body);
+    
+    // Get current user data for audit log
+    const currentUser = await storage.getUserById(userId);
+    if (!currentUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    // Update the user
+    const updatedUser = await storage.updateUser(userId, updateData);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "update_user",
+      resourceType: "user",
+      resourceId: userId,
+      previousData: currentUser,
+      newData: updateData
+    });
+    
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ error: "Failed to update user" });
+  }
+});
+
+router.delete("/users/:id", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    
+    // Get current user for audit log
+    const currentUser = await storage.getUserById(userId);
+    if (!currentUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    // Don't allow deleting admin users
+    if (currentUser.role === "admin" || currentUser.role === "super_admin") {
+      return res.status(403).json({ error: "Cannot delete admin users" });
+    }
+    
+    // Delete user
+    await storage.deleteUser(userId);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "delete_user",
+      resourceType: "user",
+      resourceId: userId,
+      previousData: currentUser
+    });
+    
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+
+router.patch("/users/:id/toggle-status", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    
+    // Get current user
+    const currentUser = await storage.getUserById(userId);
+    if (!currentUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    // Don't allow deactivating admin users
+    if (currentUser.role === "admin" || currentUser.role === "super_admin") {
+      return res.status(403).json({ error: "Cannot deactivate admin users" });
+    }
+    
+    // Toggle status
+    const newStatus = !currentUser.active;
+    await storage.updateUserStatus(userId, newStatus);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "toggle_user_status",
+      resourceType: "user",
+      resourceId: userId,
+      previousData: { active: currentUser.active },
+      newData: { active: newStatus }
+    });
+    
+    res.json({ message: `User ${newStatus ? 'activated' : 'deactivated'} successfully` });
+  } catch (error) {
+    console.error("Error toggling user status:", error);
+    res.status(500).json({ error: "Failed to toggle user status" });
+  }
+});
+
 // Get application status history
 router.get("/applications/:id/status-history", async (req, res) => {
   try {
