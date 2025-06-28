@@ -189,16 +189,26 @@ export default function AdminAgentsPage() {
   };
 
   const openEditDialog = (agent: User) => {
+    console.log("Agent data being edited:", agent); // Debug log
     setSelectedAgent(agent);
     setFormData({
-      username: agent.username,
-      firstName: agent.firstName,
-      lastName: agent.lastName,
+      username: agent.username || "",
+      firstName: agent.firstName || "",
+      lastName: agent.lastName || "",
       agencyName: agent.agencyName || "",
-      phone: agent.phone || "",
+      phone: (agent as any).phoneNumber || "",  // Map phoneNumber to phone
       country: agent.country || "",
       password: ""
     });
+    console.log("Agent form data set to:", {
+      username: agent.username || "",
+      firstName: agent.firstName || "",
+      lastName: agent.lastName || "",
+      agencyName: agent.agencyName || "",
+      phone: (agent as any).phoneNumber || "",
+      country: agent.country || "",
+      password: ""
+    }); // Debug log
     setEditDialogOpen(true);
   };
 

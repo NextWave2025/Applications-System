@@ -214,17 +214,28 @@ export default function AdminProgramsPage() {
   };
 
   const openEditDialog = (program: Program) => {
+    console.log("Program data being edited:", program); // Debug log
     setSelectedProgram(program);
     setFormData({
-      name: program.name,
-      degreeLevel: program.degreeLevel,
-      fieldOfStudy: program.fieldOfStudy,
-      duration: program.duration,
-      intake: program.intake,
-      tuitionFee: program.tuitionFee || 0,
+      name: program.name || "",
+      degreeLevel: (program as any).degree || "",  // Map degree to degreeLevel
+      fieldOfStudy: (program as any).studyField || "",  // Map studyField to fieldOfStudy
+      duration: program.duration || "",
+      intake: program.intake || "",
+      tuitionFee: parseInt((program as any).tuition) || 0,  // Map tuition to tuitionFee
       description: program.description || "",
-      universityId: program.university?.id || 0
+      universityId: program.university?.id || (program as any).universityId || 0  // Handle both formats
     });
+    console.log("Form data set to:", {
+      name: program.name || "",
+      degreeLevel: (program as any).degree || "",
+      fieldOfStudy: (program as any).studyField || "",
+      duration: program.duration || "",
+      intake: program.intake || "",
+      tuitionFee: parseInt((program as any).tuition) || 0,
+      description: program.description || "",
+      universityId: program.university?.id || (program as any).universityId || 0
+    }); // Debug log
     setEditDialogOpen(true);
   };
 
