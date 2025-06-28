@@ -72,6 +72,7 @@ interface ExchangeRatesResponse {
   rates: Record<string, number>;
   timestamp: number;
   base: string;
+  error?: string;
 }
 
 async function fetchExchangeRates(baseCurrency: string = 'AED'): Promise<ExchangeRatesResponse> {
@@ -146,13 +147,23 @@ export function useExchangeRates(baseCurrency: string = 'AED') {
       } catch (error) {
         console.error('Exchange rate fetch error:', error);
         setError(error instanceof Error ? error.message : 'Failed to fetch exchange rates');
-        throw error;
+        // Return fallback data instead of throwing
+        return {
+          success: false,
+          rates: {
+            'USD': 0.27, 'EUR': 0.25, 'GBP': 0.21, 'INR': 22.8, 'SAR': 1.02,
+            'QAR': 0.99, 'KWD': 0.08, 'BHD': 0.10, 'OMR': 0.10
+          },
+          timestamp: Date.now(),
+          base: baseCurrency,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        };
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (renamed from cacheTime)
-    retry: 3,
-    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    retry: false, // Disable retries to prevent cascading errors
+    throwOnError: false, // Prevent throwing errors
   });
 
   const convertAmount = useCallback((
