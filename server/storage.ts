@@ -262,7 +262,7 @@ export class DBStorage implements IStorage {
       let filteredResults = result;
       
       if (filters?.minTuition || filters?.maxTuition) {
-        filteredResults = result.filter((program: ProgramWithUniversity) => {
+        filteredResults = result.filter((program) => {
           try {
             // Extract numeric part from "35,000 AED/year" format
             const tuitionValue = parseInt(program.tuition.replace(/[^0-9]/g, ''));
@@ -304,8 +304,10 @@ export class DBStorage implements IStorage {
       hasScholarship: programs.hasScholarship,
       imageUrl: programs.imageUrl,
       university: {
+        id: universities.id,
         name: universities.name,
         location: universities.location,
+        city: universities.location, // Use location as city for compatibility
         imageUrl: universities.imageUrl
       }
     })
@@ -377,13 +379,18 @@ export class DBStorage implements IStorage {
 
         return {
           ...application,
-          program: {
-            name: program?.name || "",
-            universityName: program?.university.name || "",
-            universityLogo: program?.university.imageUrl || "",
-            degree: program?.degree || ""
-          },
-          documents: docs
+          program: program ? {
+            id: program.id,
+            name: program.name,
+            degreeLevel: program.degree,
+            university: {
+              id: program.university.id,
+              name: program.university.name,
+              city: program.university.city
+            }
+          } : null,
+          documents: docs,
+          agent: null // For regular applications, no agent info needed
         };
       })
     );
@@ -496,17 +503,23 @@ export class DBStorage implements IStorage {
       ...application,
       // Add combined student name for compatibility
       studentName: `${application.studentFirstName} ${application.studentLastName}`,
-      program: {
-        name: program?.name || "",
-        universityName: program?.university.name || "",
-        universityLogo: program?.university.imageUrl || "",
-        degree: program?.degree || ""
-      },
-      agent: {
-        name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : "",
-        agencyName: user?.agencyName || "",
-        email: user?.username || "" // Agent email for notifications
-      },
+      program: program ? {
+        id: program.id,
+        name: program.name,
+        degreeLevel: program.degree,
+        university: {
+          id: program.university.id,
+          name: program.university.name,
+          city: program.university.city
+        }
+      } : null,
+      agent: user ? {
+        id: user.id,
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        agencyName: user.agencyName || "",
+        email: user.username || "" // Agent email for notifications
+      } : null,
       documents: docs
     };
   }

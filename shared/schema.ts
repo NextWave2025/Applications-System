@@ -133,8 +133,10 @@ export const durationOptions = [
 // Program with university info (for queries)
 export type ProgramWithUniversity = Program & { 
   university: {
+    id: number;
     name: string;
     location: string;
+    city: string;
     imageUrl: string;
   }
 };
@@ -259,17 +261,23 @@ export type DocumentType = typeof documentTypes[number];
 export type ApplicationWithDetails = Application & { 
   studentName?: string; // Combined first and last name for compatibility
   program: {
+    id: number;
     name: string;
-    universityName: string;
-    universityLogo: string;
-    degree: string;
-  },
+    degreeLevel: string;
+    university: {
+      id: number;
+      name: string;
+      city: string;
+    };
+  } | null,
   documents: Document[],
   agent?: {
-    name: string;
+    id: number;
+    firstName: string;
+    lastName: string;
     agencyName: string;
     email: string;
-  }
+  } | null
 };
 
 // Audit logs for admin actions
