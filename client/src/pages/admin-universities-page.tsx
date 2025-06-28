@@ -33,6 +33,8 @@ export default function AdminUniversitiesPage() {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [selectedUniversities, setSelectedUniversities] = useState<number[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   
@@ -175,6 +177,8 @@ export default function AdminUniversitiesPage() {
     }
   };
 
+  // Move to proper location after user check
+
   const handleSelectAll = () => {
     if (selectedUniversities.length === filteredUniversities.length) {
       setSelectedUniversities([]);
@@ -206,15 +210,7 @@ export default function AdminUniversitiesPage() {
     return null;
   }
 
-  const filteredUniversities = universities.filter(uni => {
-    if (cityFilter !== "all" && uni.city !== cityFilter) return false;
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      return uni.name.toLowerCase().includes(query) || 
-             uni.city.toLowerCase().includes(query);
-    }
-    return true;
-  });
+
 
   const cities = Array.from(new Set(universities.map(uni => uni.city))).sort();
 

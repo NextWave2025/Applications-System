@@ -194,29 +194,6 @@ export default function AdminProgramsPage() {
     }
   };
 
-  // Filter programs first  
-  const filteredPrograms = programs.filter(program => {
-    if (degreeFilter !== "all" && program.degreeLevel !== degreeFilter) return false;
-    if (fieldFilter !== "all" && program.fieldOfStudy !== fieldFilter) return false;
-    if (universityFilter !== "all" && program.university?.name !== universityFilter) return false;
-    
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      return program.name.toLowerCase().includes(query) || 
-             program.fieldOfStudy.toLowerCase().includes(query) ||
-             program.university?.name.toLowerCase().includes(query);
-    }
-    return true;
-  });
-
-  const handleSelectAll = () => {
-    if (selectedPrograms.length === filteredPrograms.length) {
-      setSelectedPrograms([]);
-    } else {
-      setSelectedPrograms(filteredPrograms.map(p => p.id));
-    }
-  };
-
   const openEditDialog = (program: Program) => {
     setSelectedProgram(program);
     setFormData({
@@ -242,6 +219,7 @@ export default function AdminProgramsPage() {
     return null;
   }
 
+  // Filter programs  
   const filteredPrograms = programs.filter(program => {
     if (degreeFilter !== "all" && program.degreeLevel !== degreeFilter) return false;
     if (fieldFilter !== "all" && program.fieldOfStudy !== fieldFilter) return false;
@@ -255,6 +233,14 @@ export default function AdminProgramsPage() {
     }
     return true;
   });
+
+  const handleSelectAll = () => {
+    if (selectedPrograms.length === filteredPrograms.length) {
+      setSelectedPrograms([]);
+    } else {
+      setSelectedPrograms(filteredPrograms.map(p => p.id));
+    }
+  };
 
   const degreeLevels = Array.from(new Set(programs.map(p => p.degreeLevel))).sort();
   const fields = Array.from(new Set(programs.map(p => p.fieldOfStudy))).sort();
