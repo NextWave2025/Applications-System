@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import ProgramFormDialog from "@/components/program-form-dialog";
 interface Program {
   id: number;
   name: string;
@@ -172,18 +173,22 @@ export default function AdminProgramsPage() {
   const handleDeleteProgram = async () => {
     if (!selectedProgram) return;
     try {
-      const response = await apiRequest("DELETE", `/api/admin/programs/${selectedProgram.id}`);
+      const response = await apiRequest("DELETE", `/api/admin/programs/${selectedProgram.id}`, {
+        headers: { "Content-Type": "application/json" }
+      });
+      
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to delete program: ${errorText}`);
+        const errorData = await response.json().catch(() => ({ error: "Failed to delete program" }));
+        throw new Error(errorData.error || "Failed to delete program");
       }
+      
       toast({ title: "Program deleted successfully" });
       setDeleteDialogOpen(false);
       setSelectedProgram(null);
       await refreshData();
     } catch (error) {
       console.error("Delete program error:", error);
-      toast({ title: "Failed to delete program", variant: "destructive" });
+      toast({ title: (error as Error).message || "Failed to delete program", variant: "destructive" });
     }
   };
 
@@ -479,6 +484,61 @@ export default function AdminProgramsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Comprehensive Program Form Dialog */}
+      <ProgramFormDialog
+        program={selectedProgram ? {
+          id: selectedProgram.id,
+          name: selectedProgram.name,
+          universityId: selectedProgram.university?.id || 0,
+          tuition: selectedProgram.tuitionFee?.toString() || "",
+          duration: selectedProgram.duration,
+          intake: selectedProgram.intake,
+          degree: selectedProgram.degreeLevel,
+          studyField: selectedProgram.fieldOfStudy,
+          requirements: [],
+          hasScholarship: false,
+          imageUrl: ""
+        } : null}
+        universities={universitiesList.map((u: University) => ({
+          id: u.id,
+          name: u.name,
+          location: u.city,
+          imageUrl: u.logoUrl || ""
+        }))}
+        isOpen={addDialogOpen || editDialogOpen}
+        onClose={() => {
+          setAddDialogOpen(false);
+          setEditDialogOpen(false);
+          setSelectedProgram(null);
+        }}
+        onSave={async () => {
+          await refreshData();
+          setAddDialogOpen(false);
+          setEditDialogOpen(false);
+          setSelectedProgram(null);
+        }}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Program</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{selectedProgram?.name}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteProgram}>
+              Delete Program
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

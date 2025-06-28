@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Search, Users, Mail, Phone, Building, Edit, UserCheck, UserX, RefreshCw, Trash2 } from "lucide-react";
+import { Loader2, Plus, Search, Users, Mail, Phone, Building, Edit, UserCheck, UserX, RefreshCw, Trash2, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
