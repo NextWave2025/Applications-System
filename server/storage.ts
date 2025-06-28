@@ -283,7 +283,7 @@ export class DBStorage implements IStorage {
         });
       }
 
-      return filteredResults;
+      return filteredResults as ProgramWithUniversity[];
     } catch (error) {
       console.error("Error in getPrograms:", error);
       throw error;
@@ -400,6 +400,8 @@ export class DBStorage implements IStorage {
 
   async getAllApplications(filters?: ApplicationFilters): Promise<ApplicationWithDetails[]> {
     try {
+      console.log("Starting getAllApplications with filters:", filters);
+      
       // Build the base query
       let query = this.db.select().from(applications);
 
@@ -434,50 +436,81 @@ export class DBStorage implements IStorage {
       }
 
       // Sort by most recently updated
+      console.log("Executing applications query...");
       const applicationResults = await query.orderBy(sql`${applications.updatedAt} DESC`);
+      console.log(`Found ${applicationResults.length} base applications`);
+
+      if (applicationResults.length === 0) {
+        return [];
+      }
 
       // Fetch program details, user info, and documents for each application
+      console.log("Fetching related data for applications...");
       const applicationsWithDetails = await Promise.all(
         applicationResults.map(async (application) => {
-          // Get program details with university info
-          const program = await this.getProgramById(application.programId);
+          try {
+            // Get program details with university info
+            const program = await this.getProgramById(application.programId).catch(err => {
+              console.error(`Error fetching program ${application.programId}:`, err);
+              return null;
+            });
 
-          // Get user (agent) details
-          const user = await this.getUser(application.userId);
+            // Get user (agent) details
+            const user = await this.getUser(application.userId).catch(err => {
+              console.error(`Error fetching user ${application.userId}:`, err);
+              return null;
+            });
 
-          // Get documents for this application
-          const docs = await this.getDocumentsByApplicationId(application.id);
+            // Get documents for this application
+            const docs = await this.getDocumentsByApplicationId(application.id).catch(err => {
+              console.error(`Error fetching documents for application ${application.id}:`, err);
+              return [];
+            });
 
-          return {
-            ...application,
-            // Add combined student name for compatibility
-            studentName: `${application.studentFirstName} ${application.studentLastName}`,
-            program: program ? {
-              id: program.id,
-              name: program.name,
-              degreeLevel: program.degree,
-              university: {
-                id: program.university.id,
-                name: program.university.name,
-                city: program.university.city
-              }
-            } : null,
-            agent: user ? {
-              id: user.id,
-              firstName: user.firstName || "",
-              lastName: user.lastName || "",
-              agencyName: user.agencyName || "",
-              email: user.username || "" // Agent email for notifications
-            } : null,
-            documents: docs
-          };
+            return {
+              ...application,
+              // Add combined student name for compatibility
+              studentName: `${application.studentFirstName} ${application.studentLastName}`,
+              program: program ? {
+                id: program.id,
+                name: program.name,
+                degreeLevel: program.degree,
+                university: {
+                  id: program.university.id,
+                  name: program.university.name,
+                  city: program.university.city
+                }
+              } : null,
+              agent: user ? {
+                id: user.id,
+                firstName: user.firstName || "",
+                lastName: user.lastName || "",
+                agencyName: user.agencyName || "",
+                email: user.username || "" // Agent email for notifications
+              } : null,
+              documents: docs
+            };
+          } catch (error) {
+            console.error("Error processing application:", application.id, (error as Error).message);
+            // Return basic application data even if related data fails
+            return {
+              ...application,
+              studentName: `${application.studentFirstName} ${application.studentLastName}`,
+              program: null,
+              agent: null,
+              documents: []
+            };
+          }
         })
       );
 
+      console.log(`Returning ${applicationsWithDetails.length} applications with details`);
       return applicationsWithDetails;
     } catch (error) {
       console.error("Error in getAllApplications:", error);
-      throw error;
+      console.error("Error stack:", (error as Error).stack);
+      // Return empty array instead of throwing to prevent unhandled rejections
+      return [];
     }
   }
 

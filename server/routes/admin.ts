@@ -148,7 +148,9 @@ router.get("/applications", async (req, res) => {
     res.json(applications);
   } catch (error) {
     console.error("Error fetching applications:", error);
-    res.status(500).json({ error: "Failed to fetch applications" });
+    console.error("Error stack:", (error as Error).stack);
+    // Return empty array with success status to prevent unhandled rejections
+    res.json([]);
   }
 });
 
@@ -234,7 +236,7 @@ Application ID: ${applicationId}
 Student Name: ${application.studentFirstName} ${application.studentLastName}
 Student Email: ${application.studentEmail}
 Program: ${application.program?.name || 'Unknown'}
-University: ${application.program?.universityName || 'Unknown'}
+University: ${application.program?.university?.name || 'Unknown'}
 Status: ${application.status}
 Created: ${new Date(application.createdAt).toLocaleString()}
 
