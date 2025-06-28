@@ -28,6 +28,17 @@ interface User {
   applicationsCount?: number;
 }
 
+// Safe date parsing function
+const parseDate = (dateString: string): Date => {
+  if (!dateString) return new Date();
+  
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return new Date(); // Return current date if parsing fails
+  }
+  return date;
+};
+
 export default function AdminAgentsPage() {
   const { user } = useAuth();
   const [location, navigate] = useLocation();

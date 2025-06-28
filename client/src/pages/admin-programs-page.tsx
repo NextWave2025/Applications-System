@@ -194,6 +194,21 @@ export default function AdminProgramsPage() {
     }
   };
 
+  // Filter programs first  
+  const filteredPrograms = programs.filter(program => {
+    if (degreeFilter !== "all" && program.degreeLevel !== degreeFilter) return false;
+    if (fieldFilter !== "all" && program.fieldOfStudy !== fieldFilter) return false;
+    if (universityFilter !== "all" && program.university?.name !== universityFilter) return false;
+    
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return program.name.toLowerCase().includes(query) || 
+             program.fieldOfStudy.toLowerCase().includes(query) ||
+             program.university?.name.toLowerCase().includes(query);
+    }
+    return true;
+  });
+
   const handleSelectAll = () => {
     if (selectedPrograms.length === filteredPrograms.length) {
       setSelectedPrograms([]);
