@@ -121,7 +121,8 @@ export default function AdminProgramsPage() {
         active: true
       };
       
-      const response = await apiRequest("POST", "/api/admin/programs", {
+      const response = await apiRequest("/api/admin/programs", {
+        method: "POST",
         body: JSON.stringify(programData),
         headers: { "Content-Type": "application/json" }
       });
@@ -497,40 +498,279 @@ export default function AdminProgramsPage() {
         </CardContent>
       </Card>
 
-      {/* Comprehensive Program Form Dialog */}
-      <ProgramFormDialog
-        program={selectedProgram ? {
-          id: selectedProgram.id,
-          name: selectedProgram.name,
-          universityId: selectedProgram.university?.id || 0,
-          tuition: selectedProgram.tuitionFee?.toString() || "",
-          duration: selectedProgram.duration,
-          intake: selectedProgram.intake,
-          degree: selectedProgram.degreeLevel,
-          studyField: selectedProgram.fieldOfStudy,
-          requirements: [],
-          hasScholarship: false,
-          imageUrl: ""
-        } : null}
-        universities={universitiesList.map((u: University) => ({
-          id: u.id,
-          name: u.name,
-          location: u.city,
-          imageUrl: u.logoUrl || ""
-        }))}
-        isOpen={addDialogOpen || editDialogOpen}
-        onClose={() => {
-          setAddDialogOpen(false);
-          setEditDialogOpen(false);
-          setSelectedProgram(null);
-        }}
-        onSave={async () => {
-          await refreshData();
-          setAddDialogOpen(false);
-          setEditDialogOpen(false);
-          setSelectedProgram(null);
-        }}
-      />
+      {/* Edit Program Dialog - Using Direct Form Implementation */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Program</DialogTitle>
+            <DialogDescription>Update program information and details</DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="edit-name">Program Name *</Label>
+              <Input
+                id="edit-name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Enter program name"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-university">University *</Label>
+              <Select
+                value={formData.universityId.toString()}
+                onValueChange={(value) => setFormData({ ...formData, universityId: parseInt(value) })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select university" />
+                </SelectTrigger>
+                <SelectContent>
+                  {universitiesList.map((university: University) => (
+                    <SelectItem key={university.id} value={university.id.toString()}>
+                      {university.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-degreeLevel">Degree Level *</Label>
+              <Select
+                value={formData.degreeLevel}
+                onValueChange={(value) => setFormData({ ...formData, degreeLevel: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select degree level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Bachelor's Degree">Bachelor's Degree</SelectItem>
+                  <SelectItem value="Master's Degree">Master's Degree</SelectItem>
+                  <SelectItem value="PhD">PhD</SelectItem>
+                  <SelectItem value="Diploma">Diploma</SelectItem>
+                  <SelectItem value="Certificate">Certificate</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-fieldOfStudy">Field of Study *</Label>
+              <Select
+                value={formData.fieldOfStudy}
+                onValueChange={(value) => setFormData({ ...formData, fieldOfStudy: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select field" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Business & Management">Business & Management</SelectItem>
+                  <SelectItem value="Engineering">Engineering</SelectItem>
+                  <SelectItem value="Computer Science & IT">Computer Science & IT</SelectItem>
+                  <SelectItem value="Medicine & Health">Medicine & Health</SelectItem>
+                  <SelectItem value="Arts & Humanities">Arts & Humanities</SelectItem>
+                  <SelectItem value="Social Sciences">Social Sciences</SelectItem>
+                  <SelectItem value="Natural Sciences">Natural Sciences</SelectItem>
+                  <SelectItem value="Law">Law</SelectItem>
+                  <SelectItem value="Education">Education</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-duration">Duration *</Label>
+              <Select
+                value={formData.duration}
+                onValueChange={(value) => setFormData({ ...formData, duration: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1 year">1 year</SelectItem>
+                  <SelectItem value="2 years">2 years</SelectItem>
+                  <SelectItem value="3 years">3 years</SelectItem>
+                  <SelectItem value="4 years">4 years</SelectItem>
+                  <SelectItem value="4+ years">4+ years</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-intake">Intake *</Label>
+              <Input
+                id="edit-intake"
+                value={formData.intake}
+                onChange={(e) => setFormData({ ...formData, intake: e.target.value })}
+                placeholder="e.g., September 2024"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-tuitionFee">Tuition Fee (AED)</Label>
+              <Input
+                id="edit-tuitionFee"
+                type="number"
+                value={formData.tuitionFee}
+                onChange={(e) => setFormData({ ...formData, tuitionFee: parseInt(e.target.value) || 0 })}
+                placeholder="Enter tuition fee"
+              />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="edit-description">Description</Label>
+            <Textarea
+              id="edit-description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Enter program description"
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleEditProgram}
+              disabled={!formData.name || !formData.degreeLevel || !formData.fieldOfStudy || !formData.duration || !formData.intake || formData.universityId === 0}
+            >
+              Update Program
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Program Dialog */}
+      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add New Program</DialogTitle>
+            <DialogDescription>Create a new academic program</DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="add-name">Program Name *</Label>
+              <Input
+                id="add-name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Enter program name"
+              />
+            </div>
+            <div>
+              <Label htmlFor="add-university">University *</Label>
+              <Select
+                value={formData.universityId.toString()}
+                onValueChange={(value) => setFormData({ ...formData, universityId: parseInt(value) })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select university" />
+                </SelectTrigger>
+                <SelectContent>
+                  {universitiesList.map((university: University) => (
+                    <SelectItem key={university.id} value={university.id.toString()}>
+                      {university.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="add-degreeLevel">Degree Level *</Label>
+              <Select
+                value={formData.degreeLevel}
+                onValueChange={(value) => setFormData({ ...formData, degreeLevel: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select degree level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Bachelor's Degree">Bachelor's Degree</SelectItem>
+                  <SelectItem value="Master's Degree">Master's Degree</SelectItem>
+                  <SelectItem value="PhD">PhD</SelectItem>
+                  <SelectItem value="Diploma">Diploma</SelectItem>
+                  <SelectItem value="Certificate">Certificate</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="add-fieldOfStudy">Field of Study *</Label>
+              <Select
+                value={formData.fieldOfStudy}
+                onValueChange={(value) => setFormData({ ...formData, fieldOfStudy: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select field" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Business & Management">Business & Management</SelectItem>
+                  <SelectItem value="Engineering">Engineering</SelectItem>
+                  <SelectItem value="Computer Science & IT">Computer Science & IT</SelectItem>
+                  <SelectItem value="Medicine & Health">Medicine & Health</SelectItem>
+                  <SelectItem value="Arts & Humanities">Arts & Humanities</SelectItem>
+                  <SelectItem value="Social Sciences">Social Sciences</SelectItem>
+                  <SelectItem value="Natural Sciences">Natural Sciences</SelectItem>
+                  <SelectItem value="Law">Law</SelectItem>
+                  <SelectItem value="Education">Education</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="add-duration">Duration *</Label>
+              <Select
+                value={formData.duration}
+                onValueChange={(value) => setFormData({ ...formData, duration: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1 year">1 year</SelectItem>
+                  <SelectItem value="2 years">2 years</SelectItem>
+                  <SelectItem value="3 years">3 years</SelectItem>
+                  <SelectItem value="4 years">4 years</SelectItem>
+                  <SelectItem value="4+ years">4+ years</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="add-intake">Intake *</Label>
+              <Input
+                id="add-intake"
+                value={formData.intake}
+                onChange={(e) => setFormData({ ...formData, intake: e.target.value })}
+                placeholder="e.g., September 2024"
+              />
+            </div>
+            <div>
+              <Label htmlFor="add-tuitionFee">Tuition Fee (AED)</Label>
+              <Input
+                id="add-tuitionFee"
+                type="number"
+                value={formData.tuitionFee}
+                onChange={(e) => setFormData({ ...formData, tuitionFee: parseInt(e.target.value) || 0 })}
+                placeholder="Enter tuition fee"
+              />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="add-description">Description</Label>
+            <Textarea
+              id="add-description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Enter program description"
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleAddProgram}
+              disabled={!formData.name || !formData.degreeLevel || !formData.fieldOfStudy || !formData.duration || !formData.intake || formData.universityId === 0}
+            >
+              Add Program
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

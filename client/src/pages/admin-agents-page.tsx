@@ -73,6 +73,22 @@ export default function AdminAgentsPage() {
     }
   }, [user, navigate]);
 
+  // Reset form data when dialogs close
+  useEffect(() => {
+    if (!editDialogOpen && !addDialogOpen) {
+      setFormData({
+        username: "",
+        firstName: "",
+        lastName: "",
+        agencyName: "",
+        phone: "",
+        country: "",
+        password: ""
+      });
+      setSelectedAgent(null);
+    }
+  }, [editDialogOpen, addDialogOpen]);
+
   const { data: agents = [], isLoading: loading, error } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
     enabled: !!user && (user.role === "admin" || user.role === "super_admin"),
