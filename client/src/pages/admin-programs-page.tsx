@@ -214,28 +214,24 @@ export default function AdminProgramsPage() {
   };
 
   const openEditDialog = (program: Program) => {
-    console.log("Program data being edited:", program); // Debug log
+    console.log("Raw program data being edited:", program); // Debug log
     setSelectedProgram(program);
-    setFormData({
-      name: program.name || "",
-      degreeLevel: (program as any).degree || "",  // Map degree to degreeLevel
-      fieldOfStudy: (program as any).studyField || "",  // Map studyField to fieldOfStudy
-      duration: program.duration || "",
-      intake: program.intake || "",
-      tuitionFee: parseInt((program as any).tuition) || 0,  // Map tuition to tuitionFee
-      description: program.description || "",
-      universityId: program.university?.id || (program as any).universityId || 0  // Handle both formats
-    });
-    console.log("Form data set to:", {
-      name: program.name || "",
-      degreeLevel: (program as any).degree || "",
-      fieldOfStudy: (program as any).studyField || "",
-      duration: program.duration || "",
-      intake: program.intake || "",
-      tuitionFee: parseInt((program as any).tuition) || 0,
-      description: program.description || "",
-      universityId: program.university?.id || (program as any).universityId || 0
-    }); // Debug log
+    
+    // Extract the correct field values based on actual database structure
+    const programData = program as any;
+    const formValues = {
+      name: programData.name || "",
+      degreeLevel: programData.degree || "",  // Map 'degree' field to 'degreeLevel'
+      fieldOfStudy: programData.studyField || "",  // Map 'studyField' to 'fieldOfStudy'
+      duration: programData.duration || "",
+      intake: programData.intake || "",
+      tuitionFee: parseInt(programData.tuition?.replace(/[^\d]/g, '') || '0') || 0,  // Parse tuition string to number
+      description: programData.description || "",
+      universityId: programData.universityId || program.university?.id || 0
+    };
+    
+    console.log("Mapped form data:", formValues); // Debug log
+    setFormData(formValues);
     setEditDialogOpen(true);
   };
 
