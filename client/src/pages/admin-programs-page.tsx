@@ -121,11 +121,7 @@ export default function AdminProgramsPage() {
         active: true
       };
       
-      const response = await apiRequest("/api/admin/programs", {
-        method: "POST",
-        body: JSON.stringify(programData),
-        headers: { "Content-Type": "application/json" }
-      });
+      const response = await apiRequest("POST", "/api/admin/programs", programData);
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: "Failed to add program" }));
@@ -152,10 +148,7 @@ export default function AdminProgramsPage() {
         universityId: Number(formData.universityId)
       };
       
-      const response = await apiRequest("PUT", `/api/admin/programs/${selectedProgram.id}`, {
-        body: JSON.stringify(programData),
-        headers: { "Content-Type": "application/json" }
-      });
+      const response = await apiRequest("PUT", `/api/admin/programs/${selectedProgram.id}`, programData);
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: "Failed to update program" }));
@@ -176,9 +169,7 @@ export default function AdminProgramsPage() {
   const handleDeleteProgram = async () => {
     if (!selectedProgram) return;
     try {
-      const response = await apiRequest("DELETE", `/api/admin/programs/${selectedProgram.id}`, {
-        headers: { "Content-Type": "application/json" }
-      });
+      const response = await apiRequest("DELETE", `/api/admin/programs/${selectedProgram.id}`);
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: "Failed to delete program" }));
