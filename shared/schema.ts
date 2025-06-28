@@ -3,7 +3,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // User roles enum
-export const userRoles = ["agent", "admin"] as const;
+export const userRoles = ["agent", "admin", "student"] as const;
 export type UserRole = typeof userRoles[number];
 
 // User schema with extended fields for agent registration

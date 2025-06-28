@@ -150,7 +150,10 @@ router.post("/users", async (req, res) => {
       return res.status(400).json({ error: "User with this email already exists" });
     }
 
-    const newUser = await storage.createUser(userData);
+    const newUser = await storage.createUser({
+      ...userData,
+      role: userData.role as "agent" | "admin" // Cast to expected type
+    });
     
     // Log the action
     await storage.createAuditLog({
@@ -199,7 +202,10 @@ router.put("/users/:id", async (req, res) => {
       }
     }
 
-    const updatedUser = await storage.updateUser(userId, userData);
+    const updatedUser = await storage.updateUser(userId, {
+      ...userData,
+      role: userData.role as "agent" | "admin" // Cast to expected type
+    });
     
     // Log the action
     await storage.createAuditLog({
