@@ -76,42 +76,10 @@ export default function AdminAgentsPage() {
   const { data: agents = [], isLoading: loading, error } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
     enabled: !!user && (user.role === "admin" || user.role === "super_admin"),
-    retry: 0,
+    retry: false,
     refetchOnWindowFocus: false,
     staleTime: 30000,
     throwOnError: false,
-    queryFn: async () => {
-      try {
-        const response = await fetch("/api/admin/users", { credentials: "include" });
-        if (!response.ok) return [];
-        const data = await response.json();
-        
-        // Filter to only show agents and fetch application counts
-        const agents = Array.isArray(data) ? data.filter((u: User) => u.role === "agent") : [];
-        
-        // Fetch application counts for each agent
-        const agentsWithCounts = await Promise.all(
-          agents.map(async (agent) => {
-            try {
-              const appsResponse = await fetch(`/api/admin/applications?userId=${agent.id}`, { credentials: "include" });
-              if (appsResponse.ok) {
-                const applications = await appsResponse.json();
-                return { ...agent, applicationsCount: Array.isArray(applications) ? applications.length : 0 };
-              }
-              return { ...agent, applicationsCount: 0 };
-            } catch (error) {
-              console.error(`Error fetching applications for agent ${agent.id}:`, error);
-              return { ...agent, applicationsCount: 0 };
-            }
-          })
-        );
-        
-        return agentsWithCounts;
-      } catch (error) {
-        console.error("Agents fetch error:", error);
-        return [];
-      }
-    },
   });
 
   // Refresh data function

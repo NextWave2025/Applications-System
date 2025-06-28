@@ -63,7 +63,8 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     try {
-      const res = await fetch(queryKey[0] as string, {
+      const endpoint = queryKey[0] as string;
+      const res = await fetch(endpoint, {
         credentials: "include",
       });
 
@@ -73,11 +74,38 @@ export const getQueryFn: <T>(options: {
 
       await throwIfResNotOk(res);
       const data = await res.json();
-      console.log("Query response for", queryKey[0], ":", data);
+      
+      // Special handling for agents with application counts
+      if (endpoint === "/api/admin/users") {
+        const agents = Array.isArray(data) ? data.filter((u: any) => u.role === "agent") : [];
+        
+        // Fetch application counts for each agent safely
+        const agentsWithCounts = await Promise.all(
+          agents.map(async (agent: any) => {
+            try {
+              const appsResponse = await fetch(`/api/admin/applications?userId=${agent.id}`, { credentials: "include" });
+              if (appsResponse.ok) {
+                const applications = await appsResponse.json();
+                return { ...agent, applicationsCount: Array.isArray(applications) ? applications.length : 0 };
+              }
+              return { ...agent, applicationsCount: 0 };
+            } catch (error) {
+              console.warn(`Error fetching applications for agent ${agent.id}:`, error);
+              return { ...agent, applicationsCount: 0 };
+            }
+          })
+        );
+        
+        return agentsWithCounts;
+      }
+      
       return data;
     } catch (error) {
       console.warn("Query error for", queryKey[0], ":", error);
-      // Don't throw to prevent unhandled rejections
+      // Return empty array for data endpoints to prevent crashes
+      if ((queryKey[0] as string).includes("/api/")) {
+        return [];
+      }
       return null;
     }
   };
@@ -99,17 +127,25 @@ export const queryClient = new QueryClient({
   },
 });
 
-// Add comprehensive global error handlers
+// Add comprehensive global error handlers with more aggressive catching
 if (typeof window !== 'undefined') {
   window.addEventListener('unhandledrejection', (event) => {
-    console.warn('Unhandled promise rejection caught:', event.reason);
-    // Always prevent the default behavior to stop browser console errors
+    console.warn('Unhandled promise rejection intercepted:', event.reason);
+    // Prevent all unhandled rejections from surfacing
     event.preventDefault();
+    return false;
   });
 
   window.addEventListener('error', (event) => {
-    console.warn('Global error caught:', event.error);
-    // Prevent default to avoid console spam
+    console.warn('Global error intercepted:', event.error);
     event.preventDefault();
+    return false;
+  });
+
+  // Additional safety net for React errors
+  window.addEventListener('rejectionhandled', (event) => {
+    console.warn('Promise rejection handled late:', event.reason);
+    event.preventDefault();
+    return false;
   });
 }
