@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Search, BookOpen, DollarSign, Edit, Trash2 } from "lucide-react";
+import { Loader2, Plus, Search, BookOpen, DollarSign, Edit, Trash2, RefreshCw, Power, PowerOff } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 interface Program {
   id: number;
   name: string;
@@ -17,6 +22,7 @@ interface Program {
   intake: string;
   tuitionFee?: number;
   description?: string;
+  active?: boolean;
   university?: {
     id: number;
     name: string;
@@ -24,15 +30,43 @@ interface Program {
   };
 }
 
+interface University {
+  id: number;
+  name: string;
+  city: string;
+  logoUrl?: string;
+}
+
 export default function AdminProgramsPage() {
   const { user } = useAuth();
   const [location, navigate] = useLocation();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [degreeFilter, setDegreeFilter] = useState("all");
   const [fieldFilter, setFieldFilter] = useState("all");
   const [universityFilter, setUniversityFilter] = useState("all");
+  const [selectedPrograms, setSelectedPrograms] = useState<number[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Dialog states
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
+  
+  // Form states
+  const [formData, setFormData] = useState({
+    name: "",
+    degreeLevel: "",
+    fieldOfStudy: "",
+    duration: "",
+    intake: "",
+    tuitionFee: 0,
+    description: "",
+    universityId: 0
+  });
 
   useEffect(() => {
     if (user && user.role !== "admin" && user.role !== "super_admin") {
