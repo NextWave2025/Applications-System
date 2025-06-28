@@ -226,7 +226,7 @@ export default function AdminProgramsPage() {
       duration: programData.duration || "",
       intake: programData.intake || "",
       tuitionFee: parseInt(programData.tuition?.replace(/[^\d]/g, '') || '0') || 0,  // Parse tuition string to number
-      description: programData.description || "",
+      description: Array.isArray(programData.requirements) ? programData.requirements.join(', ') : (programData.requirements || ""),  // Map requirements to description
       universityId: programData.universityId || program.university?.id || 0
     };
     
@@ -541,10 +541,13 @@ export default function AdminProgramsPage() {
                   <SelectValue placeholder="Select degree level" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="Foundation">Foundation</SelectItem>
+                  <SelectItem value="Diploma">Diploma</SelectItem>
+                  <SelectItem value="Degree (Undergraduate)">Degree (Undergraduate)</SelectItem>
+                  <SelectItem value="Postgraduate (Master's / PhD)">Postgraduate (Master's / PhD)</SelectItem>
                   <SelectItem value="Bachelor's Degree">Bachelor's Degree</SelectItem>
                   <SelectItem value="Master's Degree">Master's Degree</SelectItem>
                   <SelectItem value="PhD">PhD</SelectItem>
-                  <SelectItem value="Diploma">Diploma</SelectItem>
                   <SelectItem value="Certificate">Certificate</SelectItem>
                 </SelectContent>
               </Select>
@@ -565,6 +568,10 @@ export default function AdminProgramsPage() {
                   <SelectItem value="Medicine & Health">Medicine & Health</SelectItem>
                   <SelectItem value="Arts & Humanities">Arts & Humanities</SelectItem>
                   <SelectItem value="Social Sciences">Social Sciences</SelectItem>
+                  <SelectItem value="Education & Languages">Education & Languages</SelectItem>
+                  <SelectItem value="Media & Design">Media & Design</SelectItem>
+                  <SelectItem value="General Studies">General Studies</SelectItem>
+                  <SelectItem value="Law & Politics">Law & Politics</SelectItem>
                   <SelectItem value="Natural Sciences">Natural Sciences</SelectItem>
                   <SelectItem value="Law">Law</SelectItem>
                   <SelectItem value="Education">Education</SelectItem>
