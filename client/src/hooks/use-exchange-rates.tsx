@@ -78,7 +78,7 @@ interface ExchangeRatesResponse {
 async function fetchExchangeRates(baseCurrency: string = 'AED'): Promise<ExchangeRatesResponse> {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
     
     const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${baseCurrency}`, {
       signal: controller.signal,
@@ -86,6 +86,10 @@ async function fetchExchangeRates(baseCurrency: string = 'AED'): Promise<Exchang
         'Accept': 'application/json',
         'Cache-Control': 'no-cache'
       }
+    }).catch(fetchError => {
+      clearTimeout(timeoutId);
+      console.warn('Exchange rate API fetch failed:', fetchError);
+      throw fetchError;
     });
     
     clearTimeout(timeoutId);
