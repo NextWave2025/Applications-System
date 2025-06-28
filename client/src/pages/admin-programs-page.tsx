@@ -74,6 +74,7 @@ export default function AdminProgramsPage() {
     }
   }, [user, navigate]);
 
+  // Fetch programs
   const { data: programs = [], isLoading: loading, error } = useQuery<Program[]>({
     queryKey: ["/api/programs"],
     enabled: !!user && (user.role === "admin" || user.role === "super_admin"),
@@ -88,6 +89,138 @@ export default function AdminProgramsPage() {
       return Array.isArray(data) ? data : [];
     },
   });
+
+  // Fetch universities for dropdowns
+  const { data: universitiesList = [] } = useQuery<University[]>({
+    queryKey: ["/api/universities"],
+    enabled: !!user && (user.role === "admin" || user.role === "super_admin"),
+    retry: 0,
+    refetchOnWindowFocus: false,
+    staleTime: 30000,
+    throwOnError: false,
+    queryFn: async () => {
+      const response = await fetch("/api/universities", { credentials: "include" });
+      if (!response.ok) return [];
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    },
+  });
+
+  // Refresh data function
+  const refreshData = async () => {
+    try {
+      setIsRefreshing(true);
+      await queryClient.invalidateQueries({ queryKey: ["/api/programs"] });
+      await queryClient.refetchQueries({ queryKey: ["/api/programs"] });
+      toast({ title: "Data refreshed successfully" });
+    } catch (error) {
+      toast({ title: "Failed to refresh data", variant: "destructive" });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Add program
+  const handleAddProgram = async () => {
+    try {
+      await apiRequest("POST", "/api/admin/programs", {
+        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json" }
+      });
+      toast({ title: "Program added successfully" });
+      setAddDialogOpen(false);
+      setFormData({ name: "", degreeLevel: "", fieldOfStudy: "", duration: "", intake: "", tuitionFee: 0, description: "", universityId: 0 });
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to add program", variant: "destructive" });
+    }
+  };
+
+  // Edit program
+  const handleEditProgram = async () => {
+    if (!selectedProgram) return;
+    try {
+      await apiRequest("PUT", `/api/admin/programs/${selectedProgram.id}`, {
+        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json" }
+      });
+      toast({ title: "Program updated successfully" });
+      setEditDialogOpen(false);
+      setSelectedProgram(null);
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to update program", variant: "destructive" });
+    }
+  };
+
+  // Delete program
+  const handleDeleteProgram = async () => {
+    if (!selectedProgram) return;
+    try {
+      await apiRequest("DELETE", `/api/admin/programs/${selectedProgram.id}`);
+      toast({ title: "Program deleted successfully" });
+      setDeleteDialogOpen(false);
+      setSelectedProgram(null);
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to delete program", variant: "destructive" });
+    }
+  };
+
+  // Toggle program status
+  const toggleProgramStatus = async (program: Program) => {
+    try {
+      await apiRequest("PATCH", `/api/admin/programs/${program.id}/toggle-status`);
+      toast({ title: `Program ${program.active ? 'deactivated' : 'activated'} successfully` });
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to update program status", variant: "destructive" });
+    }
+  };
+
+  // Batch operations
+  const handleBatchDelete = async () => {
+    if (selectedPrograms.length === 0) return;
+    try {
+      await apiRequest("DELETE", "/api/admin/programs/batch", {
+        body: JSON.stringify({ ids: selectedPrograms }),
+        headers: { "Content-Type": "application/json" }
+      });
+      toast({ title: `${selectedPrograms.length} programs deleted successfully` });
+      setSelectedPrograms([]);
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to delete programs", variant: "destructive" });
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedPrograms.length === filteredPrograms.length) {
+      setSelectedPrograms([]);
+    } else {
+      setSelectedPrograms(filteredPrograms.map(p => p.id));
+    }
+  };
+
+  const openEditDialog = (program: Program) => {
+    setSelectedProgram(program);
+    setFormData({
+      name: program.name,
+      degreeLevel: program.degreeLevel,
+      fieldOfStudy: program.fieldOfStudy,
+      duration: program.duration,
+      intake: program.intake,
+      tuitionFee: program.tuitionFee || 0,
+      description: program.description || "",
+      universityId: program.university?.id || 0
+    });
+    setEditDialogOpen(true);
+  };
+
+  const openDeleteDialog = (program: Program) => {
+    setSelectedProgram(program);
+    setDeleteDialogOpen(true);
+  };
 
   if (!user) {
     navigate("/auth");
@@ -110,7 +243,7 @@ export default function AdminProgramsPage() {
 
   const degreeLevels = Array.from(new Set(programs.map(p => p.degreeLevel))).sort();
   const fields = Array.from(new Set(programs.map(p => p.fieldOfStudy))).sort();
-  const universities = Array.from(new Set(programs.map(p => p.university?.name).filter(Boolean))).sort();
+  const universityNames = Array.from(new Set(programs.map(p => p.university?.name).filter(Boolean))).sort();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-AE', {
@@ -128,10 +261,20 @@ export default function AdminProgramsPage() {
           <h1 className="text-3xl font-bold">Programs Management</h1>
           <p className="text-gray-600 mt-2">Manage academic programs and courses</p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Program
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={refreshData}
+            disabled={loading || isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading || isRefreshing ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+          <Button onClick={() => setAddDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Program
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -182,7 +325,7 @@ export default function AdminProgramsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Universities</SelectItem>
-              {universities.map(uni => (
+              {universityNames.map(uni => (
                 <SelectItem key={uni} value={uni}>{uni}</SelectItem>
               ))}
             </SelectContent>
@@ -190,9 +333,48 @@ export default function AdminProgramsPage() {
         </div>
       </div>
 
+      {/* Batch Operations */}
+      {selectedPrograms.length > 0 && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">
+                {selectedPrograms.length} programs selected
+              </span>
+              <div className="flex gap-2">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleBatchDelete}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Selected
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedPrograms([])}
+                >
+                  Clear Selection
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
-          <CardTitle>Programs ({filteredPrograms.length})</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Programs ({filteredPrograms.length})</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSelectAll}
+            >
+              {selectedPrograms.length === filteredPrograms.length ? 'Deselect All' : 'Select All'}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (

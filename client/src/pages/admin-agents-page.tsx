@@ -7,8 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Search, Users, Mail, Phone, Building, Edit, UserCheck, UserX } from "lucide-react";
+import { Loader2, Plus, Search, Users, Mail, Phone, Building, Edit, UserCheck, UserX, RefreshCw, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 interface User {
   id: number;
@@ -21,16 +25,36 @@ interface User {
   createdAt: string;
   phone?: string;
   country?: string;
+  applicationsCount?: number;
 }
 
 export default function AdminAgentsPage() {
   const { user } = useAuth();
   const [location, navigate] = useLocation();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Dialog states
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<User | null>(null);
+  
+  // Form states
+  const [formData, setFormData] = useState({
+    username: "",
+    firstName: "",
+    lastName: "",
+    agencyName: "",
+    phone: "",
+    country: "",
+    password: ""
+  });
 
   useEffect(() => {
     if (user && user.role !== "admin" && user.role !== "super_admin") {
@@ -53,6 +77,97 @@ export default function AdminAgentsPage() {
       return Array.isArray(data) ? data.filter((u: User) => u.role === "agent") : [];
     },
   });
+
+  // Refresh data function
+  const refreshData = async () => {
+    try {
+      setIsRefreshing(true);
+      await queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      await queryClient.refetchQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "Data refreshed successfully" });
+    } catch (error) {
+      toast({ title: "Failed to refresh data", variant: "destructive" });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Add agent
+  const handleAddAgent = async () => {
+    try {
+      await apiRequest("POST", "/api/admin/agents", {
+        body: JSON.stringify({ ...formData, role: "agent" }),
+        headers: { "Content-Type": "application/json" }
+      });
+      toast({ title: "Agent added successfully" });
+      setAddDialogOpen(false);
+      setFormData({ username: "", firstName: "", lastName: "", agencyName: "", phone: "", country: "", password: "" });
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to add agent", variant: "destructive" });
+    }
+  };
+
+  // Edit agent
+  const handleEditAgent = async () => {
+    if (!selectedAgent) return;
+    try {
+      await apiRequest("PUT", `/api/admin/users/${selectedAgent.id}`, {
+        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json" }
+      });
+      toast({ title: "Agent updated successfully" });
+      setEditDialogOpen(false);
+      setSelectedAgent(null);
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to update agent", variant: "destructive" });
+    }
+  };
+
+  // Delete agent
+  const handleDeleteAgent = async () => {
+    if (!selectedAgent) return;
+    try {
+      await apiRequest("DELETE", `/api/admin/users/${selectedAgent.id}`);
+      toast({ title: "Agent deleted successfully" });
+      setDeleteDialogOpen(false);
+      setSelectedAgent(null);
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to delete agent", variant: "destructive" });
+    }
+  };
+
+  // Toggle agent status
+  const toggleAgentStatus = async (agent: User) => {
+    try {
+      await apiRequest("PATCH", `/api/admin/users/${agent.id}/toggle-status`);
+      toast({ title: `Agent ${agent.active ? 'deactivated' : 'activated'} successfully` });
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to update agent status", variant: "destructive" });
+    }
+  };
+
+  const openEditDialog = (agent: User) => {
+    setSelectedAgent(agent);
+    setFormData({
+      username: agent.username,
+      firstName: agent.firstName,
+      lastName: agent.lastName,
+      agencyName: agent.agencyName || "",
+      phone: agent.phone || "",
+      country: agent.country || "",
+      password: ""
+    });
+    setEditDialogOpen(true);
+  };
+
+  const openDeleteDialog = (agent: User) => {
+    setSelectedAgent(agent);
+    setDeleteDialogOpen(true);
+  };
 
   if (!user) {
     navigate("/auth");
@@ -110,10 +225,20 @@ export default function AdminAgentsPage() {
           <h1 className="text-3xl font-bold">Agents Management</h1>
           <p className="text-gray-600 mt-2">Manage education agents and consultants</p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Agent
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={refreshData}
+            disabled={loading || isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading || isRefreshing ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+          <Button onClick={() => setAddDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Agent
+          </Button>
+        </div>
       </div>
 
       {error && (
