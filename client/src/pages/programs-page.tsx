@@ -7,7 +7,6 @@ import PDFExport from "@/components/pdf-export";
 import SelectableProgramCard from "@/components/selectable-program-card";
 import ProgramCardNew from "@/components/program-card-new";
 import OptimizedFilterPanel from "@/components/optimized-filter-panel";
-import CurrencySelector from "@/components/currency-selector";
 import BulkCurrencyConverter from "@/components/bulk-currency-converter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +59,12 @@ export default function ProgramsPage() {
     if (!isLoadingAllPrograms) {
       console.log("Manually fetching programs...");
       fetch('/api/programs')
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
         .then(data => {
           console.log("Manually fetched programs:", data.length, "programs");
           queryClient.setQueryData(['/api/programs'], data);
@@ -182,7 +186,12 @@ export default function ProgramsPage() {
     if (universities.length === 0) {
       console.log("Manually fetching universities...");
       fetch('/api/universities')
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
         .then(data => {
           console.log("Manually fetched universities:", data.length, "universities");
           queryClient.setQueryData(['/api/universities'], data);
@@ -352,11 +361,6 @@ export default function ProgramsPage() {
           {/* Optimized Sidebar filters - Narrower for better card display */}
           <aside className="lg:w-72 xl:w-80 flex-shrink-0">
             <div className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto space-y-4">
-              {/* Currency Selector */}
-              <div className="bg-white rounded-lg border p-4">
-                <CurrencySelector />
-              </div>
-              
               {/* Filter Panel */}
               <OptimizedFilterPanel 
                 onFiltersChange={handleFilterChange}
