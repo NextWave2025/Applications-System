@@ -144,8 +144,13 @@ export default function AdminMyApplicationsPage() {
     },
   });
 
-  const refreshApplications = () => {
-    queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
+  const refreshApplications = async () => {
+    try {
+      await queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
+      await queryClient.refetchQueries({ queryKey: ["/api/admin/applications"] });
+    } catch (error) {
+      console.error("Error refreshing applications:", error);
+    }
   };
 
   if (!user) {
@@ -203,6 +208,10 @@ export default function AdminMyApplicationsPage() {
         return `${a.studentFirstName} ${a.studentLastName}`.localeCompare(`${b.studentFirstName} ${b.studentLastName}`);
       case "program":
         return (a.program?.name || '').localeCompare(b.program?.name || '');
+      case "agent":
+        const aAgent = a.agent ? `${a.agent.firstName} ${a.agent.lastName}` : 'Direct Application';
+        const bAgent = b.agent ? `${b.agent.firstName} ${b.agent.lastName}` : 'Direct Application';
+        return aAgent.localeCompare(bAgent);
       case "status":
         return a.status.localeCompare(b.status);
       default:
@@ -363,6 +372,7 @@ export default function AdminMyApplicationsPage() {
                   <SelectItem value="updated">Recently Updated</SelectItem>
                   <SelectItem value="student">Student Name</SelectItem>
                   <SelectItem value="program">Program</SelectItem>
+                  <SelectItem value="agent">Agent</SelectItem>
                   <SelectItem value="status">Status</SelectItem>
                 </SelectContent>
               </Select>
@@ -378,6 +388,7 @@ export default function AdminMyApplicationsPage() {
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">University</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -386,14 +397,14 @@ export default function AdminMyApplicationsPage() {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {loading ? (
                       <tr>
-                        <td colSpan={6} className="px-4 py-8 text-center">
+                        <td colSpan={7} className="px-4 py-8 text-center">
                           <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                           <p className="mt-2 text-sm text-gray-500">Loading applications...</p>
                         </td>
                       </tr>
                     ) : sortedApplications.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                        <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
                           {applications.length === 0 ? "No applications found" : "No applications match your filters"}
                         </td>
                       </tr>
@@ -415,6 +426,18 @@ export default function AdminMyApplicationsPage() {
                           <td className="px-4 py-4">
                             <div className="text-sm text-gray-900">{application.program?.university?.name || 'N/A'}</div>
                             <div className="text-sm text-gray-500">{application.program?.university?.city || 'N/A'}</div>
+                          </td>
+                          <td className="px-4 py-4">
+                            {application.agent ? (
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {application.agent.firstName} {application.agent.lastName}
+                                </div>
+                                <div className="text-sm text-gray-500">{application.agent.agencyName}</div>
+                              </div>
+                            ) : (
+                              <div className="text-sm text-gray-500">Direct Application</div>
+                            )}
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             <div className="flex items-center">
