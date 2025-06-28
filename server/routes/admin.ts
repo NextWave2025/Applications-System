@@ -501,7 +501,7 @@ router.patch("/applications/:id/status", async (req, res) => {
           agentEmail: agent.username || '', // username is the email field
           agentName: `${agent.firstName} ${agent.lastName}`,
           programName: application.program?.name || 'Unknown Program',
-          universityName: application.program?.universityName || 'Unknown University',
+          universityName: application.program?.university?.name || 'Unknown University',
           status,
           previousStatus: currentStatus,
           notes,
