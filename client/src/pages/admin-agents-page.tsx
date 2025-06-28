@@ -81,11 +81,16 @@ export default function AdminAgentsPage() {
     staleTime: 30000,
     throwOnError: false,
     queryFn: async () => {
-      const response = await fetch("/api/admin/users", { credentials: "include" });
-      if (!response.ok) return [];
-      const data = await response.json();
-      // Filter to only show agents (non-admin users)
-      return Array.isArray(data) ? data.filter((u: User) => u.role === "agent") : [];
+      try {
+        const response = await fetch("/api/admin/users", { credentials: "include" });
+        if (!response.ok) return [];
+        const data = await response.json();
+        // Filter to only show agents (non-admin users)
+        return Array.isArray(data) ? data.filter((u: User) => u.role === "agent") : [];
+      } catch (error) {
+        console.error("Agents fetch error:", error);
+        return [];
+      }
     },
   });
 

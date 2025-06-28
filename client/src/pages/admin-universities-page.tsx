@@ -44,14 +44,29 @@ export default function AdminUniversitiesPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedUniversity, setSelectedUniversity] = useState<University | null>(null);
   
-  // Form states
+  // Comprehensive form states
   const [formData, setFormData] = useState({
     name: "",
     city: "",
     website: "",
     logoUrl: "",
     type: "",
-    ranking: 0
+    ranking: 0,
+    description: "",
+    establishedYear: "",
+    accreditation: "",
+    campusSize: "",
+    studentCapacity: 0,
+    internationalStudents: 0,
+    facultyCount: 0,
+    researchRating: "",
+    facilities: "",
+    admissionRequirements: "",
+    applicationDeadline: "",
+    contactEmail: "",
+    contactPhone: "",
+    address: "",
+    programs: [] as any[]
   });
 
   // Program management states
@@ -82,10 +97,15 @@ export default function AdminUniversitiesPage() {
     staleTime: 30000,
     throwOnError: false,
     queryFn: async () => {
-      const response = await fetch("/api/universities", { credentials: "include" });
-      if (!response.ok) return [];
-      const data = await response.json();
-      return Array.isArray(data) ? data : [];
+      try {
+        const response = await fetch("/api/universities", { credentials: "include" });
+        if (!response.ok) return [];
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error("Universities fetch error:", error);
+        return [];
+      }
     },
   });
 

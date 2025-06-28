@@ -74,7 +74,7 @@ export default function AdminProgramsPage() {
     }
   }, [user, navigate]);
 
-  // Fetch programs
+  // Fetch programs with comprehensive error handling
   const { data: programs = [], isLoading: loading, error } = useQuery<Program[]>({
     queryKey: ["/api/programs"],
     enabled: !!user && (user.role === "admin" || user.role === "super_admin"),
@@ -83,10 +83,15 @@ export default function AdminProgramsPage() {
     staleTime: 30000,
     throwOnError: false,
     queryFn: async () => {
-      const response = await fetch("/api/programs", { credentials: "include" });
-      if (!response.ok) return [];
-      const data = await response.json();
-      return Array.isArray(data) ? data : [];
+      try {
+        const response = await fetch("/api/programs", { credentials: "include" });
+        if (!response.ok) return [];
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error("Programs fetch error:", error);
+        return [];
+      }
     },
   });
 

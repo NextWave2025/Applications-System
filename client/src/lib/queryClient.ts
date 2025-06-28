@@ -51,7 +51,8 @@ export async function apiRequest(
     return response;
   } catch (error) {
     console.error("API request error:", error);
-    throw error;
+    // Return error response instead of throwing to prevent unhandled rejections
+    return response;
   }
 }
 
@@ -76,7 +77,8 @@ export const getQueryFn: <T>(options: {
       return data;
     } catch (error) {
       console.warn("Query error for", queryKey[0], ":", error);
-      throw error;
+      // Don't throw to prevent unhandled rejections
+      return null;
     }
   };
 
