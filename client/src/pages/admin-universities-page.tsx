@@ -112,8 +112,35 @@ export default function AdminUniversitiesPage() {
     }
   };
 
+  // Form validation
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      toast({ title: "Please enter a university name", variant: "destructive" });
+      return false;
+    }
+    if (!formData.city.trim()) {
+      toast({ title: "Please enter a city", variant: "destructive" });
+      return false;
+    }
+    if (!formData.contactEmail.trim() || !/\S+@\S+\.\S+/.test(formData.contactEmail)) {
+      toast({ title: "Please enter a valid email address", variant: "destructive" });
+      return false;
+    }
+    if (!formData.website.trim() || !/^https?:\/\/.+/.test(formData.website)) {
+      toast({ title: "Please enter a valid website URL", variant: "destructive" });
+      return false;
+    }
+    if (!formData.description.trim()) {
+      toast({ title: "Please enter a description", variant: "destructive" });
+      return false;
+    }
+    return true;
+  };
+
   // Add university
   const handleAddUniversity = async () => {
+    if (!validateForm()) return;
+    
     try {
       await apiRequest("POST", "/api/admin/universities", {
         body: JSON.stringify(formData),
@@ -138,6 +165,8 @@ export default function AdminUniversitiesPage() {
   // Edit university
   const handleEditUniversity = async () => {
     if (!selectedUniversity) return;
+    if (!validateForm()) return;
+    
     try {
       await apiRequest("PUT", `/api/admin/universities/${selectedUniversity.id}`, {
         body: JSON.stringify(formData),

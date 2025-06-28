@@ -20,6 +20,7 @@ import AdminMyApplicationsPage from "./pages/admin-my-applications-page";
 import AdminUniversitiesPage from "./pages/admin-universities-page";
 import AdminProgramsPage from "./pages/admin-programs-page";
 import AdminAgentsPage from "./pages/admin-agents-page";
+import AdminUsersPage from "./pages/admin-users-page";
 import AdminStudentsPage from "./pages/admin-students-page";
 import AdminAnalyticsPage from "./pages/admin-analytics-page";
 import SettingsPage from "./pages/settings-page";
