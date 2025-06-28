@@ -121,11 +121,11 @@ export default function AdminUsersPage() {
       toast({ title: "Please enter a last name", variant: "destructive" });
       return false;
     }
-    if (!isEdit && !formData.password.trim()) {
+    if (!isEdit && (!formData.password || !formData.password.trim())) {
       toast({ title: "Please enter a password", variant: "destructive" });
       return false;
     }
-    if (!isEdit && formData.password.length < 6) {
+    if (!isEdit && formData.password && formData.password.length < 6) {
       toast({ title: "Password must be at least 6 characters", variant: "destructive" });
       return false;
     }
@@ -164,24 +164,20 @@ export default function AdminUsersPage() {
     
     try {
       const updateData = { ...formData };
-      const finalData = updateData.password ? updateData : { ...updateData, password: undefined };
-      if (finalData.password === undefined) {
-        const { password, ...dataWithoutPassword } = finalData;
+      // Remove password field if empty
+      if (!updateData.password || updateData.password.trim() === "") {
+        const { password, ...dataWithoutPassword } = updateData;
         await apiRequest("PUT", `/api/admin/users/${selectedUser.id}`, {
           body: JSON.stringify(dataWithoutPassword),
           headers: { "Content-Type": "application/json" }
         });
       } else {
         await apiRequest("PUT", `/api/admin/users/${selectedUser.id}`, {
-          body: JSON.stringify(finalData),
+          body: JSON.stringify(updateData),
           headers: { "Content-Type": "application/json" }
         });
       }
       
-      await apiRequest("PUT", `/api/admin/users/${selectedUser.id}`, {
-        body: JSON.stringify(updateData),
-        headers: { "Content-Type": "application/json" }
-      });
       toast({ title: "User updated successfully" });
       setEditDialogOpen(false);
       setSelectedUser(null);

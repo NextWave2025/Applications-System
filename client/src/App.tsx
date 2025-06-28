@@ -143,6 +143,14 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
+              <Route path="/admin/users">
+              <ProtectedRoute>
+                <AdminLayout>
+                  <AdminUsersPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            </Route>
+
               <Route path="/admin/students">
               <ProtectedRoute>
                 <AdminLayout>

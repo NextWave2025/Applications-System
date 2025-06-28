@@ -130,6 +130,168 @@ router.patch("/users/:id/status", async (req, res) => {
   }
 });
 
+// Create new user
+router.post("/users", async (req, res) => {
+  try {
+    const userData = z.object({
+      username: z.string().email(),
+      firstName: z.string().min(1),
+      lastName: z.string().min(1),
+      password: z.string().min(6),
+      role: z.enum(["agent", "admin", "student"]),
+      agencyName: z.string().min(1),
+      phoneNumber: z.string().optional(),
+      active: z.boolean().default(true)
+    }).parse(req.body);
+
+    // Check if user already exists
+    const existingUser = await storage.getUserByUsername(userData.username);
+    if (existingUser) {
+      return res.status(400).json({ error: "User with this email already exists" });
+    }
+
+    const newUser = await storage.createUser(userData);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "create_user",
+      resourceType: "user",
+      resourceId: newUser.id,
+      newData: { username: userData.username, role: userData.role }
+    });
+    
+    res.status(201).json(newUser);
+  } catch (error) {
+    console.error("Error creating user:", error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: "Invalid user data", details: error.errors });
+    }
+    res.status(500).json({ error: "Failed to create user" });
+  }
+});
+
+// Update user
+router.put("/users/:id", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const userData = z.object({
+      username: z.string().email(),
+      firstName: z.string().min(1),
+      lastName: z.string().min(1),
+      password: z.string().min(6).optional(),
+      role: z.enum(["agent", "admin", "student"]),
+      agencyName: z.string().min(1),
+      phoneNumber: z.string().optional(),
+      active: z.boolean()
+    }).parse(req.body);
+
+    const existingUser = await storage.getUserById(userId);
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Check if email is being changed and if it conflicts with another user
+    if (userData.username !== existingUser.username) {
+      const userWithEmail = await storage.getUserByUsername(userData.username);
+      if (userWithEmail && userWithEmail.id !== userId) {
+        return res.status(400).json({ error: "User with this email already exists" });
+      }
+    }
+
+    const updatedUser = await storage.updateUser(userId, userData);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "update_user",
+      resourceType: "user",
+      resourceId: userId,
+      newData: { username: userData.username, role: userData.role }
+    });
+    
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user:", error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: "Invalid user data", details: error.errors });
+    }
+    res.status(500).json({ error: "Failed to update user" });
+  }
+});
+
+// Delete user
+router.delete("/users/:id", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    
+    const user = await storage.getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    // Don't allow deleting admin users
+    if (user.role === "admin") {
+      return res.status(403).json({ error: "Cannot delete admin users" });
+    }
+    
+    // Don't allow deleting yourself
+    if (userId === req.user?.id) {
+      return res.status(403).json({ error: "Cannot delete your own account" });
+    }
+    
+    await storage.deleteUser(userId);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "delete_user",
+      resourceType: "user",
+      resourceId: userId,
+      newData: { username: user.username, role: user.role }
+    });
+    
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+
+// Toggle user status
+router.patch("/users/:id/toggle-status", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    
+    const user = await storage.getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    // Don't allow deactivating admin users
+    if (user.role === "admin" && user.active) {
+      return res.status(403).json({ error: "Cannot deactivate admin users" });
+    }
+    
+    const newStatus = !user.active;
+    const updatedUser = await storage.updateUserStatus(userId, newStatus);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: newStatus ? "activate_user" : "deactivate_user",
+      resourceType: "user",
+      resourceId: userId,
+      newData: { active: newStatus, username: user.username }
+    });
+    
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user status:", error);
+    res.status(500).json({ error: "Failed to update user status" });
+  }
+});
+
 // Get all applications
 router.get("/applications", async (req, res) => {
   console.log("Admin applications route called");
