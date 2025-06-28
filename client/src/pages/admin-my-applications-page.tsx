@@ -146,10 +146,13 @@ export default function AdminMyApplicationsPage() {
 
   const refreshApplications = async () => {
     try {
+      setIsRefreshing(true);
       await queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
       await queryClient.refetchQueries({ queryKey: ["/api/admin/applications"] });
     } catch (error) {
       console.error("Error refreshing applications:", error);
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -176,12 +179,16 @@ export default function AdminMyApplicationsPage() {
       const email = app.studentEmail.toLowerCase();
       const programName = app.program.name.toLowerCase();
       const universityName = app.program.university.name.toLowerCase();
+      const agentName = app.agent ? `${app.agent.firstName} ${app.agent.lastName}`.toLowerCase() : '';
+      const agencyName = app.agent ? app.agent.agencyName.toLowerCase() : '';
       
       return (
         fullName.includes(query) ||
         email.includes(query) ||
         programName.includes(query) ||
-        universityName.includes(query)
+        universityName.includes(query) ||
+        agentName.includes(query) ||
+        agencyName.includes(query)
       );
     }
 
@@ -514,6 +521,17 @@ export default function AdminMyApplicationsPage() {
                           <p className="text-sm text-gray-500">
                             {application.program?.degreeLevel || 'N/A'} • {application.program?.university?.name || 'N/A'}
                           </p>
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Agent</p>
+                          {application.agent ? (
+                            <p className="text-sm text-gray-500">
+                              {application.agent.firstName} {application.agent.lastName} • {application.agent.agencyName}
+                            </p>
+                          ) : (
+                            <p className="text-sm text-gray-500">Direct Application</p>
+                          )}
                         </div>
                         
                         <div className="flex items-center text-sm text-gray-500">
