@@ -125,49 +125,58 @@ export default function AdminProgramsPage() {
     }
   };
 
-  // Add program
+  // Add program with enhanced error handling
   const handleAddProgram = async () => {
     try {
-      await apiRequest("POST", "/api/admin/programs", {
-        body: JSON.stringify(formData),
-        headers: { "Content-Type": "application/json" }
-      });
+      const response = await apiRequest("POST", "/api/admin/programs", formData);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to add program: ${errorText}`);
+      }
       toast({ title: "Program added successfully" });
       setAddDialogOpen(false);
       setFormData({ name: "", degreeLevel: "", fieldOfStudy: "", duration: "", intake: "", tuitionFee: 0, description: "", universityId: 0 });
-      refreshData();
+      await refreshData();
     } catch (error) {
+      console.error("Add program error:", error);
       toast({ title: "Failed to add program", variant: "destructive" });
     }
   };
 
-  // Edit program
+  // Edit program with enhanced error handling
   const handleEditProgram = async () => {
     if (!selectedProgram) return;
     try {
-      await apiRequest("PUT", `/api/admin/programs/${selectedProgram.id}`, {
-        body: JSON.stringify(formData),
-        headers: { "Content-Type": "application/json" }
-      });
+      const response = await apiRequest("PUT", `/api/admin/programs/${selectedProgram.id}`, formData);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to update program: ${errorText}`);
+      }
       toast({ title: "Program updated successfully" });
       setEditDialogOpen(false);
       setSelectedProgram(null);
-      refreshData();
+      await refreshData();
     } catch (error) {
+      console.error("Edit program error:", error);
       toast({ title: "Failed to update program", variant: "destructive" });
     }
   };
 
-  // Delete program
+  // Delete program with enhanced error handling
   const handleDeleteProgram = async () => {
     if (!selectedProgram) return;
     try {
-      await apiRequest("DELETE", `/api/admin/programs/${selectedProgram.id}`);
+      const response = await apiRequest("DELETE", `/api/admin/programs/${selectedProgram.id}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to delete program: ${errorText}`);
+      }
       toast({ title: "Program deleted successfully" });
       setDeleteDialogOpen(false);
       setSelectedProgram(null);
-      refreshData();
+      await refreshData();
     } catch (error) {
+      console.error("Delete program error:", error);
       toast({ title: "Failed to delete program", variant: "destructive" });
     }
   };

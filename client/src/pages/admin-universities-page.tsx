@@ -132,7 +132,14 @@ export default function AdminUniversitiesPage() {
       });
       toast({ title: "University added successfully" });
       setAddDialogOpen(false);
-      setFormData({ name: "", city: "", website: "", logoUrl: "", type: "", ranking: 0 });
+      setFormData({ 
+        name: "", city: "", website: "", logoUrl: "", type: "", ranking: 0,
+        description: "", establishedYear: "", accreditation: "", campusSize: "",
+        studentCapacity: 0, internationalStudents: 0, facultyCount: 0,
+        researchRating: "", facilities: "", admissionRequirements: "",
+        applicationDeadline: "", contactEmail: "", contactPhone: "", address: "",
+        programs: []
+      });
       refreshData();
     } catch (error) {
       toast({ title: "Failed to add university", variant: "destructive" });
@@ -207,7 +214,22 @@ export default function AdminUniversitiesPage() {
       website: university.website || "",
       logoUrl: university.logoUrl || "",
       type: university.type || "",
-      ranking: university.ranking || 0
+      ranking: university.ranking || 0,
+      description: (university as any).description || "",
+      establishedYear: (university as any).establishedYear || "",
+      accreditation: (university as any).accreditation || "",
+      campusSize: (university as any).campusSize || "",
+      studentCapacity: (university as any).studentCapacity || 0,
+      internationalStudents: (university as any).internationalStudents || 0,
+      facultyCount: (university as any).facultyCount || 0,
+      researchRating: (university as any).researchRating || "",
+      facilities: (university as any).facilities || "",
+      admissionRequirements: (university as any).admissionRequirements || "",
+      applicationDeadline: (university as any).applicationDeadline || "",
+      contactEmail: (university as any).contactEmail || "",
+      contactPhone: (university as any).contactPhone || "",
+      address: (university as any).address || "",
+      programs: []
     });
     setEditDialogOpen(true);
   };
