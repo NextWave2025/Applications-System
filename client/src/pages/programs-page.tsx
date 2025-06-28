@@ -210,7 +210,7 @@ export default function ProgramsPage() {
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
     setDisplayedPrograms([]);
-    setSelectedProgramIds([]);
+    // Don't clear selections when filters change - preserve user selections
     setIsFilterSearching(true);
     
     // Simulate search delay for animation
@@ -241,8 +241,11 @@ export default function ProgramsPage() {
 
   const handleSearchResults = (results: ProgramWithUniversity[]) => {
     setDisplayedPrograms(results);
-    // Clear selections when search results change
-    setSelectedProgramIds([]);
+    // Don't clear selections - keep selected programs that are still in results
+    setSelectedProgramIds(prev => {
+      const resultIds = results.map(p => p.id);
+      return prev.filter(id => resultIds.includes(id));
+    });
   };
 
   const handleProgramSelection = (programId: number, selected: boolean) => {

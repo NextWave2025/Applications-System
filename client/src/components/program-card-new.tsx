@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, BookOpen, Star, Clock, MapPin, DollarSign } from "lucide-react";
 import { type ProgramWithUniversity } from "@shared/schema";
 import PriceDisplay from "@/components/price-display";
-import CurrencyConverter from "@/components/currency-converter";
+// import CurrencyConverter from "@/components/currency-converter"; // Temporarily disabled
 
 interface ProgramCardNewProps {
   program: ProgramWithUniversity;
