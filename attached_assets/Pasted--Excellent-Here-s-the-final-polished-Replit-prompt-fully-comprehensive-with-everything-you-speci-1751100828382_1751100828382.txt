@@ -1,0 +1,126 @@
+✅ Excellent! Here’s the final polished Replit prompt — fully comprehensive with everything you specified, cleanly structured, and ready to copy-paste:
+
+⸻
+
+🚀 Replit Prompt: Complete Super Admin Fixes & Enhancements
+
+Please review and fix all of the following issues so that the Super Admin can fully manage applications, universities, programs, agents, and admin users — without errors and with all expected functionality.
+
+⸻
+
+🔹 1️⃣ My Applications Page
+
+✅ Problems:
+	•	Shows:
+
+[plugin:runtime-error-plugin] Invalid time value
+
+
+	•	Agent/account name who submitted the application is not displayed.
+	•	Cannot sort applications by agent or account name.
+	•	Refresh button at the top does not work.
+
+✅ What to fix:
+	•	Fix invalid time value — ensure safe date parsing (use new Date(), dayjs, or date-fns).
+	•	Display agent/account name for each application.
+	•	Allow sorting applications by agent/account name.
+	•	Make Refresh button reload applications cleanly.
+
+⸻
+
+🔹 2️⃣ Program Page & University Page
+
+✅ Problems:
+	•	Add university button does not work.
+	•	Edit, delete, activate, deactivate buttons do not work.
+	•	Edit, delete, select, and add functions on Program Page do not work.
+	•	Select all for batch operations does not work.
+
+✅ What to fix:
+	•	Ensure Super Admin can:
+	•	Add new university (optionally with its programs at the same time)
+	•	Each program must include: Name, Tuition, Duration, Degree Level, Intake, Availability
+	•	Automatically show new programs on Program Page when university is added
+	•	Add new programs (must select university they belong to)
+	•	Bulk add universities/programs (via form input or file upload)
+	•	Edit, delete, activate, deactivate universities/programs
+	•	Select all works for batch operations
+	•	Ensure proper validation and feedback on all actions.
+
+⸻
+
+🔹 3️⃣ Agent Page
+
+✅ Problems:
+	•	Edit, delete, activate, deactivate buttons do not work.
+	•	Add agent button does not work.
+	•	Number of applications per agent is not shown.
+
+✅ What to fix:
+	•	Ensure Super Admin can:
+	•	Add new agent
+	•	Edit agent details (name, contact, status, notes)
+	•	Delete agent (with confirmation prompt)
+	•	Activate/deactivate agent
+	•	View number of applications submitted by each agent
+	•	Ensure proper feedback after each operation.
+
+⸻
+
+🔹 4️⃣ Admin Control Page
+
+✅ Problems:
+	•	Activate/deactivate buttons do not work.
+	•	Shows:
+
+[plugin:runtime-error-plugin] undefined is not an object (evaluating 'universities.map')
+
+
+
+✅ What to fix:
+	•	Ensure activate/deactivate buttons work (with confirmation + feedback).
+	•	Ensure universities is loaded and is an array before mapping to prevent errors.
+
+⸻
+
+🔹 5️⃣ Global Refresh
+
+✅ Problem:
+	•	Refresh button at the top of pages does not work.
+
+✅ What to fix:
+	•	Make Refresh buttons reload data cleanly without full page reloads.
+
+⸻
+
+💡 Additional Notes
+	•	Validate all forms — prevent empty or invalid data.
+	•	Add feedback for all actions (e.g. Saved successfully, Deleted, Activated).
+	•	Remove hardcoded or placeholder data causing errors.
+	•	Ensure API endpoints return clean, structured data for frontend rendering.
+
+⸻
+
+✅ Expected Result
+	•	The Super Admin can:
+	•	Manage applications (view, sort, update status)
+	•	Manage universities/programs (add/edit/delete/activate/deactivate, bulk upload, batch ops)
+	•	Manage agents (add/edit/delete/activate/deactivate, view app count)
+	•	Manage admin users (activate/deactivate)
+	•	Use Refresh buttons everywhere
+	•	No runtime errors
+
+⸻
+
+👉 Optional Support
+If needed, I can help generate:
+	•	📌 Example API responses
+	•	📌 Frontend mock layouts
+	•	📌 Sample CSV/Excel schema for bulk upload
+	•	📌 Code stubs for these functions
+
+Say “generate samples” and I’ll provide them!
+
+⸻
+
+✅ You’re ready to paste this into Replit or share with your dev team 🚀

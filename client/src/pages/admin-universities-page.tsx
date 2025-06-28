@@ -6,7 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Plus, Search, MapPin, Globe, Edit, Trash2 } from "lucide-react";
+import { Loader2, Plus, Search, MapPin, Globe, Edit, Trash2, RefreshCw, Power, PowerOff } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 interface University {
   id: number;
   name: string;
@@ -15,15 +20,35 @@ interface University {
   logoUrl?: string;
   type?: string;
   ranking?: number;
+  active?: boolean;
 }
 
 export default function AdminUniversitiesPage() {
   const { user } = useAuth();
   const [location, navigate] = useLocation();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState("all");
+  const [selectedUniversities, setSelectedUniversities] = useState<number[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Dialog states
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedUniversity, setSelectedUniversity] = useState<University | null>(null);
+  
+  // Form states
+  const [formData, setFormData] = useState({
+    name: "",
+    city: "",
+    website: "",
+    logoUrl: "",
+    type: "",
+    ranking: 0
+  });
 
   useEffect(() => {
     if (user && user.role !== "admin" && user.role !== "super_admin") {
@@ -45,6 +70,120 @@ export default function AdminUniversitiesPage() {
       return Array.isArray(data) ? data : [];
     },
   });
+
+  // Refresh data function
+  const refreshData = async () => {
+    try {
+      setIsRefreshing(true);
+      await queryClient.invalidateQueries({ queryKey: ["/api/universities"] });
+      await queryClient.refetchQueries({ queryKey: ["/api/universities"] });
+      toast({ title: "Data refreshed successfully" });
+    } catch (error) {
+      toast({ title: "Failed to refresh data", variant: "destructive" });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Add university
+  const handleAddUniversity = async () => {
+    try {
+      await apiRequest("POST", "/api/admin/universities", {
+        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json" }
+      });
+      toast({ title: "University added successfully" });
+      setAddDialogOpen(false);
+      setFormData({ name: "", city: "", website: "", logoUrl: "", type: "", ranking: 0 });
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to add university", variant: "destructive" });
+    }
+  };
+
+  // Edit university
+  const handleEditUniversity = async () => {
+    if (!selectedUniversity) return;
+    try {
+      await apiRequest("PUT", `/api/admin/universities/${selectedUniversity.id}`, {
+        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json" }
+      });
+      toast({ title: "University updated successfully" });
+      setEditDialogOpen(false);
+      setSelectedUniversity(null);
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to update university", variant: "destructive" });
+    }
+  };
+
+  // Delete university
+  const handleDeleteUniversity = async () => {
+    if (!selectedUniversity) return;
+    try {
+      await apiRequest("DELETE", `/api/admin/universities/${selectedUniversity.id}`);
+      toast({ title: "University deleted successfully" });
+      setDeleteDialogOpen(false);
+      setSelectedUniversity(null);
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to delete university", variant: "destructive" });
+    }
+  };
+
+  // Toggle university status
+  const toggleUniversityStatus = async (university: University) => {
+    try {
+      await apiRequest("PATCH", `/api/admin/universities/${university.id}/toggle-status`);
+      toast({ title: `University ${university.active ? 'deactivated' : 'activated'} successfully` });
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to update university status", variant: "destructive" });
+    }
+  };
+
+  // Batch operations
+  const handleBatchDelete = async () => {
+    if (selectedUniversities.length === 0) return;
+    try {
+      await apiRequest("DELETE", "/api/admin/universities/batch", {
+        body: JSON.stringify({ ids: selectedUniversities }),
+        headers: { "Content-Type": "application/json" }
+      });
+      toast({ title: `${selectedUniversities.length} universities deleted successfully` });
+      setSelectedUniversities([]);
+      refreshData();
+    } catch (error) {
+      toast({ title: "Failed to delete universities", variant: "destructive" });
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedUniversities.length === filteredUniversities.length) {
+      setSelectedUniversities([]);
+    } else {
+      setSelectedUniversities(filteredUniversities.map(u => u.id));
+    }
+  };
+
+  const openEditDialog = (university: University) => {
+    setSelectedUniversity(university);
+    setFormData({
+      name: university.name,
+      city: university.city,
+      website: university.website || "",
+      logoUrl: university.logoUrl || "",
+      type: university.type || "",
+      ranking: university.ranking || 0
+    });
+    setEditDialogOpen(true);
+  };
+
+  const openDeleteDialog = (university: University) => {
+    setSelectedUniversity(university);
+    setDeleteDialogOpen(true);
+  };
 
   if (!user) {
     navigate("/auth");
@@ -70,10 +209,20 @@ export default function AdminUniversitiesPage() {
           <h1 className="text-3xl font-bold">Universities Management</h1>
           <p className="text-gray-600 mt-2">Manage partner universities and institutions</p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add University
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={refreshData}
+            disabled={loading || isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading || isRefreshing ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+          <Button onClick={() => setAddDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add University
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -104,9 +253,48 @@ export default function AdminUniversitiesPage() {
         </select>
       </div>
 
+      {/* Batch Operations */}
+      {selectedUniversities.length > 0 && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">
+                {selectedUniversities.length} universities selected
+              </span>
+              <div className="flex gap-2">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleBatchDelete}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Selected
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedUniversities([])}
+                >
+                  Clear Selection
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
-          <CardTitle>Universities ({filteredUniversities.length})</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Universities ({filteredUniversities.length})</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSelectAll}
+            >
+              {selectedUniversities.length === filteredUniversities.length ? 'Deselect All' : 'Select All'}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -120,14 +308,33 @@ export default function AdminUniversitiesPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredUniversities.map((university) => (
-                <Card key={university.id} className="hover:shadow-md transition-shadow">
+                <Card key={university.id} className={`hover:shadow-md transition-shadow ${selectedUniversities.includes(university.id) ? 'ring-2 ring-blue-500' : ''}`}>
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg leading-tight">{university.name}</h3>
-                        <div className="flex items-center gap-1 mt-2 text-sm text-gray-600">
-                          <MapPin className="h-4 w-4" />
-                          {university.city}
+                      <div className="flex items-start gap-3 flex-1">
+                        <input
+                          type="checkbox"
+                          checked={selectedUniversities.includes(university.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedUniversities([...selectedUniversities, university.id]);
+                            } else {
+                              setSelectedUniversities(selectedUniversities.filter(id => id !== university.id));
+                            }
+                          }}
+                          className="mt-1"
+                        />
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg leading-tight">{university.name}</h3>
+                          <div className="flex items-center gap-1 mt-2 text-sm text-gray-600">
+                            <MapPin className="h-4 w-4" />
+                            {university.city}
+                          </div>
+                          {university.active === false && (
+                            <Badge variant="secondary" className="mt-2 text-xs bg-red-100 text-red-800">
+                              Inactive
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       {university.logoUrl && (
@@ -167,11 +374,29 @@ export default function AdminUniversitiesPage() {
                       </div>
 
                       <div className="flex gap-2 pt-2">
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => openEditDialog(university)}
+                        >
                           <Edit className="h-4 w-4 mr-1" />
                           Edit
                         </Button>
-                        <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => toggleUniversityStatus(university)}
+                          className={university.active === false ? "text-green-600 hover:text-green-700" : "text-orange-600 hover:text-orange-700"}
+                        >
+                          {university.active === false ? <Power className="h-4 w-4" /> : <PowerOff className="h-4 w-4" />}
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() => openDeleteDialog(university)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
