@@ -111,18 +111,30 @@ export default function AdminProgramsPage() {
   // Add program with enhanced error handling
   const handleAddProgram = async () => {
     try {
-      const response = await apiRequest("POST", "/api/admin/programs", formData);
+      const programData = {
+        ...formData,
+        tuitionFee: Number(formData.tuitionFee),
+        universityId: Number(formData.universityId),
+        active: true
+      };
+      
+      const response = await apiRequest("POST", "/api/admin/programs", {
+        body: JSON.stringify(programData),
+        headers: { "Content-Type": "application/json" }
+      });
+      
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to add program: ${errorText}`);
+        const errorData = await response.json().catch(() => ({ error: "Failed to add program" }));
+        throw new Error(errorData.error || "Failed to add program");
       }
+      
       toast({ title: "Program added successfully" });
       setAddDialogOpen(false);
       setFormData({ name: "", degreeLevel: "", fieldOfStudy: "", duration: "", intake: "", tuitionFee: 0, description: "", universityId: 0 });
       await refreshData();
     } catch (error) {
       console.error("Add program error:", error);
-      toast({ title: "Failed to add program", variant: "destructive" });
+      toast({ title: (error as Error).message || "Failed to add program", variant: "destructive" });
     }
   };
 
@@ -130,18 +142,29 @@ export default function AdminProgramsPage() {
   const handleEditProgram = async () => {
     if (!selectedProgram) return;
     try {
-      const response = await apiRequest("PUT", `/api/admin/programs/${selectedProgram.id}`, formData);
+      const programData = {
+        ...formData,
+        tuitionFee: Number(formData.tuitionFee),
+        universityId: Number(formData.universityId)
+      };
+      
+      const response = await apiRequest("PUT", `/api/admin/programs/${selectedProgram.id}`, {
+        body: JSON.stringify(programData),
+        headers: { "Content-Type": "application/json" }
+      });
+      
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to update program: ${errorText}`);
+        const errorData = await response.json().catch(() => ({ error: "Failed to update program" }));
+        throw new Error(errorData.error || "Failed to update program");
       }
+      
       toast({ title: "Program updated successfully" });
       setEditDialogOpen(false);
       setSelectedProgram(null);
       await refreshData();
     } catch (error) {
       console.error("Edit program error:", error);
-      toast({ title: "Failed to update program", variant: "destructive" });
+      toast({ title: (error as Error).message || "Failed to update program", variant: "destructive" });
     }
   };
 
