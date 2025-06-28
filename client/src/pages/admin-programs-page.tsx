@@ -79,7 +79,8 @@ export default function AdminProgramsPage() {
   const { data: programs = [], isLoading: loading, error } = useQuery<Program[]>({
     queryKey: ["/api/programs"],
     enabled: !!user && (user.role === "admin" || user.role === "super_admin"),
-    retry: false,
+    retry: 1,
+    retryDelay: 1000,
     refetchOnWindowFocus: false,
     staleTime: 30000,
     throwOnError: false,
@@ -89,7 +90,8 @@ export default function AdminProgramsPage() {
   const { data: universitiesList = [] } = useQuery<University[]>({
     queryKey: ["/api/universities"],
     enabled: !!user && (user.role === "admin" || user.role === "super_admin"),
-    retry: false,
+    retry: 1,
+    retryDelay: 1000,
     refetchOnWindowFocus: false,
     staleTime: 30000,
     throwOnError: false,
@@ -468,11 +470,21 @@ export default function AdminProgramsPage() {
                       )}
 
                       <div className="flex gap-2 pt-2">
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => openEditDialog(program)}
+                        >
                           <Edit className="h-4 w-4 mr-1" />
                           Edit
                         </Button>
-                        <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() => openDeleteDialog(program)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

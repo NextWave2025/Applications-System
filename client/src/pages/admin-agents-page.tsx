@@ -82,14 +82,23 @@ export default function AdminAgentsPage() {
     throwOnError: false,
   });
 
-  // Refresh data function
+  // Refresh data function with enhanced error handling
   const refreshData = async () => {
     try {
       setIsRefreshing(true);
-      await queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-      await queryClient.refetchQueries({ queryKey: ["/api/admin/users"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] }).catch(err => {
+          console.warn("Invalidate query error:", err);
+          return null;
+        }),
+        queryClient.refetchQueries({ queryKey: ["/api/admin/users"] }).catch(err => {
+          console.warn("Refetch query error:", err);
+          return null;
+        })
+      ]);
       toast({ title: "Data refreshed successfully" });
     } catch (error) {
+      console.error("Refresh data error:", error);
       toast({ title: "Failed to refresh data", variant: "destructive" });
     } finally {
       setIsRefreshing(false);
