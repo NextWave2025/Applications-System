@@ -388,10 +388,10 @@ export default function AuthPage() {
       {/* Hero Section */}
       <div className="hidden md:flex md:w-1/2 bg-gray-900">
         <div className="flex flex-col justify-center p-12 text-white">
-          <h2 className="text-3xl font-bold mb-6">Become a Guide Education Agent</h2>
+          <h2 className="text-3xl font-bold mb-6">Become a NextWave Education Agent</h2>
           <div className="h-1 w-16 bg-primary mb-6"></div>
           <p className="text-lg mb-8">
-            Partner with Guide and connect international students with premier
+            Partner with NextWave and connect international students with premier
             universities in the UAE while earning competitive commissions.
           </p>
           
