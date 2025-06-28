@@ -895,7 +895,10 @@ router.post("/agents", async (req, res) => {
     const agentData = agentSchema.parse(req.body);
     
     // Create the agent
-    const agent = await storage.createUser(agentData);
+    const agent = await storage.createUser({
+      ...agentData,
+      phoneNumber: agentData.phone
+    });
     
     // Log the action
     await storage.createAuditLog({

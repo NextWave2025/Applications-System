@@ -384,7 +384,7 @@ export default function AdminAgentsPage() {
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => openEditDialog(agent)}>
                             <Edit className="h-4 w-4 mr-1" />
                             Edit
                           </Button>
@@ -392,8 +392,14 @@ export default function AdminAgentsPage() {
                             variant="outline"
                             size="sm"
                             className={agent.active ? "text-red-600 hover:text-red-700" : "text-green-600 hover:text-green-700"}
+                            onClick={() => toggleAgentStatus(agent)}
                           >
+                            {agent.active ? <UserX className="h-4 w-4 mr-1" /> : <UserCheck className="h-4 w-4 mr-1" />}
                             {agent.active ? "Deactivate" : "Activate"}
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => openDeleteDialog(agent)}>
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Delete
                           </Button>
                         </div>
                       </td>
@@ -405,6 +411,202 @@ export default function AdminAgentsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Add Agent Dialog */}
+      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Agent</DialogTitle>
+            <DialogDescription>
+              Create a new agent account with login credentials.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="username">Username *</Label>
+              <Input
+                id="username"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                placeholder="Enter username"
+              />
+            </div>
+            <div>
+              <Label htmlFor="password">Password *</Label>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="Enter password (min 6 characters)"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="firstName">First Name *</Label>
+                <Input
+                  id="firstName"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  placeholder="First name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="lastName">Last Name *</Label>
+                <Input
+                  id="lastName"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  placeholder="Last name"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="agencyName">Agency Name</Label>
+              <Input
+                id="agencyName"
+                value={formData.agencyName}
+                onChange={(e) => setFormData({ ...formData, agencyName: e.target.value })}
+                placeholder="Enter agency name"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="Phone number"
+                />
+              </div>
+              <div>
+                <Label htmlFor="country">Country</Label>
+                <Input
+                  id="country"
+                  value={formData.country}
+                  onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                  placeholder="Country"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddAgent}>Add Agent</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Agent Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Agent</DialogTitle>
+            <DialogDescription>
+              Update agent information and details.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-username">Username</Label>
+              <Input
+                id="edit-username"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                placeholder="Enter username"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-firstName">First Name</Label>
+                <Input
+                  id="edit-firstName"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  placeholder="First name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-lastName">Last Name</Label>
+                <Input
+                  id="edit-lastName"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  placeholder="Last name"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="edit-agencyName">Agency Name</Label>
+              <Input
+                id="edit-agencyName"
+                value={formData.agencyName}
+                onChange={(e) => setFormData({ ...formData, agencyName: e.target.value })}
+                placeholder="Enter agency name"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-phone">Phone</Label>
+                <Input
+                  id="edit-phone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="Phone number"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-country">Country</Label>
+                <Input
+                  id="edit-country"
+                  value={formData.country}
+                  onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                  placeholder="Country"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEditAgent}>Update Agent</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Agent Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Agent</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this agent? This action cannot be undone.
+              All applications associated with this agent will remain in the system.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedAgent && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+              <p className="font-medium">{selectedAgent.firstName} {selectedAgent.lastName}</p>
+              <p className="text-sm text-gray-600">{selectedAgent.username}</p>
+              {selectedAgent.agencyName && (
+                <p className="text-sm text-gray-600">{selectedAgent.agencyName}</p>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteAgent}>
+              Delete Agent
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
