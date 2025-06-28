@@ -1,0 +1,67 @@
+
+Replit Prompt: Modify and Enhance Currency Converter for Tuition Fee
+
+Please update the currency converter so that it supports both individual and bulk conversions with live rates, and delivers a clean user experience.
+
+⸻
+
+Current Problem
+	•	The currency conversion is triggered by a button on the filter card. This is not user-friendly or intuitive.
+	•	There is no support for bulk conversion.
+
+⸻
+
+What to Change
+
+New Design for Individual Conversion
+	•	Remove the currency button from the filter card.
+	•	Next to each Tuition Fee display, add a small button labeled:
+Convert
+	•	When the Convert button is clicked:
+	•	Show a dropdown list of all available currencies (allow multi-currency support; Google API supports most world currencies).
+	•	After the user selects a currency:
+	•	Call Google Currency Conversion API to fetch the live conversion rate.
+	•	Convert the tuition fee amount to the selected currency.
+	•	Display the converted amount inline next to or below the original fee (e.g. AED 50,000 ≈ USD 13,600).
+	•	Allow converting to as many currencies as the user wants — they can convert multiple times or see multiple currencies at once.
+	•	Prevent duplicate conversion displays for the same currency on the same fee.
+	•	Show a loading indicator during conversion API calls.
+
+⸻
+
+Bulk Conversion
+	•	Allow user to:
+	•	Select multiple program cards (via checkbox or select all).
+	•	Choose a currency from a dropdown or bulk toolbar.
+	•	Apply conversion to all selected programs’ tuition fees at once.
+	•	Display converted values inline on all selected cards.
+	•	Prevent duplicate conversions for the same currency in bulk.
+
+⸻
+
+PDF Export
+	•	When the user exports to PDF:
+	•	Include the original tuition fee.
+	•	Include all displayed converted tuition fees (from both individual and bulk conversions).
+	•	Ensure the PDF displays cleanly and matches the on-screen view.
+
+⸻
+
+API Integration
+	•	Use Google Currency Conversion API (or Google Finance-supported API) to fetch live rates.
+	•	Do not use hardcoded rates.
+	•	Handle API errors gracefully (e.g. display: Conversion failed. Please try again.).
+
+⸻
+
+Expected Result
+	•	Each tuition fee row will have a Convert button.
+	•	The user can:
+	•	Convert tuition fee of a single program to any currency on demand.
+	•	Convert tuition fees of multiple programs at once (bulk conversion).
+	•	Export a PDF that shows both original and converted fees.
+	•	Supports conversion to any currency supported by Google API.
+	•	No runtime errors or UI glitches. All rates fetched live.
+
+
+

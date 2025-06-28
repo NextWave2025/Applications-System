@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, BookOpen, Star, Clock, MapPin, DollarSign } from "lucide-react";
 import { type ProgramWithUniversity } from "@shared/schema";
 import PriceDisplay from "@/components/price-display";
+import CurrencyConverter from "@/components/currency-converter";
 
 interface ProgramCardNewProps {
   program: ProgramWithUniversity;
@@ -122,17 +123,28 @@ export default function ProgramCardNew({
           </div>
 
           {/* Tuition fee */}
-          <div className="flex items-center text-sm">
-            <DollarSign className="w-4 h-4 mr-3 text-purple-500 flex-shrink-0" />
-            {getTuitionAmount(program.tuition) ? (
-              <PriceDisplay 
-                amountInAED={getTuitionAmount(program.tuition)!} 
-                size="md"
-                className="font-bold text-gray-900"
-              />
-            ) : (
-              <span className="font-bold text-gray-900 text-base">Contact for pricing</span>
-            )}
+          <div className="flex items-start text-sm">
+            <DollarSign className="w-4 h-4 mr-3 text-purple-500 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 space-y-2">
+              {getTuitionAmount(program.tuition) ? (
+                <>
+                  <PriceDisplay 
+                    amountInAED={getTuitionAmount(program.tuition)!} 
+                    size="md"
+                    className="font-bold text-gray-900"
+                  />
+                  {/* Currency Converter */}
+                  <CurrencyConverter
+                    amount={getTuitionAmount(program.tuition)!}
+                    fromCurrency="AED"
+                    variant="compact"
+                    className="mt-1"
+                  />
+                </>
+              ) : (
+                <span className="font-bold text-gray-900 text-base">Contact for pricing</span>
+              )}
+            </div>
           </div>
         </div>
 
