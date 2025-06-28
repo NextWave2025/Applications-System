@@ -85,8 +85,28 @@ export default function AdminAgentsPage() {
         const response = await fetch("/api/admin/users", { credentials: "include" });
         if (!response.ok) return [];
         const data = await response.json();
-        // Filter to only show agents (non-admin users)
-        return Array.isArray(data) ? data.filter((u: User) => u.role === "agent") : [];
+        
+        // Filter to only show agents and fetch application counts
+        const agents = Array.isArray(data) ? data.filter((u: User) => u.role === "agent") : [];
+        
+        // Fetch application counts for each agent
+        const agentsWithCounts = await Promise.all(
+          agents.map(async (agent) => {
+            try {
+              const appsResponse = await fetch(`/api/admin/applications?userId=${agent.id}`, { credentials: "include" });
+              if (appsResponse.ok) {
+                const applications = await appsResponse.json();
+                return { ...agent, applicationsCount: Array.isArray(applications) ? applications.length : 0 };
+              }
+              return { ...agent, applicationsCount: 0 };
+            } catch (error) {
+              console.error(`Error fetching applications for agent ${agent.id}:`, error);
+              return { ...agent, applicationsCount: 0 };
+            }
+          })
+        );
+        
+        return agentsWithCounts;
       } catch (error) {
         console.error("Agents fetch error:", error);
         return [];
@@ -108,49 +128,58 @@ export default function AdminAgentsPage() {
     }
   };
 
-  // Add agent
+  // Add agent with enhanced error handling
   const handleAddAgent = async () => {
     try {
-      await apiRequest("POST", "/api/admin/agents", {
-        body: JSON.stringify({ ...formData, role: "agent" }),
-        headers: { "Content-Type": "application/json" }
-      });
+      const response = await apiRequest("POST", "/api/admin/users", { ...formData, role: "agent" });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to add agent: ${errorText}`);
+      }
       toast({ title: "Agent added successfully" });
       setAddDialogOpen(false);
       setFormData({ username: "", firstName: "", lastName: "", agencyName: "", phone: "", country: "", password: "" });
-      refreshData();
+      await refreshData();
     } catch (error) {
+      console.error("Add agent error:", error);
       toast({ title: "Failed to add agent", variant: "destructive" });
     }
   };
 
-  // Edit agent
+  // Edit agent with enhanced error handling
   const handleEditAgent = async () => {
     if (!selectedAgent) return;
     try {
-      await apiRequest("PUT", `/api/admin/users/${selectedAgent.id}`, {
-        body: JSON.stringify(formData),
-        headers: { "Content-Type": "application/json" }
-      });
+      const response = await apiRequest("PUT", `/api/admin/users/${selectedAgent.id}`, formData);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to update agent: ${errorText}`);
+      }
       toast({ title: "Agent updated successfully" });
       setEditDialogOpen(false);
       setSelectedAgent(null);
-      refreshData();
+      await refreshData();
     } catch (error) {
+      console.error("Edit agent error:", error);
       toast({ title: "Failed to update agent", variant: "destructive" });
     }
   };
 
-  // Delete agent
+  // Delete agent with enhanced error handling
   const handleDeleteAgent = async () => {
     if (!selectedAgent) return;
     try {
-      await apiRequest("DELETE", `/api/admin/users/${selectedAgent.id}`);
+      const response = await apiRequest("DELETE", `/api/admin/users/${selectedAgent.id}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to delete agent: ${errorText}`);
+      }
       toast({ title: "Agent deleted successfully" });
       setDeleteDialogOpen(false);
       setSelectedAgent(null);
-      refreshData();
+      await refreshData();
     } catch (error) {
+      console.error("Delete agent error:", error);
       toast({ title: "Failed to delete agent", variant: "destructive" });
     }
   };

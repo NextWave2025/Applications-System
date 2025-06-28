@@ -78,37 +78,20 @@ export default function AdminProgramsPage() {
   const { data: programs = [], isLoading: loading, error } = useQuery<Program[]>({
     queryKey: ["/api/programs"],
     enabled: !!user && (user.role === "admin" || user.role === "super_admin"),
-    retry: 0,
+    retry: false,
     refetchOnWindowFocus: false,
     staleTime: 30000,
     throwOnError: false,
-    queryFn: async () => {
-      try {
-        const response = await fetch("/api/programs", { credentials: "include" });
-        if (!response.ok) return [];
-        const data = await response.json();
-        return Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error("Programs fetch error:", error);
-        return [];
-      }
-    },
   });
 
   // Fetch universities for dropdowns
   const { data: universitiesList = [] } = useQuery<University[]>({
     queryKey: ["/api/universities"],
     enabled: !!user && (user.role === "admin" || user.role === "super_admin"),
-    retry: 0,
+    retry: false,
     refetchOnWindowFocus: false,
     staleTime: 30000,
     throwOnError: false,
-    queryFn: async () => {
-      const response = await fetch("/api/universities", { credentials: "include" });
-      if (!response.ok) return [];
-      const data = await response.json();
-      return Array.isArray(data) ? data : [];
-    },
   });
 
   // Refresh data function

@@ -92,21 +92,10 @@ export default function AdminUniversitiesPage() {
   const { data: universities = [], isLoading: loading, error } = useQuery<University[]>({
     queryKey: ["/api/universities"],
     enabled: !!user && (user.role === "admin" || user.role === "super_admin"),
-    retry: 0,
+    retry: false,
     refetchOnWindowFocus: false,
     staleTime: 30000,
     throwOnError: false,
-    queryFn: async () => {
-      try {
-        const response = await fetch("/api/universities", { credentials: "include" });
-        if (!response.ok) return [];
-        const data = await response.json();
-        return Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error("Universities fetch error:", error);
-        return [];
-      }
-    },
   });
 
   // Refresh data function
