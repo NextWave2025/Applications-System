@@ -133,13 +133,12 @@ export default function ProgramCardNew({
                     size="md"
                     className="font-bold text-gray-900"
                   />
-                  {/* Currency Converter - Temporarily disabled to fix selection issues */}
-                  {/* <CurrencyConverter
+                  <CurrencyConverter
                     amount={getTuitionAmount(program.tuition)!}
                     fromCurrency="AED"
                     variant="compact"
                     className="mt-1"
-                  /> */}
+                  />
                 </>
               ) : (
                 <span className="font-bold text-gray-900 text-base">Contact for pricing</span>

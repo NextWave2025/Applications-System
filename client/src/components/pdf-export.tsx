@@ -1,7 +1,7 @@
 import { useState } from "react";
 import jsPDF from "jspdf";
 import { type ProgramWithUniversity } from "@shared/schema";
-// import { useExchangeRates, SUPPORTED_CURRENCIES } from "@/hooks/use-exchange-rates"; // Temporarily disabled
+import { useExchangeRates, SUPPORTED_CURRENCIES } from "@/hooks/use-exchange-rates";
 
 interface CurrencyConversion {
   currency: string;
@@ -18,7 +18,7 @@ interface PDFExportProps {
 
 export default function PDFExport({ selectedPrograms, onSelectionChange, className, currencyConversions }: PDFExportProps) {
   const [isGenerating, setIsGenerating] = useState(false);
-  // const { formatCurrency } = useExchangeRates(); // Temporarily disabled
+  const { formatCurrency } = useExchangeRates();
 
   const generatePDF = async () => {
     if (selectedPrograms.length === 0) return;
@@ -79,25 +79,25 @@ export default function PDFExport({ selectedPrograms, onSelectionChange, classNa
         pdf.text(`Tuition: ${program.tuition || 'Contact university for details'}`, margin, yPosition);
         yPosition += 8;
         
-        // Currency conversions temporarily disabled
-        // const conversions = currencyConversions?.[program.id];
-        // if (conversions && conversions.length > 0) {
-        //   pdf.setFontSize(10);
-        //   pdf.setFont("helvetica", "italic");
-        //   pdf.text('Converted amounts:', margin + 10, yPosition);
-        //   yPosition += 6;
-        //   
-        //   conversions.forEach((conversion) => {
-        //     const currencyInfo = SUPPORTED_CURRENCIES.find(c => c.code === conversion.currency);
-        //     const formattedAmount = formatCurrency(conversion.amount, conversion.currency);
-        //     pdf.text(`• ${formattedAmount} (1 AED = ${conversion.rate.toFixed(4)} ${conversion.currency})`, margin + 15, yPosition);
-        //     yPosition += 5;
-        //   });
-        //   
-        //   pdf.setFontSize(12);
-        //   pdf.setFont("helvetica", "normal");
-        //   yPosition += 3;
-        // }
+        // Currency conversions
+        const conversions = currencyConversions?.[program.id];
+        if (conversions && conversions.length > 0) {
+          pdf.setFontSize(10);
+          pdf.setFont("helvetica", "italic");
+          pdf.text('Converted amounts:', margin + 10, yPosition);
+          yPosition += 6;
+          
+          conversions.forEach((conversion) => {
+            const currencyInfo = SUPPORTED_CURRENCIES.find(c => c.code === conversion.currency);
+            const formattedAmount = formatCurrency(conversion.amount, conversion.currency);
+            pdf.text(`• ${formattedAmount} (1 AED = ${conversion.rate.toFixed(4)} ${conversion.currency})`, margin + 15, yPosition);
+            yPosition += 5;
+          });
+          
+          pdf.setFontSize(12);
+          pdf.setFont("helvetica", "normal");
+          yPosition += 3;
+        }
 
         // Intake
         pdf.text(`Intake: ${program.intake || 'N/A'}`, margin, yPosition);
