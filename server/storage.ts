@@ -445,17 +445,23 @@ export class DBStorage implements IStorage {
             ...application,
             // Add combined student name for compatibility
             studentName: `${application.studentFirstName} ${application.studentLastName}`,
-            program: {
-              name: program?.name || "",
-              universityName: program?.university.name || "",
-              universityLogo: program?.university.imageUrl || "",
-              degree: program?.degree || ""
-            },
-            agent: {
-              name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : "",
-              agencyName: user?.agencyName || "",
-              email: user?.username || "" // Agent email for notifications
-            },
+            program: program ? {
+              id: program.id,
+              name: program.name,
+              degreeLevel: program.degree,
+              university: {
+                id: program.university.id,
+                name: program.university.name,
+                city: program.university.city
+              }
+            } : null,
+            agent: user ? {
+              id: user.id,
+              firstName: user.firstName || "",
+              lastName: user.lastName || "",
+              agencyName: user.agencyName || "",
+              email: user.username || "" // Agent email for notifications
+            } : null,
             documents: docs
           };
         })

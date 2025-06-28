@@ -106,6 +106,7 @@ export default function AdminMyApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [degreeFilter, setDegreeFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Status change dialog state
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
@@ -252,9 +253,9 @@ export default function AdminMyApplicationsPage() {
             <Button
               variant="outline"
               onClick={refreshApplications}
-              disabled={loading}
+              disabled={loading || isRefreshing}
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading || isRefreshing ? "animate-spin" : ""}`} />
               Refresh
             </Button>
             <Button onClick={() => navigate("/admin/dashboard")}>
