@@ -48,89 +48,111 @@ export default function PDFExport({ selectedPrograms, onSelectionChange, classNa
 
       // Programs
       selectedPrograms.forEach((program, index) => {
-        // Check if we need a new page
-        if (yPosition > pageHeight - 60) {
-          pdf.addPage();
-          yPosition = margin;
-        }
+        // Function to check if we need a new page with some buffer space
+        const checkNewPage = (requiredSpace = 40) => {
+          if (yPosition > pageHeight - requiredSpace) {
+            pdf.addPage();
+            yPosition = margin;
+            return true;
+          }
+          return false;
+        };
+
+        // Check initial page space
+        checkNewPage(80);
 
         // Program title
         pdf.setFontSize(14);
         pdf.setFont("helvetica", "bold");
         const title = pdf.splitTextToSize(program.name, pageWidth - 2 * margin);
         pdf.text(title, margin, yPosition);
-        yPosition += title.length * 6;
+        yPosition += title.length * 7 + 5; // Better spacing
 
         // University
         pdf.setFontSize(12);
         pdf.setFont("helvetica", "normal");
         pdf.text(`University: ${program.university?.name || 'N/A'}`, margin, yPosition);
-        yPosition += 8;
+        yPosition += 10;
 
         // Degree Level
         pdf.text(`Degree Level: ${program.degree || 'N/A'}`, margin, yPosition);
-        yPosition += 8;
+        yPosition += 10;
 
         // Duration
-        pdf.text(`Duration: ${program.duration || 'N/A'}`, margin, yPosition);
-        yPosition += 8;
+        const durationText = pdf.splitTextToSize(`Duration: ${program.duration || 'N/A'} years`, pageWidth - 2 * margin);
+        pdf.text(durationText, margin, yPosition);
+        yPosition += durationText.length * 6 + 4;
 
-        // Tuition with conversions
-        pdf.text(`Tuition: ${program.tuition || 'Contact university for details'}`, margin, yPosition);
-        yPosition += 8;
+        // Tuition
+        const tuitionText = pdf.splitTextToSize(`Tuition: ${program.tuition || 'Contact university for details'}`, pageWidth - 2 * margin);
+        pdf.text(tuitionText, margin, yPosition);
+        yPosition += tuitionText.length * 6 + 2;
         
         // Currency conversions
         const conversions = currencyConversions?.[program.id];
         if (conversions && conversions.length > 0) {
+          yPosition += 2;
           pdf.setFontSize(10);
           pdf.setFont("helvetica", "italic");
           pdf.text('Converted amounts:', margin + 10, yPosition);
-          yPosition += 6;
+          yPosition += 8;
           
           conversions.forEach((conversion) => {
-            const currencyInfo = SUPPORTED_CURRENCIES.find(c => c.code === conversion.currency);
+            checkNewPage(15);
             const formattedAmount = formatCurrency(conversion.amount, conversion.currency);
-            pdf.text(`• ${formattedAmount} (1 AED = ${conversion.rate.toFixed(4)} ${conversion.currency})`, margin + 15, yPosition);
-            yPosition += 5;
+            const conversionText = `• ${formattedAmount} (1 AED = ${conversion.rate.toFixed(4)} ${conversion.currency})`;
+            pdf.text(conversionText, margin + 15, yPosition);
+            yPosition += 7;
           });
           
           pdf.setFontSize(12);
           pdf.setFont("helvetica", "normal");
-          yPosition += 3;
+          yPosition += 5;
         }
 
         // Intake
-        pdf.text(`Intake: ${program.intake || 'N/A'}`, margin, yPosition);
-        yPosition += 8;
+        checkNewPage(20);
+        const intakeText = pdf.splitTextToSize(`Intake: ${program.intake || 'N/A'}`, pageWidth - 2 * margin);
+        pdf.text(intakeText, margin, yPosition);
+        yPosition += intakeText.length * 6 + 4;
 
         // Study Field
         if (program.studyField) {
-          pdf.text(`Field of Study: ${program.studyField}`, margin, yPosition);
-          yPosition += 8;
+          const studyFieldText = pdf.splitTextToSize(`Field of Study: ${program.studyField}`, pageWidth - 2 * margin);
+          pdf.text(studyFieldText, margin, yPosition);
+          yPosition += studyFieldText.length * 6 + 4;
         }
 
-        // Availability (Intake)
-        pdf.text(`Availability: ${program.intake || 'Contact university for details'}`, margin, yPosition);
-        yPosition += 8;
+        // Availability
+        const availabilityText = pdf.splitTextToSize(`Availability: ${program.intake || 'Contact university for details'}`, pageWidth - 2 * margin);
+        pdf.text(availabilityText, margin, yPosition);
+        yPosition += availabilityText.length * 6 + 4;
 
         // Requirements
         if (program.requirements && Array.isArray(program.requirements) && program.requirements.length > 0) {
+          checkNewPage(30);
           pdf.text(`Requirements:`, margin, yPosition);
-          yPosition += 6;
+          yPosition += 8;
           
           program.requirements.forEach((req: string) => {
-            const reqText = pdf.splitTextToSize(`• ${req}`, pageWidth - 2 * margin - 10);
+            checkNewPage(20);
+            // Clean up requirement text and split properly
+            const cleanReq = req.replace(/\s+/g, ' ').trim();
+            const reqText = pdf.splitTextToSize(`• ${cleanReq}`, pageWidth - 2 * margin - 15);
             pdf.text(reqText, margin + 10, yPosition);
-            yPosition += reqText.length * 5;
+            yPosition += reqText.length * 6 + 3; // Better line spacing
           });
+          
+          yPosition += 5; // Extra space after requirements
         }
 
-        // Separator line
+        // Separator line and spacing
         if (index < selectedPrograms.length - 1) {
-          yPosition += 5;
+          yPosition += 8;
+          checkNewPage(20);
           pdf.setDrawColor(200, 200, 200);
           pdf.line(margin, yPosition, pageWidth - margin, yPosition);
-          yPosition += 10;
+          yPosition += 15; // More space between programs
         }
       });
 
