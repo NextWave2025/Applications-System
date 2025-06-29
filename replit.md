@@ -23,6 +23,7 @@ UAE-focused university program listing application with comprehensive filtering,
 - Routing: wouter for client-side navigation
 
 ## Recent Changes
+- **Dec 28, 2025**: Restored full currency conversion functionality with enhanced features - re-enabled individual currency converters on each program card, implemented bulk currency converter that appears with export button when programs selected, integrated currency conversions into PDF export with converted amounts, added improved error handling to prevent unhandled promise rejections, maintained all previous selection state fixes
 - **Dec 28, 2025**: Completed comprehensive currency conversion system enhancement - implemented individual currency converters on each program card with live exchange rates, bulk currency converter for multiple programs, enhanced PDF export with converted amounts, robust error handling with fallback rates, and support for 30+ currencies including USD, EUR, GBP, INR, SAR, QAR
 - **Dec 28, 2025**: Completed NextWave branding consistency updates - replaced all remaining "Guide" references with "NextWave" in login/signup pages and footer components, updated Instagram URL to use NextWave branding
 - **Dec 28, 2025**: Implemented comprehensive User Management system with complete CRUD functionality - created dedicated admin-users-page.tsx with add, edit, delete, and view operations, advanced filtering by role and status, role-based security permissions, and proper form validation

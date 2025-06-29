@@ -272,12 +272,11 @@ export function BulkCurrencyConverter({
             
             {Object.entries(resultsByCurrency).map(([currency, results]) => {
               const currencyInfo = SUPPORTED_CURRENCIES.find(c => c.code === currency);
-              const totalConverted = results.reduce((sum, result) => sum + result.convertedAmount, 0);
               const avgRate = results.reduce((sum, result) => sum + result.rate, 0) / results.length;
               
               return (
                 <div key={currency} className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-2">
                       <CheckCircle2 className="h-4 w-4 text-green-600" />
                       <span className="font-medium text-green-800">
@@ -297,13 +296,28 @@ export function BulkCurrencyConverter({
                     </Button>
                   </div>
                   
-                  <div className="text-sm text-green-700">
-                    <div className="flex justify-between items-center">
-                      <span>Total converted amount:</span>
-                      <span className="font-semibold">
-                        {formatCurrency(totalConverted, currency)}
-                      </span>
-                    </div>
+                  <div className="space-y-2">
+                    {results.map((result) => {
+                      const program = selectedPrograms.find(p => p.id === result.programId);
+                      const programName = program?.name || `Program ${result.programId}`;
+                      const universityName = (program as any)?.universityName || (program as any)?.university?.name || 'Unknown University';
+                      
+                      return (
+                        <div key={result.programId} className="text-sm text-green-700 bg-white/50 rounded p-2">
+                          <div className="font-medium text-green-800 mb-1">
+                            {universityName}, {programName}
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-green-600">
+                              Based on {result.rate.toFixed(4)} conversion rate
+                            </span>
+                            <span className="font-semibold">
+                              {formatCurrency(result.convertedAmount, currency)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );

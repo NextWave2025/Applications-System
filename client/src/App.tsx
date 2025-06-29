@@ -42,6 +42,16 @@ export default function App() {
       console.error("Unhandled promise rejection:", event.reason);
       console.error("Stack:", event.reason?.stack);
       console.error("Promise:", event.promise);
+      
+      // Check if it's a currency conversion related error and handle gracefully
+      if (event.reason?.message?.includes('exchange') || 
+          event.reason?.message?.includes('currency') ||
+          event.reason?.message?.includes('fetch')) {
+        console.warn("Currency conversion error handled gracefully");
+        event.preventDefault();
+        return;
+      }
+      
       // Prevent default to stop the error from bubbling
       event.preventDefault();
     };

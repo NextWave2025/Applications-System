@@ -54,6 +54,8 @@ export function CurrencyConverter({
     setIsConverting(true);
     
     try {
+      await new Promise(resolve => setTimeout(resolve, 50)); // Prevent rapid-fire requests
+      
       const convertedValue = convertAmount(amount, fromCurrency, currencyCode);
       const rate = getExchangeRate(fromCurrency, currencyCode);
       
@@ -69,6 +71,7 @@ export function CurrencyConverter({
       }
     } catch (error) {
       console.error('Currency conversion failed:', error);
+      // Don't throw - handle gracefully
     } finally {
       setIsConverting(false);
     }

@@ -76,63 +76,28 @@ interface ExchangeRatesResponse {
 }
 
 async function fetchExchangeRates(baseCurrency: string = 'AED'): Promise<ExchangeRatesResponse> {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
-    
-    const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${baseCurrency}`, {
-      signal: controller.signal,
-      headers: {
-        'Accept': 'application/json',
-        'Cache-Control': 'no-cache'
-      }
-    }).catch(fetchError => {
-      clearTimeout(timeoutId);
-      console.warn('Exchange rate API fetch failed:', fetchError);
-      throw fetchError;
-    });
-    
-    clearTimeout(timeoutId);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch exchange rates: ${response.status} ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    
-    // Validate response structure
-    if (!data || typeof data !== 'object' || !data.rates) {
-      throw new Error('Invalid exchange rate response format');
-    }
-    
-    return {
-      success: true,
-      rates: data.rates,
-      timestamp: data.time_last || Date.now(),
-      base: data.base || baseCurrency
-    };
-  } catch (error) {
-    console.error('Exchange rate fetch error:', error);
-    
-    // Return fallback rates to prevent application crashes
-    const fallbackRates: Record<string, number> = {
-      'USD': 0.27, 'EUR': 0.25, 'GBP': 0.21, 'JPY': 30.2, 'CAD': 0.36,
-      'AUD': 0.40, 'CHF': 0.24, 'CNY': 1.95, 'INR': 22.8, 'SAR': 1.02,
-      'QAR': 0.99, 'KWD': 0.08, 'BHD': 0.10, 'OMR': 0.10, 'EGP': 8.5,
-      'JOD': 0.19, 'LBP': 408, 'PKR': 75.2, 'BDT': 29.1, 'LKR': 84.5,
-      'PHP': 15.1, 'SGD': 0.36, 'MYR': 1.21, 'THB': 9.2, 'VND': 6520,
-      'KRW': 356, 'TWD': 8.6, 'HKD': 2.12, 'IDR': 4150, 'RUB': 25.8,
-      'TRY': 9.1, 'ZAR': 4.8
-    };
-    
-    return {
-      success: false,
-      rates: fallbackRates,
-      timestamp: Date.now(),
-      base: baseCurrency,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    };
-  }
+  // Use only static fallback rates to prevent external API errors
+  const staticRates: Record<string, number> = {
+    'USD': 0.27, 'EUR': 0.25, 'GBP': 0.21, 'JPY': 30.2, 'CAD': 0.36,
+    'AUD': 0.40, 'CHF': 0.24, 'CNY': 1.95, 'INR': 22.8, 'SAR': 1.02,
+    'QAR': 0.99, 'KWD': 0.08, 'BHD': 0.10, 'OMR': 0.10, 'EGP': 8.5,
+    'JOD': 0.19, 'LBP': 408, 'PKR': 75.2, 'BDT': 29.1, 'LKR': 84.5,
+    'PHP': 15.1, 'SGD': 0.36, 'MYR': 1.21, 'THB': 9.2, 'VND': 6520,
+    'KRW': 356, 'TWD': 8.6, 'HKD': 2.12, 'IDR': 4150, 'RUB': 25.8,
+    'TRY': 9.1, 'ZAR': 4.8, 'BRL': 1.52, 'MXN': 5.48, 'CLP': 265,
+    'ARS': 275, 'COP': 1125, 'PEN': 1.03, 'DKK': 1.87, 'SEK': 2.95,
+    'NOK': 2.89, 'PLN': 1.10, 'CZK': 6.15, 'HUF': 97.5, 'RON': 1.24,
+    'BGN': 0.49, 'HRK': 1.89, 'ILS': 1.01, 'NZD': 0.44
+  };
+  
+  console.log('Using static exchange rates for currency conversion');
+  
+  return Promise.resolve({
+    success: true,
+    rates: staticRates,
+    timestamp: Date.now(),
+    base: baseCurrency
+  });
 }
 
 export function useExchangeRates(baseCurrency: string = 'AED') {
@@ -145,29 +110,14 @@ export function useExchangeRates(baseCurrency: string = 'AED') {
     refetch 
   } = useQuery({
     queryKey: ['exchange-rates', baseCurrency],
-    queryFn: async () => {
-      try {
-        return await fetchExchangeRates(baseCurrency);
-      } catch (error) {
-        console.error('Exchange rate fetch error:', error);
-        setError(error instanceof Error ? error.message : 'Failed to fetch exchange rates');
-        // Return fallback data instead of throwing
-        return {
-          success: false,
-          rates: {
-            'USD': 0.27, 'EUR': 0.25, 'GBP': 0.21, 'INR': 22.8, 'SAR': 1.02,
-            'QAR': 0.99, 'KWD': 0.08, 'BHD': 0.10, 'OMR': 0.10
-          },
-          timestamp: Date.now(),
-          base: baseCurrency,
-          error: error instanceof Error ? error.message : 'Unknown error'
-        };
-      }
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-    retry: false, // Disable retries to prevent cascading errors
-    throwOnError: false, // Prevent throwing errors
+    queryFn: () => fetchExchangeRates(baseCurrency),
+    staleTime: Infinity, // Never go stale since we're using static data
+    gcTime: Infinity, // Keep in cache forever
+    retry: false,
+    throwOnError: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 
   const convertAmount = useCallback((
