@@ -309,8 +309,8 @@ export default function AdminUsersPage() {
                 <SelectContent>
                   <SelectItem value="all">All Roles</SelectItem>
                   <SelectItem value="agent">Agent</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="student">Student</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -510,8 +510,8 @@ export default function AdminUsersPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="agent">Agent</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="student">Student</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -626,8 +626,8 @@ export default function AdminUsersPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="agent">Agent</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="student">Student</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
             </div>

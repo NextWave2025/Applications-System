@@ -207,9 +207,8 @@ export default function SignupPage() {
               required
             >
               <option value="">Select role</option>
-              <option value="agent">Education Agent</option>
-              <option value="counselor">Education Counselor</option>
-              <option value="recruiter">Student Recruiter</option>
+              <option value="agent">Agent</option>
+              <option value="student">Student</option>
             </select>
           </div>
           
