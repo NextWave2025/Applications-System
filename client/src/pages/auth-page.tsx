@@ -19,6 +19,7 @@ const signupSchema = z.object({
   agencyName: z.string().min(1, "Agency name is required"),
   country: z.string().min(1, "Country is required"),
   phoneNumber: z.string().min(1, "Phone number is required"),
+  role: z.string().min(1, "Please select your account type"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -63,6 +64,7 @@ export default function AuthPage() {
       agencyName: "",
       country: "",
       phoneNumber: "",
+      role: "",
     },
   });
 
@@ -354,6 +356,26 @@ export default function AuthPage() {
                     </p>
                   )}
                 </div>
+              </div>
+              
+              <div>
+                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                  I am a *
+                </label>
+                <select
+                  id="role"
+                  {...signupForm.register("role")}
+                  className="w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary"
+                >
+                  <option value="">Select account type</option>
+                  <option value="agent">Agent</option>
+                  <option value="student">Student</option>
+                </select>
+                {signupForm.formState.errors.role && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {signupForm.formState.errors.role.message}
+                  </p>
+                )}
               </div>
               
               {signupError && (
