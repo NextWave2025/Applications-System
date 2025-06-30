@@ -50,7 +50,7 @@ export default function ApplicationFormPage() {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   // Fetch program details
-  const { data: program, isLoading: programLoading } = useQuery<ProgramWithUniversity>({
+  const { data: program, isLoading: programLoading, error: programError } = useQuery<ProgramWithUniversity>({
     queryKey: [`/api/programs/${id}`],
     enabled: !!id,
     staleTime: 60000, // Cache for 1 minute
@@ -92,7 +92,11 @@ export default function ApplicationFormPage() {
   // If not authenticated, redirect to login
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate("/auth", { state: { redirectTo: `/apply/${id}` } });
+      // Store the current application URL and action type for later redirect
+      localStorage.setItem("redirectAfterLogin", `/apply/${id}`);
+      localStorage.setItem("applicationAction", "apply");
+      localStorage.setItem("programId", id || "");
+      navigate("/auth");
     }
   }, [authLoading, user, navigate, id]);
 

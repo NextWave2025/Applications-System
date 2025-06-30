@@ -42,6 +42,10 @@ export default function AuthPage() {
   useEffect(() => {
     if (!isLoading && user) {
       console.log("User already authenticated, redirecting to:", redirectTo);
+      // Clear stored application data since user is already authenticated
+      localStorage.removeItem("redirectAfterLogin");
+      localStorage.removeItem("applicationAction");
+      localStorage.removeItem("programId");
       setLocation(redirectTo);
     }
   }, [user, isLoading, setLocation, redirectTo]);
@@ -76,8 +80,10 @@ export default function AuthPage() {
       const result = await loginMutation.mutateAsync(data);
       console.log("Login successful, result:", result);
       
-      // Clear stored redirect and navigate
+      // Clear stored redirect and application data, then navigate
       localStorage.removeItem("redirectAfterLogin");
+      localStorage.removeItem("applicationAction");
+      localStorage.removeItem("programId");
       setLocation(redirectTo);
     } catch (error: any) {
       console.error("Login error:", error);
@@ -92,14 +98,13 @@ export default function AuthPage() {
     setSignupError("");
     
     try {
-      const result = await registerMutation.mutateAsync({
-        ...data,
-        role: "agent", // Set the role to agent
-      });
+      const result = await registerMutation.mutateAsync(data);
       console.log("Registration successful, result:", result);
       
-      // Clear stored redirect and navigate
+      // Clear stored redirect and application data, then navigate
       localStorage.removeItem("redirectAfterLogin");
+      localStorage.removeItem("applicationAction");
+      localStorage.removeItem("programId");
       setLocation(redirectTo);
     } catch (error: any) {
       console.error("Registration error:", error);
