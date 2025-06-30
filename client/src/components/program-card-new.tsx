@@ -5,8 +5,6 @@ import { ArrowRight, BookOpen, Star, Clock, MapPin, DollarSign } from "lucide-re
 import { type ProgramWithUniversity } from "@shared/schema";
 import PriceDisplay from "@/components/price-display";
 import CurrencyConverter from "@/components/currency-converter";
-import QuickApplyDialog from "@/components/quick-apply-dialog";
-import { useState } from "react";
 
 interface ProgramCardNewProps {
   program: ProgramWithUniversity;
@@ -21,7 +19,6 @@ export default function ProgramCardNew({
   onSelectionChange, 
   showSelection = false 
 }: ProgramCardNewProps) {
-  const [showQuickApply, setShowQuickApply] = useState(false);
   
   const getTuitionAmount = (tuition: string): number | null => {
     if (!tuition || tuition === "0 AED/year") {
@@ -169,26 +166,17 @@ export default function ProgramCardNew({
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="px-4 py-2.5 border-gray-300 hover:bg-gray-50 font-medium text-sm sm:w-auto w-full"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowQuickApply(true);
-            }}
-          >
-            Quick Apply
-          </Button>
+          <Link href={`/apply/${program.id}`} className="sm:w-auto w-full">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="px-4 py-2.5 border-gray-300 hover:bg-gray-50 font-medium text-sm w-full"
+            >
+              Quick Apply
+            </Button>
+          </Link>
         </div>
       </div>
-
-      {/* Quick Apply Dialog */}
-      <QuickApplyDialog
-        open={showQuickApply}
-        onOpenChange={setShowQuickApply}
-        program={program}
-      />
     </div>
   );
 }
