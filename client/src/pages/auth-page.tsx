@@ -38,12 +38,12 @@ export default function AuthPage() {
   // Use auth context
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
 
-  // Automatic redirect when user becomes authenticated
+  // Single comprehensive redirect effect
   useEffect(() => {
     if (user && !isLoading) {
-      console.log("User authenticated, redirecting to:", redirectTo);
+      console.log("User authenticated, triggering redirect to:", redirectTo);
       
-      // Reset submitting state first
+      // Reset submitting state immediately
       setIsSubmitting(false);
       
       // Clean up stored data
@@ -51,26 +51,11 @@ export default function AuthPage() {
       localStorage.removeItem("applicationAction");
       localStorage.removeItem("programId");
       
-      // Small delay to ensure state is settled
-      const timer = setTimeout(() => {
-        setLocation(redirectTo);
-      }, 50);
-
-      return () => clearTimeout(timer);
-    }
-  }, [user, isLoading, redirectTo, setLocation]);
-  
-  // Redirect if already logged in
-  useEffect(() => {
-    if (!isLoading && user) {
-      console.log("User already authenticated, redirecting to:", redirectTo);
-      // Clear stored application data since user is already authenticated
-      localStorage.removeItem("redirectAfterLogin");
-      localStorage.removeItem("applicationAction");
-      localStorage.removeItem("programId");
+      // Force immediate redirect
+      console.log("Executing redirect now...");
       setLocation(redirectTo);
     }
-  }, [user, isLoading, setLocation, redirectTo]);
+  }, [user, isLoading, redirectTo, setLocation]);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -103,13 +88,7 @@ export default function AuthPage() {
       const result = await loginMutation.mutateAsync(data);
       console.log("Login successful, result:", result);
       
-      // Set a fallback timeout in case redirect doesn't work
-      setTimeout(() => {
-        if (isSubmitting) {
-          console.warn("Login redirect didn't happen, resetting submit state");
-          setIsSubmitting(false);
-        }
-      }, 3000);
+      // Note: isSubmitting will be reset by the useEffect when user state updates
       
     } catch (error: any) {
       console.error("Login error:", error);
