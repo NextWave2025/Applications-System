@@ -93,7 +93,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.setQueryData(["/api/user"], user);
       
       // Force immediate refetch to ensure state consistency
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] }).then(() => {
+        console.log("User query invalidated and refetched");
+      });
       queryClient.invalidateQueries({ queryKey: ["/api/admin"] });
       
       console.log("Login success: Cache updated, showing toast");

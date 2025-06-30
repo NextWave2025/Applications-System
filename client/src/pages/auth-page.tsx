@@ -38,29 +38,16 @@ export default function AuthPage() {
   // Use auth context
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
 
-  // Single comprehensive redirect effect
+  // Check if user is already authenticated and redirect immediately
   useEffect(() => {
     if (user && !isLoading) {
-      console.log("User authenticated, triggering redirect to:", redirectTo);
-      
-      // Reset submitting state immediately
-      setIsSubmitting(false);
-      
-      // Clean up stored data
+      console.log("User already authenticated, redirecting to:", redirectTo);
       localStorage.removeItem("redirectAfterLogin");
       localStorage.removeItem("applicationAction");
       localStorage.removeItem("programId");
-      
-      // Small delay to ensure React state updates are flushed
-      console.log("Executing redirect in 100ms...");
-      const redirectTimer = setTimeout(() => {
-        console.log("Redirecting now to:", redirectTo);
-        setLocation(redirectTo);
-      }, 100);
-      
-      return () => clearTimeout(redirectTimer);
+      window.location.href = redirectTo;
     }
-  }, [user, isLoading, redirectTo, setLocation]);
+  }, [user, isLoading, redirectTo]);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -93,7 +80,17 @@ export default function AuthPage() {
       const result = await loginMutation.mutateAsync(data);
       console.log("Login successful, result:", result);
       
-      // Note: isSubmitting will be reset by the useEffect when user state updates
+      // Reset submitting state and redirect immediately
+      setIsSubmitting(false);
+      
+      // Clean up stored data
+      localStorage.removeItem("redirectAfterLogin");
+      localStorage.removeItem("applicationAction");
+      localStorage.removeItem("programId");
+      
+      // Direct redirect after successful login
+      console.log("Redirecting to:", redirectTo);
+      window.location.href = redirectTo;
       
     } catch (error: any) {
       console.error("Login error:", error);
@@ -111,7 +108,17 @@ export default function AuthPage() {
       const result = await registerMutation.mutateAsync(data);
       console.log("Registration successful, result:", result);
       
-      // Note: isSubmitting will be reset by the useEffect when user state updates
+      // Reset submitting state and redirect immediately
+      setIsSubmitting(false);
+      
+      // Clean up stored data
+      localStorage.removeItem("redirectAfterLogin");
+      localStorage.removeItem("applicationAction");
+      localStorage.removeItem("programId");
+      
+      // Direct redirect after successful registration
+      console.log("Redirecting to:", redirectTo);
+      window.location.href = redirectTo;
       
     } catch (error: any) {
       console.error("Registration error:", error);
