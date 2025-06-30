@@ -33,7 +33,20 @@ export default function AuthPage() {
   const [, setLocation] = useLocation();
   
   // Check if there's a redirect URL from a program application
-  const redirectTo = localStorage.getItem("redirectAfterLogin") || "/dashboard";
+  const storedRedirect = localStorage.getItem("redirectAfterLogin");
+  const storedAction = localStorage.getItem("applicationAction");
+  const storedProgramId = localStorage.getItem("programId");
+  
+  console.log("Auth page - stored application context:", {
+    storedRedirect,
+    storedAction,
+    storedProgramId
+  });
+  
+  // Determine redirect destination based on stored application context
+  const redirectTo = storedRedirect || "/dashboard";
+  
+  console.log("Auth page - final redirect destination:", redirectTo);
   
   // Use auth context
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
@@ -83,6 +96,14 @@ export default function AuthPage() {
       // Reset submitting state and redirect immediately
       setIsSubmitting(false);
       
+      // Debug before cleanup
+      console.log("Login successful - about to redirect with context:", {
+        redirectTo,
+        storedRedirect: localStorage.getItem("redirectAfterLogin"),
+        storedAction: localStorage.getItem("applicationAction"),
+        storedProgramId: localStorage.getItem("programId")
+      });
+      
       // Clean up stored data
       localStorage.removeItem("redirectAfterLogin");
       localStorage.removeItem("applicationAction");
@@ -110,6 +131,14 @@ export default function AuthPage() {
       
       // Reset submitting state and redirect immediately
       setIsSubmitting(false);
+      
+      // Debug before cleanup
+      console.log("Registration successful - about to redirect with context:", {
+        redirectTo,
+        storedRedirect: localStorage.getItem("redirectAfterLogin"),
+        storedAction: localStorage.getItem("applicationAction"),
+        storedProgramId: localStorage.getItem("programId")
+      });
       
       // Clean up stored data
       localStorage.removeItem("redirectAfterLogin");
