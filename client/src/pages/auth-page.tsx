@@ -40,7 +40,7 @@ export default function AuthPage() {
 
   // Automatic redirect when user becomes authenticated
   useEffect(() => {
-    if (user && !isLoading && !isSubmitting) {
+    if (user && !isLoading) {
       console.log("User authenticated, redirecting to:", redirectTo);
       
       // Clean up stored data
@@ -48,10 +48,14 @@ export default function AuthPage() {
       localStorage.removeItem("applicationAction");
       localStorage.removeItem("programId");
       
-      // Navigate to destination
-      setLocation(redirectTo);
+      // Small delay to ensure state is settled
+      const timer = setTimeout(() => {
+        setLocation(redirectTo);
+      }, 50);
+
+      return () => clearTimeout(timer);
     }
-  }, [user, isLoading, isSubmitting, redirectTo, setLocation]);
+  }, [user, isLoading, redirectTo, setLocation]);
   
   // Redirect if already logged in
   useEffect(() => {

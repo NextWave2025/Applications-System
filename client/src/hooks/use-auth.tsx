@@ -143,6 +143,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         variant: "destructive",
       });
     },
+    retry: false,
+    throwOnError: false,
   });
 
   const logoutMutation = useMutation({
