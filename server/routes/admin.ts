@@ -1625,13 +1625,13 @@ router.get("/export/universities", async (req, res) => {
 // Export Programs
 router.get("/export/programs", async (req, res) => {
   try {
-    const programs = await storage.getAllPrograms();
+    const programs = await storage.getPrograms();
     
     // Create workbook and worksheet
     const workbook = XLSX.utils.book_new();
     
     // Prepare data for export
-    const exportData = programs.map(program => ({
+    const exportData = programs.map((program: any) => ({
       ID: program.id,
       Name: program.name,
       "University Name": program.university?.name || "",
@@ -1674,22 +1674,18 @@ router.get("/export/applications", async (req, res) => {
     const workbook = XLSX.utils.book_new();
     
     // Prepare data for export
-    const exportData = applications.map(app => ({
+    const exportData = applications.map((app: any) => ({
       ID: app.id,
       "Student Name": `${app.studentFirstName} ${app.studentLastName}`,
       "Student Email": app.studentEmail,
       "Student Phone": app.studentPhone || "",
       "Date of Birth": app.studentDateOfBirth || "",
-      "Program Name": app.programName || "",
-      "University Name": app.universityName || "",
+      "Program ID": app.programId || "",
       "Agent ID": app.userId,
       Status: app.status,
-      "Submission Date": app.submissionDate || "",
-      "Last Updated": app.updatedAt || app.createdAt,
-      Notes: app.notes || "",
-      "Intake Period": app.intakePeriod || "",
-      "Emergency Contact": app.emergencyContactName || "",
-      "Emergency Phone": app.emergencyContactPhone || ""
+      "Created At": app.createdAt || "",
+      "Updated At": app.updatedAt || "",
+      Notes: app.notes || ""
     }));
     
     const worksheet = XLSX.utils.json_to_sheet(exportData);
