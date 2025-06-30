@@ -75,12 +75,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         console.log("Attempting login for:", credentials.username);
         const res = await apiRequest("POST", "/api/login", credentials);
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({ message: 'Login failed' }));
+          throw new Error(errorData.message || 'Login failed');
+        }
         const userData = await res.json();
         console.log("Login successful, user data:", userData);
         return userData;
       } catch (error) {
         console.error("Login mutation error:", error);
-        throw error;
+        throw error instanceof Error ? error : new Error('Login failed');
       }
     },
     onSuccess: (user: User) => {
@@ -103,6 +107,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         variant: "destructive",
       });
     },
+    retry: false,
+    throwOnError: false,
   });
 
   const registerMutation = useMutation({

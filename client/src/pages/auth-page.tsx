@@ -37,6 +37,21 @@ export default function AuthPage() {
   
   // Use auth context
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
+
+  // Automatic redirect when user becomes authenticated
+  useEffect(() => {
+    if (user && !isLoading && !isSubmitting) {
+      console.log("User authenticated, redirecting to:", redirectTo);
+      
+      // Clean up stored data
+      localStorage.removeItem("redirectAfterLogin");
+      localStorage.removeItem("applicationAction");
+      localStorage.removeItem("programId");
+      
+      // Navigate to destination
+      setLocation(redirectTo);
+    }
+  }, [user, isLoading, isSubmitting, redirectTo, setLocation]);
   
   // Redirect if already logged in
   useEffect(() => {
@@ -79,16 +94,10 @@ export default function AuthPage() {
     try {
       const result = await loginMutation.mutateAsync(data);
       console.log("Login successful, result:", result);
-      
-      // Clear stored redirect and application data, then navigate
-      localStorage.removeItem("redirectAfterLogin");
-      localStorage.removeItem("applicationAction");
-      localStorage.removeItem("programId");
-      setLocation(redirectTo);
+      // isSubmitting will stay true until useEffect redirects
     } catch (error: any) {
       console.error("Login error:", error);
       setLoginError(error.message || "Login failed. Please try again.");
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -100,16 +109,10 @@ export default function AuthPage() {
     try {
       const result = await registerMutation.mutateAsync(data);
       console.log("Registration successful, result:", result);
-      
-      // Clear stored redirect and application data, then navigate
-      localStorage.removeItem("redirectAfterLogin");
-      localStorage.removeItem("applicationAction");
-      localStorage.removeItem("programId");
-      setLocation(redirectTo);
+      // isSubmitting will stay true until useEffect redirects
     } catch (error: any) {
       console.error("Registration error:", error);
       setSignupError(error.message || "Registration failed. Please try again.");
-    } finally {
       setIsSubmitting(false);
     }
   };

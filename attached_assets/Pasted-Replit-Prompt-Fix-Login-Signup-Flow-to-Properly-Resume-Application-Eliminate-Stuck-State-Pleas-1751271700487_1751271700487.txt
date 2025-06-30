@@ -1,0 +1,59 @@
+Replit Prompt: Fix Login / Signup Flow to Properly Resume Application + Eliminate Stuck State
+
+Please review and fix the login / signup flow when a user tries to apply or quick apply to a program. The goal is to make the process smooth so users are not stuck or forced to refresh, and they resume their application immediately after logging in or signing up.
+
+⸻
+
+Current Problems
+	1.	Stuck after login or signup
+	•	When the user enters login or signup details and submits:
+	•	The system gets stuck — no redirection happens.
+	•	The user must manually refresh the page.
+	•	After refreshing, the system logs the user in, but it is disruptive and unreliable.
+	2.	No resume to application after login/signup
+	•	After the manual refresh (or even when login/signup works), the system redirects the user to the dashboard.
+	•	The user loses their place and has to navigate back to the program manually to apply.
+	•	The system does not remember the specific program and apply action the user intended.
+
+⸻
+
+What to Fix
+
+A. Fix the login/signup stuck issue
+	•	Ensure that after the user clicks login or signup, the authentication process:
+	•	Completes without requiring a manual refresh.
+	•	Triggers the correct redirect or resume logic automatically.
+	•	Debug the root cause of why the system hangs (likely frontend not handling the auth response or not updating session/local state properly after successful auth).
+	•	Ensure proper error handling — if login/signup fails, show clear feedback (e.g. Login failed. Please try again.).
+
+⸻
+
+B. Implement proper resume-to-application logic
+	•	When a user clicks Apply or Quick Apply without being logged in:
+	•	Store the following in session or local storage:
+	•	The program ID (or unique identifier).
+	•	The apply type (Apply from program page OR Quick Apply from card).
+	•	After successful login/signup:
+	•	Automatically detect this stored data.
+	•	Resume the user flow:
+	•	If Quick Apply → bring them back to the same program card and continue Quick Apply.
+	•	If Apply → bring them back to the program page with the apply action ready.
+	•	If no stored data is found, or if the program no longer exists → redirect the user to a friendly fallback page or message (e.g. We couldn’t find the program you selected. Please choose another.).
+
+⸻
+
+Expected Result
+	•	When a user clicks Apply or Quick Apply and logs in or signs up:
+	•	The system logs them in seamlessly without needing a manual refresh.
+	•	The user is brought back directly to their intended application flow.
+	•	No unnecessary redirection to dashboard or other pages.
+	•	Smooth, frustration-free experience.
+
+⸻
+
+Notes
+	•	Ensure no double application submissions occur accidentally.
+	•	Clean up stored data after resuming the application (so it doesn’t persist unnecessarily).
+	•	Handle edge cases (e.g. if network fails during login/signup).
+
+⸻
