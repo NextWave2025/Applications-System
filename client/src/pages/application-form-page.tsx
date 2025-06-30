@@ -100,6 +100,18 @@ export default function ApplicationFormPage() {
     }
   }, [authLoading, user, navigate, id]);
 
+  // Handle program not found after authentication redirect
+  useEffect(() => {
+    if (user && programError) {
+      toast({
+        variant: "destructive",
+        title: "Program Not Available",
+        description: "The program you selected is no longer available. Please choose another program.",
+      });
+      navigate("/programs");
+    }
+  }, [user, programError, toast, navigate]);
+
   // Submit application mutation
   const applicationMutation = useMutation({
     mutationFn: async (data: ApplicationFormData) => {
