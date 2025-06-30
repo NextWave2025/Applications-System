@@ -361,7 +361,7 @@ export default function AdminUsersPage() {
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                             <span className="text-sm font-medium">
-                              {userData.firstName[0]}{userData.lastName[0]}
+                              {userData.firstName?.[0] || '?'}{userData.lastName?.[0] || '?'}
                             </span>
                           </div>
                           <div>

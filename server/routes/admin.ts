@@ -1583,4 +1583,130 @@ router.get("/download-excel-template", async (req, res) => {
   }
 });
 
+// Export Universities
+router.get("/export/universities", async (req, res) => {
+  try {
+    const universities = await storage.getUniversities();
+    
+    // Create workbook and worksheet
+    const workbook = XLSX.utils.book_new();
+    
+    // Prepare data for export
+    const exportData = universities.map((uni: any) => ({
+      ID: uni.id,
+      Name: uni.name,
+      City: uni.city,
+      Country: uni.country,
+      Website: uni.website || "",
+      "Established Year": uni.establishedYear || "",
+      "Logo URL": uni.logoUrl || "",
+      Description: uni.description || "",
+      Email: uni.email || "",
+      Ranking: uni.ranking || ""
+    }));
+    
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Universities");
+    
+    // Generate buffer
+    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+    
+    // Set headers
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `attachment; filename=universities_${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    res.send(buffer);
+  } catch (error) {
+    console.error("Error exporting universities:", error);
+    res.status(500).json({ error: "Failed to export universities" });
+  }
+});
+
+// Export Programs
+router.get("/export/programs", async (req, res) => {
+  try {
+    const programs = await storage.getAllPrograms();
+    
+    // Create workbook and worksheet
+    const workbook = XLSX.utils.book_new();
+    
+    // Prepare data for export
+    const exportData = programs.map(program => ({
+      ID: program.id,
+      Name: program.name,
+      "University Name": program.university?.name || "",
+      "University ID": program.universityId,
+      "Degree Level": program.degreeLevel,
+      Duration: program.duration,
+      "Tuition Fee": program.tuitionFee,
+      Language: program.language,
+      "Field of Study": program.fieldOfStudy,
+      "Intake Periods": Array.isArray(program.intakePeriods) ? program.intakePeriods.join(", ") : program.intakePeriods,
+      Requirements: Array.isArray(program.requirements) ? program.requirements.join("; ") : program.requirements,
+      "Available": program.available ? "Yes" : "No",
+      "Has Scholarship": program.hasScholarship ? "Yes" : "No",
+      "Image URL": program.imageUrl || ""
+    }));
+    
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Programs");
+    
+    // Generate buffer
+    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+    
+    // Set headers
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `attachment; filename=programs_${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    res.send(buffer);
+  } catch (error) {
+    console.error("Error exporting programs:", error);
+    res.status(500).json({ error: "Failed to export programs" });
+  }
+});
+
+// Export Applications
+router.get("/export/applications", async (req, res) => {
+  try {
+    const applications = await storage.getAllApplications();
+    
+    // Create workbook and worksheet
+    const workbook = XLSX.utils.book_new();
+    
+    // Prepare data for export
+    const exportData = applications.map(app => ({
+      ID: app.id,
+      "Student Name": `${app.studentFirstName} ${app.studentLastName}`,
+      "Student Email": app.studentEmail,
+      "Student Phone": app.studentPhone || "",
+      "Date of Birth": app.studentDateOfBirth || "",
+      "Program Name": app.programName || "",
+      "University Name": app.universityName || "",
+      "Agent ID": app.userId,
+      Status: app.status,
+      "Submission Date": app.submissionDate || "",
+      "Last Updated": app.updatedAt || app.createdAt,
+      Notes: app.notes || "",
+      "Intake Period": app.intakePeriod || "",
+      "Emergency Contact": app.emergencyContactName || "",
+      "Emergency Phone": app.emergencyContactPhone || ""
+    }));
+    
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Applications");
+    
+    // Generate buffer
+    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+    
+    // Set headers
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `attachment; filename=applications_${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    res.send(buffer);
+  } catch (error) {
+    console.error("Error exporting applications:", error);
+    res.status(500).json({ error: "Failed to export applications" });
+  }
+});
+
 export default router;

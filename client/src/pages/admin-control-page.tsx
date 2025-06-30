@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Loader2, Users, FileText, AlertTriangle, CheckCircle, 
-  Clock, School, Search, Calendar, Filter, RefreshCw, Plus, Edit, Trash2, Upload
+  Clock, School, Search, Calendar, Filter, RefreshCw, Plus, Edit, Trash2, Upload, Download
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,8 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { useToast } from "@/hooks/use-toast";
+import ExcelUploadDialog from "@/components/excel-upload-dialog";
 
 interface AdminStats {
   totalApplications: number;
@@ -67,6 +69,7 @@ export default function AdminControlPage() {
   const { user } = useAuth();
   const [location, navigate] = useLocation();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   
   // User management state
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,6 +80,7 @@ export default function AdminControlPage() {
   const [programDeleteDialogOpen, setProgramDeleteDialogOpen] = useState(false);
   const [selectedUniversity, setSelectedUniversity] = useState<University | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
+  const [excelUploadDialogOpen, setExcelUploadDialogOpen] = useState(false);
 
   useEffect(() => {
     // Redirect non-admin users
@@ -241,6 +245,123 @@ export default function AdminControlPage() {
     } catch (error) {
       console.error("Error deleting program:", error);
     }
+  };
+
+  // Export functionality
+  const handleExportUniversities = async () => {
+    try {
+      const response = await fetch('/api/admin/export/universities');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `universities_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Export Successful",
+        description: "Universities data has been exported to Excel file.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export universities data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExportPrograms = async () => {
+    try {
+      const response = await fetch('/api/admin/export/programs');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `programs_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Export Successful",
+        description: "Programs data has been exported to Excel file.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export programs data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExportApplications = async () => {
+    try {
+      const response = await fetch('/api/admin/export/applications');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `applications_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Export Successful",
+        description: "Applications data has been exported to Excel file.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export applications data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      const response = await fetch('/api/admin/download-excel-template');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'data_import_template.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Template Downloaded",
+        description: "Excel template has been downloaded successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Download Failed",
+        description: "Failed to download template. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExcelUploadSuccess = () => {
+    // Refresh all data after successful upload
+    queryClient.invalidateQueries({ queryKey: ["/api/universities"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/programs"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+    
+    toast({
+      title: "Upload Successful",
+      description: "Data has been imported successfully.",
+    });
   };
 
   return (
@@ -573,31 +694,68 @@ export default function AdminControlPage() {
           <TabsContent value="data" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Data Management</h2>
-              <Button onClick={() => console.log("Upload Excel data")}>
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Excel Data
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleDownloadTemplate}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Template
+                </Button>
+                <Button onClick={() => setExcelUploadDialogOpen(true)}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Excel Data
+                </Button>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Bulk Operations</CardTitle>
+                  <CardTitle>Bulk Import & Export</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-600 mb-4">
-                    Import or export data in bulk using Excel files.
+                    Import or export data in bulk using Excel files. Download the template first to see the required format.
                   </p>
                   <div className="space-y-2">
-                    <Button variant="outline" className="w-full">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={handleExportUniversities}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
                       Export Universities
                     </Button>
-                    <Button variant="outline" className="w-full">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={handleExportPrograms}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
                       Export Programs
                     </Button>
-                    <Button variant="outline" className="w-full">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={handleExportApplications}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
                       Export Applications
                     </Button>
+                  </div>
+                  
+                  <Separator className="my-4" />
+                  
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-700">Import Data:</p>
+                    <Button 
+                      className="w-full justify-start"
+                      onClick={() => setExcelUploadDialogOpen(true)}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Import Universities & Programs
+                    </Button>
+                    <p className="text-xs text-gray-500">
+                      Upload an Excel file with "Universities" and "Programs" sheets to import data.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -670,6 +828,13 @@ export default function AdminControlPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Excel Upload Dialog */}
+        <ExcelUploadDialog 
+          isOpen={excelUploadDialogOpen}
+          onClose={() => setExcelUploadDialogOpen(false)}
+          onSuccess={handleExcelUploadSuccess}
+        />
       </div>
     </ErrorBoundary>
   );
