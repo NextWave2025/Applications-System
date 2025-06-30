@@ -43,6 +43,9 @@ export default function AuthPage() {
     if (user && !isLoading) {
       console.log("User authenticated, redirecting to:", redirectTo);
       
+      // Reset submitting state first
+      setIsSubmitting(false);
+      
       // Clean up stored data
       localStorage.removeItem("redirectAfterLogin");
       localStorage.removeItem("applicationAction");
@@ -96,9 +99,18 @@ export default function AuthPage() {
     setLoginError("");
     
     try {
+      console.log("Starting login mutation...");
       const result = await loginMutation.mutateAsync(data);
       console.log("Login successful, result:", result);
-      // isSubmitting will stay true until useEffect redirects
+      
+      // Set a fallback timeout in case redirect doesn't work
+      setTimeout(() => {
+        if (isSubmitting) {
+          console.warn("Login redirect didn't happen, resetting submit state");
+          setIsSubmitting(false);
+        }
+      }, 3000);
+      
     } catch (error: any) {
       console.error("Login error:", error);
       setLoginError(error.message || "Login failed. Please try again.");
@@ -111,9 +123,18 @@ export default function AuthPage() {
     setSignupError("");
     
     try {
+      console.log("Starting registration mutation...");
       const result = await registerMutation.mutateAsync(data);
       console.log("Registration successful, result:", result);
-      // isSubmitting will stay true until useEffect redirects
+      
+      // Set a fallback timeout in case redirect doesn't work
+      setTimeout(() => {
+        if (isSubmitting) {
+          console.warn("Registration redirect didn't happen, resetting submit state");
+          setIsSubmitting(false);
+        }
+      }, 3000);
+      
     } catch (error: any) {
       console.error("Registration error:", error);
       setSignupError(error.message || "Registration failed. Please try again.");
