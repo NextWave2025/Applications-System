@@ -89,10 +89,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: User) => {
       console.log("Login mutation onSuccess called, setting user data:", user);
+      // Set user data immediately in cache
       queryClient.setQueryData(["/api/user"], user);
+      
       // Force immediate refetch to ensure state consistency
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin"] });
+      
       console.log("Login success: Cache updated, showing toast");
       toast({
         title: "Login successful",
@@ -128,9 +131,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: User) => {
       console.log("Registration mutation onSuccess called, setting user data:", user);
+      // Set user data immediately in cache
       queryClient.setQueryData(["/api/user"], user);
+      
       // Force immediate refetch to ensure state consistency
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
       console.log("Registration success: Cache updated, showing toast");
       toast({
         title: "Registration successful",

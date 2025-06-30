@@ -51,9 +51,14 @@ export default function AuthPage() {
       localStorage.removeItem("applicationAction");
       localStorage.removeItem("programId");
       
-      // Force immediate redirect
-      console.log("Executing redirect now...");
-      setLocation(redirectTo);
+      // Small delay to ensure React state updates are flushed
+      console.log("Executing redirect in 100ms...");
+      const redirectTimer = setTimeout(() => {
+        console.log("Redirecting now to:", redirectTo);
+        setLocation(redirectTo);
+      }, 100);
+      
+      return () => clearTimeout(redirectTimer);
     }
   }, [user, isLoading, redirectTo, setLocation]);
 
@@ -106,13 +111,7 @@ export default function AuthPage() {
       const result = await registerMutation.mutateAsync(data);
       console.log("Registration successful, result:", result);
       
-      // Set a fallback timeout in case redirect doesn't work
-      setTimeout(() => {
-        if (isSubmitting) {
-          console.warn("Registration redirect didn't happen, resetting submit state");
-          setIsSubmitting(false);
-        }
-      }, 3000);
+      // Note: isSubmitting will be reset by the useEffect when user state updates
       
     } catch (error: any) {
       console.error("Registration error:", error);
