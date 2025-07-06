@@ -4,7 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { AuthProvider } from "./hooks/use-auth";
 import { CurrencyProvider } from "./hooks/use-currency";
 import { Toaster } from "./components/ui/toaster";
-import { ErrorBoundary } from "./components/error-boundary";
+import { AppWrapper } from "./components/app-wrapper";
 import { useEffect } from "react";
 
 import LandingPage from "./pages/landing-page";
@@ -38,40 +38,8 @@ import ApplicationDetailsPage from "./pages/application-details-page";
 import UserApplicationDetailsPage from "./pages/user-application-details-page";
 
 export default function App() {
-  useEffect(() => {
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      console.error("Unhandled promise rejection:", event.reason);
-      console.error("Stack:", event.reason?.stack);
-      console.error("Promise:", event.promise);
-      
-      // Check if it's a currency conversion related error and handle gracefully
-      if (event.reason?.message?.includes('exchange') || 
-          event.reason?.message?.includes('currency') ||
-          event.reason?.message?.includes('fetch')) {
-        console.warn("Currency conversion error handled gracefully");
-        event.preventDefault();
-        return;
-      }
-      
-      // Prevent default to stop the error from bubbling
-      event.preventDefault();
-    };
-
-    const handleError = (event: ErrorEvent) => {
-      console.error("Global error:", event.error);
-      console.error("Error details:", event.message, "at", event.filename, ":", event.lineno);
-    };
-
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
-    window.addEventListener('error', handleError);
-
-    return () => {
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-      window.removeEventListener('error', handleError);
-    };
-  }, []);
   return (
-    <ErrorBoundary>
+    <AppWrapper>
       <QueryClientProvider client={queryClient}>
         <CurrencyProvider>
           <AuthProvider>
@@ -277,6 +245,6 @@ export default function App() {
         </AuthProvider>
       </CurrencyProvider>
     </QueryClientProvider>
-    </ErrorBoundary>
+    </AppWrapper>
   );
 }

@@ -78,18 +78,37 @@ export default function AdminUsersPage() {
   const { data: users = [], isLoading: loading, error } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
     enabled: !!user && (user.role === "admin" || user.role === "super_admin"),
-    retry: false,
+    retry: 1,
+    retryDelay: 1000,
     refetchOnWindowFocus: false,
     staleTime: 30000,
+    gcTime: 300000, // 5 minutes
     throwOnError: false,
     queryFn: async () => {
       try {
-        const response = await fetch("/api/admin/users", { credentials: "include" });
-        if (!response.ok) return [];
-        const data = await response.json();
+        const response = await fetch("/api/admin/users", { 
+          credentials: "include",
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).catch(err => {
+          console.warn("Network error fetching users:", err);
+          throw new Error("Network error");
+        });
+        
+        if (!response.ok) {
+          console.warn("Users API returned non-ok status:", response.status);
+          return [];
+        }
+        
+        const data = await response.json().catch(err => {
+          console.warn("Error parsing users JSON:", err);
+          return [];
+        });
+        
         return Array.isArray(data) ? data : [];
       } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error("Error in users query:", error);
         return [];
       }
     },
@@ -99,8 +118,10 @@ export default function AdminUsersPage() {
   const refreshData = async () => {
     try {
       setIsRefreshing(true);
-      await queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
-      await queryClient.refetchQueries({ queryKey: ["/api/admin/users"] });
+      await Promise.allSettled([
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] }),
+        queryClient.refetchQueries({ queryKey: ["/api/admin/users"] })
+      ]);
       toast({ title: "Data refreshed successfully" });
     } catch (error) {
       console.error("Error refreshing data:", error);
