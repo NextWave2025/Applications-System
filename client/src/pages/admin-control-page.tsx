@@ -23,6 +23,7 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import { useToast } from "@/hooks/use-toast";
 import ExcelUploadDialog from "@/components/excel-upload-dialog";
 import UserManagementSection from "@/components/user-management-section";
+import SubAdminManagement from "@/components/sub-admin-management";
 
 interface AdminStats {
   totalApplications: number;
@@ -447,6 +448,7 @@ export default function AdminControlPage() {
         <Tabs defaultValue="users" className="space-y-6">
           <TabsList>
             <TabsTrigger value="users">User Management</TabsTrigger>
+            <TabsTrigger value="sub-admins">Sub-Admin Management</TabsTrigger>
             <TabsTrigger value="universities">Universities</TabsTrigger>
             <TabsTrigger value="programs">Programs</TabsTrigger>
             <TabsTrigger value="data">Data Management</TabsTrigger>
@@ -461,6 +463,10 @@ export default function AdminControlPage() {
                 queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
               }}
             />
+          </TabsContent>
+
+          <TabsContent value="sub-admins" className="space-y-6">
+            <SubAdminManagement />
           </TabsContent>
 
           <TabsContent value="universities" className="space-y-6">

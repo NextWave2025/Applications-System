@@ -1,0 +1,62 @@
+
+Replit Prompt: Create Comprehensive Notification System + Sub-Admin Management
+
+Please implement the following features on the admin side:
+
+
+
+1️⃣ Comprehensive Notification System
+
+✅ What to build
+Create an automated email notification system that sends the super admin (and optionally sub-admins) an email in real-time whenever these events occur:
+	•	A new application is submitted by a user.
+	•	An application status changes (e.g. approved, rejected, pending, etc.).
+	•	A new user account is created by a user (sign-up).
+
+✅ Notification details
+	•	The email must include:
+	•	The type of event (e.g. New Application, Application Status Changed, New User Account Created).
+	•	Key details of the event:
+	•	For applications: applicant name, program name, status, submission date.
+	•	For status changes: previous status, new status, date of change.
+	•	For account creation: user name, email, date created.
+	•	Subject line should clearly state the event (e.g. New Application Received – Program X).
+
+✅ Technical requirements
+	•	Use your existing email service (e.g. SendGrid, SMTP, or integrated Replit mail service).
+	•	Ensure emails are sent in real-time as soon as the event occurs.
+	•	Handle delivery errors gracefully (log failures, retry if necessary).
+
+
+
+2️⃣ Sub-Admin Management
+
+✅ What to build
+	•	Allow the super admin to create sub-admin accounts through the admin panel.
+	•	Required fields for creating a sub-admin:
+	•	Name
+	•	Email
+	•	Password (set by super admin at creation)
+	•	Automatically send a welcome email to the sub-admin with their credentials and a prompt to change their password on first login.
+	•	Sub-admins should have restricted permissions (only manage apps/accounts as allowed by the super admin).
+
+✅ Sub-admin features
+	•	Ability for sub-admins to:
+	•	View and manage applications.
+	•	Update application statuses.
+	•	View user account details.
+	•	No access to creating new sub-admins or changing super admin settings.
+
+✅ Technical requirements
+	•	Validate form inputs (required fields, valid email, strong password).
+	•	Display confirmation when a sub-admin is created.
+	•	Allow super admin to deactivate or delete sub-admin accounts.
+
+
+
+Expected Result
+	•	The super admin (and optional sub-admins) will receive email notifications for key user and application activities.
+	•	Super admin can create and manage sub-admins to assist in managing applications and user accounts.
+	•	All actions provide clear feedback and update the UI dynamically.
+
+

@@ -161,6 +161,21 @@ export function setupAuth(app: Express) {
           console.error('Failed to send welcome email:', emailError);
           // Don't fail registration if email fails
         }
+
+        // Send notification to admins about new user registration
+        try {
+          const { notificationService } = await import('./services/notification-service');
+          await notificationService.sendUserCreatedNotification({
+            userName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username,
+            userEmail: user.username,
+            userRole: user.role,
+            dateCreated: new Date().toLocaleDateString()
+          });
+          console.log(`Admin notification sent for new user: ${user.username}`);
+        } catch (notificationError) {
+          console.error('Failed to send admin notification:', notificationError);
+          // Don't fail registration if notification fails
+        }
         
         res.status(201).json(passportUser);
       });

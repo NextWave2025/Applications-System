@@ -6,6 +6,7 @@ import { setupAuth } from "./auth";
 import multer from "multer";
 import path from "path";
 import adminRouter from "./routes/admin";
+import subAdminRouter from "./routes/sub-admin";
 import { sendApplicationStatusNotification } from "./email-service";
 import { setupEmailTestRoutes } from "./routes/email-test";
 
@@ -15,6 +16,9 @@ export function registerRoutes(app: Express): Server {
 
   // Mount admin routes
   app.use('/api/admin', adminRouter);
+  
+  // Mount sub-admin routes
+  app.use('/api/sub-admin', subAdminRouter);
   
   // Setup email testing routes
   setupEmailTestRoutes(app);
@@ -280,6 +284,29 @@ export function registerRoutes(app: Express): Server {
       }
 
       const application = await storage.createApplication(applicationData);
+
+      // Send notification to admins about new application submission
+      if (applicationData.status === "submitted") {
+        try {
+          const { notificationService } = await import('./services/notification-service');
+          const program = await storage.getProgramById(application.programId);
+          const university = program ? await storage.getUniversityById(program.universityId) : null;
+          
+          await notificationService.sendApplicationSubmittedNotification({
+            applicantName: `${application.studentFirstName} ${application.studentLastName}`.trim(),
+            applicantEmail: req.user.username,
+            programName: program?.name || 'Unknown Program',
+            universityName: university?.name || 'Unknown University',
+            status: application.status,
+            submissionDate: new Date().toLocaleDateString()
+          });
+          console.log(`Admin notification sent for new application: ${application.id}`);
+        } catch (notificationError) {
+          console.error('Failed to send admin notification:', notificationError);
+          // Don't fail application creation if notification fails
+        }
+      }
+
       res.status(201).json(application);
     } catch (error) {
       console.error("Error creating application:", error);
@@ -372,7 +399,32 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ error: "Unauthorized access to this application" });
       }
 
+      const previousStatus = application.status;
       const updatedApplication = await storage.updateApplicationStatus(id, status, req.user.id);
+
+      // Send notification to admins about status change
+      if (previousStatus !== status) {
+        try {
+          const { notificationService } = await import('./services/notification-service');
+          const program = await storage.getProgramById(application.programId);
+          const university = program ? await storage.getUniversityById(program.universityId) : null;
+          
+          await notificationService.sendApplicationStatusChangedNotification({
+            applicantName: `${application.studentFirstName} ${application.studentLastName}`.trim(),
+            applicantEmail: req.user.username,
+            programName: program?.name || 'Unknown Program',
+            universityName: university?.name || 'Unknown University',
+            status: status,
+            previousStatus: previousStatus,
+            submissionDate: new Date(application.createdAt).toLocaleDateString()
+          });
+          console.log(`Admin notification sent for status change: ${application.id} (${previousStatus} → ${status})`);
+        } catch (notificationError) {
+          console.error('Failed to send admin notification:', notificationError);
+          // Don't fail status update if notification fails
+        }
+      }
+
       res.json(updatedApplication);
     } catch (error) {
       console.error("Error updating application status:", error);
