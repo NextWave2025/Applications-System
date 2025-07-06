@@ -1,0 +1,83 @@
+Replit Prompt: Fully Fix Post-Login/Signup Redirect + Resume Flow (Step-by-Step)
+
+Please carefully review and fix the login/signup + resume flow and redirect logic step-by-step. The system is currently broken and must be fixed cleanly and reliably.
+
+
+Current Problems
+
+✅ The intended behavior:
+	•	User clicks Apply or Quick Apply without being logged in → system prompts login/signup → after login/signup, user is redirected automatically back to the correct apply flow (no refresh needed).
+
+❌ The actual behavior:
+	•	After the user enters login or signup details and clicks submit:
+	•	A welcome popup shows (bottom left).
+	•	The page remains stuck — no automatic redirect happens.
+	•	User must refresh manually.
+	•	After refresh, user is sent to dashboard or loses their intended apply flow.
+	•	The resume-to-apply logic is no longer working at all.
+
+
+What to Do — Step-by-Step
+
+1️⃣ Save Intended Apply State Before Login/Signup
+	•	When user clicks Apply or Quick Apply without being logged in:
+	•	Save into sessionStorage or localStorage:
+	•	programId
+	•	applyType (Apply or Quick Apply)
+	•	Any filters or context (optional, for restoring state)
+	•	Example key: resumeApplyData = { programId, applyType }
+
+
+
+2️⃣ Complete Login/Signup
+	•	When the user successfully logs in or signs up:
+	•	The auth system should:
+	•	Update the auth state/session.
+	•	Automatically trigger a redirect (do not rely on user refresh).
+	•	Look up resumeApplyData and redirect accordingly:
+	•	If Apply → redirect to program detail page, auto-trigger apply.
+	•	If Quick Apply → redirect to program card and auto-trigger Quick Apply.
+
+
+
+3️⃣ Clear Resume Data After Use
+	•	Once the user is successfully redirected and the apply flow resumes:
+	•	Clear resumeApplyData from storage.
+
+
+
+4️⃣ Fix the Stuck Redirect Issue
+	•	Identify why, after login/signup:
+	•	The welcome popup displays (indicating auth success).
+	•	But no redirect happens (the page stays stuck).
+	•	Fix the redirect logic:
+	•	Ensure router/navigation triggers after login/signup.
+	•	Ensure auth state update triggers any redirect handlers.
+	•	Ensure no silent failure or blocking error is preventing redirect.
+	•	Do not rely on manual page refresh — the redirect must work automatically.
+
+
+5️⃣ Handle Edge Cases
+	•	If resumeApplyData is invalid or the program no longer exists:
+	•	Redirect user to a fallback page (e.g. programs list) with a friendly message:
+“The program you selected is no longer available. Please choose another.”
+	•	Ensure no duplicate application is submitted because of resume logic.
+
+
+
+6️⃣ Update Favicon
+	•	Replace the favicon with the NextWave icon.
+	•	Ensure it displays on:
+	•	Browser tabs
+	•	Mobile bookmarks (where applicable)
+	•	Clear any cache issue that prevents new favicon from loading.
+
+
+
+Expected Result
+	•	After login/signup:
+	•	The user is automatically redirected to the correct apply flow — no refresh required.
+	•	Resume flow works (Apply or Quick Apply resumes properly).
+	•	Welcome popup still shows, but is followed by the correct redirect.
+	•	Favicon shows the NextWave icon consistently.
+

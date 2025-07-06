@@ -38,52 +38,60 @@ export default function AuthPage() {
   // Use auth context
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
 
-  // Handle resume flow for authenticated users
+  // Handle redirect for authenticated users - using direct effect approach
   useEffect(() => {
     if (user && !isLoading) {
-      console.log("User authenticated, processing resume flow...");
+      console.log("User authenticated, processing redirect...");
       
-      const processResume = async () => {
-        try {
-          const resumeUrl = await handleResumeFlow();
-          const redirectTo = resumeUrl || "/dashboard";
-          
-          console.log("Redirecting to:", redirectTo);
-          
-          // Show appropriate success message
-          const resumeData = getResumeData();
-          if (resumeData) {
-            toast({
-              title: "Welcome back!",
-              description: `Continuing your application for ${resumeData.programName || 'the selected program'}`,
-            });
-          }
-          
-          // Use setTimeout to ensure state updates are processed
-          setTimeout(() => {
-            console.log("Executing redirect to:", redirectTo);
-            setLocation(redirectTo);
-          }, 100);
-        } catch (error) {
-          console.error("Error processing resume flow:", error);
-          toast({
-            title: "Authentication successful",
-            description: "Redirecting to dashboard",
-          });
-          setTimeout(() => {
-            setLocation("/dashboard");
-          }, 100);
-        }
-      };
-
-      processResume().catch((error) => {
-        console.error("Failed to process resume flow:", error);
-        setTimeout(() => {
-          setLocation("/dashboard");
-        }, 100);
-      });
+      // Reset loading state since authentication is complete
+      setIsSubmitting(false);
+      
+      // Get resume data immediately
+      const resumeData = getResumeData();
+      
+      if (resumeData) {
+        console.log("Found resume data:", resumeData);
+        
+        // Show appropriate success message
+        toast({
+          title: "Welcome back!",
+          description: `Continuing your application for ${resumeData.programName || 'the selected program'}`,
+        });
+        
+        // Clear resume data before redirect
+        clearResumeData();
+        
+        // Use immediate redirect with wouter
+        console.log("Redirecting to:", resumeData.redirectUrl);
+        setLocation(resumeData.redirectUrl);
+      } else {
+        console.log("No resume data found, redirecting to dashboard");
+        setLocation("/dashboard");
+      }
     }
   }, [user, isLoading, toast, setLocation]);
+
+  // Redirect already authenticated users immediately
+  useEffect(() => {
+    if (user && !isLoading) {
+      console.log("User already authenticated, immediate redirect check");
+      // This effect will trigger the redirect logic above
+    }
+  }, [user, isLoading]);
+
+  // Handle any unhandled promise rejections from auth mutations
+  useEffect(() => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      event.preventDefault();
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -113,36 +121,9 @@ export default function AuthPage() {
     
     try {
       console.log("Starting login mutation...");
-      const user = await loginMutation.mutateAsync(data);
-      console.log("Login successful, processing redirect...");
-      
-      // Immediately process resume flow after successful login
-      setTimeout(async () => {
-        try {
-          const resumeUrl = await handleResumeFlow();
-          const redirectTo = resumeUrl || "/dashboard";
-          
-          console.log("Login complete, redirecting to:", redirectTo);
-          
-          // Show appropriate success message
-          const resumeData = getResumeData();
-          if (resumeData) {
-            toast({
-              title: "Welcome back!",
-              description: `Continuing your application for ${resumeData.programName || 'the selected program'}`,
-            });
-          }
-          
-          setLocation(redirectTo);
-        } catch (error) {
-          console.error("Error processing resume flow after login:", error);
-          toast({
-            title: "Authentication successful",
-            description: "Redirecting to dashboard",
-          });
-          setLocation("/dashboard");
-        }
-      }, 200);
+      await loginMutation.mutateAsync(data);
+      console.log("Login successful - redirect will be handled by useEffect");
+      // Note: Redirect will be handled by the useEffect hook above once user state updates
       
     } catch (error: any) {
       console.error("Login error:", error);
@@ -157,36 +138,9 @@ export default function AuthPage() {
     
     try {
       console.log("Starting registration mutation...");
-      const user = await registerMutation.mutateAsync(data);
-      console.log("Registration successful, processing redirect...");
-      
-      // Immediately process resume flow after successful signup
-      setTimeout(async () => {
-        try {
-          const resumeUrl = await handleResumeFlow();
-          const redirectTo = resumeUrl || "/dashboard";
-          
-          console.log("Registration complete, redirecting to:", redirectTo);
-          
-          // Show appropriate success message
-          const resumeData = getResumeData();
-          if (resumeData) {
-            toast({
-              title: "Welcome to NextWave!",
-              description: `Account created! Continuing your application for ${resumeData.programName || 'the selected program'}`,
-            });
-          }
-          
-          setLocation(redirectTo);
-        } catch (error) {
-          console.error("Error processing resume flow after signup:", error);
-          toast({
-            title: "Registration successful",
-            description: "Welcome to NextWave! Redirecting to dashboard",
-          });
-          setLocation("/dashboard");
-        }
-      }, 200);
+      await registerMutation.mutateAsync(data);
+      console.log("Registration successful - redirect will be handled by useEffect");
+      // Note: Redirect will be handled by the useEffect hook above once user state updates
       
     } catch (error: any) {
       console.error("Registration error:", error);

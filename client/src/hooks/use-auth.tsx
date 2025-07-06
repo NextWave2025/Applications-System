@@ -89,7 +89,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: async (user: User) => {
       console.log("Login mutation onSuccess called, setting user data:", user);
-      // Set user data immediately in cache
+      
+      // Set user data immediately in cache to trigger auth state update
       queryClient.setQueryData(["/api/user"], user);
       
       // Force immediate refetch to ensure state consistency
@@ -138,7 +139,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: async (user: User) => {
       console.log("Registration mutation onSuccess called, setting user data:", user);
-      // Set user data immediately in cache
+      
+      // Set user data immediately in cache to trigger auth state update
       queryClient.setQueryData(["/api/user"], user);
       
       // Force immediate refetch to ensure state consistency
