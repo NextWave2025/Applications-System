@@ -7,6 +7,7 @@ import { Loader2, Plus, Search, Edit, Trash2, RefreshCw, Eye, EyeOff, UserPlus, 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
@@ -330,16 +331,17 @@ export default function UserManagementSection({ users, loading, onRefresh }: Use
 
       {/* Users Table */}
       <div className="rounded-md border">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
+        <ScrollArea className="h-[600px] w-full">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px]">
+            <thead className="bg-gray-50 sticky top-0">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agency</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Role</th>
+                <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Agency</th>
+                <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Created</th>
+                <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -359,35 +361,40 @@ export default function UserManagementSection({ users, loading, onRefresh }: Use
               ) : (
                 filteredUsers.map((userData) => (
                   <tr key={userData.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
                           {userData.firstName} {userData.lastName}
                         </div>
                         <div className="text-sm text-gray-500">{userData.username}</div>
+                        <div className="sm:hidden mt-1">
+                          <Badge variant={userData.role === "admin" ? "default" : "secondary"} className="text-xs">
+                            {userData.role}
+                          </Badge>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-4 py-4 whitespace-nowrap hidden sm:table-cell">
                       <Badge variant={userData.role === "admin" ? "default" : "secondary"}>
                         {userData.role}
                       </Badge>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-4 py-4 whitespace-nowrap text-sm text-gray-900 hidden lg:table-cell">
                       {userData.agencyName || "N/A"}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-4 py-4 whitespace-nowrap">
                       <Badge variant={userData.active ? "default" : "destructive"}>
                         {userData.active ? "Active" : "Inactive"}
                       </Badge>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 sm:px-4 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
                       <div className="flex items-center">
                         <Calendar className="h-4 w-4 mr-1" />
                         {format(new Date(userData.createdAt), "MMM dd, yyyy")}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div className="flex items-center space-x-2">
+                    <td className="px-3 sm:px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div className="flex items-center space-x-1">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -395,6 +402,7 @@ export default function UserManagementSection({ users, loading, onRefresh }: Use
                             setSelectedUser(userData);
                             setViewDialogOpen(true);
                           }}
+                          className="p-1 sm:p-2"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -402,6 +410,7 @@ export default function UserManagementSection({ users, loading, onRefresh }: Use
                           variant="ghost"
                           size="sm"
                           onClick={() => openEditDialog(userData)}
+                          className="p-1 sm:p-2"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -412,8 +421,10 @@ export default function UserManagementSection({ users, loading, onRefresh }: Use
                             setSelectedUser(userData);
                             setPasswordDialogOpen(true);
                           }}
+                          className="p-1 sm:p-2 hidden sm:flex"
                         >
-                          Password
+                          <span className="hidden lg:inline">Password</span>
+                          <span className="lg:hidden">Pwd</span>
                         </Button>
                         <Button
                           variant="ghost"
@@ -423,6 +434,7 @@ export default function UserManagementSection({ users, loading, onRefresh }: Use
                             active: !userData.active 
                           })}
                           disabled={toggleStatusMutation.isPending}
+                          className="p-1 sm:p-2"
                         >
                           {userData.active ? "Deactivate" : "Activate"}
                         </Button>
@@ -444,6 +456,7 @@ export default function UserManagementSection({ users, loading, onRefresh }: Use
             </tbody>
           </table>
         </div>
+        </ScrollArea>
       </div>
 
       {/* Summary */}

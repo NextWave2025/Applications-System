@@ -200,14 +200,14 @@ export default function SubAdminManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
         <div>
-          <h2 className="text-2xl font-bold">Sub-Admin Management</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">Sub-Admin Management</h2>
           <p className="text-gray-600">Create and manage sub-administrator accounts</p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <UserPlus className="w-4 h-4 mr-2" />
               Create Sub-Admin
             </Button>
@@ -221,7 +221,7 @@ export default function SubAdminManagement() {
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="firstName"
@@ -338,14 +338,14 @@ export default function SubAdminManagement() {
           subAdmins.map((subAdmin: SubAdmin) => (
             <Card key={subAdmin.id}>
               <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                  <div className="flex-1">
                     <CardTitle className="text-lg">
                       {subAdmin.firstName} {subAdmin.lastName}
                     </CardTitle>
                     <CardDescription>{subAdmin.username}</CardDescription>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Badge variant={subAdmin.active ? "default" : "secondary"}>
                       {subAdmin.active ? "Active" : "Inactive"}
                     </Badge>
@@ -354,20 +354,22 @@ export default function SubAdminManagement() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                   <div className="text-sm text-gray-600">
                     Created: {new Date(subAdmin.createdAt).toLocaleDateString()}
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     {subAdmin.active ? (
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => deactivateSubAdminMutation.mutate(subAdmin.id)}
                         disabled={deactivateSubAdminMutation.isPending}
+                        className="w-full sm:w-auto"
                       >
                         <ShieldOff className="w-4 h-4 mr-1" />
-                        Deactivate
+                        <span className="hidden sm:inline">Deactivate</span>
+                        <span className="sm:hidden">Deactivate</span>
                       </Button>
                     ) : (
                       <Button
@@ -375,9 +377,11 @@ export default function SubAdminManagement() {
                         variant="outline"
                         onClick={() => activateSubAdminMutation.mutate(subAdmin.id)}
                         disabled={activateSubAdminMutation.isPending}
+                        className="w-full sm:w-auto"
                       >
                         <Shield className="w-4 h-4 mr-1" />
-                        Activate
+                        <span className="hidden sm:inline">Activate</span>
+                        <span className="sm:hidden">Activate</span>
                       </Button>
                     )}
                     <Button
@@ -385,18 +389,22 @@ export default function SubAdminManagement() {
                       variant="outline"
                       onClick={() => resetPasswordMutation.mutate(subAdmin.id)}
                       disabled={resetPasswordMutation.isPending}
+                      className="w-full sm:w-auto"
                     >
                       <RotateCcw className="w-4 h-4 mr-1" />
-                      Reset Password
+                      <span className="hidden lg:inline">Reset Password</span>
+                      <span className="lg:hidden">Reset</span>
                     </Button>
                     <Button
                       size="sm"
                       variant="destructive"
                       onClick={() => deleteSubAdminMutation.mutate(subAdmin.id)}
                       disabled={deleteSubAdminMutation.isPending}
+                      className="w-full sm:w-auto"
                     >
                       <Trash2 className="w-4 h-4 mr-1" />
-                      Delete
+                      <span className="hidden sm:inline">Delete</span>
+                      <span className="sm:hidden">Del</span>
                     </Button>
                   </div>
                 </div>

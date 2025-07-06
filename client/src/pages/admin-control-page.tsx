@@ -353,10 +353,10 @@ export default function AdminControlPage() {
 
   return (
     <ErrorBoundary>
-      <div className="container py-10">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Admin Control Panel</h1>
-          <div className="flex gap-2">
+      <div className="container px-4 sm:px-6 lg:px-8 py-6 sm:py-10 max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold">Admin Control Panel</h1>
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button
               variant="outline"
               onClick={() => {
@@ -366,11 +366,12 @@ export default function AdminControlPage() {
                 queryClient.invalidateQueries({ queryKey: ["/api/programs"] });
               }}
               disabled={loading}
+              className="w-full sm:w-auto"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
               Refresh
             </Button>
-            <Button onClick={() => navigate("/admin/dashboard")}>
+            <Button onClick={() => navigate("/admin/dashboard")} className="w-full sm:w-auto">
               Back to Dashboard
             </Button>
           </div>
@@ -383,7 +384,7 @@ export default function AdminControlPage() {
         )}
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
@@ -446,12 +447,12 @@ export default function AdminControlPage() {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="users">User Management</TabsTrigger>
-            <TabsTrigger value="sub-admins">Sub-Admin Management</TabsTrigger>
-            <TabsTrigger value="universities">Universities</TabsTrigger>
-            <TabsTrigger value="programs">Programs</TabsTrigger>
-            <TabsTrigger value="data">Data Management</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 h-auto p-1">
+            <TabsTrigger value="users" className="text-xs sm:text-sm px-2 py-2">User Management</TabsTrigger>
+            <TabsTrigger value="sub-admins" className="text-xs sm:text-sm px-2 py-2">Sub-Admin Management</TabsTrigger>
+            <TabsTrigger value="universities" className="text-xs sm:text-sm px-2 py-2">Universities</TabsTrigger>
+            <TabsTrigger value="programs" className="text-xs sm:text-sm px-2 py-2">Programs</TabsTrigger>
+            <TabsTrigger value="data" className="text-xs sm:text-sm px-2 py-2">Data Management</TabsTrigger>
           </TabsList>
 
           <TabsContent value="users" className="space-y-6">
@@ -470,9 +471,9 @@ export default function AdminControlPage() {
           </TabsContent>
 
           <TabsContent value="universities" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Universities</h2>
-              <Button onClick={() => navigate("/admin/universities")}>
+            <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
+              <h2 className="text-xl sm:text-2xl font-bold">Universities</h2>
+              <Button onClick={() => navigate("/admin/universities")} className="w-full sm:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
                 Manage Universities
               </Button>
@@ -493,13 +494,15 @@ export default function AdminControlPage() {
                       <p className="text-sm text-gray-600 mb-4">
                         {university.city}, {university.country}
                       </p>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => navigate("/admin/universities")}
+                          className="w-full sm:w-auto justify-center sm:justify-start"
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-4 w-4 sm:mr-1" />
+                          <span className="sm:inline hidden">Edit</span>
                         </Button>
                         <Button
                           variant="outline"
@@ -508,8 +511,10 @@ export default function AdminControlPage() {
                             setSelectedUniversity(university);
                             setUniversityDeleteDialogOpen(true);
                           }}
+                          className="w-full sm:w-auto justify-center sm:justify-start"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4 sm:mr-1" />
+                          <span className="sm:inline hidden">Delete</span>
                         </Button>
                       </div>
                     </CardContent>
