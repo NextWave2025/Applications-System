@@ -163,6 +163,23 @@ router.post("/users", async (req, res) => {
       resourceId: newUser.id,
       newData: { username: userData.username, role: userData.role }
     });
+
+    // Send welcome email to the new user
+    try {
+      const { sendWelcomeEmail } = await import("../email-service");
+      await sendWelcomeEmail({
+        userEmail: userData.username,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        tempPassword: userData.password, // Provide temporary password in welcome email
+        agencyName: userData.agencyName,
+        role: userData.role
+      });
+      console.log(`Welcome email sent successfully to ${userData.username}`);
+    } catch (emailError) {
+      console.error(`Failed to send welcome email to ${userData.username}:`, emailError);
+      // Don't fail user creation if email fails
+    }
     
     res.status(201).json(newUser);
   } catch (error) {
@@ -295,6 +312,41 @@ router.patch("/users/:id/toggle-status", async (req, res) => {
   } catch (error) {
     console.error("Error updating user status:", error);
     res.status(500).json({ error: "Failed to update user status" });
+  }
+});
+
+// Change user password
+router.patch("/users/:id/password", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const { password } = z.object({
+      password: z.string().min(6, "Password must be at least 6 characters")
+    }).parse(req.body);
+    
+    const user = await storage.getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    // Update user password
+    const updatedUser = await storage.updateUserPassword(userId, password);
+    
+    // Log the action
+    await storage.createAuditLog({
+      userId: req.user?.id || 0,
+      action: "change_user_password",
+      resourceType: "user",
+      resourceId: userId,
+      newData: { username: user.username, changedBy: req.user?.username }
+    });
+    
+    res.json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error updating user password:", error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: "Invalid password data", details: error.errors });
+    }
+    res.status(500).json({ error: "Failed to update user password" });
   }
 });
 

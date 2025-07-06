@@ -50,6 +50,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, user: Partial<User>): Promise<User>;
   updateUserStatus(id: number, active: boolean): Promise<User>;
+  updateUserPassword(id: number, password: string): Promise<User>;
   deleteUser(id: number): Promise<void>;
   getAllUsers(): Promise<User[]>;
 
@@ -162,6 +163,25 @@ export class DBStorage implements IStorage {
     const result = await this.db
       .update(users)
       .set({ active })
+      .where(eq(users.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async updateUserPassword(id: number, password: string): Promise<User> {
+    // Hash the password using the same method as in auth.ts
+    const scrypt = require("crypto").scrypt;
+    const randomBytes = require("crypto").randomBytes;
+    const { promisify } = require("util");
+    const scryptAsync = promisify(scrypt);
+    
+    const salt = randomBytes(16).toString("hex");
+    const hashedPassword = (await scryptAsync(password, salt, 64)) as Buffer;
+    const storedPassword = `${hashedPassword.toString("hex")}.${salt}`;
+    
+    const result = await this.db
+      .update(users)
+      .set({ password: storedPassword })
       .where(eq(users.id, id))
       .returning();
     return result[0];

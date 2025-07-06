@@ -42,7 +42,9 @@ export default function AdminUsersPage() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [newPassword, setNewPassword] = useState("");
   
   // Form states
   const [formData, setFormData] = useState({
@@ -101,6 +103,7 @@ export default function AdminUsersPage() {
       await queryClient.refetchQueries({ queryKey: ["/api/admin/users"] });
       toast({ title: "Data refreshed successfully" });
     } catch (error) {
+      console.error("Error refreshing data:", error);
       toast({ title: "Failed to refresh data", variant: "destructive" });
     } finally {
       setIsRefreshing(false);
@@ -145,14 +148,21 @@ export default function AdminUsersPage() {
         body: JSON.stringify(formData),
         headers: { "Content-Type": "application/json" }
       });
-      toast({ title: "User added successfully" });
+      
+      // Show success message with user creation details
+      toast({ 
+        title: "User created successfully", 
+        description: `Welcome email sent to ${formData.username}. Login details have been shared with the user.`
+      });
+      
       setAddDialogOpen(false);
       setFormData({
         username: "", firstName: "", lastName: "", password: "", role: "agent",
         agencyName: "", phoneNumber: "", active: true
       });
-      refreshData();
+      await refreshData().catch(console.error);
     } catch (error) {
+      console.error("Error adding user:", error);
       toast({ title: "Failed to add user", variant: "destructive" });
     }
   };
@@ -181,8 +191,9 @@ export default function AdminUsersPage() {
       toast({ title: "User updated successfully" });
       setEditDialogOpen(false);
       setSelectedUser(null);
-      refreshData();
+      await refreshData().catch(console.error);
     } catch (error) {
+      console.error("Error updating user:", error);
       toast({ title: "Failed to update user", variant: "destructive" });
     }
   };
@@ -195,8 +206,9 @@ export default function AdminUsersPage() {
       toast({ title: "User deleted successfully" });
       setDeleteDialogOpen(false);
       setSelectedUser(null);
-      refreshData();
+      await refreshData().catch(console.error);
     } catch (error) {
+      console.error("Error deleting user:", error);
       toast({ title: "Failed to delete user", variant: "destructive" });
     }
   };
@@ -206,9 +218,33 @@ export default function AdminUsersPage() {
     try {
       await apiRequest("PATCH", `/api/admin/users/${userData.id}/toggle-status`);
       toast({ title: `User ${userData.active ? 'deactivated' : 'activated'} successfully` });
-      refreshData();
+      await refreshData().catch(console.error);
     } catch (error) {
+      console.error("Error toggling user status:", error);
       toast({ title: "Failed to update user status", variant: "destructive" });
+    }
+  };
+
+  // Change user password
+  const handleChangePassword = async () => {
+    if (!selectedUser || !newPassword) return;
+    if (newPassword.length < 6) {
+      toast({ title: "Password must be at least 6 characters", variant: "destructive" });
+      return;
+    }
+    
+    try {
+      await apiRequest("PATCH", `/api/admin/users/${selectedUser.id}/password`, {
+        body: JSON.stringify({ password: newPassword }),
+        headers: { "Content-Type": "application/json" }
+      });
+      toast({ title: "Password updated successfully" });
+      setPasswordDialogOpen(false);
+      setSelectedUser(null);
+      setNewPassword("");
+    } catch (error) {
+      console.error("Error updating password:", error);
+      toast({ title: "Failed to update password", variant: "destructive" });
     }
   };
 
@@ -238,6 +274,13 @@ export default function AdminUsersPage() {
   const openDeleteDialog = (userData: User) => {
     setSelectedUser(userData);
     setDeleteDialogOpen(true);
+  };
+
+  // Open password dialog
+  const openPasswordDialog = (userData: User) => {
+    setSelectedUser(userData);
+    setNewPassword("");
+    setPasswordDialogOpen(true);
   };
 
   // Filter users
@@ -407,6 +450,14 @@ export default function AdminUsersPage() {
                             onClick={() => openEditDialog(userData)}
                           >
                             <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openPasswordDialog(userData)}
+                            title="Change Password"
+                          >
+                            🔑
                           </Button>
                           <Button
                             variant="outline"
@@ -763,6 +814,53 @@ export default function AdminUsersPage() {
             </Button>
             <Button variant="destructive" onClick={handleDeleteUser}>
               Delete User
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Password Dialog */}
+      <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change User Password</DialogTitle>
+            <DialogDescription>
+              Set a new password for this user. They will need to use this password to login.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-4">
+              <div className="p-4 bg-muted rounded-md">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium">
+                      {selectedUser.firstName?.[0] || '?'}{selectedUser.lastName?.[0] || '?'}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="font-medium">{selectedUser.firstName} {selectedUser.lastName}</div>
+                    <div className="text-sm text-muted-foreground">{selectedUser.username}</div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="newPassword">New Password</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password (minimum 6 characters)"
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPasswordDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleChangePassword} disabled={!newPassword || newPassword.length < 6}>
+              Update Password
             </Button>
           </DialogFooter>
         </DialogContent>

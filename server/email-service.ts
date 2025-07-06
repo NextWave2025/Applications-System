@@ -497,7 +497,63 @@ export async function sendApplicationStatusNotification(data: ApplicationNotific
   }
 }
 
-export async function sendWelcomeEmail(userEmail: string, userName: string): Promise<boolean> {
+export async function sendWelcomeEmail(
+  userEmailOrParams: string | {
+    userEmail: string;
+    firstName: string;
+    lastName?: string;
+    tempPassword?: string;
+    agencyName?: string;
+    role?: string;
+  },
+  userName?: string
+): Promise<boolean> {
+  
+  // Handle both old and new function signatures for backward compatibility
+  let userEmail: string;
+  let userFullName: string;
+  let tempPassword: string | undefined;
+  let agencyName: string | undefined;
+  let role: string | undefined;
+  
+  if (typeof userEmailOrParams === 'string') {
+    // Old signature: sendWelcomeEmail(email, name)
+    userEmail = userEmailOrParams;
+    userFullName = userName || 'New User';
+  } else {
+    // New signature: sendWelcomeEmail({userEmail, firstName, ...})
+    const params = userEmailOrParams;
+    userEmail = params.userEmail;
+    userFullName = `${params.firstName}${params.lastName ? ' ' + params.lastName : ''}`;
+    tempPassword = params.tempPassword;
+    agencyName = params.agencyName;
+    role = params.role;
+  }
+  
+  // Create login credentials section if password is provided
+  const loginSection = tempPassword ? `
+    <!-- Login Credentials Section -->
+    <table role="presentation" style="width: 100%; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 10px; border-left: 4px solid #f59e0b; margin: 25px 0;">
+      <tr>
+        <td style="padding: 25px;">
+          <h3 style="color: #92400e; margin: 0 0 15px 0; font-size: 20px; font-weight: 600;">🔑 Your Login Credentials</h3>
+          <p style="color: #92400e; line-height: 1.6; margin: 0 0 15px 0; font-size: 15px;">
+            Your account has been created by an administrator. Use these credentials to access your NextWave dashboard:
+          </p>
+          <div style="background: #ffffff; padding: 20px; border-radius: 8px; border: 2px solid #f59e0b;">
+            <p style="margin: 0 0 10px 0; color: #374151; font-size: 16px;"><strong>Email:</strong> ${userEmail}</p>
+            <p style="margin: 0 0 10px 0; color: #374151; font-size: 16px;"><strong>Password:</strong> ${tempPassword}</p>
+            ${agencyName ? `<p style="margin: 0 0 10px 0; color: #374151; font-size: 16px;"><strong>Agency:</strong> ${agencyName}</p>` : ''}
+            ${role ? `<p style="margin: 0; color: #374151; font-size: 16px;"><strong>Role:</strong> ${role}</p>` : ''}
+          </div>
+          <p style="color: #92400e; line-height: 1.6; margin: 15px 0 0 0; font-size: 14px; font-style: italic;">
+            For security, please change your password after your first login.
+          </p>
+        </td>
+      </tr>
+    </table>
+  ` : '';
+
   const welcomeHtml = `
     <!DOCTYPE html>
     <html lang="en">
@@ -522,11 +578,13 @@ export async function sendWelcomeEmail(userEmail: string, userName: string): Pro
               <!-- Main Content -->
               <tr>
                 <td style="padding: 40px 30px;">
-                  <h2 style="color: #1f2937; margin: 0 0 24px 0; font-size: 26px; font-weight: 600;">Welcome, ${userName}!</h2>
+                  <h2 style="color: #1f2937; margin: 0 0 24px 0; font-size: 26px; font-weight: 600;">Welcome, ${userFullName}!</h2>
                   
                   <p style="color: #4b5563; line-height: 1.8; margin: 0 0 24px 0; font-size: 16px;">
                     Welcome to NextWave Admissions! We're excited to have you join our platform. As your trusted education partner, we're here to guide you through every step of your UAE study journey, from program discovery to university enrollment.
                   </p>
+                  
+                  ${loginSection}
                   
                   <!-- Getting Started Section -->
                   <table role="presentation" style="width: 100%; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 10px; border-left: 4px solid #0ea5e9; margin: 25px 0;">

@@ -1,0 +1,75 @@
+
+Replit Prompt: Fix and Enhance User Management Page
+
+Please review and update the User Management Page to ensure all features work correctly and provide a complete admin experience.
+
+
+
+Current Problems
+	•	Activate/deactivate user buttons are not working.
+	•	Admin cannot change user passwords.
+	•	Admin cannot create new users from this page.
+	•	Admin cannot view detailed user information.
+	•	Admin cannot delete users.
+
+
+
+What to Fix and Add
+
+1️⃣ Activate/Deactivate User
+	•	Ensure the activate and deactivate buttons work as expected.
+	•	Status changes update the database and reflect in the UI immediately.
+	•	Show confirmation (e.g. “User activated successfully”).
+
+⸻
+
+2️⃣ Change User Password
+	•	Allow admin to reset/change a user’s password.
+	•	Admin inputs a new password.
+	•	Save securely (hash/encrypt according to system standards).
+	•	Provide confirmation feedback.
+
+
+
+3️⃣ Create New User
+	•	Add a form for admin to create a new user:
+	•	Fields: name, email, password (set or generate by admin)
+	•	On creation:
+	•	Send an account creation email to the user with login details.
+	•	Display these details on the admin page for copying/sharing.
+	•	Validate form (required fields, valid email).
+
+
+
+4️⃣ View User Details
+	•	Add a View button or make the user row clickable.
+	•	Show a detailed user view that displays all details entered during account creation, including:
+	•	Name
+	•	Email
+	•	Phone (if collected)
+	•	Address (if collected)
+	•	Role
+	•	Status (active/inactive)
+	•	Any custom fields specific to your system
+	•	Optionally, allow editing from the detail view.
+
+
+
+5️⃣ Delete User
+	•	Allow admin to delete a user.
+	•	Require a confirmation prompt.
+	•	Remove user from the list on success.
+	•	Show feedback (e.g. “User deleted successfully”).
+
+
+
+Expected Result
+	•	The User Management page allows admin to:
+	•	Activate/deactivate users.
+	•	Change user passwords.
+	•	Create users and share/send login details.
+	•	View full details of each user, including all data provided at account creation.
+	•	Delete users with confirmation.
+	•	All actions provide clear feedback and update the UI dynamically.
+	•	New users receive an account creation email automatically.
+
