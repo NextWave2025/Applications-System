@@ -38,46 +38,23 @@ export default function AuthPage() {
   // Use auth context
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
 
-  // Handle redirect for authenticated users - using direct effect approach
+  // Handle redirect for users who are already authenticated when page loads
   useEffect(() => {
-    if (user && !isLoading) {
-      console.log("User authenticated, processing redirect...");
+    if (user && !isLoading && !isSubmitting) {
+      console.log("User already authenticated, redirecting immediately");
       
-      // Reset loading state since authentication is complete
-      setIsSubmitting(false);
-      
-      // Get resume data immediately
       const resumeData = getResumeData();
       
       if (resumeData) {
         console.log("Found resume data:", resumeData);
-        
-        // Show appropriate success message
-        toast({
-          title: "Welcome back!",
-          description: `Continuing your application for ${resumeData.programName || 'the selected program'}`,
-        });
-        
-        // Clear resume data before redirect
         clearResumeData();
-        
-        // Use immediate redirect with wouter
-        console.log("Redirecting to:", resumeData.redirectUrl);
         setLocation(resumeData.redirectUrl);
       } else {
         console.log("No resume data found, redirecting to dashboard");
         setLocation("/dashboard");
       }
     }
-  }, [user, isLoading, toast, setLocation]);
-
-  // Redirect already authenticated users immediately
-  useEffect(() => {
-    if (user && !isLoading) {
-      console.log("User already authenticated, immediate redirect check");
-      // This effect will trigger the redirect logic above
-    }
-  }, [user, isLoading]);
+  }, [user, isLoading, isSubmitting, setLocation]);
 
   // Handle any unhandled promise rejections from auth mutations
   useEffect(() => {
@@ -119,34 +96,64 @@ export default function AuthPage() {
     setIsSubmitting(true);
     setLoginError("");
     
-    try {
-      console.log("Starting login mutation...");
-      await loginMutation.mutateAsync(data);
-      console.log("Login successful - redirect will be handled by useEffect");
-      // Note: Redirect will be handled by the useEffect hook above once user state updates
-      
-    } catch (error: any) {
-      console.error("Login error:", error);
-      setLoginError(error.message || "Login failed. Please try again.");
-      setIsSubmitting(false);
-    }
+    console.log("Starting login mutation...");
+    
+    loginMutation.mutate(data, {
+      onSuccess: (user) => {
+        console.log("Login successful, user:", user);
+        
+        // Handle immediate redirect after successful login
+        const resumeData = getResumeData();
+        if (resumeData) {
+          console.log("Found resume data, redirecting to:", resumeData.redirectUrl);
+          clearResumeData();
+          setLocation(resumeData.redirectUrl);
+        } else {
+          console.log("No resume data, redirecting to dashboard");
+          setLocation("/dashboard");
+        }
+        
+        // Reset submitting state after redirect
+        setIsSubmitting(false);
+      },
+      onError: (error: any) => {
+        console.error("Login error:", error);
+        setLoginError(error.message || "Login failed. Please try again.");
+        setIsSubmitting(false);
+      }
+    });
   };
 
   const handleSignup = async (data: SignupFormData) => {
     setIsSubmitting(true);
     setSignupError("");
     
-    try {
-      console.log("Starting registration mutation...");
-      await registerMutation.mutateAsync(data);
-      console.log("Registration successful - redirect will be handled by useEffect");
-      // Note: Redirect will be handled by the useEffect hook above once user state updates
-      
-    } catch (error: any) {
-      console.error("Registration error:", error);
-      setSignupError(error.message || "Registration failed. Please try again.");
-      setIsSubmitting(false);
-    }
+    console.log("Starting registration mutation...");
+    
+    registerMutation.mutate(data, {
+      onSuccess: (user) => {
+        console.log("Registration successful, user:", user);
+        
+        // Handle immediate redirect after successful signup
+        const resumeData = getResumeData();
+        if (resumeData) {
+          console.log("Found resume data, redirecting to:", resumeData.redirectUrl);
+          clearResumeData();
+          setLocation(resumeData.redirectUrl);
+        } else {
+          console.log("No resume data, redirecting to dashboard");
+          setLocation("/dashboard");
+        }
+        
+        // Reset submitting state after redirect
+        setIsSubmitting(false);
+      },
+      onError: (error: any) => {
+        console.error("Registration error:", error);
+        setSignupError(error.message || "Registration failed. Please try again.");
+        setIsSubmitting(false);
+      }
+    });
   };
 
   // Show loading state while checking authentication
