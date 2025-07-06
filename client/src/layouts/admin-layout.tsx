@@ -70,7 +70,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: "Universities", path: "/admin/universities", icon: <Building size={20} /> },
     { name: "Programs", path: "/admin/programs", icon: <BookOpen size={20} /> },
     { name: "Agents", path: "/admin/agents", icon: <Users size={20} /> },
-    { name: "User Management", path: "/admin/users", icon: <User size={20} /> },
     { name: "Students", path: "/admin/students", icon: <School size={20} /> },
     { name: "Analytics", path: "/admin/analytics", icon: <TrendingUp size={20} /> },
     { name: "Admin Control", path: "/admin/control", icon: <Shield size={20} /> },
