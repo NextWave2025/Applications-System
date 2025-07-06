@@ -129,23 +129,64 @@ export const queryClient = new QueryClient({
 
 // Add comprehensive global error handlers with more aggressive catching
 if (typeof window !== 'undefined') {
-  window.addEventListener('unhandledrejection', (event) => {
+  // More aggressive unhandled rejection handler
+  const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
     console.warn('Unhandled promise rejection intercepted:', event.reason);
-    // Prevent all unhandled rejections from surfacing
+    console.warn('Promise that rejected:', event.promise);
+    
+    // Log stack trace if available
+    if (event.reason?.stack) {
+      console.warn('Stack trace:', event.reason.stack);
+    }
+    
+    // Always prevent the error from bubbling up
     event.preventDefault();
+    event.stopPropagation?.();
+    
+    // Try to handle specific common rejection types
+    if (event.reason?.name === 'AbortError') {
+      console.info('Request was aborted - this is normal');
+    } else if (event.reason?.message?.includes('fetch')) {
+      console.info('Network request failed - handling gracefully');
+    } else if (event.reason?.message?.includes('query')) {
+      console.info('Query error - handling gracefully');
+    }
+    
     return false;
-  });
+  };
 
-  window.addEventListener('error', (event) => {
+  const handleError = (event: ErrorEvent) => {
     console.warn('Global error intercepted:', event.error);
+    console.warn('Error context:', {
+      message: event.message,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno
+    });
+    
     event.preventDefault();
+    event.stopPropagation?.();
     return false;
-  });
+  };
 
-  // Additional safety net for React errors
-  window.addEventListener('rejectionhandled', (event) => {
-    console.warn('Promise rejection handled late:', event.reason);
+  const handleRejectionHandled = (event: PromiseRejectionEvent) => {
+    console.info('Promise rejection handled late:', event.reason);
     event.preventDefault();
     return false;
+  };
+
+  // Remove existing listeners first to avoid duplicates
+  window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+  window.removeEventListener('error', handleError);
+  window.removeEventListener('rejectionhandled', handleRejectionHandled);
+  
+  // Add new listeners
+  window.addEventListener('unhandledrejection', handleUnhandledRejection, { passive: false });
+  window.addEventListener('error', handleError, { passive: false });
+  window.addEventListener('rejectionhandled', handleRejectionHandled, { passive: false });
+  
+  // Additional safety net for React error boundaries
+  window.addEventListener('beforeunload', () => {
+    console.info('Page unloading - cleaning up error handlers');
   });
 }

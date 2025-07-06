@@ -22,6 +22,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { ErrorBoundary } from "@/components/error-boundary";
 import { useToast } from "@/hooks/use-toast";
 import ExcelUploadDialog from "@/components/excel-upload-dialog";
+import UserManagementSection from "@/components/user-management-section";
 
 interface AdminStats {
   totalApplications: number;
@@ -71,9 +72,7 @@ export default function AdminControlPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
-  // User management state
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  // Note: User management state is now handled by UserManagementSection component
   
   // Dialog states
   const [universityDeleteDialogOpen, setUniversityDeleteDialogOpen] = useState(false);
@@ -202,20 +201,7 @@ export default function AdminControlPage() {
     return null;
   }
 
-  const filteredUsers = users.filter(userData => {
-    if (statusFilter !== "all" && userData.active.toString() !== statusFilter) {
-      return false;
-    }
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      const fullName = `${userData.firstName} ${userData.lastName}`.toLowerCase();
-      const email = userData.username.toLowerCase();
-      const agency = userData.agencyName.toLowerCase();
-      
-      return fullName.includes(query) || email.includes(query) || agency.includes(query);
-    }
-    return true;
-  });
+  // User filtering is now handled by UserManagementSection component
 
   const handleDeleteUniversity = async () => {
     if (!selectedUniversity) return;
@@ -467,111 +453,14 @@ export default function AdminControlPage() {
           </TabsList>
 
           <TabsContent value="users" className="space-y-6">
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
-              <div className="flex-1 flex gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    placeholder="Search by name, email, or agency..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex gap-2">
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue placeholder="All Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="true">Active</SelectItem>
-                    <SelectItem value="false">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="rounded-md border">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agency</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {loadingUsers ? (
-                      <tr>
-                        <td colSpan={6} className="px-4 py-8 text-center">
-                          <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                          <p className="mt-2 text-sm text-gray-500">Loading users...</p>
-                        </td>
-                      </tr>
-                    ) : filteredUsers.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
-                          {users.length === 0 ? "No users found" : "No users match your filters"}
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredUsers.map((userData) => (
-                        <tr key={userData.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-4 whitespace-nowrap">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {userData.firstName} {userData.lastName}
-                              </div>
-                              <div className="text-sm text-gray-500">{userData.username}</div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap">
-                            <Badge variant={userData.role === "admin" ? "default" : "secondary"}>
-                              {userData.role}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {userData.agencyName || "N/A"}
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap">
-                            <Badge variant={userData.active ? "default" : "destructive"}>
-                              {userData.active ? "Active" : "Inactive"}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <div className="flex items-center">
-                              <Calendar className="h-4 w-4 mr-1" />
-                              {userData.createdAt ? format(parseDate(userData.createdAt), "MMM d, yyyy") : "N/A"}
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                            <div className="flex gap-2">
-                              <Button
-                                variant={userData.active ? "destructive" : "default"}
-                                size="sm"
-                                onClick={() => {
-                                  // Handle user status toggle
-                                  console.log("Toggle user status:", userData.id);
-                                }}
-                              >
-                                {userData.active ? "Deactivate" : "Activate"}
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <UserManagementSection 
+              users={users} 
+              loading={loadingUsers}
+              onRefresh={() => {
+                queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+                queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="universities" className="space-y-6">
