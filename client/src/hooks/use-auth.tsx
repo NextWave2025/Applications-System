@@ -93,10 +93,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.setQueryData(["/api/user"], user);
       
       // Force immediate refetch to ensure state consistency
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] }).then(() => {
-        console.log("User query invalidated and refetched");
-      }).catch(console.error);
-      queryClient.invalidateQueries({ queryKey: ["/api/admin"] }).catch(console.error);
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["/api/user"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/admin"] })
+      ]).then(() => {
+        console.log("User queries invalidated and refetched");
+      }).catch((error) => {
+        console.error("Error invalidating queries after login:", error);
+      });
       
       console.log("Login success: Cache updated, showing toast");
       toast({
@@ -137,7 +141,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.setQueryData(["/api/user"], user);
       
       // Force immediate refetch to ensure state consistency
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] }).catch(console.error);
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] }).then(() => {
+        console.log("User query invalidated after registration");
+      }).catch((error) => {
+        console.error("Error invalidating queries after registration:", error);
+      });
       
       console.log("Registration success: Cache updated, showing toast");
       toast({

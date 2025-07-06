@@ -1,16 +1,52 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, BookOpen, Star, Clock, MapPin, DollarSign } from "lucide-react";
 import { type ProgramWithUniversity } from "@shared/schema";
 import PriceDisplay from "@/components/price-display";
 import CurrencyConverter from "@/components/currency-converter";
+import { useAuth } from "../hooks/use-auth";
+import { storeResumeData, createQuickApplyResumeData } from "../lib/resume-flow";
 
 interface ProgramCardNewProps {
   program: ProgramWithUniversity;
   isSelected?: boolean;
   onSelectionChange?: (programId: number, selected: boolean) => void;
   showSelection?: boolean;
+}
+
+// QuickApplyButton component with resume flow integration
+function QuickApplyButton({ program }: { program: ProgramWithUniversity }) {
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
+
+  const handleQuickApply = () => {
+    if (!user) {
+      // Store resume data before redirecting to auth
+      const resumeData = createQuickApplyResumeData(
+        program.id.toString(),
+        program.name,
+        program.university?.name
+      );
+      storeResumeData(resumeData);
+      console.log("Quick Apply button - stored resume data:", resumeData);
+      setLocation("/auth");
+    } else {
+      // Redirect to application form in Quick Apply mode
+      setLocation(`/apply/${program.id}?mode=quick&from=card`);
+    }
+  };
+
+  return (
+    <Button 
+      variant="outline" 
+      size="sm" 
+      className="px-4 py-2.5 border-gray-300 hover:bg-gray-50 font-medium text-sm w-full sm:w-auto"
+      onClick={handleQuickApply}
+    >
+      Quick Apply
+    </Button>
+  );
 }
 
 export default function ProgramCardNew({ 
@@ -166,15 +202,7 @@ export default function ProgramCardNew({
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
-          <Link href={`/apply/${program.id}`} className="sm:w-auto w-full">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="px-4 py-2.5 border-gray-300 hover:bg-gray-50 font-medium text-sm w-full"
-            >
-              Quick Apply
-            </Button>
-          </Link>
+          <QuickApplyButton program={program} />
         </div>
       </div>
     </div>

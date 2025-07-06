@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "../hooks/use-auth";
+import { handleResumeFlow, clearResumeData, getResumeData } from "../lib/resume-flow";
+import { useToast } from "@/hooks/use-toast";
 
 // Define auth form schemas
 const loginSchema = z.object({
@@ -31,36 +33,50 @@ export default function AuthPage() {
   const [signupError, setSignupError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, setLocation] = useLocation();
-  
-  // Check if there's a redirect URL from a program application
-  const storedRedirect = localStorage.getItem("redirectAfterLogin");
-  const storedAction = localStorage.getItem("applicationAction");
-  const storedProgramId = localStorage.getItem("programId");
-  
-  console.log("Auth page - stored application context:", {
-    storedRedirect,
-    storedAction,
-    storedProgramId
-  });
-  
-  // Determine redirect destination based on stored application context
-  const redirectTo = storedRedirect || "/dashboard";
-  
-  console.log("Auth page - final redirect destination:", redirectTo);
+  const { toast } = useToast();
   
   // Use auth context
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
 
-  // Check if user is already authenticated and redirect immediately
+  // Handle resume flow for authenticated users
   useEffect(() => {
     if (user && !isLoading) {
-      console.log("User already authenticated, redirecting to:", redirectTo);
-      localStorage.removeItem("redirectAfterLogin");
-      localStorage.removeItem("applicationAction");
-      localStorage.removeItem("programId");
-      window.location.href = redirectTo;
+      console.log("User authenticated, processing resume flow...");
+      
+      const processResume = async () => {
+        try {
+          const resumeUrl = await handleResumeFlow();
+          const redirectTo = resumeUrl || "/dashboard";
+          
+          console.log("Redirecting to:", redirectTo);
+          
+          // Show appropriate success message
+          const resumeData = getResumeData();
+          if (resumeData) {
+            toast({
+              title: "Welcome back!",
+              description: `Continuing your application for ${resumeData.programName || 'the selected program'}`,
+            });
+          }
+          
+          // Use window.location for reliable redirect
+          window.location.href = redirectTo;
+        } catch (error) {
+          console.error("Error processing resume flow:", error);
+          toast({
+            title: "Authentication successful",
+            description: "Redirecting to dashboard",
+          });
+          window.location.href = "/dashboard";
+        }
+      };
+
+      processResume().catch((error) => {
+        console.error("Failed to process resume flow:", error);
+        window.location.href = "/dashboard";
+      });
     }
-  }, [user, isLoading, redirectTo]);
+  }, [user, isLoading, toast]);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -90,28 +106,10 @@ export default function AuthPage() {
     
     try {
       console.log("Starting login mutation...");
-      const result = await loginMutation.mutateAsync(data);
-      console.log("Login successful, result:", result);
-      
-      // Reset submitting state and redirect immediately
-      setIsSubmitting(false);
-      
-      // Debug before cleanup
-      console.log("Login successful - about to redirect with context:", {
-        redirectTo,
-        storedRedirect: localStorage.getItem("redirectAfterLogin"),
-        storedAction: localStorage.getItem("applicationAction"),
-        storedProgramId: localStorage.getItem("programId")
-      });
-      
-      // Clean up stored data
-      localStorage.removeItem("redirectAfterLogin");
-      localStorage.removeItem("applicationAction");
-      localStorage.removeItem("programId");
-      
-      // Direct redirect after successful login
-      console.log("Redirecting to:", redirectTo);
-      window.location.href = redirectTo;
+      await loginMutation.mutateAsync(data);
+      console.log("Login successful - resume flow will be handled by useEffect");
+      // Note: Resume flow handling is done in the useEffect hook above
+      // setIsSubmitting will be reset when the page redirects
       
     } catch (error: any) {
       console.error("Login error:", error);
@@ -126,28 +124,10 @@ export default function AuthPage() {
     
     try {
       console.log("Starting registration mutation...");
-      const result = await registerMutation.mutateAsync(data);
-      console.log("Registration successful, result:", result);
-      
-      // Reset submitting state and redirect immediately
-      setIsSubmitting(false);
-      
-      // Debug before cleanup
-      console.log("Registration successful - about to redirect with context:", {
-        redirectTo,
-        storedRedirect: localStorage.getItem("redirectAfterLogin"),
-        storedAction: localStorage.getItem("applicationAction"),
-        storedProgramId: localStorage.getItem("programId")
-      });
-      
-      // Clean up stored data
-      localStorage.removeItem("redirectAfterLogin");
-      localStorage.removeItem("applicationAction");
-      localStorage.removeItem("programId");
-      
-      // Direct redirect after successful registration
-      console.log("Redirecting to:", redirectTo);
-      window.location.href = redirectTo;
+      await registerMutation.mutateAsync(data);
+      console.log("Registration successful - resume flow will be handled by useEffect");
+      // Note: Resume flow handling is done in the useEffect hook above
+      // setIsSubmitting will be reset when the page redirects
       
     } catch (error: any) {
       console.error("Registration error:", error);

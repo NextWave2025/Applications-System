@@ -1,0 +1,61 @@
+Replit Prompt: Implement Proper Resume After Login for Application Flow
+
+Please carefully review and fully fix the user resume flow after login/sign-up. This issue must be resolved completely with a clean, step-by-step implementation.
+
+⸻
+
+Current Issue
+	•	When a user clicks Apply or Quick Apply without being logged in:
+	•	The system prompts for login or sign-up (this is correct).
+	•	After the user logs in or signs up:
+	•	The system incorrectly redirects the user to the dashboard.
+	•	The user loses their position and must manually navigate back to the program to apply.
+	•	The intended application state is disrupted.
+
+⸻
+
+What to Fix and Build
+
+✅ 1️⃣ Store the user’s intended action before redirecting to login/signup
+	•	When the user clicks Apply or Quick Apply without being logged in:
+	•	Save the following to session storage or local storage:
+	•	Program ID or unique identifier.
+	•	Type of action (Apply from program page or Quick Apply from program card).
+	•	Any other context (e.g. filters or selections that help restore state).
+
+✅ 2️⃣ After successful login or signup
+	•	Detect if stored resume data exists.
+	•	Redirect the user back to the exact program apply flow:
+	•	If Quick Apply → return to the program card and reopen Quick Apply process.
+	•	If Apply → return to the program detail page and scroll to or focus on the Apply section.
+
+✅ 3️⃣ Clear the stored resume data
+	•	After the user is successfully resumed to their previous state, remove the stored resume data to prevent accidental reuse.
+
+✅ 4️⃣ Handle edge cases
+	•	If the program no longer exists, is inactive, or the stored data is invalid:
+	•	Redirect to a fallback (e.g. the programs list page) with a friendly message:
+“The program you selected is no longer available. Please choose another.”
+	•	Ensure no duplicate application submissions occur because of the resume logic.
+
+✅ 5️⃣ Debug and verify
+	•	Confirm that no manual refresh is needed for login/signup to complete.
+	•	Verify that session/local storage is working correctly in all supported browsers.
+	•	Make sure the flow works for both login and signup.
+	•	Test on desktop and mobile.
+
+⸻
+
+Expected Result
+	•	After the user logs in or signs up:
+	•	They are immediately returned to the exact application state they intended to access.
+	•	The user can continue applying without any disruption.
+	•	No unnecessary dashboard redirection happens.
+
+⸻
+
+Additional Notes
+	•	Use clean, modular code — e.g. create a helper function to manage storing and retrieving resume data.
+	•	Ensure existing auth/session handling integrates smoothly with this logic.
+	•	Provide clear comments in the code to document how resume flow is handled.
+

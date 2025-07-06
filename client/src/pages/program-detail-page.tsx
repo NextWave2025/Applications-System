@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { ProgramWithUniversity } from "@shared/schema";
 import { useAuth } from "../hooks/use-auth";
+import { storeResumeData, createApplyResumeData } from "../lib/resume-flow";
 
 export default function ProgramDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -212,7 +213,14 @@ export default function ProgramDetailPage() {
               <button 
                 onClick={() => {
                   if (!user) {
-                    // Redirect to auth page if not authenticated
+                    // Store resume data before redirecting to auth
+                    const resumeData = createApplyResumeData(
+                      id || '', 
+                      programData?.name || program?.name, 
+                      programData?.university?.name || program?.university?.name
+                    );
+                    storeResumeData(resumeData);
+                    console.log("Apply button - stored resume data:", resumeData);
                     setLocation("/auth");
                   } else {
                     // Redirect to application form if authenticated

@@ -39,6 +39,11 @@ export default function ApplicationFormPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [location, navigate] = useLocation();
   const { toast } = useToast();
+  
+  // Check if this is Quick Apply mode from URL params
+  const urlParams = new URLSearchParams(location.split('?')[1] || '');
+  const isQuickApply = urlParams.get('mode') === 'quick';
+  const fromCard = urlParams.get('from') === 'card';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [documents, setDocuments] = useState<Array<{
     id: string;
@@ -331,10 +336,28 @@ export default function ApplicationFormPage() {
 
         {/* Page header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Apply for {program.name}</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900">Apply for {program.name}</h1>
+            {isQuickApply && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
+                </svg>
+                Quick Apply
+              </span>
+            )}
+          </div>
           <p className="mt-2 text-gray-600">
             {program.university?.name} - {program.degree} - {program.duration}
           </p>
+          {isQuickApply && (
+            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-sm text-blue-800">
+                <strong>Quick Apply Mode:</strong> We've streamlined the application process for faster submission. 
+                You can always complete additional details later from your dashboard.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Application form */}
