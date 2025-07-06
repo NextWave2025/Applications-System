@@ -87,20 +87,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw error instanceof Error ? error : new Error('Login failed');
       }
     },
-    onSuccess: (user: User) => {
+    onSuccess: async (user: User) => {
       console.log("Login mutation onSuccess called, setting user data:", user);
       // Set user data immediately in cache
       queryClient.setQueryData(["/api/user"], user);
       
       // Force immediate refetch to ensure state consistency
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["/api/user"] }),
-        queryClient.invalidateQueries({ queryKey: ["/api/admin"] })
-      ]).then(() => {
+      try {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["/api/user"] }),
+          queryClient.invalidateQueries({ queryKey: ["/api/admin"] })
+        ]);
         console.log("User queries invalidated and refetched");
-      }).catch((error) => {
+      } catch (error) {
         console.error("Error invalidating queries after login:", error);
-      });
+      }
       
       console.log("Login success: Cache updated, showing toast");
       toast({
@@ -135,17 +136,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw error instanceof Error ? error : new Error('Registration failed');
       }
     },
-    onSuccess: (user: User) => {
+    onSuccess: async (user: User) => {
       console.log("Registration mutation onSuccess called, setting user data:", user);
       // Set user data immediately in cache
       queryClient.setQueryData(["/api/user"], user);
       
       // Force immediate refetch to ensure state consistency
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] }).then(() => {
+      try {
+        await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
         console.log("User query invalidated after registration");
-      }).catch((error) => {
+      } catch (error) {
         console.error("Error invalidating queries after registration:", error);
-      });
+      }
       
       console.log("Registration success: Cache updated, showing toast");
       toast({
