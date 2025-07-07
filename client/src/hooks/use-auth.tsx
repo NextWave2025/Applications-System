@@ -120,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     retry: false,
-    throwOnError: false,
+    throwOnError: true,
   });
 
   const registerMutation = useMutation({
@@ -167,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     retry: false,
-    throwOnError: false,
+    throwOnError: true,
   });
 
   const logoutMutation = useMutation({

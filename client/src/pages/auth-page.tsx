@@ -96,64 +96,60 @@ export default function AuthPage() {
     setIsSubmitting(true);
     setLoginError("");
     
-    console.log("Starting login mutation...");
-    
-    loginMutation.mutate(data, {
-      onSuccess: (user) => {
-        console.log("Login successful, user:", user);
-        
-        // Handle immediate redirect after successful login
-        const resumeData = getResumeData();
-        if (resumeData) {
-          console.log("Found resume data, redirecting to:", resumeData.redirectUrl);
-          clearResumeData();
-          setLocation(resumeData.redirectUrl);
-        } else {
-          console.log("No resume data, redirecting to dashboard");
-          setLocation("/dashboard");
-        }
-        
-        // Reset submitting state after redirect
-        setIsSubmitting(false);
-      },
-      onError: (error: any) => {
-        console.error("Login error:", error);
-        setLoginError(error.message || "Login failed. Please try again.");
-        setIsSubmitting(false);
+    try {
+      console.log("Starting login mutation...");
+      const user = await loginMutation.mutateAsync(data);
+      console.log("Login successful, user:", user);
+      
+      // Handle immediate redirect after successful login
+      const resumeData = getResumeData();
+      if (resumeData) {
+        console.log("Found resume data, redirecting to:", resumeData.redirectUrl);
+        clearResumeData();
+        setLocation(resumeData.redirectUrl);
+      } else {
+        console.log("No resume data, redirecting to dashboard");
+        setLocation("/dashboard");
       }
-    });
+      
+      // Reset submitting state after redirect
+      setIsSubmitting(false);
+      
+    } catch (error: any) {
+      console.error("Login error:", error);
+      setLoginError(error.message || "Login failed. Please try again.");
+      setIsSubmitting(false);
+    }
   };
 
   const handleSignup = async (data: SignupFormData) => {
     setIsSubmitting(true);
     setSignupError("");
     
-    console.log("Starting registration mutation...");
-    
-    registerMutation.mutate(data, {
-      onSuccess: (user) => {
-        console.log("Registration successful, user:", user);
-        
-        // Handle immediate redirect after successful signup
-        const resumeData = getResumeData();
-        if (resumeData) {
-          console.log("Found resume data, redirecting to:", resumeData.redirectUrl);
-          clearResumeData();
-          setLocation(resumeData.redirectUrl);
-        } else {
-          console.log("No resume data, redirecting to dashboard");
-          setLocation("/dashboard");
-        }
-        
-        // Reset submitting state after redirect
-        setIsSubmitting(false);
-      },
-      onError: (error: any) => {
-        console.error("Registration error:", error);
-        setSignupError(error.message || "Registration failed. Please try again.");
-        setIsSubmitting(false);
+    try {
+      console.log("Starting registration mutation...");
+      const user = await registerMutation.mutateAsync(data);
+      console.log("Registration successful, user:", user);
+      
+      // Handle immediate redirect after successful signup
+      const resumeData = getResumeData();
+      if (resumeData) {
+        console.log("Found resume data, redirecting to:", resumeData.redirectUrl);
+        clearResumeData();
+        setLocation(resumeData.redirectUrl);
+      } else {
+        console.log("No resume data, redirecting to dashboard");
+        setLocation("/dashboard");
       }
-    });
+      
+      // Reset submitting state after redirect
+      setIsSubmitting(false);
+      
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      setSignupError(error.message || "Registration failed. Please try again.");
+      setIsSubmitting(false);
+    }
   };
 
   // Show loading state while checking authentication
