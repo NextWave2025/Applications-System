@@ -18,7 +18,7 @@ export default function Navbar() {
               <img 
                 src="/logos/nextwave-primary.png" 
                 alt="NextWave Logo" 
-                className="h-10 object-contain"
+                className="h-12 object-contain"
               />
             </Link>
             <div className="hidden md:flex ml-10 space-x-6">

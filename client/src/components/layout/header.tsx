@@ -55,7 +55,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <NextWaveLogo size="md" className="mr-4" />
+              <NextWaveLogo size="lg" className="mr-4" />
               {!isLoading && user?.isAdmin && <LogoSettings />}
             </div>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">

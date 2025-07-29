@@ -31,7 +31,7 @@ export default function SiteFooter() {
               <img 
                 src="/logos/nextwave-white.png" 
                 alt="NextWave Logo" 
-                className="h-12 object-contain"
+                className="h-16 object-contain"
               />
             </div>
 
