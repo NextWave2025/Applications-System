@@ -12,28 +12,33 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-center items-center relative">
+          {/* Logo - Centered */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <img 
                 src="/logos/nextwave-primary-new.png" 
                 alt="NextWave Logo" 
-                className="h-48 object-contain"
+                className="h-68 object-contain"
               />
             </Link>
-            <div className="hidden md:flex ml-10 space-x-6">
-              <Link href="/" className="text-gray-700 hover:text-primary font-medium">
-                Programs
-              </Link>
-              <Link href="/" className="text-gray-700 hover:text-primary font-medium">
-                About Us
-              </Link>
-              <Link href="/" className="text-gray-700 hover:text-primary font-medium">
-                Contact
-              </Link>
-            </div>
           </div>
-          <div className="flex items-center space-x-4">
+          
+          {/* Navigation Links - Positioned to the right of logo with normal spacing */}
+          <div className="hidden md:flex items-center space-x-6 ml-8">
+            <Link href="/" className="text-gray-700 hover:text-primary font-medium">
+              Programs
+            </Link>
+            <Link href="/" className="text-gray-700 hover:text-primary font-medium">
+              About Us
+            </Link>
+            <Link href="/" className="text-gray-700 hover:text-primary font-medium">
+              Contact
+            </Link>
+          </div>
+          
+          {/* Auth buttons - Positioned to the right */}
+          <div className="flex items-center space-x-4 ml-6">
             <Link href="/" className="hidden md:block text-gray-700 hover:text-primary font-medium">
               Login
             </Link>
