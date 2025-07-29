@@ -11,17 +11,17 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative bg-black py-20 lg:py-28 overflow-hidden">
+    <section className="relative bg-primary-800 py-20 lg:py-28 overflow-hidden">
       {/* Brand-inspired half-circle shape - hidden on mobile/tablet */}
-      <div className="absolute -left-1/4 top-1/2 -translate-y-1/2 w-1/2 aspect-square bg-primary/40 rounded-full filter blur-3xl opacity-30 pointer-events-none hidden lg:block"></div>
+      <div className="absolute -left-1/4 top-1/2 -translate-y-1/2 w-1/2 aspect-square bg-secondary/20 rounded-full filter blur-3xl opacity-30 pointer-events-none hidden lg:block"></div>
 
       {/* Brand-inspired decorative elements - adjusted for mobile/tablet */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute bottom-0 left-0 w-full h-1/4 bg-gradient-to-t from-primary/5 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 w-full h-1/4 bg-gradient-to-t from-secondary/10 to-transparent"></div>
         {/* Large circles hidden on mobile/tablet */}
-        <div className="absolute bottom-0 left-20 transform translate-y-1/3 w-96 h-96 border border-primary/10 rounded-full hidden lg:block"></div>
-        <div className="absolute right-40 top-0 transform -translate-y-1/2 w-64 h-64 border border-primary/20 rounded-full hidden lg:block"></div>
-        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-32 h-32 bg-primary rounded-l-full opacity-10 hidden lg:block"></div>
+        <div className="absolute bottom-0 left-20 transform translate-y-1/3 w-96 h-96 border border-secondary/20 rounded-full hidden lg:block"></div>
+        <div className="absolute right-40 top-0 transform -translate-y-1/2 w-64 h-64 border border-secondary/30 rounded-full hidden lg:block"></div>
+        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-32 h-32 bg-secondary rounded-l-full opacity-20 hidden lg:block"></div>
       </div>
 
       {/* Grid pattern - more subtle and modern */}

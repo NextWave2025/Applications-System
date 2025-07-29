@@ -1,16 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --nextwave-primary: 107 81 162;
+    --nextwave-primary-dark: 65 50 107;
+    --nextwave-secondary: 239 198 28;
+    --nextwave-neutral-50: 248 250 252;
+    --nextwave-neutral-900: 15 23 42;
+  }
+
   * {
     @apply border-border;
   }
 
   body {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Nunito', 'Gilroy', sans-serif;
     @apply antialiased bg-[#f8fafc] text-foreground;
   }
   

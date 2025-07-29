@@ -5,7 +5,7 @@ export default {
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     fontFamily: {
-      sans: ["Outfit", "sans-serif"],
+      sans: ["Nunito", "Gilroy", "sans-serif"],
     },
     extend: {
       borderRadius: {
@@ -25,12 +25,32 @@ export default {
           foreground: "hsl(var(--popover-foreground))",
         },
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#6B51A2",
+          foreground: "#ffffff",
+          50: "#f4f2f8",
+          100: "#e8e4f1",
+          200: "#d5cde6",
+          300: "#bba8d6",
+          400: "#9b7dc0",
+          500: "#6B51A2",
+          600: "#5d4488",
+          700: "#4f3871",
+          800: "#41326B",
+          900: "#352858",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#EFC61C",
+          foreground: "#000000",
+          50: "#fefce8",
+          100: "#fef9c3",
+          200: "#fef08a",
+          300: "#fde047",
+          400: "#facc15",
+          500: "#EFC61C",
+          600: "#ca8a04",
+          700: "#a16207",
+          800: "#854d0e",
+          900: "#713f12",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",

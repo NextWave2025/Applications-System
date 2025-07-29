@@ -26,23 +26,23 @@ export default function Navbar() {
             
             {/* Navigation Links - Inline with logo */}
             <div className="hidden md:flex items-center space-x-6">
-              <Link href="/" className="text-black hover:text-blue-600 font-bold text-lg" style={{color: '#000000'}}>
+              <Link href="/" className="text-gray-800 hover:text-primary font-semibold text-lg transition-colors">
                 Programs
               </Link>
-              <Link href="/" className="text-black hover:text-blue-600 font-bold text-lg" style={{color: '#000000'}}>
+              <Link href="/" className="text-gray-800 hover:text-primary font-semibold text-lg transition-colors">
                 About Us
               </Link>
-              <Link href="/" className="text-black hover:text-blue-600 font-bold text-lg" style={{color: '#000000'}}>
+              <Link href="/" className="text-gray-800 hover:text-primary font-semibold text-lg transition-colors">
                 Contact
               </Link>
             </div>
             
             {/* Auth buttons - Inline */}
             <div className="flex items-center space-x-4">
-              <Link href="/" className="hidden md:block text-black hover:text-blue-600 font-bold text-lg" style={{color: '#000000'}}>
+              <Link href="/" className="hidden md:block text-gray-800 hover:text-primary font-semibold text-lg transition-colors">
                 Login
               </Link>
-              <Link href="/" className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90 transition">
+              <Link href="/" className="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-all shadow-lg">
                 Apply Now
               </Link>
               <button 

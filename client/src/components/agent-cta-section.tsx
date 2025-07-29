@@ -27,16 +27,16 @@ export default function AgentCTASection() {
   return (
     <section
       id="agent-cta-section"
-      className="py-24 bg-black text-white relative overflow-hidden"
+      className="py-24 bg-primary-800 text-white relative overflow-hidden"
     >
       {/* Brand-inspired decorative elements */}
-      <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
-      <div className="absolute -left-16 top-0 w-32 h-32 bg-primary/20 rounded-bl-full opacity-40 pointer-events-none"></div>
-      <div className="absolute right-1/4 bottom-0 w-64 h-64 border border-primary/20 rounded-full -mb-32 pointer-events-none"></div>
+      <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-secondary/10 to-transparent pointer-events-none"></div>
+      <div className="absolute -left-16 top-0 w-32 h-32 bg-secondary/30 rounded-bl-full opacity-40 pointer-events-none"></div>
+      <div className="absolute right-1/4 bottom-0 w-64 h-64 border border-secondary/30 rounded-full -mb-32 pointer-events-none"></div>
 
       {/* Half-circle brand element */}
       <div className="absolute left-0 bottom-0 w-80 h-80 -mb-40 -ml-40">
-        <div className="w-full h-full border-[10px] border-primary/20 rounded-full half-circle-left"></div>
+        <div className="w-full h-full border-[10px] border-secondary/30 rounded-full half-circle-left"></div>
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

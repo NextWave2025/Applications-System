@@ -14,12 +14,12 @@ export default function SiteFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-black text-white relative overflow-hidden">
+    <footer className="bg-primary-800 text-white relative overflow-hidden">
       {/* Brand-inspired decorative elements */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>
-      <div className="absolute -left-32 bottom-0 w-64 h-64 bg-primary/5 rounded-tr-full opacity-20 pointer-events-none"></div>
+      <div className="absolute top-0 left-0 w-full h-1 bg-secondary"></div>
+      <div className="absolute -left-32 bottom-0 w-64 h-64 bg-secondary/10 rounded-tr-full opacity-20 pointer-events-none"></div>
       <div className="absolute right-0 top-0 w-80 h-80 transform -translate-y-1/2 pointer-events-none overflow-hidden">
-        <div className="w-full h-full border-[20px] border-primary/5 rounded-full"></div>
+        <div className="w-full h-full border-[20px] border-secondary/10 rounded-full"></div>
       </div>
 
       {/* Main Footer Content */}
@@ -44,13 +44,13 @@ export default function SiteFooter() {
             {/* Contact Info */}
             <div className="space-y-3 mb-8">
               <div className="flex items-center">
-                <MapPin className="h-5 w-5 text-primary mr-3" />
+                <MapPin className="h-5 w-5 text-secondary mr-3" />
                 <span className="text-gray-300 text-[16px] font-light">
                   Dubai, UAE
                 </span>
               </div>
               <div className="flex items-center">
-                <Mail className="h-5 w-5 text-primary mr-3" />
+                <Mail className="h-5 w-5 text-secondary mr-3" />
                 <span className="text-gray-300 text-[16px] font-light">
                   nextwaveadmission@gmail.com
                 </span>
