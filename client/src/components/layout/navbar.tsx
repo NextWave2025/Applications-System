@@ -26,27 +26,27 @@ export default function Navbar() {
             
             {/* Navigation Links - Inline with logo */}
             <div className="hidden md:flex items-center space-x-6">
-              <Link href="/" className="text-black hover:text-gray-600 font-medium">
+              <Link href="/" className="text-gray-800 hover:text-blue-600 font-medium">
                 Programs
               </Link>
-              <Link href="/" className="text-black hover:text-gray-600 font-medium">
+              <Link href="/" className="text-gray-800 hover:text-blue-600 font-medium">
                 About Us
               </Link>
-              <Link href="/" className="text-black hover:text-gray-600 font-medium">
+              <Link href="/" className="text-gray-800 hover:text-blue-600 font-medium">
                 Contact
               </Link>
             </div>
             
             {/* Auth buttons - Inline */}
             <div className="flex items-center space-x-4">
-              <Link href="/" className="hidden md:block text-black hover:text-gray-600 font-medium">
+              <Link href="/" className="hidden md:block text-gray-800 hover:text-blue-600 font-medium">
                 Login
               </Link>
               <Link href="/" className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90 transition">
                 Apply Now
               </Link>
               <button 
-                className="md:hidden text-black" 
+                className="md:hidden text-gray-800" 
                 onClick={toggleMobileMenu}
                 aria-label="Toggle mobile menu"
               >
@@ -59,16 +59,16 @@ export default function Navbar() {
         {/* Mobile menu */}
         <div className={`md:hidden ${mobileMenuOpen ? 'block' : 'hidden'}`}>
           <div className="px-2 pt-2 pb-3 space-y-1">
-            <Link href="/" className="block px-3 py-2 text-black hover:bg-gray-100 rounded-md">
+            <Link href="/" className="block px-3 py-2 text-gray-800 hover:bg-gray-100 rounded-md">
               Programs
             </Link>
-            <Link href="/" className="block px-3 py-2 text-black hover:bg-gray-100 rounded-md">
+            <Link href="/" className="block px-3 py-2 text-gray-800 hover:bg-gray-100 rounded-md">
               About Us
             </Link>
-            <Link href="/" className="block px-3 py-2 text-black hover:bg-gray-100 rounded-md">
+            <Link href="/" className="block px-3 py-2 text-gray-800 hover:bg-gray-100 rounded-md">
               Contact
             </Link>
-            <Link href="/" className="block px-3 py-2 text-black hover:bg-gray-100 rounded-md">
+            <Link href="/" className="block px-3 py-2 text-gray-800 hover:bg-gray-100 rounded-md">
               Login
             </Link>
           </div>
