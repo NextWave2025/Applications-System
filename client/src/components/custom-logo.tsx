@@ -22,19 +22,19 @@ export default function CustomLogo({
   }, []);
   
   const sizeClasses = {
-    sm: "h-40",
-    md: "h-56",
-    lg: "h-72"
+    sm: "h-12",
+    md: "h-16",
+    lg: "h-20"
   };
 
   const getLogoSrc = () => {
     switch (variant) {
       case "white":
-        return "/logos/nextwave-white.png";
+        return "/logos/nextwave-white-new.png";
       case "icon-only":
         return "/logos/nextwave-icon-primary.png";
       default:
-        return "/logos/nextwave-primary.png";
+        return "/logos/nextwave-primary-new.png";
     }
   };
   

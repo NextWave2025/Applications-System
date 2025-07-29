@@ -11,14 +11,14 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white shadow-md">
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <img 
-                src="/logos/nextwave-primary.png" 
+                src="/logos/nextwave-primary-new.png" 
                 alt="NextWave Logo" 
-                className="h-56 object-contain"
+                className="h-16 object-contain"
               />
             </Link>
             <div className="hidden md:flex ml-10 space-x-6">

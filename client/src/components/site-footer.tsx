@@ -29,9 +29,9 @@ export default function SiteFooter() {
           <div className="md:col-span-4">
             <div className="mb-6">
               <img 
-                src="/logos/nextwave-white.png" 
+                src="/logos/nextwave-white-new.png" 
                 alt="NextWave Logo" 
-                className="h-64 object-contain"
+                className="h-20 object-contain"
               />
             </div>
 

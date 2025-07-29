@@ -8,9 +8,9 @@ export default function Footer() {
           <div>
             <div className="mb-4">
               <img 
-                src="/logos/nextwave-white.png" 
+                src="/logos/nextwave-white-new.png" 
                 alt="NextWave Logo" 
-                className="h-56 object-contain"
+                className="h-16 object-contain"
               />
             </div>
             <p className="text-gray-400 mb-4">
