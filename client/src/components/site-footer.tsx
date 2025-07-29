@@ -31,14 +31,12 @@ export default function SiteFooter() {
               <img 
                 src="/logos/nextwave-white-new.png" 
                 alt="NextWave Logo" 
-                className="h-16 object-contain"
+                className="h-12 object-contain"
               />
             </div>
 
             <p className="text-gray-300 font-light text-base leading-relaxed mb-6 max-w-md">
-              NextWave connects international students with premier UAE
-              universities through our trusted network of education agents
-              worldwide.
+              Connecting students with the best educational opportunities in the UAE
             </p>
 
             {/* Contact Info */}

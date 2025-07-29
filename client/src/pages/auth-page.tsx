@@ -167,13 +167,6 @@ export default function AuthPage() {
       <div className="w-full md:w-1/2 p-8 flex items-center justify-center">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="mb-6 flex justify-center">
-              <img 
-                src="/logos/nextwave-primary-new.png" 
-                alt="NextWave Logo" 
-                className="h-16 object-contain"
-              />
-            </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               {isLogin ? "Sign In to NextWave" : "Join NextWave as an Agent"}
             </h1>
@@ -460,13 +453,6 @@ export default function AuthPage() {
       {/* Hero Section */}
       <div className="hidden md:flex md:w-1/2 bg-gray-900">
         <div className="flex flex-col justify-center p-12 text-white">
-          <div className="mb-6">
-            <img 
-              src="/logos/nextwave-white-new.png" 
-              alt="NextWave Logo" 
-              className="h-16 object-contain mb-6"
-            />
-          </div>
           <h2 className="text-3xl font-bold mb-6">Become a NextWave Education Agent</h2>
           <div className="h-1 w-16 bg-primary mb-6"></div>
           <p className="text-lg mb-8">
