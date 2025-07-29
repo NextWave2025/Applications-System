@@ -22,9 +22,9 @@ export default function CustomLogo({
   }, []);
   
   const sizeClasses = {
-    sm: "h-24",
-    md: "h-32",
-    lg: "h-40"
+    sm: "h-12",
+    md: "h-16",
+    lg: "h-20"
   };
 
   const getLogoSrc = () => {
