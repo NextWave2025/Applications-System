@@ -50,10 +50,10 @@ export default function AgentCTASection() {
                 Start Your Journey
               </div>
               <h2 className="heading-2 mb-6">
-                Ready to <span className="text-primary">Grow</span> Your
+                Ready to <span className="text-secondary">Grow</span> Your
                 Education Agency?
               </h2>
-              <div className="h-1 w-24 bg-primary mb-8 rounded-full"></div>
+              <div className="h-1 w-24 bg-secondary mb-8 rounded-full"></div>
               <p className="subtitle text-white/80 mb-10 font-light">
                 Join our network of successful agents and start placing students
                 in top UAE universities today. With NextWave, you gain instant
@@ -63,19 +63,19 @@ export default function AgentCTASection() {
               {/* Stats */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 mb-10">
                 <div>
-                  <p className="text-4xl font-bold text-primary mb-1">20+</p>
+                  <p className="text-4xl font-bold text-secondary mb-1">20+</p>
                   <p className="text-white/70 text-sm font-light">
                     Partner Universities
                   </p>
                 </div>
                 <div>
-                  <p className="text-4xl font-bold text-primary mb-1">913+</p>
+                  <p className="text-4xl font-bold text-secondary mb-1">913+</p>
                   <p className="text-white/70 text-sm font-light">
                     Academic Programs
                   </p>
                 </div>
                 <div>
-                  <p className="text-4xl font-bold text-primary mb-1">
+                  <p className="text-4xl font-bold text-secondary mb-1">
                     Competitive
                   </p>
                   <p className="text-white/70 text-sm font-light">
@@ -91,8 +91,8 @@ export default function AgentCTASection() {
             >
               <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl relative">
                 {/* Decorative half-circle element */}
-                <div className="absolute -top-4 -right-4 w-16 h-16 bg-primary/10 rounded-full"></div>
-                <div className="absolute bottom-0 right-0 w-32 h-32 bg-primary/5 rounded-tl-full"></div>
+                <div className="absolute -top-4 -right-4 w-16 h-16 bg-secondary/20 rounded-full"></div>
+                <div className="absolute bottom-0 right-0 w-32 h-32 bg-secondary/10 rounded-tl-full"></div>
 
                 <h3 className="text-2xl font-bold mb-6">
                   Join as an Agent Today
@@ -119,7 +119,7 @@ export default function AgentCTASection() {
                 {/* Trust elements */}
                 <div className="flex items-center text-sm text-white/60 font-light">
                   <svg
-                    className="h-5 w-5 text-primary mr-2"
+                    className="h-5 w-5 text-secondary mr-2"
                     viewBox="0 0 24 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"

@@ -49,12 +49,12 @@ export default function HeroSection() {
           <div
             className={`max-w-2xl py-12 lg:py-24 transition-all duration-1000 ease-out transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
           >
-            <div className="inline-flex items-center px-4 py-2 bg-primary/10 rounded-full text-primary font-medium mb-6 text-sm">
-              <span className="w-2 h-2 bg-primary rounded-full mr-2"></span>
+            <div className="inline-flex items-center px-4 py-2 bg-secondary/20 rounded-full text-secondary font-bold mb-6 text-sm">
+              <span className="w-2 h-2 bg-secondary rounded-full mr-2"></span>
               The #1 Platform for Admission in UAE
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              <span className="text-primary">NextWave</span> Connecting Students
+              <span className="text-secondary">NextWave</span> Connecting Students
               to
               <span className="relative ml-1.5">
                 Success
@@ -67,7 +67,7 @@ export default function HeroSection() {
                 >
                   <path
                     d="M0 3C50 3 50 3 100 3C150 3 150 3 200 3"
-                    stroke="#EF3009"
+                    stroke="#EFC61C"
                     strokeWidth="5"
                     strokeLinecap="round"
                   />
@@ -83,14 +83,14 @@ export default function HeroSection() {
               <Link
                 href="/auth"
                 state={{ redirectTo: "/dashboard" }}
-                className="py-3.5 px-7 bg-primary text-white font-medium rounded-md hover:bg-primary/90 transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg shadow-primary/20 flex items-center justify-center"
+                className="py-3.5 px-7 bg-secondary text-black font-bold rounded-md hover:bg-yellow-400 transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg shadow-secondary/30 flex items-center justify-center"
               >
                 Become an Agent
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Link>
               <Link
                 href="/programs"
-                className="py-3.5 px-7 bg-transparent text-white border border-white/20 font-medium rounded-md hover:bg-white/5 transition-all duration-300 flex items-center justify-center"
+                className="py-3.5 px-7 bg-[#41326B] text-white border border-[#41326B] font-semibold rounded-md hover:bg-[#352858] transition-all duration-300 flex items-center justify-center"
               >
                 Explore Programs
               </Link>
