@@ -337,7 +337,7 @@ export default function ApplicationFormPage() {
         {/* Page header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold text-gray-900">Apply for {program.name}</h1>
+            <h1 className="text-3xl font-bold text-primary">Apply for {program.name}</h1>
             {isQuickApply && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
                 <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -365,7 +365,7 @@ export default function ApplicationFormPage() {
           <div className="lg:col-span-2">
             <div className="bg-white shadow rounded-lg overflow-hidden">
               <div className="p-6 border-b">
-                <h2 className="text-xl font-medium text-gray-900">Student Information</h2>
+                <h2 className="text-xl font-medium text-primary">Student Information</h2>
                 <p className="mt-1 text-sm text-gray-500">
                   Please enter accurate information for the student you are representing.
                 </p>
@@ -617,7 +617,7 @@ export default function ApplicationFormPage() {
 
                 {/* Application details heading */}
                 <div className="pt-6 pb-2">
-                  <h3 className="text-lg font-medium text-gray-900">Application Preferences</h3>
+                  <h3 className="text-lg font-medium text-primary">Application Preferences</h3>
                   <p className="mt-1 text-sm text-gray-500">
                     Please specify your intake preferences.
                   </p>
@@ -661,7 +661,7 @@ export default function ApplicationFormPage() {
 
                 {/* Documents upload section */}
                 <div className="pt-6 pb-2">
-                  <h3 className="text-lg font-medium text-gray-900">Supporting Documents</h3>
+                  <h3 className="text-lg font-medium text-primary">Supporting Documents</h3>
                   <p className="mt-1 text-sm text-gray-500">
                     Upload your supporting documents. Each document should have a clear description.
                   </p>

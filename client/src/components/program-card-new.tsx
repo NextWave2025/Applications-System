@@ -41,7 +41,7 @@ function QuickApplyButton({ program }: { program: ProgramWithUniversity }) {
     <Button 
       variant="outline" 
       size="sm" 
-      className="px-4 py-2.5 border-gray-300 hover:bg-gray-50 font-medium text-sm w-full sm:w-auto"
+      className="px-4 py-2.5 border-secondary bg-secondary text-black hover:bg-yellow-400 font-semibold text-sm w-full sm:w-auto transition-all duration-300"
       onClick={handleQuickApply}
     >
       Quick Apply
@@ -134,7 +134,7 @@ export default function ProgramCardNew({
         </div>
 
         {/* Program title */}
-        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 line-clamp-2 leading-tight">
+        <h3 className="text-lg sm:text-xl font-bold text-primary mb-4 line-clamp-2 leading-tight">
           {program.name}
         </h3>
 
@@ -196,7 +196,7 @@ export default function ProgramCardNew({
             <Button 
               variant="default" 
               size="sm" 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 text-sm"
+              className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-2.5 px-4 text-sm transition-all duration-300"
             >
               <span>View Details</span>
               <ArrowRight className="w-4 h-4 ml-2" />

@@ -472,7 +472,7 @@ export default function AdminControlPage() {
 
           <TabsContent value="universities" className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
-              <h2 className="text-xl sm:text-2xl font-bold">Universities</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-primary">Universities</h2>
               <Button onClick={() => navigate("/admin/universities")} className="w-full sm:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
                 Manage Universities

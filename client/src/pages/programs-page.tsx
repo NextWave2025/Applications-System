@@ -299,7 +299,7 @@ export default function ProgramsPage() {
       {/* Header */}
       <div className="border-b pb-4 sm:pb-6">
         <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900">Explore Programs</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">Explore Programs</h1>
           <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">Discover academic programs offered by top universities in the UAE</p>
         </div>
       </div>
