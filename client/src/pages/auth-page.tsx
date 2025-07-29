@@ -171,7 +171,7 @@ export default function AuthPage() {
               <img 
                 src="/logos/nextwave-primary.png" 
                 alt="NextWave Logo" 
-                className="h-32 object-contain"
+                className="h-64 object-contain"
               />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -464,7 +464,7 @@ export default function AuthPage() {
             <img 
               src="/logos/nextwave-white.png" 
               alt="NextWave Logo" 
-              className="h-40 object-contain mb-6"
+              className="h-80 object-contain mb-6"
             />
           </div>
           <h2 className="text-3xl font-bold mb-6">Become a NextWave Education Agent</h2>
