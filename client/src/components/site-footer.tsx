@@ -27,11 +27,13 @@ export default function SiteFooter() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
           {/* Logo and Company Info - 4 columns */}
           <div className="md:col-span-4">
-            <img 
-              src="/logos/nextwave-white-new.png" 
-              alt="NextWave Logo" 
-              className="h-8 object-contain mb-4"
-            />
+            <div className="mb-4">
+              <img 
+                src="/logos/nextwave-white-new.png" 
+                alt="NextWave Logo" 
+                className="h-12 object-contain"
+              />
+            </div>
             <p className="text-gray-400 font-light text-base leading-relaxed mb-6 max-w-md">
               Connecting students with the best educational opportunities in the UAE
             </p>

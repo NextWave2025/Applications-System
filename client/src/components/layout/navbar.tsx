@@ -20,7 +20,7 @@ export default function Navbar() {
               <img 
                 src="/logos/nextwave-primary-new.png" 
                 alt="NextWave Logo" 
-                className="h-68 object-contain"
+                className="h-12 object-contain"
               />
             </Link>
             
