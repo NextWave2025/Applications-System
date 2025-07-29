@@ -27,15 +27,12 @@ export default function SiteFooter() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
           {/* Logo and Company Info - 4 columns */}
           <div className="md:col-span-4">
-            <div className="mb-4">
-              <img 
-                src="/logos/nextwave-white-new.png" 
-                alt="NextWave Logo" 
-                className="h-12 object-contain"
-              />
-            </div>
-
-            <p className="text-gray-300 font-light text-base leading-relaxed mb-6 max-w-md">
+            <img 
+              src="/logos/nextwave-white-new.png" 
+              alt="NextWave Logo" 
+              className="h-8 object-contain mb-4"
+            />
+            <p className="text-gray-400 font-light text-base leading-relaxed mb-6 max-w-md">
               Connecting students with the best educational opportunities in the UAE
             </p>
 
@@ -78,7 +75,7 @@ export default function SiteFooter() {
 
           {/* Quick Links - 2 columns */}
           <div className="md:col-span-2 md:ml-8">
-            <h3 className="text-[25px] font-bold mb-6 text-white">
+            <h3 className="text-xl font-bold mb-4 text-white">
               Quick Links
             </h3>
             <ul className="space-y-4">
@@ -123,7 +120,7 @@ export default function SiteFooter() {
 
           {/* Agent Resources - 3 columns */}
           <div className="md:col-span-3">
-            <h3 className="text-[25px] font-bold mb-6 text-white">
+            <h3 className="text-xl font-bold mb-4 text-white">
               Agent Resources
             </h3>
             <ul className="space-y-4">
@@ -177,7 +174,7 @@ export default function SiteFooter() {
 
           {/* Newsletter - 3 columns */}
           <div className="md:col-span-3">
-            <h3 className="text-[25px] font-bold mb-6 text-white">
+            <h3 className="text-xl font-bold mb-4 text-white">
               Newsletter
             </h3>
             <p className="text-gray-400 font-light text-[16px] leading-relaxed mb-6">
