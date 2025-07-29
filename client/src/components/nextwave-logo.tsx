@@ -16,9 +16,9 @@ export default function NextWaveLogo({
   variant = "primary" 
 }: NextWaveLogoProps) {
   const sizeClasses = {
-    sm: "h-12",
-    md: "h-16",
-    lg: "h-20"
+    sm: "h-24",
+    md: "h-32",
+    lg: "h-40"
   };
 
   const getLogoSrc = () => {
