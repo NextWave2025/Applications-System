@@ -27,15 +27,15 @@ export default function SiteFooter() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
           {/* Logo and Company Info - 4 columns */}
           <div className="md:col-span-4">
-            <div className="mb-6">
+            <div className="mb-4">
               <img 
                 src="/logos/nextwave-white-new.png" 
                 alt="NextWave Logo" 
-                className="h-84 object-contain"
+                className="h-16 object-contain"
               />
             </div>
 
-            <p className="text-gray-400 font-light text-[16px] leading-relaxed mb-6 max-w-md">
+            <p className="text-gray-300 font-light text-base leading-relaxed mb-6 max-w-md">
               NextWave connects international students with premier UAE
               universities through our trusted network of education agents
               worldwide.
