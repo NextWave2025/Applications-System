@@ -15,7 +15,11 @@ export default function Navbar() {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <span className="text-2xl font-bold text-gray-900">NextWave</span>
+              <img 
+                src="/logos/nextwave-primary.png" 
+                alt="NextWave Logo" 
+                className="h-10 object-contain"
+              />
             </Link>
             <div className="hidden md:flex ml-10 space-x-6">
               <Link href="/" className="text-gray-700 hover:text-primary font-medium">

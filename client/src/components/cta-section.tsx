@@ -101,7 +101,7 @@ export default function CTASection() {
               </div>
               <div className="text-center">
                 <p className="text-white/80 text-sm mb-3">
-                  Join 5,000+ students who found their path
+                  Join 100+ students who found their path
                 </p>
                 <Link href="/signup" className="btn-primary-white w-full">
                   Sign Up Now

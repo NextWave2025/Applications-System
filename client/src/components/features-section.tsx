@@ -4,7 +4,8 @@ export default function FeaturesSection() {
   const features = [
     {
       title: "Discover Programs",
-      description: "Browse through hundreds of undergraduate and graduate programs from top universities in the UAE.",
+      description:
+        "Browse through hundreds of undergraduate and graduate programs from top universities in the UAE.",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -24,7 +25,8 @@ export default function FeaturesSection() {
     },
     {
       title: "Easy Application",
-      description: "Apply to multiple universities with a single application and track your progress.",
+      description:
+        "Apply to multiple universities with a single application and track your progress.",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -44,7 +46,8 @@ export default function FeaturesSection() {
     },
     {
       title: "Scholarship Options",
-      description: "Find programs with scholarship opportunities and financial aid to support your studies.",
+      description:
+        "Find programs with scholarship opportunities and financial aid to support your studies.",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -64,7 +67,8 @@ export default function FeaturesSection() {
     },
     {
       title: "Expert Guidance",
-      description: "Get personalized advice from our education experts to make the right choice for your future.",
+      description:
+        "Get personalized advice from our education experts to make the right choice for your future.",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -84,7 +88,8 @@ export default function FeaturesSection() {
     },
     {
       title: "Visa Assistance",
-      description: "Comprehensive support for international students with visa applications and requirements.",
+      description:
+        "Comprehensive support for international students with visa applications and requirements.",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -104,7 +109,8 @@ export default function FeaturesSection() {
     },
     {
       title: "Accommodation Help",
-      description: "Find suitable student accommodation options near your chosen university.",
+      description:
+        "Find suitable student accommodation options near your chosen university.",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -132,27 +138,30 @@ export default function FeaturesSection() {
             Everything You Need for Your Educational Journey
           </h2>
           <p className="text-lg text-gray-600">
-            We provide a comprehensive platform to make your educational journey in the UAE smooth and successful.
+            We provide a comprehensive platform to make your educational journey
+            in the UAE smooth and successful.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg p-8 hover:shadow-md transition-shadow">
+            <div
+              key={index}
+              className="bg-gray-50 rounded-lg p-8 hover:shadow-md transition-shadow"
+            >
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary mb-5">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                {feature.title}
+              </h3>
               <p className="text-gray-600 mb-4">{feature.description}</p>
             </div>
           ))}
         </div>
 
         <div className="text-center mt-12">
-          <Link
-            href="/programs"
-            className="btn-primary inline-block"
-          >
+          <Link href="/programs" className="btn-primary inline-block">
             Find Your Program
           </Link>
         </div>

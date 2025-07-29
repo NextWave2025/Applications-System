@@ -35,14 +35,14 @@ export default function SimpleProcessSection() {
       number: 2,
       title: "Refer students",
       description:
-        "We provide brochures and support. You refer students who want to study abroad",
+        "We provide acces to over 20+ universities and marketing matrials. You refer students who want to study in UAE",
       icon: <Users className="h-6 w-6" />,
     },
     {
       number: 3,
       title: "Earn Money",
       description:
-        "Once a student enrolls, you earn 80% commission. We handle the rest",
+        "Once a student enrolls, you earn commission. We handle the rest",
       icon: <CreditCard className="h-6 w-6" />,
     },
   ];

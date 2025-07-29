@@ -26,26 +26,26 @@ export default function AgentTestimonialsSection() {
   const testimonials = [
     {
       quote:
-        "Working with NextWave has transformed our agency. The platform is intuitive, and the commission structure is the best in the industry.",
-      author: "Sarah Ahmed",
+        "Working with NextWave has transformed our recrutiment. The platform is intuitive, and the commission structure is one of the best in the industry.",
+      author: "Adamu Garba",
       role: "Education Consultant",
-      location: "Dubai, UAE",
+      location: "Nigeria ",
       avatar: "SA",
     },
     {
       quote:
-        "The visa support tools have been a game-changer for our Indian students. The country-specific checklists and requirements save us so much time.",
-      author: "Rajiv Mehta",
-      role: "Recruitment Manager",
+        "The team has been very supportive. The process checklists and requirements has save us time.",
+      author: "Dhruv",
+      role: "Education Consultant",
       location: "Mumbai, India",
       avatar: "RM",
     },
     {
       quote:
-        "The marketing materials provided are professional and effective. Our conversion rates have improved significantly since partnering with NextWave.",
-      author: "Elena Kim",
-      role: "Agency Director",
-      location: "Seoul, South Korea",
+        "The marketing materials provided are professional and effective. Our applications to UAE have improved significantly since partnering with NextWave.",
+      author: "Baseer",
+      role: "Director, Vertex Education",
+      location: "Karachi, Pakistan",
       avatar: "EK",
     },
   ];

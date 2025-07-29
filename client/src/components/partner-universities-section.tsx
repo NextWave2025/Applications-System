@@ -66,7 +66,7 @@ export default function PartnerUniversitiesSection() {
               <span className="text-primary">UAE</span>
             </h2>
             <p className="text-gray-600 font-light">
-              We've built exclusive relationships with the UAE's leading
+              We've built direct relationships with the UAE's leading
               educational institutions to offer students unparalleled
               opportunities
             </p>

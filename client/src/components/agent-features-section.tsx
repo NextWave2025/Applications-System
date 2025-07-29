@@ -42,14 +42,14 @@ export default function AgentFeaturesSection() {
       icon: <DollarSign className="w-6 h-6" />,
       title: "High Commissions",
       description:
-        "Earn top-tier commissions with our transparent payment structure, guaranteed prompt payouts, and no hidden fees.",
+        "Earn top-tier commissions with our transparent payment structure, with no hidden fees.",
       color: "from-amber-500/10 to-amber-500/5",
     },
     {
       icon: <Users className="w-6 h-6" />,
       title: "Agent Onboarding & Support",
       description:
-        "Personal WhatsApp onboarding with your region expert plus dedicated visa checklist and process mapped by country with 24/7 support.",
+        "Personal WhatsApp onboarding with your region expert plus dedicated process mapped by country.",
       color: "from-blue-500/10 to-blue-500/5",
     },
     {
@@ -63,7 +63,7 @@ export default function AgentFeaturesSection() {
       icon: <Megaphone className="w-6 h-6" />,
       title: "Marketing Support",
       description:
-        "Get ready-to-use content kits, professionally designed flyers, videos, and campaign ideas you can implement immediately.",
+        "Get ready-to-use content kits, professionally designed flyers, videos, and campaign you can implement immediately.",
       color: "from-green-500/10 to-green-500/5",
     },
     {

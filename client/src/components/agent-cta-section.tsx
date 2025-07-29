@@ -75,7 +75,9 @@ export default function AgentCTASection() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-4xl font-bold text-primary mb-1">100%</p>
+                  <p className="text-4xl font-bold text-primary mb-1">
+                    Competitive
+                  </p>
                   <p className="text-white/70 text-sm font-light">
                     Commission Rate
                   </p>

@@ -8,7 +8,7 @@ import {
   Phone,
   ArrowRight,
 } from "lucide-react";
-import NextWaveLogo from "../assets/NextWave-logo-Primary-red.svg";
+// NextWave logo will be used inline
 
 export default function SiteFooter() {
   const currentYear = new Date().getFullYear();
@@ -28,7 +28,11 @@ export default function SiteFooter() {
           {/* Logo and Company Info - 4 columns */}
           <div className="md:col-span-4">
             <div className="mb-6">
-              <h2 className="text-3xl font-bold text-white">NextWave</h2>
+              <img 
+                src="/logos/nextwave-white.png" 
+                alt="NextWave Logo" 
+                className="h-12 object-contain"
+              />
             </div>
 
             <p className="text-gray-400 font-light text-[16px] leading-relaxed mb-6 max-w-md">
