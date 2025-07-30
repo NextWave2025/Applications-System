@@ -58,25 +58,22 @@ export default function Header() {
               <NextWaveLogo size="lg" className="mr-4" />
               {!isLoading && user?.isAdmin && <LogoSettings />}
             </div>
-            <nav className="hidden md:ml-10 md:flex md:space-x-8" style={{ color: '#000000' }}>
+            <nav className="hidden md:ml-10 md:flex md:items-center md:space-x-8">
               <Link
                 href="/programs"
-                className="text-black hover:text-primary px-3 py-2 text-sm font-bold transition-colors duration-200"
-                style={{ color: '#000000' }}
+                className="nav-link-primary relative z-10 px-3 py-2 text-sm transition-colors duration-200"
               >
                 Programs
               </Link>
               <Link
                 href="/about"
-                className="text-black hover:text-primary px-3 py-2 text-sm font-bold transition-colors duration-200"
-                style={{ color: '#000000' }}
+                className="nav-link-primary relative z-10 px-3 py-2 text-sm transition-colors duration-200"
               >
                 About Us
               </Link>
               <Link
                 href="/contact"
-                className="text-black hover:text-primary px-3 py-2 text-sm font-bold transition-colors duration-200"
-                style={{ color: '#000000' }}
+                className="nav-link-primary relative z-10 px-3 py-2 text-sm transition-colors duration-200"
               >
                 Contact
               </Link>

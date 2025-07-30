@@ -105,6 +105,16 @@
     @apply h-4 w-4 rounded border-[#41326B]/30 text-[#41326B] focus:ring-[#41326B]/20;
   }
   
+  /* Navigation Link Styles - Force black color on large screens */
+  .nav-link-primary {
+    color: #000000 !important;
+    font-weight: bold !important;
+  }
+  
+  .nav-link-primary:hover {
+    color: rgb(107, 81, 162) !important;
+  }
+  
   .form-label {
     @apply block text-sm font-medium text-gray-700 mb-1;
   }
