@@ -8,6 +8,7 @@ import { AppWrapper } from "./components/app-wrapper";
 import { useEffect } from "react";
 
 import LandingPage from "./pages/landing-page";
+import StudentLandingPage from "./pages/student-landing-page";
 import ProgramsPage from "./pages/programs-page";
 import ProgramDetailPage from "./pages/program-detail-page";
 import ApplicationFormPage from "./pages/application-form-page";
@@ -49,6 +50,18 @@ export default function App() {
               <Route path="/">
                 <MainLayout>
                   <LandingPage />
+                </MainLayout>
+              </Route>
+
+              <Route path="/agent">
+                <MainLayout>
+                  <LandingPage />
+                </MainLayout>
+              </Route>
+
+              <Route path="/student">
+                <MainLayout>
+                  <StudentLandingPage />
                 </MainLayout>
               </Route>
 
