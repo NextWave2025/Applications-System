@@ -17,6 +17,8 @@ import ApplicationsPage from "./pages/applications-page";
 import AuthPage from "./pages/auth-page";
 import AgentAuthPage from "./pages/agent-auth-page";
 import StudentAuthPage from "./pages/student-auth-page";
+import AdminAuthPage from "./pages/admin-auth-page";
+import StudentDashboardPage from "./pages/student-dashboard-page";
 import DashboardPage from "./pages/dashboard-page";
 import AdminDashboardPage from "./pages/admin-dashboard-simple";
 import AdminControlPage from "./pages/admin-control-page";
@@ -79,6 +81,10 @@ export default function App() {
 
               <Route path="/auth/agent">
                 <AgentAuthPage />
+              </Route>
+
+              <Route path="/auth/admin">
+                <AdminAuthPage />
               </Route>
 
               <Route path="/programs/:id">
@@ -186,6 +192,21 @@ export default function App() {
                 </AdminLayout>
               </ProtectedRoute>
             </Route>
+
+            {/* Protected routes */}
+              <Route path="/dashboard">
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <DashboardPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            </Route>
+
+              <Route path="/student-dashboard">
+                <ProtectedRoute>
+                  <StudentDashboardPage />
+                </ProtectedRoute>
+              </Route>
 
             {/* Protected routes with DashboardLayout */}
               <Route path="/dashboard/applications/:id/edit">

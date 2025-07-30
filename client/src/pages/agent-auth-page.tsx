@@ -36,9 +36,9 @@ export default function AgentAuthPage() {
 
   const loginMutation = useMutation({
     mutationFn: (data: { email: string; password: string }) =>
-      apiRequest("/api/auth/login", {
+      apiRequest("/api/login", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify({ username: data.email, password: data.password }),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
@@ -51,9 +51,17 @@ export default function AgentAuthPage() {
 
   const signupMutation = useMutation({
     mutationFn: (data: any) =>
-      apiRequest("/api/auth/register", {
+      apiRequest("/api/register", {
         method: "POST",
-        body: JSON.stringify({ ...data, role: "agent" }),
+        body: JSON.stringify({ 
+          username: data.email,
+          password: data.password,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phoneNumber: data.phone,
+          agencyName: data.company,
+          role: "agent"
+        }),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });

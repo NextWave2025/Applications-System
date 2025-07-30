@@ -37,9 +37,9 @@ export default function StudentAuthPage() {
 
   const loginMutation = useMutation({
     mutationFn: (data: { email: string; password: string }) =>
-      apiRequest("/api/auth/login", {
+      apiRequest("/api/login", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify({ username: data.email, password: data.password }),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
@@ -49,7 +49,7 @@ export default function StudentAuthPage() {
         localStorage.removeItem("redirectTo");
         setLocation(redirectTo);
       } else {
-        setLocation("/dashboard");
+        setLocation("/student-dashboard");
       }
     },
     onError: (error: any) => {
@@ -59,9 +59,16 @@ export default function StudentAuthPage() {
 
   const signupMutation = useMutation({
     mutationFn: (data: any) =>
-      apiRequest("/api/auth/register", {
+      apiRequest("/api/register", {
         method: "POST",
-        body: JSON.stringify({ ...data, role: "student" }),
+        body: JSON.stringify({ 
+          username: data.email,
+          password: data.password,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phoneNumber: data.phone,
+          role: "student"
+        }),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
@@ -71,7 +78,7 @@ export default function StudentAuthPage() {
         localStorage.removeItem("redirectTo");
         setLocation(redirectTo);
       } else {
-        setLocation("/dashboard");
+        setLocation("/student-dashboard");
       }
     },
     onError: (error: any) => {
