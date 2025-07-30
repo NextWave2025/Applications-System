@@ -80,7 +80,7 @@ export default function AdminAuthPage() {
       setLocation("/admin");
       return null;
     } else {
-      setError("Access denied. Admin privileges required.");
+      // Return access denied UI without calling setError (prevents infinite re-render)
       return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
           <div className="text-center">
