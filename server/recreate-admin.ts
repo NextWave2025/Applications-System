@@ -26,7 +26,7 @@ async function recreateAdminUser() {
     // The simple solution: Create a new admin with a different email
     // Create admin user
     const newUsername = `admin${Date.now()}@example.com`;
-    const password = "admin123";
+    const password = process.env.ADMIN_PASSWORD || "temp123";
     
     console.log(`Creating new admin user with username: ${newUsername}`);
     
