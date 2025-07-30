@@ -72,8 +72,8 @@ export default function AdminAuthPage() {
     loginMutation.mutate(loginForm);
   };
 
-  // Redirect authenticated admin users
-  if (user) {
+  // Redirect authenticated admin users (only if not actively logging in)
+  if (user && !loginMutation.isPending) {
     console.log("User already authenticated:", user);
     if (user.role === 'admin') {
       console.log("Redirecting authenticated admin to dashboard");

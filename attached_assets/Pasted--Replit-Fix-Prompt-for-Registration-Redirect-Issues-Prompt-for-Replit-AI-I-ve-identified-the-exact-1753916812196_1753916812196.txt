@@ -1,0 +1,103 @@
+
+Replit Fix Prompt for Registration Redirect Issues
+Prompt for Replit AI:
+"I've identified the exact root cause of the persistent registration redirect issues. The problem is a component unmounting race condition that occurs when registration succeeds. Please implement the following critical fixes:
+🔧 CRITICAL ISSUE TO FIX:
+The auth pages have an immediate redirect pattern that causes components to unmount before navigation completes:
+
+javascript
+// ❌ THIS PATTERN CAUSES THE ISSUE
+if (user) {
+  setLocation("/dashboard");
+  return null;  // ← Component unmounts HERE, killing navigation
+}
+🎯 SPECIFIC FILES TO MODIFY:
+1. Fix client/src/pages/student-auth-page.tsx:
+* Replace the immediate user redirect check with mutation-state-aware logic
+* Simplify the registration onSuccess handler to remove complex delays and cache operations
+* Add proper mutation state checking to prevent premature redirects
+2. Fix client/src/pages/agent-auth-page.tsx:
+* Apply the same pattern as student auth page
+* Ensure agent registration redirects to /agent-dashboard immediately
+3. Fix client/src/pages/admin-auth-page.tsx:
+* Modify the user check to respect login mutation state
+* Maintain existing role validation logic
+🔧 EXACT CODE CHANGES NEEDED:
+For Each Auth Page, Replace:
+
+javascript
+// ❌ REMOVE THIS PATTERN
+if (user) {
+  setLocation("/some-dashboard");
+  return null;
+}
+With This Pattern:
+
+javascript
+// ✅ REPLACE WITH THIS
+if (user && !signupMutation.isPending && !loginMutation.isPending) {
+  // Only redirect if not actively in registration/login process
+  setLocation("/appropriate-dashboard");
+  return null;
+}
+Simplify Registration Success Handlers:
+
+javascript
+// ❌ REMOVE complex handlers with delays and cache clearing
+onSuccess: async (userData: any) => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+  await new Promise(resolve => setTimeout(resolve, 300));
+  setLocation("/dashboard");
+  // ... complex fallback logic
+}
+
+// ✅ REPLACE WITH simple immediate redirect
+onSuccess: async (userData: any) => {
+  console.log("Registration success - immediate redirect");
+  
+  // Set user data in cache immediately
+  queryClient.setQueryData(["/api/user"], userData);
+  
+  // Immediate redirect
+  setLocation("/appropriate-dashboard");
+  
+  toast({
+    title: "Welcome to NextWave!",
+    description: "Your account has been created successfully.",
+  });
+}
+🎯 SPECIFIC IMPLEMENTATION REQUIREMENTS:
+1. Student Auth Page:
+    * Check for redirectTo in localStorage for application flow
+    * Clear redirectTo after successful redirect
+    * Default to /student-dashboard if no redirectTo
+2. Agent Auth Page:
+    * Simple redirect to /agent-dashboard
+    * No complex localStorage logic needed
+3. Admin Auth Page:
+    * Maintain existing role validation
+    * Add mutation state checking to user redirect logic
+🔍 KEY DEBUGGING ADDITIONS:
+Add console logging to track the fix:
+
+javascript
+console.log("Registration success - immediate redirect");
+console.log("User data set in cache:", userData);
+console.log("Redirecting to:", targetDashboard);
+✅ EXPECTED BEHAVIOR AFTER FIX:
+* User submits registration form
+* Registration API completes successfully
+* User data is immediately set in React Query cache
+* Component remains mounted during navigation
+* Immediate redirect to appropriate dashboard
+* No manual refresh required
+* Toast notification confirms successful registration
+🚨 CRITICAL SUCCESS CRITERIA:
+The fix is successful when:
+1. Components don't unmount during the registration process
+2. Navigation happens immediately after cache update
+3. No complex delays or cache operations interfere
+4. All three user types (admin, agent, student) redirect properly
+5. Manual refresh is never required
+This addresses the fundamental race condition between component unmounting and navigation that has been causing the persistent redirect issues despite all previous fixes."
