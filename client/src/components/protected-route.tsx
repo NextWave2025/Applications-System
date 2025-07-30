@@ -13,12 +13,23 @@ export default function ProtectedRoute({ children, redirectTo }: ProtectedRouteP
 
   useEffect(() => {
     if (!isLoading && !user) {
-      console.log("User not authenticated, redirecting to auth");
+      console.log("User not authenticated, redirecting to appropriate auth page");
       // Store the intended destination for post-login redirect
-      if (redirectTo && location !== "/auth") {
+      if (redirectTo && !location.startsWith("/auth")) {
         localStorage.setItem("redirectAfterLogin", redirectTo);
       }
-      setLocation("/auth");
+      
+      // Determine appropriate auth page based on current path
+      if (location.startsWith("/admin")) {
+        setLocation("/auth/admin");
+      } else if (location.startsWith("/agent-dashboard") || location.startsWith("/dashboard")) {
+        setLocation("/auth/agent");
+      } else if (location.startsWith("/student-dashboard")) {
+        setLocation("/auth/student");
+      } else {
+        // Default to student auth for general public pages
+        setLocation("/auth/student");
+      }
     }
   }, [user, isLoading, setLocation, redirectTo, location]);
 

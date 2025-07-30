@@ -75,8 +75,8 @@ export default function StudentHeroSection() {
               </span>
             </h1>
             <p className="text-base sm:text-lg text-white/80 mb-6 sm:mb-8 font-light max-w-xl">
-              Discover world-class universities in the UAE. Get expert guidance, 
-              personalized support, and everything you need to start your 
+              Discover world-class universities in the UAE. Get expert guidance,
+              personalized support, and everything you need to start your
               international education journey.
             </p>
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-6 sm:mt-8">
@@ -95,8 +95,6 @@ export default function StudentHeroSection() {
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Link>
             </div>
-
-
 
             <div className="mt-16 flex items-center">
               <div className="flex -space-x-2">
@@ -139,24 +137,34 @@ export default function StudentHeroSection() {
                 <div className="w-full h-96 lg:h-[500px] bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 flex items-center justify-center">
                   <div className="text-center text-white/60">
                     <div className="w-16 h-16 mx-auto mb-4 bg-secondary/20 rounded-full flex items-center justify-center">
-                      <svg className="w-8 h-8 text-secondary" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
+                      <svg
+                        className="w-8 h-8 text-secondary"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path
+                          fillRule="evenodd"
+                          d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                     </div>
                     <p className="text-sm">Student Success Visual</p>
                   </div>
                 </div>
-                
+
                 {/* Floating stats cards */}
                 <div className="absolute -left-4 top-20 bg-white rounded-lg p-3 shadow-lg">
                   <div className="text-xs text-gray-500 mb-1">Success Rate</div>
                   <div className="text-lg font-bold text-primary">98%</div>
                 </div>
-                
+
                 <div className="absolute -right-4 bottom-20 bg-white rounded-lg p-3 shadow-lg">
-                  <div className="text-xs text-gray-500 mb-1">UAE Universities</div>
-                  <div className="text-lg font-bold text-primary">31+</div>
+                  <div className="text-xs text-gray-500 mb-1">
+                    UAE Universities
+                  </div>
+                  <div className="text-lg font-bold text-primary">20+</div>
                 </div>
               </div>
             </div>

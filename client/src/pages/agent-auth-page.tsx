@@ -42,8 +42,12 @@ export default function AgentAuthPage() {
       const userData = await authLoginMutation.mutateAsync({ username: data.email, password: data.password });
       return userData;
     },
-    onSuccess: (userData: any) => {
+    onSuccess: async (userData: any) => {
       console.log("Agent login success, redirecting to agent dashboard");
+      
+      // Wait a brief moment to ensure auth state is updated
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       setLocation("/agent-dashboard");
     },
     onError: (error: any) => {
@@ -62,7 +66,10 @@ export default function AgentAuthPage() {
         agencyName: data.company,
         role: "agent"
       }),
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Wait a brief moment to ensure auth state is updated
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       setLocation("/agent-dashboard");
     },
     onError: (error: any) => {

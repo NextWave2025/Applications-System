@@ -102,6 +102,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           queryClient.invalidateQueries({ queryKey: ["/api/admin"] })
         ]);
         console.log("User queries invalidated and refetched");
+        
+        // Add a small delay to ensure auth state propagates
+        await new Promise(resolve => setTimeout(resolve, 150));
+        
       } catch (error) {
         console.error("Error invalidating queries after login:", error);
       }
@@ -149,6 +153,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
         console.log("User query invalidated after registration");
+        
+        // Add a small delay to ensure auth state propagates
+        await new Promise(resolve => setTimeout(resolve, 150));
+        
       } catch (error) {
         console.error("Error invalidating queries after registration:", error);
       }

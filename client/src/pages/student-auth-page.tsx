@@ -43,8 +43,12 @@ export default function StudentAuthPage() {
       const userData = await authLoginMutation.mutateAsync({ username: data.email, password: data.password });
       return userData;
     },
-    onSuccess: (userData: any) => {
+    onSuccess: async (userData: any) => {
       console.log("Student login success, checking redirect");
+      
+      // Wait a brief moment to ensure auth state is updated
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Check if there's a redirectTo URL in localStorage for application flow
       const redirectTo = localStorage.getItem("redirectTo");
       if (redirectTo) {
@@ -69,7 +73,10 @@ export default function StudentAuthPage() {
         phoneNumber: data.phone,
         role: "student"
       }),
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Wait a brief moment to ensure auth state is updated
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Check if there's a redirectTo URL in localStorage for application flow
       const redirectTo = localStorage.getItem("redirectTo");
       if (redirectTo) {

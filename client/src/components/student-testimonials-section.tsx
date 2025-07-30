@@ -90,7 +90,9 @@ export default function StudentTestimonialsSection() {
         <div className="max-w-4xl mx-auto">
           <div
             className={`transition-all duration-1000 ease-out transform ${
-              isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+              isVisible
+                ? "translate-y-0 opacity-100"
+                : "translate-y-10 opacity-0"
             }`}
           >
             <div className="bg-white border border-gray-100 rounded-3xl p-8 md:p-12 shadow-xl relative overflow-hidden">
@@ -155,13 +157,13 @@ export default function StudentTestimonialsSection() {
         <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center">
             <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
-              2,000+
+              900+
             </div>
-            <div className="text-gray-600">Students Placed</div>
+            <div className="text-gray-600"> Programs </div>
           </div>
           <div className="text-center">
             <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
-              31+
+              20+
             </div>
             <div className="text-gray-600">Partner Universities</div>
           </div>
