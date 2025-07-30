@@ -35,7 +35,12 @@ export function registerRoutes(app: Express): Server {
   // API endpoint to get universities
   app.get("/api/universities", async (req, res) => {
     try {
+      // Add CORS headers explicitly for debugging
+      res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+      res.header('Access-Control-Allow-Credentials', 'true');
+      
       const universities = await storage.getUniversities();
+      console.log(`Found ${universities.length} universities`);
       res.json(universities);
     } catch (error) {
       console.error("Error fetching universities:", error);
@@ -61,6 +66,10 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/programs", async (req, res) => {
     try {
       console.log("GET /api/programs request with query:", req.query);
+      
+      // Add CORS headers explicitly for debugging
+      res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+      res.header('Access-Control-Allow-Credentials', 'true');
 
       const { 
         university, 

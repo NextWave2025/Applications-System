@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
@@ -23,6 +24,30 @@ try {
 }
 
 const app = express();
+
+// Configure CORS for production deployment
+const corsOptions = {
+  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow all Replit domains and local development
+    const allowedOrigins = [
+      /^https:\/\/.*\.replit\.app$/,
+      /^https:\/\/.*\.repl\.co$/,
+      /^http:\/\/localhost:\d+$/,
+      /^http:\/\/127\.0\.0\.1:\d+$/,
+    ];
+    
+    const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
+    callback(null, isAllowed);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -78,7 +103,7 @@ app.use((req, res, next) => {
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
@@ -111,6 +136,11 @@ app.use((req, res, next) => {
       log(`Node environment: ${process.env.NODE_ENV}`);
       log(`Database connection: ${process.env.DATABASE_URL ? 'Configured' : 'Not configured'}`);
       log(`Process ID: ${process.pid}`);
+      
+      // Test database connection on startup
+      checkDatabaseConnection()
+        .then(() => log("Database connection test: SUCCESS"))
+        .catch((err) => log(`Database connection test: FAILED - ${err.message}`));
     });
   } catch (err) {
     log(`Error starting server: ${err}`);
