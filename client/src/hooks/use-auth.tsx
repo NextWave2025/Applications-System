@@ -117,40 +117,79 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async (credentials: RegisterData) => {
       try {
+        console.log("Registration attempt for:", credentials.username);
         const res = await apiRequest("POST", "/api/register", credentials);
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({ message: 'Registration failed' }));
           throw new Error(errorData.message || 'Registration failed');
         }
-        return await res.json();
+        const userData = await res.json();
+        console.log("Registration successful, user data:", userData);
+        return userData;
       } catch (error) {
         console.error("Registration error:", error);
         throw error instanceof Error ? error : new Error('Registration failed');
       }
     },
     onSuccess: async (user: User) => {
-      console.log("Registration mutation onSuccess called, setting user data:", user);
+      console.log("Registration mutation onSuccess called with user:", user);
       
-      // Set user data immediately in cache to trigger auth state update
-      queryClient.setQueryData(["/api/user"], user);
-      
-      // Force immediate refetch to ensure state consistency
       try {
-        await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-        console.log("User query invalidated after registration");
+        // 1. Immediately set user data in cache to trigger auth state update
+        console.log("Setting user data in cache immediately");
+        queryClient.setQueryData(["/api/user"], user);
         
-        // Add a delay to ensure auth state propagates
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // 2. Force synchronous completion with minimal delay
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        // 3. Clear and refetch auth queries to ensure consistency
+        console.log("Clearing cache and refetching user data");
+        await queryClient.clear();
+        
+        // 4. Manually refetch user data to ensure it's properly set
+        await queryClient.prefetchQuery({
+          queryKey: ["/api/user"],
+          queryFn: async () => {
+            try {
+              const response = await fetch("/api/user", {
+                credentials: "include"
+              });
+              if (response.status === 401 || response.status === 403) {
+                return null;
+              }
+              if (!response.ok) {
+                console.warn(`Auth query failed: ${response.status} ${response.statusText}`);
+                return null;
+              }
+              const userData = await response.json();
+              console.log("Prefetch auth query successful:", userData);
+              return userData;
+            } catch (error) {
+              console.warn("Prefetch auth query error:", error);
+              return user; // Fallback to registration user data
+            }
+          },
+          staleTime: 0, // Force fresh fetch
+        });
+        
+        // 5. Final invalidation to trigger UI updates
+        await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+        
+        console.log("Registration success: Cache updated and queries invalidated");
+        toast({
+          title: "Registration successful",
+          description: "Welcome to NextWave!",
+        });
         
       } catch (error) {
-        console.error("Error invalidating queries after registration:", error);
+        console.error("Error in registration onSuccess handler:", error);
+        // Fallback: still show success message and set basic cache
+        queryClient.setQueryData(["/api/user"], user);
+        toast({
+          title: "Registration successful",
+          description: "Welcome to NextWave!",
+        });
       }
-      
-      console.log("Registration success: Cache updated, showing toast");
-      toast({
-        title: "Registration successful",
-        description: "Welcome to NextWave!",
-      });
     },
     onError: (error: Error) => {
       console.error("Registration mutation error:", error);

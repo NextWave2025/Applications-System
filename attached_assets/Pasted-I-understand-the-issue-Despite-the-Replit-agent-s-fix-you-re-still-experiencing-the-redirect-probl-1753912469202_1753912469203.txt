@@ -1,0 +1,119 @@
+I understand the issue. Despite the Replit agent's fix, you're still experiencing the redirect problem after registration. The issue is more fundamental than what was addressed. Let me provide you with a more comprehensive solution:
+
+# Advanced Replit Debugging Prompt for Persistent Registration Redirect Issues
+
+Based on your feedback that the previous fix didn't work, here's a more thorough prompt to address the deeper underlying issues:
+
+**Prompt for Replit AI:**
+
+"My multi-user registration system still has redirect issues after implementing the previous fixes. Users still need to manually refresh the page after registration to get redirected to their dashboards. The previous fix with 500ms delay and invalidateQueries didn't resolve the issue.
+
+Please investigate these deeper potential causes:
+
+## **1. Browser Navigation State Issues**
+- Check if we're using proper navigation methods (React Router's `useNavigate()` vs window.location)
+- Verify if programmatic navigation is being blocked by browser security policies
+- Test if navigation works with `navigate(path, { replace: true })` instead of basic navigation
+
+## **2. Authentication Token/State Race Conditions**
+- Examine if JWT tokens are being set in localStorage/cookies BEFORE navigation
+- Check if the auth query key exactly matches between registration and auth checking
+- Verify if browser storage operations are completing before redirect attempts
+- Test with `await localStorage.setItem()` or similar synchronous operations
+
+## **3. React Query Cache Inconsistencies**
+- Investigate if the query key pattern `['/api/user']` matches your actual auth query
+- Check if multiple auth queries exist with different keys
+- Verify if `staleTime` and `cacheTime` settings are interfering
+- Test with complete cache reset: `queryClient.clear()` before invalidation
+
+## **4. Component Re-render and State Management**
+- Check if registration components are unmounting before redirect completion
+- Verify if auth context/state is properly synchronized across components
+- Test if using `useMemo` or `useCallback` for navigation functions helps
+- Investigate potential memory leaks or component cleanup issues
+
+## **5. Network and Timing Issues**
+- Test with longer delays (1000ms, 2000ms) to rule out timing issues
+- Check if registration API response includes the auth token
+- Verify if registration endpoint sets cookies/headers that need time to propagate
+- Test with `await queryClient.refetchQueries()` instead of just invalidation
+
+## **Specific Code Improvements to Try:**
+
+```javascript
+// More robust registration success handler
+onSuccess: async (userData) => {
+  try {
+    // 1. Ensure token is stored
+    if (userData.token) {
+      localStorage.setItem('authToken', userData.token);
+      // Force synchronous completion
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    // 2. Clear and reset auth state
+    await queryClient.clear();
+    
+    // 3. Manually refetch user data
+    await queryClient.refetchQueries({ 
+      queryKey: ['/api/user'],
+      type: 'active'
+    });
+    
+    // 4. Wait for state propagation
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // 5. Force navigation with replace
+    navigate(dashboardPath, { replace: true });
+    
+    // 6. As backup, use window location
+    setTimeout(() => {
+      window.location.href = dashboardPath;
+    }, 100);
+    
+  } catch (error) {
+    console.error('Registration redirect error:', error);
+    // Fallback to window location
+    window.location.href = dashboardPath;
+  }
+}
+```
+
+## **Alternative Approaches:**
+1. **Post-registration landing page**: Create an intermediate loading page that handles the redirect
+2. **Server-side redirect**: Have the registration API return redirect instructions
+3. **Browser history replacement**: Use `window.history.replaceState()` before navigation
+4. **Component-based routing**: Use conditional rendering instead of navigation
+
+## **Debug Information Needed:**
+- Console errors during registration process
+- Network tab showing registration API response timing
+- Local storage contents before/after registration
+- React Query DevTools cache state during registration
+- Browser developer tools Application tab for storage inspection
+
+The issue might be that React Query cache invalidation is async and navigation happens before the auth state actually updates in the UI layer."
+
+This more comprehensive approach should identify and fix the root cause of why manual refresh is still required after registration.
+
+[1] https://www.reddit.com/r/reactjs/comments/jd5oxu/does_reactquery_make_sense_in_an_auth_provider/
+[2] https://www.codemzy.com/blog/react-auth-context-vs-react-query
+[3] https://stackoverflow.com/questions/75109195/react-query-how-to-avoid-race-condition-and-ensure-synchronization-order-of-dep
+[4] https://tkdodo.eu/blog/react-query-and-react-context
+[5] https://github.com/TanStack/query/discussions/3253
+[6] https://www.reddit.com/r/reactjs/comments/gezezc/in_my_react_app_url_updates_but_the_page_does_not/
+[7] https://tanstack.com/query/v5/docs/react/guides/query-invalidation
+[8] https://www.geeksforgeeks.org/reactjs/how-to-prevent-page-from-rendering-before-redirect-in-reactjs/
+[9] https://refine.dev/blog/react-query-guide/
+[10] https://github.com/remix-run/react-router/issues/8798
+[11] https://www.reddit.com/r/reactjs/comments/17u2nll/tanstack_react_query_invalidatequeries/
+[12] https://github.com/ReactTraining/react-router/issues/6422
+[13] https://gitnation.com/contents/react-query-and-auth-who-is-responsible-for-what
+[14] https://ui.dev/react-router-cannot-get-url-refresh
+[15] https://tanstack.com/query/v4/docs/react/guides/query-invalidation
+[16] https://stackoverflow.com/questions/77314896/how-to-delay-react-routing-while-api-is-called
+[17] https://github.com/trojanowski/react-apollo-hooks/issues/133
+[18] https://www.youtube.com/watch?v=EDJW88iVORA
+[19] https://stackoverflow.com/questions/76044003/react-query-invalidatequeries-cache
+[20] https://community.auth0.com/t/delay-after-login-redirect/33455

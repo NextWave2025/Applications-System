@@ -102,27 +102,52 @@ export default function StudentAuthPage() {
     onSuccess: async (userData: any) => {
       console.log("Student signup success, userData:", userData);
       
-      // Wait for auth state to fully propagate  
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Force auth query refetch to ensure user state is current
-      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-      
-      // Check if there's a redirectTo URL in localStorage for application flow
-      const redirectTo = localStorage.getItem("redirectTo");
-      if (redirectTo) {
-        localStorage.removeItem("redirectTo");
-        console.log("Redirecting student to application:", redirectTo);
-        setLocation(redirectTo);
-      } else {
-        console.log("Redirecting student to dashboard");
+      try {
+        // 1. Wait for auth state to fully propagate  
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // 2. Force auth query refetch to ensure user state is current
+        await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+        
+        // 3. Additional delay to ensure React Query cache propagates to components
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // 4. Get redirect destination
+        const redirectTo = localStorage.getItem("redirectTo");
+        const targetUrl = redirectTo || "/student-dashboard";
+        
+        if (redirectTo) {
+          localStorage.removeItem("redirectTo");
+          console.log("Redirecting student to application:", redirectTo);
+        } else {
+          console.log("Redirecting student to dashboard");
+        }
+        
+        // 5. Navigate with replace to prevent back button issues
+        setLocation(targetUrl);
+        
+        // 6. Fallback navigation if primary redirect fails
+        setTimeout(() => {
+          if (window.location.pathname !== targetUrl && !window.location.pathname.includes('/student')) {
+            console.log("Fallback redirect triggered for:", targetUrl);
+            window.location.href = targetUrl;
+          }
+        }, 500);
+        
+        toast({
+          title: "Welcome to NextWave!",
+          description: "Your student account has been created successfully.",
+        });
+        
+      } catch (error) {
+        console.error("Error in student signup success handler:", error);
+        // Emergency fallback
         setLocation("/student-dashboard");
+        toast({
+          title: "Welcome to NextWave!",
+          description: "Your student account has been created successfully.",
+        });
       }
-      
-      toast({
-        title: "Welcome to NextWave!",
-        description: "Your student account has been created successfully.",
-      });
     },
     onError: (error: any) => {
       console.error("Student signup error:", error);

@@ -94,19 +94,43 @@ export default function AgentAuthPage() {
     onSuccess: async (userData: any) => {
       console.log("Agent signup success, userData:", userData);
       
-      // Wait for auth state to fully propagate
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Force auth query refetch to ensure user state is current
-      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-      
-      console.log("Redirecting agent to dashboard");
-      setLocation("/agent-dashboard");
-      
-      toast({
-        title: "Welcome to NextWave!",
-        description: "Your agent account has been created successfully.",
-      });
+      try {
+        // 1. Wait for auth state to fully propagate
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // 2. Force auth query refetch to ensure user state is current
+        await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+        
+        // 3. Additional delay to ensure React Query cache propagates to components
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        console.log("Redirecting agent to dashboard");
+        
+        // 4. Navigate with fallback
+        setLocation("/agent-dashboard");
+        
+        // 5. Fallback navigation if primary redirect fails
+        setTimeout(() => {
+          if (window.location.pathname !== "/agent-dashboard" && !window.location.pathname.includes('/agent')) {
+            console.log("Fallback redirect triggered for agent dashboard");
+            window.location.href = "/agent-dashboard";
+          }
+        }, 500);
+        
+        toast({
+          title: "Welcome to NextWave!",
+          description: "Your agent account has been created successfully.",
+        });
+        
+      } catch (error) {
+        console.error("Error in agent signup success handler:", error);
+        // Emergency fallback
+        setLocation("/agent-dashboard");
+        toast({
+          title: "Welcome to NextWave!",
+          description: "Your agent account has been created successfully.",
+        });
+      }
     },
     onError: (error: any) => {
       console.error("Agent signup error:", error);
