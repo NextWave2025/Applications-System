@@ -53,31 +53,21 @@ export default function StudentHeroSection() {
               <span className="w-2 h-2 bg-secondary rounded-full mr-2"></span>
               Your Gateway to UAE Universities
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-              Study in the
-              <span className="text-secondary"> UAE</span> with
-              <span className="relative ml-1.5">
-                Confidence
-                <svg
-                  className="absolute bottom-2 left-0 w-full"
-                  height="6"
-                  viewBox="0 0 200 6"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M0 3C50 3 50 3 100 3C150 3 150 3 200 3"
-                    stroke="#EFC61C"
-                    strokeWidth="5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </span>
+            {/* Student testimonial badge */}
+            <div className="inline-flex items-center bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-white/90 text-sm mb-6">
+              <div className="w-6 h-6 bg-white/20 rounded-full mr-2 flex items-center justify-center">
+                <span className="text-xs">🇵🇰</span>
+              </div>
+              "I got into Heriot-Watt with their help" - Ayesha, Pakistan
+            </div>
+            
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight tracking-wide">
+              Study in the UAE.
+              <br />
+              <span className="text-secondary">We'll Guide You There.</span>
             </h1>
             <p className="text-base sm:text-lg text-white/80 mb-6 sm:mb-8 font-light max-w-xl">
-              Discover world-class universities in the UAE. Get expert guidance,
-              personalized support, and everything you need to start your
-              international education journey.
+              Confused about where to start? Get expert help, explore top programs, and apply stress-free.
             </p>
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-6 sm:mt-8">
               <Link

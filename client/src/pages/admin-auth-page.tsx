@@ -43,18 +43,19 @@ export default function AdminAuthPage() {
       if (userData && userData.role === 'admin') {
         console.log("Redirecting to admin dashboard");
         
-        // No additional queries needed - useAuth already handles cache update
-        
-        // Check for redirectAfterLogin from ProtectedRoute
-        const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
-        if (redirectAfterLogin) {
-          localStorage.removeItem("redirectAfterLogin");
-          setLocation(redirectAfterLogin);
-          return;
-        }
-        
-        // Default redirect to admin dashboard
-        setLocation("/admin");
+        // Wait for auth state to propagate, then redirect
+        setTimeout(() => {
+          // Check for redirectAfterLogin from ProtectedRoute
+          const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
+          if (redirectAfterLogin) {
+            localStorage.removeItem("redirectAfterLogin");
+            setLocation(redirectAfterLogin);
+            return;
+          }
+          
+          // Default redirect to admin dashboard
+          setLocation("/admin");
+        }, 200);
       } else {
         setError("Access denied. Admin privileges required.");
       }
@@ -111,15 +112,15 @@ export default function AdminAuthPage() {
               <Shield className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Admin Portal</h1>
-          <p className="text-gray-400">Secure administrative access</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Welcome Back, Admin</h1>
+          <p className="text-gray-400">Manage your NextWave platform with secure access</p>
         </div>
 
         <Card className="border-gray-700 bg-gray-800/50 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-white">Administrator Login</CardTitle>
+            <CardTitle className="text-white">Admin Dashboard Access</CardTitle>
             <CardDescription className="text-gray-300">
-              Enter your admin credentials to access the control panel
+              Secure login to manage students, agents, and platform operations
             </CardDescription>
           </CardHeader>
           <CardContent>

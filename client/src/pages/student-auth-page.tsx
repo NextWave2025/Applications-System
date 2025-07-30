@@ -60,26 +60,27 @@ export default function StudentAuthPage() {
         return;
       }
       
-      // No additional queries needed - useAuth already handles cache update
-      
-      // Check if there's a redirectTo URL in localStorage for application flow
-      const redirectTo = localStorage.getItem("redirectTo");
-      if (redirectTo) {
-        localStorage.removeItem("redirectTo");
-        setLocation(redirectTo);
-        return;
-      }
-      
-      // Check for redirectAfterLogin from ProtectedRoute
-      const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
-      if (redirectAfterLogin) {
-        localStorage.removeItem("redirectAfterLogin");
-        setLocation(redirectAfterLogin);
-        return;
-      }
-      
-      // Default redirect
-      setLocation("/student-dashboard");
+      // Wait for auth state to propagate, then redirect
+      setTimeout(() => {
+        // Check if there's a redirectTo URL in localStorage for application flow
+        const redirectTo = localStorage.getItem("redirectTo");
+        if (redirectTo) {
+          localStorage.removeItem("redirectTo");
+          setLocation(redirectTo);
+          return;
+        }
+        
+        // Check for redirectAfterLogin from ProtectedRoute
+        const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
+        if (redirectAfterLogin) {
+          localStorage.removeItem("redirectAfterLogin");
+          setLocation(redirectAfterLogin);
+          return;
+        }
+        
+        // Default redirect
+        setLocation("/student-dashboard");
+      }, 200);
     },
     onError: (error: any) => {
       setError(error.message || "Login failed");
