@@ -100,11 +100,14 @@ export default function StudentAuthPage() {
       });
     },
     onSuccess: async (userData: any) => {
-      console.log("Registration success - immediate redirect");
-      console.log("User data set in cache:", userData);
+      console.log("=== REGISTRATION SUCCESS NAVIGATION DEBUG ===");
+      console.log("1. Registration completed, userData:", userData);
+      console.log("2. Current URL:", window.location.href);
+      console.log("3. Current pathname:", window.location.pathname);
       
       // Set user data in cache immediately
       queryClient.setQueryData(["/api/user"], userData);
+      console.log("4. Cache updated with user data");
       
       // Get redirect destination
       const redirectTo = localStorage.getItem("redirectTo");
@@ -112,13 +115,24 @@ export default function StudentAuthPage() {
       
       if (redirectTo) {
         localStorage.removeItem("redirectTo");
-        console.log("Redirecting to:", targetUrl);
-      } else {
-        console.log("Redirecting to:", targetUrl);
       }
       
-      // Immediate redirect
+      console.log("5. Attempting setLocation('" + targetUrl + "')");
       setLocation(targetUrl);
+      
+      // Check navigation result
+      setTimeout(() => {
+        console.log("6. URL after navigation:", window.location.href);
+        console.log("7. Pathname after navigation:", window.location.pathname);
+        
+        if (window.location.pathname === targetUrl) {
+          console.log("✅ NAVIGATION WORKED - But UI might not be updating");
+        } else {
+          console.log("❌ NAVIGATION FAILED - URL didn't change");
+          console.log("8. Trying window.location.replace fallback");
+          window.location.replace(targetUrl);
+        }
+      }, 200);
       
       toast({
         title: "Welcome to NextWave!",
@@ -263,6 +277,31 @@ export default function StudentAuthPage() {
                     disabled={loginMutation.isPending}
                   >
                     {loginMutation.isPending ? "Signing In..." : "Continue My Application"}
+                  </Button>
+                  
+                  {/* DEBUG: Pure Navigation Test */}
+                  <Button 
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      console.log("=== PURE NAVIGATION TEST ===");
+                      console.log("Current location:", window.location.href);
+                      
+                      // Test 1: Your current method
+                      console.log("Testing setLocation...");
+                      setLocation("/student-dashboard");
+                      
+                      setTimeout(() => {
+                        console.log("Location after setLocation:", window.location.href);
+                        
+                        // Test 2: Native browser method
+                        console.log("Testing window.location.href...");
+                        window.location.href = "/student-dashboard";
+                      }, 500);
+                    }}
+                  >
+                    🧪 Test Navigation Only
                   </Button>
                 </form>
               </CardContent>

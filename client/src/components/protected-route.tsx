@@ -13,7 +13,10 @@ export default function ProtectedRoute({ children, redirectTo }: ProtectedRouteP
 
   useEffect(() => {
     if (!isLoading && !user) {
-      console.log("User not authenticated, redirecting to appropriate auth page");
+      console.log("=== PROTECTED ROUTE REDIRECT DEBUG ===");
+      console.log("User not authenticated, current location:", location);
+      console.log("Redirecting to appropriate auth page");
+      
       // Store the intended destination for post-login redirect
       if (redirectTo && !location.startsWith("/auth")) {
         localStorage.setItem("redirectAfterLogin", redirectTo);
@@ -21,15 +24,22 @@ export default function ProtectedRoute({ children, redirectTo }: ProtectedRouteP
       
       // Determine appropriate auth page based on current path
       if (location.startsWith("/admin")) {
+        console.log("Redirecting to admin auth");
         setLocation("/auth/admin");
       } else if (location.startsWith("/agent-dashboard") || location.startsWith("/dashboard")) {
+        console.log("Redirecting to agent auth");
         setLocation("/auth/agent");
       } else if (location.startsWith("/student-dashboard")) {
+        console.log("Redirecting to student auth");
         setLocation("/auth/student");
       } else {
         // Default to student auth for general public pages
+        console.log("Redirecting to default student auth");
         setLocation("/auth/student");
       }
+    } else if (!isLoading && user) {
+      console.log("=== PROTECTED ROUTE ALLOW ACCESS ===");
+      console.log("User authenticated:", user.role, "at location:", location);
     }
   }, [user, isLoading, setLocation, redirectTo, location]);
 
