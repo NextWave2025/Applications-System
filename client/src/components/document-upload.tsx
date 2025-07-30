@@ -56,7 +56,7 @@ export default function DocumentUpload() {
               Submit Your <span className="text-primary">Documents</span>
             </h2>
             <p className="text-lg text-gray-600">
-              Already spoke with our team? Upload your documents here to move forward with your application.
+              Upload your required documents to move forward with your application.
             </p>
           </div>
 

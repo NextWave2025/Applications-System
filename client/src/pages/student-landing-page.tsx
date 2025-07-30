@@ -11,11 +11,11 @@ export default function StudentLandingPage() {
   return (
     <>
       <StudentHeroSection />
-      <PartnerUniversitiesSection />
       <StudentFeaturesSection />
       <WhyChooseUAESection />
       <StudentTestimonialsSection />
       <StudentCTASection />
+      <PartnerUniversitiesSection />
       <ConsultationForm />
       <DocumentUpload />
     </>

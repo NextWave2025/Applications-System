@@ -44,16 +44,16 @@ export default function StudentHeroSection() {
         <div className="absolute -bottom-24 right-1/4 w-96 h-96 bg-primary/10 rounded-full filter blur-3xl"></div>
       </div>
 
-      <div className="container mx-auto px-6 lg:px-8 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col-reverse lg:flex-row items-center lg:items-start">
           <div
-            className={`max-w-2xl py-12 lg:py-24 transition-all duration-1000 ease-out transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
+            className={`max-w-2xl py-8 sm:py-12 lg:py-24 transition-all duration-1000 ease-out transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
           >
-            <div className="inline-flex items-center px-4 py-2 bg-secondary/20 rounded-full text-secondary font-bold mb-6 text-sm">
+            <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-secondary/20 rounded-full text-secondary font-bold mb-4 sm:mb-6 text-xs sm:text-sm">
               <span className="w-2 h-2 bg-secondary rounded-full mr-2"></span>
               Your Gateway to UAE Universities
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
               Study in the
               <span className="text-secondary"> UAE</span> with
               <span className="relative ml-1.5">
@@ -74,41 +74,29 @@ export default function StudentHeroSection() {
                 </svg>
               </span>
             </h1>
-            <p className="text-lg text-white/80 mb-8 font-light max-w-xl">
+            <p className="text-base sm:text-lg text-white/80 mb-6 sm:mb-8 font-light max-w-xl">
               Discover world-class universities in the UAE. Get expert guidance, 
               personalized support, and everything you need to start your 
               international education journey.
             </p>
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-5 mt-8">
+            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-6 sm:mt-8">
               <Link
                 href="#consultation-form"
-                className="py-3.5 px-7 bg-secondary text-black font-bold rounded-md hover:bg-yellow-400 transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg shadow-secondary/30 flex items-center justify-center"
+                className="py-4 sm:py-3.5 px-6 sm:px-7 bg-secondary text-black font-bold rounded-lg hover:bg-yellow-400 transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg shadow-secondary/30 flex items-center justify-center text-sm sm:text-base min-h-[44px]"
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 Book Free Consultation
               </Link>
               <Link
                 href="/programs"
-                className="py-3.5 px-7 bg-[#41326B] text-white border border-[#41326B] font-semibold rounded-md hover:bg-[#352858] transition-all duration-300 flex items-center justify-center"
+                className="py-4 sm:py-3.5 px-6 sm:px-7 bg-[#41326B] text-white border border-[#41326B] font-semibold rounded-lg hover:bg-[#352858] transition-all duration-300 flex items-center justify-center text-sm sm:text-base min-h-[44px]"
               >
                 Explore UAE Programs
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Link>
             </div>
 
-            {/* Quick document upload CTA */}
-            <div className="mt-8 p-4 bg-white/10 rounded-lg border border-white/20 backdrop-blur-sm">
-              <div className="flex items-center text-white/90 text-sm mb-2">
-                <Upload className="w-4 h-4 mr-2" />
-                <span className="font-medium">Already spoke with us?</span>
-              </div>
-              <Link
-                href="#document-upload"
-                className="text-secondary hover:text-yellow-300 transition-colors font-medium text-sm underline"
-              >
-                Upload your documents here →
-              </Link>
-            </div>
+
 
             <div className="mt-16 flex items-center">
               <div className="flex -space-x-2">
