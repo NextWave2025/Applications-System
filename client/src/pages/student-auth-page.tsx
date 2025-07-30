@@ -39,9 +39,12 @@ export default function StudentAuthPage() {
   const { loginMutation: authLoginMutation, registerMutation: authRegisterMutation } = useAuth();
 
   const loginMutation = useMutation({
-    mutationFn: (data: { email: string; password: string }) =>
-      authLoginMutation.mutateAsync({ username: data.email, password: data.password }),
-    onSuccess: () => {
+    mutationFn: async (data: { email: string; password: string }) => {
+      const userData = await authLoginMutation.mutateAsync({ username: data.email, password: data.password });
+      return userData;
+    },
+    onSuccess: (userData: any) => {
+      console.log("Student login success, checking redirect");
       // Check if there's a redirectTo URL in localStorage for application flow
       const redirectTo = localStorage.getItem("redirectTo");
       if (redirectTo) {

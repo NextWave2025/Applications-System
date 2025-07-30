@@ -26,17 +26,22 @@ export default function AdminAuthPage() {
   const { loginMutation: authLoginMutation } = useAuth();
 
   const loginMutation = useMutation({
-    mutationFn: (data: { email: string; password: string }) =>
-      authLoginMutation.mutateAsync({ username: data.email, password: data.password }),
+    mutationFn: async (data: { email: string; password: string }) => {
+      const userData = await authLoginMutation.mutateAsync({ username: data.email, password: data.password });
+      return userData;
+    },
     onSuccess: (userData: any) => {
+      console.log("Admin login success, user data:", userData);
       // Check if user is actually an admin
-      if (userData.role === 'admin') {
+      if (userData && userData.role === 'admin') {
+        console.log("Redirecting to admin dashboard");
         setLocation("/admin");
       } else {
         setError("Access denied. Admin privileges required.");
       }
     },
     onError: (error: any) => {
+      console.log("Admin login error:", error);
       setError(error.message || "Login failed");
     },
   });
@@ -47,13 +52,24 @@ export default function AdminAuthPage() {
     loginMutation.mutate(loginForm);
   };
 
+  // Redirect authenticated admin users
   if (user) {
+    console.log("User already authenticated:", user);
     if (user.role === 'admin') {
+      console.log("Redirecting authenticated admin to dashboard");
       setLocation("/admin");
+      return null;
     } else {
       setError("Access denied. Admin privileges required.");
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
+          <div className="text-center text-white">
+            <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+            <p>Admin privileges required.</p>
+          </div>
+        </div>
+      );
     }
-    return null;
   }
 
   return (
