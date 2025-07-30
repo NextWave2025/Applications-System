@@ -100,14 +100,16 @@ export default function StudentAuthPage() {
       });
     },
     onSuccess: async (userData: any) => {
-      console.log("=== REGISTRATION SUCCESS NAVIGATION DEBUG ===");
+      console.log("=== REGISTRATION SUCCESS - PROTECTED ROUTE SYNC ===");
       console.log("1. Registration completed, userData:", userData);
-      console.log("2. Current URL:", window.location.href);
-      console.log("3. Current pathname:", window.location.pathname);
       
-      // Set user data in cache immediately
+      // Set cache data immediately
       queryClient.setQueryData(["/api/user"], userData);
-      console.log("4. Cache updated with user data");
+      console.log("2. Cache updated with user data");
+      
+      // Force refetch to ensure consistency
+      await queryClient.refetchQueries({ queryKey: ["/api/user"] });
+      console.log("3. Auth query refetched for consistency");
       
       // Get redirect destination
       const redirectTo = localStorage.getItem("redirectTo");
@@ -117,26 +119,19 @@ export default function StudentAuthPage() {
         localStorage.removeItem("redirectTo");
       }
       
-      console.log("5. Attempting setLocation('" + targetUrl + "')");
-      setLocation(targetUrl);
+      console.log("4. Cache synchronization complete");
+      console.log("5. Query data after sync:", queryClient.getQueryData(["/api/user"]));
       
-      // Check navigation result
+      // Extended delay for protected route propagation
       setTimeout(() => {
-        console.log("6. URL after navigation:", window.location.href);
-        console.log("7. Pathname after navigation:", window.location.pathname);
-        
-        if (window.location.pathname === targetUrl) {
-          console.log("✅ NAVIGATION WORKED - But UI might not be updating");
-        } else {
-          console.log("❌ NAVIGATION FAILED - URL didn't change");
-          console.log("8. Trying window.location.replace fallback");
-          window.location.replace(targetUrl);
-        }
-      }, 200);
+        console.log("6. Navigating to dashboard after auth propagation:", targetUrl);
+        setLocation(targetUrl);
+      }, 800); // Increased delay for protected routes
       
       toast({
-        title: "Welcome to NextWave!",
-        description: "Your student account has been created successfully.",
+        title: "Registration successful!",
+        description: "Redirecting to your dashboard...",
+        duration: 5000,
       });
     },
     onError: (error: any) => {

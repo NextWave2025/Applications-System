@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "../hooks/use-auth";
+import { queryClient } from "../lib/queryClient";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -10,24 +11,31 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ children, redirectTo }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
   const [location, setLocation] = useLocation();
-  const [initialDelay, setInitialDelay] = useState(true);
+  const [authGracePeriod, setAuthGracePeriod] = useState(true);
 
-  // Add initial delay to prevent race condition after registration
+  // Extended grace period for auth state propagation after registration
   useEffect(() => {
     const timer = setTimeout(() => {
-      setInitialDelay(false);
-    }, 100); // Small delay to allow React Query cache to propagate
+      setAuthGracePeriod(false);
+    }, 1000); // Extended delay to prevent race conditions
     
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    // Don't redirect during initial delay period (prevents race condition)
-    if (initialDelay) {
-      return;
-    }
-    
-    if (!isLoading && !user) {
+    // Enhanced debug logging
+    console.log("=== PROTECTED ROUTE CHECK DEBUG ===", {
+      hasUser: !!user,
+      isLoading,
+      userRole: user?.role,
+      currentPath: window.location.pathname,
+      location,
+      authGracePeriod,
+      queryData: queryClient.getQueryData(["/api/user"])
+    });
+
+    // Only redirect after grace period and when not loading
+    if (!isLoading && !user && !authGracePeriod) {
       console.log("=== PROTECTED ROUTE REDIRECT DEBUG ===");
       console.log("User not authenticated, current location:", location);
       console.log("Redirecting to appropriate auth page");
@@ -56,18 +64,21 @@ export default function ProtectedRoute({ children, redirectTo }: ProtectedRouteP
       console.log("=== PROTECTED ROUTE ALLOW ACCESS ===");
       console.log("User authenticated:", user.role, "at location:", location);
     }
-  }, [user, isLoading, setLocation, redirectTo, location, initialDelay]);
+  }, [user, isLoading, setLocation, redirectTo, location, authGracePeriod]);
 
-  // Show loading while checking authentication or during initial delay
-  if (isLoading || initialDelay) {
+  // Show loading while checking authentication or during grace period
+  if (isLoading || authGracePeriod) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-primary-600">Verifying authentication...</p>
+        </div>
       </div>
     );
   }
 
-  // Don't render if not authenticated
+  // Don't render if not authenticated (only after grace period)
   if (!user) {
     return null;
   }

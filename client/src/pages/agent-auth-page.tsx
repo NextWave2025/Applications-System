@@ -92,20 +92,30 @@ export default function AgentAuthPage() {
       });
     },
     onSuccess: async (userData: any) => {
-      console.log("Registration success - immediate redirect");
-      console.log("User data set in cache:", userData);
+      console.log("=== AGENT REGISTRATION SUCCESS - PROTECTED ROUTE SYNC ===");
+      console.log("1. Registration completed, userData:", userData);
       
-      // Set user data in cache immediately
+      // Set cache data immediately
       queryClient.setQueryData(["/api/user"], userData);
+      console.log("2. Cache updated with user data");
       
-      console.log("Redirecting to: /agent-dashboard");
+      // Force refetch to ensure consistency
+      await queryClient.refetchQueries({ queryKey: ["/api/user"] });
+      console.log("3. Auth query refetched for consistency");
       
-      // Immediate redirect
-      setLocation("/agent-dashboard");
+      console.log("4. Cache synchronization complete");
+      console.log("5. Query data after sync:", queryClient.getQueryData(["/api/user"]));
+      
+      // Extended delay for protected route propagation
+      setTimeout(() => {
+        console.log("6. Navigating to agent dashboard after auth propagation");
+        setLocation("/agent-dashboard");
+      }, 800); // Increased delay for protected routes
       
       toast({
-        title: "Welcome to NextWave!",
-        description: "Your agent account has been created successfully.",
+        title: "Registration successful!",
+        description: "Redirecting to your dashboard...",
+        duration: 5000,
       });
     },
     onError: (error: any) => {

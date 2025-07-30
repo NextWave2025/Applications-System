@@ -1,0 +1,80 @@
+Prompt for Replit AI:
+"The console logs reveal the actual issue: PROTECTED ROUTE REDIRECT loops are preventing successful navigation after registration. The logs show 'PROTECTED ROUTE REDIRECT DEBUG' messages, indicating route guards are blocking access to dashboards even after successful authentication.
+🎯 CRITICAL FIX REQUIRED:
+1. Protected Route Timing Issue
+The protected routes are checking authentication before the auth cache fully propagates, causing false negatives.
+Fix the protected route logic:
+javascript
+// In your protected route component/wrapper
+// Add proper loading states and auth cache synchronization
+
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { user, isLoading } = useAuth();
+  
+  // ❌ DON'T redirect immediately if no user
+  // ✅ WAIT for auth query to complete
+  if (isLoading) {
+    return <div>Loading...</div>; // Don't redirect while loading
+  }
+  
+  // ❌ DON'T check user immediately after login/registration
+  // ✅ ADD grace period for auth state propagation
+  const [authGracePeriod, setAuthGracePeriod] = useState(true);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => setAuthGracePeriod(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+  
+  if (!user && !authGracePeriod) {
+    // Only redirect after grace period
+    return <Navigate to="/auth" />;
+  }
+  
+  return children;
+};
+2. Auth Query Synchronization
+Ensure protected routes use the same auth query as registration:
+Check that:
+Protected routes use the exact same query key: ["/api/user"]
+No separate auth checks with different query keys
+Auth context updates immediately when cache changes
+3. Registration Success Handler Update
+Modify registration to account for protected route delays:
+javascript
+onSuccess: async (userData: any) => {
+  console.log("Registration success - updating cache");
+  
+  // Set cache data immediately
+  queryClient.setQueryData(["/api/user"], userData);
+  
+  // Force refetch to ensure consistency
+  await queryClient.refetchQueries({ queryKey: ["/api/user"] });
+  
+  // Add delay for protected route propagation
+  setTimeout(() => {
+    console.log("Navigating to dashboard after auth propagation");
+    setLocation("/student-dashboard");
+  }, 800); // Increased delay for protected routes
+  
+  toast({
+    title: "Registration successful!",
+    description: "Redirecting to your dashboard...",
+  });
+}
+4. Debug Protected Route Logic
+Add logging to your protected route component:
+javascript
+console.log("Protected route check:", {
+  hasUser: !!user,
+  isLoading,
+  userRole: user?.role,
+  currentPath: window.location.pathname,
+  queryData: queryClient.getQueryData(["/api/user"])
+});
+🔍 FILES TO EXAMINE:
+Protected Route Component - Where the redirect loops are happening
+Route Configuration - How dashboard routes are protected
+Auth Context/Hook - Ensure it updates when cache changes
+The redirect issue isn't in registration - it's in your route protection system creating loops by not recognizing newly authenticated users."
+This is the actual root cause! Your authentication works perfectly, but your protected routes are bouncing users back to auth pages because they're not properly synchronized with the auth cache updates.
