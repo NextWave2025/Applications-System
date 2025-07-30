@@ -88,31 +88,44 @@ export default function StudentAuthPage() {
   });
 
   const signupMutation = useMutation({
-    mutationFn: (data: any) =>
-      authRegisterMutation.mutateAsync({ 
+    mutationFn: async (data: any) => {
+      // Use the auth hook's register mutation directly
+      return await authRegisterMutation.mutateAsync({ 
         username: data.email,
         password: data.password,
         firstName: data.firstName,
         lastName: data.lastName,
         phoneNumber: data.phone,
         role: "student"
-      }),
+      });
+    },
     onSuccess: async (userData: any) => {
-      console.log("Student signup success, checking redirect");
+      console.log("Student signup success, userData:", userData);
       
-      // Wait for auth state to update
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Wait for auth state to fully propagate  
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Force auth query refetch to ensure user state is current
+      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       
       // Check if there's a redirectTo URL in localStorage for application flow
       const redirectTo = localStorage.getItem("redirectTo");
       if (redirectTo) {
         localStorage.removeItem("redirectTo");
+        console.log("Redirecting student to application:", redirectTo);
         setLocation(redirectTo);
       } else {
+        console.log("Redirecting student to dashboard");
         setLocation("/student-dashboard");
       }
+      
+      toast({
+        title: "Welcome to NextWave!",
+        description: "Your student account has been created successfully.",
+      });
     },
     onError: (error: any) => {
+      console.error("Student signup error:", error);
       setError(error.message || "Registration failed");
     },
   });

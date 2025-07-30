@@ -79,8 +79,9 @@ export default function AgentAuthPage() {
   });
 
   const signupMutation = useMutation({
-    mutationFn: (data: any) =>
-      authRegisterMutation.mutateAsync({ 
+    mutationFn: async (data: any) => {
+      // Use the auth hook's register mutation directly
+      return await authRegisterMutation.mutateAsync({ 
         username: data.email,
         password: data.password,
         firstName: data.firstName,
@@ -88,16 +89,27 @@ export default function AgentAuthPage() {
         phoneNumber: data.phone,
         agencyName: data.company,
         role: "agent"
-      }),
+      });
+    },
     onSuccess: async (userData: any) => {
-      console.log("Agent signup success, redirecting to agent dashboard");
+      console.log("Agent signup success, userData:", userData);
       
-      // Wait for auth state to update
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Wait for auth state to fully propagate
+      await new Promise(resolve => setTimeout(resolve, 500));
       
+      // Force auth query refetch to ensure user state is current
+      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
+      console.log("Redirecting agent to dashboard");
       setLocation("/agent-dashboard");
+      
+      toast({
+        title: "Welcome to NextWave!",
+        description: "Your agent account has been created successfully.",
+      });
     },
     onError: (error: any) => {
+      console.error("Agent signup error:", error);
       setError(error.message || "Registration failed");
     },
   });
