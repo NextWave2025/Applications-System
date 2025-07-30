@@ -61,12 +61,23 @@ export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
-  async ({ queryKey }) => {
+  async ({ queryKey, signal }) => {
     try {
       const endpoint = queryKey[0] as string;
-      const res = await fetch(endpoint, {
+      
+      // Create a timeout promise that rejects after 15 seconds
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timeout after 15 seconds')), 15000)
+      );
+
+      // Create the fetch promise
+      const fetchPromise = fetch(endpoint, {
         credentials: "include",
+        signal,
       });
+
+      // Race between timeout and fetch
+      const res = await Promise.race([fetchPromise, timeoutPromise]) as Response;
 
       if (unauthorizedBehavior === "returnNull" && res.status === 401) {
         return null;

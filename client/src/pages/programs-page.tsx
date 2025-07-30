@@ -42,7 +42,7 @@ export default function ProgramsPage() {
   const [resultsCount, setResultsCount] = useState(0);
   const queryClient = useQueryClient();
 
-  // Aggressive caching for instant perceived loading
+  // Aggressive caching for instant perceived loading with timeout
   const { data: allPrograms = [], isLoading: isLoadingPrograms, isFetching, error: programsError } = useQuery<ProgramWithUniversity[]>({
     queryKey: ['/api/programs'],
     staleTime: Infinity, // Never consider stale for immediate loading
@@ -50,7 +50,22 @@ export default function ProgramsPage() {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     networkMode: 'online', // Only fetch when online
+    retry: 2, // Retry failed requests twice
+    retryDelay: 1000, // Wait 1 second between retries
   });
+
+  // Add timeout fallback for production deployment issues
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (isLoadingPrograms && allPrograms.length === 0 && !programsError) {
+        console.warn('API request taking too long, likely deployment issue');
+        queryClient.setQueryData(['/api/programs'], []);
+        queryClient.invalidateQueries({ queryKey: ['/api/programs'] });
+      }
+    }, 15000);
+
+    return () => clearTimeout(timer);
+  }, [isLoadingPrograms, allPrograms.length, programsError, queryClient]);
 
   // Prefetch data aggressively on component mount
   useEffect(() => {
@@ -310,7 +325,7 @@ export default function ProgramsPage() {
 
           {/* Main content - program cards */}
           <main className="flex-1 min-w-0">
-            {(isLoadingPrograms || (allPrograms.length === 0 && !programsError)) ? (
+            {(isLoadingPrograms && !programsError) ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                 {Array.from({ length: 12 }).map((_, i) => (
                   <div 
@@ -408,14 +423,31 @@ export default function ProgramsPage() {
             ) : (
               <div className="text-center py-12 sm:py-16">
                 <div className="max-w-md mx-auto px-4">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Database Not Connected</h3>
-                  <p className="text-sm sm:text-base text-gray-600 mb-4">The application cannot connect to the database. This usually happens on initial deployment.</p>
-                  <Button 
-                    onClick={() => window.location.reload()}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium"
-                  >
-                    Retry Connection
-                  </Button>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Connection Issue</h3>
+                  <p className="text-sm sm:text-base text-gray-600 mb-4">
+                    {programsError 
+                      ? "Unable to load programs. Please try again."
+                      : "The application is connecting to the database. This may take a moment on first visit."
+                    }
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button 
+                      onClick={() => {
+                        queryClient.invalidateQueries({ queryKey: ['/api/programs'] });
+                        queryClient.refetchQueries({ queryKey: ['/api/programs'] });
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                    >
+                      Retry Loading
+                    </Button>
+                    <Button 
+                      onClick={() => window.location.reload()}
+                      variant="outline"
+                      className="font-medium"
+                    >
+                      Refresh Page
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
