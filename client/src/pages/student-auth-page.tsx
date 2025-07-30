@@ -8,7 +8,7 @@ import { Label } from "../components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Alert, AlertDescription } from "../components/ui/alert";
-import { apiRequest } from "../lib/queryClient";
+import { apiRequest } from "../lib/query-client";
 import { useToast } from "../hooks/use-toast";
 import { Eye, EyeOff, GraduationCap, BookOpen, Users, Globe } from "lucide-react";
 
@@ -185,7 +185,7 @@ export default function StudentAuthPage() {
       localStorage.removeItem("redirectTo");
       setLocation(redirectTo);
     } else {
-      setLocation("/dashboard");
+      setLocation("/student-dashboard");
     }
     return null;
   }

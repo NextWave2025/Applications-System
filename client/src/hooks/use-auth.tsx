@@ -142,37 +142,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // 2. Force synchronous completion with minimal delay
         await new Promise(resolve => setTimeout(resolve, 50));
         
-        // 3. Clear and refetch auth queries to ensure consistency
-        console.log("Clearing cache and refetching user data");
-        await queryClient.clear();
-        
-        // 4. Manually refetch user data to ensure it's properly set
-        await queryClient.prefetchQuery({
-          queryKey: ["/api/user"],
-          queryFn: async () => {
-            try {
-              const response = await fetch("/api/user", {
-                credentials: "include"
-              });
-              if (response.status === 401 || response.status === 403) {
-                return null;
-              }
-              if (!response.ok) {
-                console.warn(`Auth query failed: ${response.status} ${response.statusText}`);
-                return null;
-              }
-              const userData = await response.json();
-              console.log("Prefetch auth query successful:", userData);
-              return userData;
-            } catch (error) {
-              console.warn("Prefetch auth query error:", error);
-              return user; // Fallback to registration user data
-            }
-          },
-          staleTime: 0, // Force fresh fetch
-        });
-        
-        // 5. Final invalidation to trigger UI updates
+        // 3. Force invalidation of auth queries only to trigger UI updates
+        console.log("Invalidating auth queries for UI updates");
         await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
         
         console.log("Registration success: Cache updated and queries invalidated");
