@@ -840,6 +840,36 @@ export function registerRoutes(app: Express): Server {
 
 
 
+  // API endpoint for consultation requests
+  app.post("/api/consultation-request", async (req, res) => {
+    try {
+      const { name, email, phone, studyField, currentEducation, preferredIntake, message, source } = req.body;
+      
+      // Send email notification about consultation request
+      try {
+        const { sendConsultationRequestEmail } = await import('./email-service.js');
+        await sendConsultationRequestEmail({
+          name,
+          email,
+          phone,
+          studyField,
+          currentEducation,
+          preferredIntake,
+          message,
+          source
+        });
+      } catch (emailError) {
+        console.error("Failed to send consultation request email:", emailError);
+        // Continue even if email fails
+      }
+      
+      res.json({ success: true, message: "Consultation request submitted successfully" });
+    } catch (error) {
+      console.error("Error handling consultation request:", error);
+      res.status(500).json({ error: "Failed to submit consultation request" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

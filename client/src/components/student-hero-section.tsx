@@ -70,13 +70,15 @@ export default function StudentHeroSection() {
               Confused about where to start? Get expert help, explore top programs, and apply stress-free.
             </p>
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-6 sm:mt-8">
-              <Link
-                href="#consultation-form"
+              <a
+                href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ2KkMjW8QjV4bP0XOlLqHgJ7vUHX0YzB8R8kN_t2K4LrZp2Q1MzX5Y7W9B3?gv=true"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="py-4 sm:py-3.5 px-6 sm:px-7 bg-secondary text-black font-bold rounded-lg hover:bg-yellow-400 transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg shadow-secondary/30 flex items-center justify-center text-sm sm:text-base min-h-[44px]"
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 Book Free Consultation
-              </Link>
+              </a>
               <Link
                 href="/programs"
                 className="py-4 sm:py-3.5 px-6 sm:px-7 bg-[#41326B] text-white border border-[#41326B] font-semibold rounded-lg hover:bg-[#352858] transition-all duration-300 flex items-center justify-center text-sm sm:text-base min-h-[44px]"

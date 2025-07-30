@@ -53,7 +53,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     }
 
     // Using verified SendGrid sender email
-    const verifiedSenderEmail = params.from || 'nextwaveadmission@gmail.com';
+    const verifiedSenderEmail = params.from || 'nextwave@admissionsinuae.com';
     
     const msg = {
       to: params.to,
@@ -71,7 +71,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       text: convertHtmlToPlainText(params.html), // Improved plain text version
       // Enhanced anti-spam headers and authentication
       headers: {
-        'List-Unsubscribe': '<mailto:nextwaveadmission@gmail.com?subject=unsubscribe>',
+        'List-Unsubscribe': '<mailto:nextwave@admissionsinuae.com?subject=unsubscribe>',
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
         'X-Priority': '3',
         'X-MSMail-Priority': 'Normal',
@@ -739,5 +739,83 @@ export async function sendWelcomeEmail(
     to: userEmail,
     subject: 'Welcome to NextWave - Your UAE Study Journey Begins',
     html: welcomeHtml
+  });
+}
+
+// Interface for consultation request data
+interface ConsultationRequestData {
+  name: string;
+  email: string;
+  phone: string;
+  studyField: string;
+  currentEducation: string;
+  preferredIntake: string;
+  message: string;
+  source: string;
+}
+
+// Function to send consultation request notification to admin
+export async function sendConsultationRequestEmail(data: ConsultationRequestData): Promise<boolean> {
+  const adminEmail = 'nextwave@admissionsinuae.com';
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>New Consultation Request</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
+      <table role="presentation" style="width: 100%; max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <tr>
+          <td style="background: linear-gradient(135deg, #6B51A2 0%, #41326B 100%); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 600;">New Consultation Request</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 30px;">
+            <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 20px;">Student Details</h2>
+            
+            <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <p style="margin: 8px 0;"><strong>Name:</strong> ${data.name}</p>
+              <p style="margin: 8px 0;"><strong>Email:</strong> ${data.email}</p>
+              <p style="margin: 8px 0;"><strong>Phone:</strong> ${data.phone}</p>
+              <p style="margin: 8px 0;"><strong>Field of Study:</strong> ${data.studyField}</p>
+              <p style="margin: 8px 0;"><strong>Current Education:</strong> ${data.currentEducation}</p>
+              <p style="margin: 8px 0;"><strong>Preferred Intake:</strong> ${data.preferredIntake}</p>
+              <p style="margin: 8px 0;"><strong>Source:</strong> ${data.source}</p>
+            </div>
+            
+            ${data.message ? `
+              <h3 style="color: #1f2937; margin: 20px 0 10px 0; font-size: 18px;">Message</h3>
+              <div style="background-color: #f0f9ff; padding: 15px; border-radius: 8px; border-left: 4px solid #2563eb;">
+                <p style="margin: 0; line-height: 1.6;">${data.message}</p>
+              </div>
+            ` : ''}
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <a href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ2KkMjW8QjV4bP0XOlLqHgJ7vUHX0YzB8R8kN_t2K4LrZp2Q1MzX5Y7W9B3?gv=true" 
+                 style="display: inline-block; background: linear-gradient(135deg, #EFC61C 0%, #f3c614 100%); color: black; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                Schedule Consultation
+              </a>
+            </div>
+            
+            <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 20px;">
+              NextWave Admissions Team<br>
+              nextwave@admissionsinuae.com
+            </p>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: adminEmail,
+    subject: `New Consultation Request from ${data.name}`,
+    html: html,
+    from: 'nextwave@admissionsinuae.com'
   });
 }

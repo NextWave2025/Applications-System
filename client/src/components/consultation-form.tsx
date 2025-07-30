@@ -47,22 +47,45 @@ export default function ConsultationForm() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    setTimeout(() => {
-      alert(
-        "Thank you! We'll contact you within 24 hours to schedule your consultation.",
-      );
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        studyField: "",
-        currentEducation: "",
-        preferredIntake: "",
-        message: "",
+    try {
+      // Send consultation request to our backend
+      const response = await fetch('/api/consultation-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          source: 'consultation_form'
+        }),
       });
+
+      if (response.ok) {
+        alert(
+          "Thank you! We'll contact you within 24 hours to schedule your consultation. You can also book directly using our calendar link above.",
+        );
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          studyField: "",
+          currentEducation: "",
+          preferredIntake: "",
+          message: "",
+        });
+        
+        // Optionally redirect to calendar booking
+        setTimeout(() => {
+          window.open("https://calendar.google.com/calendar/appointments/schedules/AcZssZ2KkMjW8QjV4bP0XOlLqHgJ7vUHX0YzB8R8kN_t2K4LrZp2Q1MzX5Y7W9B3?gv=true", "_blank");
+        }, 2000);
+      } else {
+        throw new Error('Failed to submit consultation request');
+      }
+    } catch (error) {
+      alert('There was an error submitting your request. Please try again or contact us directly at nextwave@admissionsinuae.com');
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -78,10 +101,21 @@ export default function ConsultationForm() {
               Let's Find Your Perfect{" "}
               <span className="text-primary">UAE University</span>
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 mb-4">
               Fill out this form and we'll schedule a free consultation to
               discuss your study abroad goals.
             </p>
+            <div className="text-center">
+              <a
+                href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ2KkMjW8QjV4bP0XOlLqHgJ7vUHX0YzB8R8kN_t2K4LrZp2Q1MzX5Y7W9B3?gv=true"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-6 py-3 bg-secondary text-black font-bold rounded-lg hover:bg-yellow-400 transition-all duration-300 mb-4"
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Book Directly on Calendar
+              </a>
+            </div>
           </div>
 
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
