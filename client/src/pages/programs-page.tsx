@@ -43,7 +43,7 @@ export default function ProgramsPage() {
   const queryClient = useQueryClient();
 
   // Aggressive caching for instant perceived loading
-  const { data: allPrograms = [], isLoading: isLoadingPrograms, isFetching } = useQuery<ProgramWithUniversity[]>({
+  const { data: allPrograms = [], isLoading: isLoadingPrograms, isFetching, error: programsError } = useQuery<ProgramWithUniversity[]>({
     queryKey: ['/api/programs'],
     staleTime: Infinity, // Never consider stale for immediate loading
     gcTime: Infinity, // Never garbage collect for session
@@ -235,8 +235,6 @@ export default function ProgramsPage() {
           <EnhancedSearch 
             programs={allPrograms}
             onSearchResults={handleSearchResults}
-            searchQuery={searchQuery}
-            onSearchQueryChange={setSearchQuery}
           />
         </div>
 
@@ -312,7 +310,7 @@ export default function ProgramsPage() {
 
           {/* Main content - program cards */}
           <main className="flex-1 min-w-0">
-            {(isLoadingPrograms && !allPrograms.length) ? (
+            {(isLoadingPrograms || (allPrograms.length === 0 && !programsError)) ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                 {Array.from({ length: 12 }).map((_, i) => (
                   <div 
@@ -324,11 +322,17 @@ export default function ProgramsPage() {
                   />
                 ))}
               </div>
-            ) : false ? (
+            ) : programsError ? (
               <div className="text-center py-12 sm:py-16">
                 <div className="max-w-md mx-auto px-4">
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Error Loading Programs</h3>
-                  <p className="text-sm sm:text-base text-gray-600">Unable to load programs. Please try again later.</p>
+                  <p className="text-sm sm:text-base text-gray-600 mb-4">Unable to load programs. Please check your connection and try again.</p>
+                  <Button 
+                    onClick={() => window.location.reload()}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                  >
+                    Reload Page
+                  </Button>
                 </div>
               </div>
             ) : programs && programs.length > 0 ? (
@@ -378,7 +382,7 @@ export default function ProgramsPage() {
                   ))}
                 </div>
               </div>
-            ) : (
+            ) : allPrograms.length > 0 ? (
               <div className="text-center py-12 sm:py-16">
                 <div className="max-w-md mx-auto px-4">
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">No Programs Found</h3>
@@ -399,6 +403,19 @@ export default function ProgramsPage() {
                       Reset All Filters
                     </Button>
                   )}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12 sm:py-16">
+                <div className="max-w-md mx-auto px-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Database Not Connected</h3>
+                  <p className="text-sm sm:text-base text-gray-600 mb-4">The application cannot connect to the database. This usually happens on initial deployment.</p>
+                  <Button 
+                    onClick={() => window.location.reload()}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                  >
+                    Retry Connection
+                  </Button>
                 </div>
               </div>
             )}
