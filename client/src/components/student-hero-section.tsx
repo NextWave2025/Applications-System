@@ -45,7 +45,7 @@ export default function StudentHeroSection() {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="flex flex-col-reverse lg:flex-row items-center lg:items-start">
+        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-12">
           <div
             className={`max-w-2xl py-8 sm:py-12 lg:py-24 transition-all duration-1000 ease-out transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
           >
@@ -86,61 +86,115 @@ export default function StudentHeroSection() {
               </Link>
             </div>
 
-            <div className="mt-16 flex items-center">
+            {/* Student Success Indicators - Mobile Optimized */}
+            <div className="mt-12 lg:mt-16 flex flex-col sm:flex-row items-center justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-6">
               <div className="flex -space-x-2">
-                <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-medium border-2 border-black">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold border-4 border-white shadow-lg">
                   AS
                 </div>
-                <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-medium border-2 border-black">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white text-sm font-bold border-4 border-white shadow-lg">
                   MR
                 </div>
-                <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-medium border-2 border-black">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold border-4 border-white shadow-lg">
                   LK
                 </div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white text-sm font-bold border-4 border-white shadow-lg">
+                  +
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-white text-sm font-medium">
-                  Join 2,000+ students studying in UAE
+              <div className="text-center sm:text-left">
+                <p className="text-white text-base sm:text-lg font-medium">
+                  2,000+ successful students
                 </p>
-                <div className="flex mt-1">
+                <div className="flex justify-center sm:justify-start mt-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <svg
                       key={star}
-                      className="w-4 h-4 text-yellow-400"
+                      className="w-5 h-5 text-yellow-400"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   ))}
+                  <span className="ml-2 text-white/80 text-sm">4.9/5 rating</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Image placeholder - can be replaced with actual student images */}
+          {/* Hero Visual - Mobile optimized diverse students */}
           <div className="lg:ml-16 flex-1 max-w-lg lg:max-w-none">
             <div
               className={`transition-all duration-1000 ease-out delay-300 transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
             >
               <div className="relative">
-                <div className="w-full h-96 lg:h-[500px] bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 flex items-center justify-center">
-                  <div className="text-center text-white/60">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-secondary/20 rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-8 h-8 text-secondary"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                        <path
-                          fillRule="evenodd"
-                          d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                {/* Main Hero Image Container */}
+                <div className="relative w-full h-80 sm:h-96 lg:h-[500px] bg-gradient-to-br from-secondary/20 to-primary/20 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden">
+                  {/* Floating Success Metrics - Mobile Optimized */}
+                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-white/95 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-3 shadow-lg animate-pulse">
+                    <div className="text-[10px] sm:text-xs text-gray-600 font-medium">Success Rate</div>
+                    <div className="text-lg sm:text-2xl font-bold text-primary">98%</div>
+                  </div>
+                  
+                  <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 bg-white/95 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-3 shadow-lg animate-pulse" style={{animationDelay: '1s'}}>
+                    <div className="text-[10px] sm:text-xs text-gray-600 font-medium">UAE Universities</div>
+                    <div className="text-lg sm:text-2xl font-bold text-primary">20+</div>
+                  </div>
+
+                  {/* Central Visual Element */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      {/* Modern Student Success Visual */}
+                      <div className="w-28 h-28 sm:w-36 sm:h-36 lg:w-44 lg:h-44 mx-auto mb-4 sm:mb-6 relative">
+                        {/* Multi-layered Modern Design */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-secondary to-yellow-300 rounded-full opacity-20 animate-pulse"></div>
+                        <div className="absolute inset-2 bg-gradient-to-br from-primary to-purple-600 rounded-full opacity-30 animate-pulse" style={{animationDelay: '0.5s'}}></div>
+                        
+                        {/* Central Icon */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-white rounded-full shadow-lg flex items-center justify-center">
+                            <svg className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-primary" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 3L1 9V15C1 19.42 5.58 22 12 22C18.42 22 23 19.42 23 15V9L12 3ZM12 5.18L19.36 9L12 12.82L4.64 9L12 5.18ZM21 15C21 18.31 17.66 20 12 20C6.34 20 3 18.31 3 15V11.24L12 16L21 11.24V15Z"/>
+                            </svg>
+                          </div>
+                        </div>
+                        
+                        {/* Floating Achievement Elements */}
+                        <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce shadow-lg">
+                          <span className="text-xs sm:text-sm">🏆</span>
+                        </div>
+                        <div className="absolute -bottom-1 -left-1 sm:-bottom-2 sm:-left-2 w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full animate-pulse shadow-lg"></div>
+                        <div className="absolute top-1/2 -right-2 sm:-right-3 w-3 h-3 sm:w-4 sm:h-4 bg-blue-500 rounded-full animate-ping"></div>
+                        <div className="absolute top-1/4 -left-2 sm:-left-3 w-3 h-3 sm:w-4 sm:h-4 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '1s'}}></div>
+                      </div>
+                      
+                      <div className="px-3 sm:px-4">
+                        <p className="text-white/90 font-medium text-xs sm:text-sm lg:text-base">
+                          Join 2,000+ successful students
+                        </p>
+                        <div className="flex justify-center mt-1 sm:mt-2">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <svg
+                              key={star}
+                              className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm">Student Success Visual</p>
+                  </div>
+
+                  {/* Responsive Background Pattern */}
+                  <div className="absolute inset-0 opacity-5 sm:opacity-10">
+                    <div className="absolute top-6 left-6 sm:top-10 sm:left-10 w-12 h-12 sm:w-20 sm:h-20 border border-white sm:border-2 rounded-full"></div>
+                    <div className="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-10 h-10 sm:w-16 sm:h-16 border border-secondary sm:border-2 rounded-full"></div>
+                    <div className="absolute top-1/2 left-2 sm:left-4 w-8 h-8 sm:w-12 sm:h-12 border border-white rounded-full"></div>
+                    <div className="absolute top-1/4 right-2 sm:right-8 w-6 h-6 sm:w-10 sm:h-10 border border-secondary rounded-full"></div>
                   </div>
                 </div>
 
