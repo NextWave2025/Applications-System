@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { db, pool } from "./db";
+import { db } from "./db";
 
 /**
  * Script to update the applications table schema with new status management columns
@@ -9,7 +9,7 @@ async function updateApplicationsSchema() {
 
   try {
     // Check if status_history column already exists
-    const checkResult = await pool.query(`
+    const checkResult = await db.execute(sql`
       SELECT column_name 
       FROM information_schema.columns 
       WHERE table_name = 'applications' AND column_name = 'status_history'
@@ -19,7 +19,7 @@ async function updateApplicationsSchema() {
       console.log("Adding new status management columns...");
       
       // Add all new columns in a single transaction
-      await pool.query(`
+      await db.execute(sql`
         ALTER TABLE applications
         ADD COLUMN IF NOT EXISTS status_history JSONB DEFAULT '[]',
         ADD COLUMN IF NOT EXISTS admin_notes TEXT,
