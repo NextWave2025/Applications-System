@@ -22,14 +22,13 @@ export default function AdminAuthPage() {
     password: "",
   });
 
+  // Use the working authentication from useAuth hook
+  const { loginMutation: authLoginMutation } = useAuth();
+
   const loginMutation = useMutation({
     mutationFn: (data: { email: string; password: string }) =>
-      apiRequest("/api/login", {
-        method: "POST",
-        body: JSON.stringify({ username: data.email, password: data.password }),
-      }),
+      authLoginMutation.mutateAsync({ username: data.email, password: data.password }),
     onSuccess: (userData: any) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       // Check if user is actually an admin
       if (userData.role === 'admin') {
         setLocation("/admin");

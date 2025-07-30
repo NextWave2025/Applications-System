@@ -35,14 +35,13 @@ export default function StudentAuthPage() {
     agreeToTerms: false,
   });
 
+  // Use the working authentication from useAuth hook
+  const { loginMutation: authLoginMutation, registerMutation: authRegisterMutation } = useAuth();
+
   const loginMutation = useMutation({
     mutationFn: (data: { email: string; password: string }) =>
-      apiRequest("/api/login", {
-        method: "POST",
-        body: JSON.stringify({ username: data.email, password: data.password }),
-      }),
+      authLoginMutation.mutateAsync({ username: data.email, password: data.password }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       // Check if there's a redirectTo URL in localStorage for application flow
       const redirectTo = localStorage.getItem("redirectTo");
       if (redirectTo) {
@@ -59,19 +58,15 @@ export default function StudentAuthPage() {
 
   const signupMutation = useMutation({
     mutationFn: (data: any) =>
-      apiRequest("/api/register", {
-        method: "POST",
-        body: JSON.stringify({ 
-          username: data.email,
-          password: data.password,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          phoneNumber: data.phone,
-          role: "student"
-        }),
+      authRegisterMutation.mutateAsync({ 
+        username: data.email,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phoneNumber: data.phone,
+        role: "student"
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       // Check if there's a redirectTo URL in localStorage for application flow
       const redirectTo = localStorage.getItem("redirectTo");
       if (redirectTo) {
