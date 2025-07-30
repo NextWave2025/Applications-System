@@ -14,11 +14,11 @@ import ProgramDetailPage from "./pages/program-detail-page";
 import ApplicationFormPage from "./pages/application-form-page";
 import ApplicationEditPage from "./pages/application-edit-page";
 import ApplicationsPage from "./pages/applications-page";
-import AuthPage from "./pages/auth-page";
+
 import AgentAuthPage from "./pages/agent-auth-page";
 import StudentAuthPage from "./pages/student-auth-page";
 import AdminAuthPage from "./pages/admin-auth-page";
-import StudentDashboardPage from "./pages/student-dashboard-page";
+import StudentDashboardEnhanced from "./pages/student-dashboard-enhanced";
 import DashboardPage from "./pages/dashboard-page";
 import AdminDashboardPage from "./pages/admin-dashboard-simple";
 import AdminControlPage from "./pages/admin-control-page";
@@ -69,11 +69,7 @@ export default function App() {
                 </MainLayout>
               </Route>
 
-              <Route path="/auth">
-                <MainLayout>
-                  <AuthPage />
-                </MainLayout>
-              </Route>
+
 
               <Route path="/auth/student">
                 <StudentAuthPage />
@@ -202,9 +198,17 @@ export default function App() {
               </ProtectedRoute>
             </Route>
 
+              <Route path="/agent-dashboard">
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <DashboardPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            </Route>
+
               <Route path="/student-dashboard">
                 <ProtectedRoute>
-                  <StudentDashboardPage />
+                  <StudentDashboardEnhanced />
                 </ProtectedRoute>
               </Route>
 

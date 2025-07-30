@@ -43,8 +43,8 @@ export default function AgentAuthPage() {
       return userData;
     },
     onSuccess: (userData: any) => {
-      console.log("Agent login success, redirecting to dashboard");
-      setLocation("/dashboard");
+      console.log("Agent login success, redirecting to agent dashboard");
+      setLocation("/agent-dashboard");
     },
     onError: (error: any) => {
       setError(error.message || "Login failed");
@@ -63,7 +63,7 @@ export default function AgentAuthPage() {
         role: "agent"
       }),
     onSuccess: () => {
-      setLocation("/dashboard");
+      setLocation("/agent-dashboard");
     },
     onError: (error: any) => {
       setError(error.message || "Registration failed");
@@ -95,7 +95,7 @@ export default function AgentAuthPage() {
   };
 
   if (user) {
-    setLocation("/dashboard");
+    setLocation("/agent-dashboard");
     return null;
   }
 

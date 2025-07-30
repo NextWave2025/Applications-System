@@ -1,7 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useLocation } from 'wouter';
 
 export default function NotFoundPage() {
+  const [, setLocation] = useLocation();
+  
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
       <div className="text-center">
@@ -10,12 +12,12 @@ export default function NotFoundPage() {
         <p className="text-gray-600 mb-8">
           The page you're looking for doesn't exist or has been moved.
         </p>
-        <Link 
-          href="/" 
+        <button 
+          onClick={() => setLocation("/")}
           className="bg-gray-900 text-white px-6 py-3 rounded-md font-medium hover:bg-gray-800"
         >
           Return to Home
-        </Link>
+        </button>
       </div>
     </div>
   );
