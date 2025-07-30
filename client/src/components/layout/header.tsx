@@ -19,6 +19,10 @@ export default function Header() {
   const profileRef = useRef<HTMLDivElement>(null);
   const [location, setLocation] = useLocation();
 
+  // Determine if we're on the agent page or student page
+  const isAgentPage = location === '/agent' || location.startsWith('/agent');
+  const isStudentPage = location === '/' || location === '/student' || location.startsWith('/student');
+
   // Fetch current user data
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/user"],
@@ -77,6 +81,22 @@ export default function Header() {
               >
                 Contact
               </Link>
+              {/* Dynamic navigation link based on current page */}
+              {isAgentPage ? (
+                <Link
+                  href="/"
+                  className="nav-link-primary relative z-10 px-3 py-2 text-sm transition-colors duration-200 font-semibold"
+                >
+                  For Students
+                </Link>
+              ) : (
+                <Link
+                  href="/agent"
+                  className="nav-link-primary relative z-10 px-3 py-2 text-sm transition-colors duration-200 font-semibold"
+                >
+                  For Agents
+                </Link>
+              )}
             </nav>
           </div>
           
@@ -135,13 +155,13 @@ export default function Header() {
             ) : (
               <>
                 <Link
-                  href="/auth"
+                  href={isAgentPage ? "/auth/agent" : "/auth/student"}
                   className="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium"
                 >
                   Login
                 </Link>
                 <Link
-                  href="/auth"
+                  href={isAgentPage ? "/auth/agent" : "/auth/student"}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90"
                 >
                   Sign Up
@@ -222,6 +242,24 @@ export default function Header() {
             >
               Contact
             </Link>
+            {/* Dynamic navigation link for mobile */}
+            {isAgentPage ? (
+              <Link
+                href="/"
+                className="block px-3 py-2 rounded-md text-base font-bold text-primary hover:bg-gray-50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                For Students
+              </Link>
+            ) : (
+              <Link
+                href="/agent"
+                className="block px-3 py-2 rounded-md text-base font-bold text-primary hover:bg-gray-50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                For Agents
+              </Link>
+            )}
           </div>
           
           {/* Mobile auth menu - changes based on auth status */}
@@ -267,14 +305,14 @@ export default function Header() {
             ) : (
               <div className="px-2 space-y-1">
                 <Link
-                  href="/auth"
+                  href={isAgentPage ? "/auth/agent" : "/auth/student"}
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Login
                 </Link>
                 <Link
-                  href="/auth"
+                  href={isAgentPage ? "/auth/agent" : "/auth/student"}
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                 >

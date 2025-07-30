@@ -15,6 +15,8 @@ import ApplicationFormPage from "./pages/application-form-page";
 import ApplicationEditPage from "./pages/application-edit-page";
 import ApplicationsPage from "./pages/applications-page";
 import AuthPage from "./pages/auth-page";
+import AgentAuthPage from "./pages/agent-auth-page";
+import StudentAuthPage from "./pages/student-auth-page";
 import DashboardPage from "./pages/dashboard-page";
 import AdminDashboardPage from "./pages/admin-dashboard-simple";
 import AdminControlPage from "./pages/admin-control-page";
@@ -49,7 +51,7 @@ export default function App() {
               {/* Public routes with MainLayout */}
               <Route path="/">
                 <MainLayout>
-                  <LandingPage />
+                  <StudentLandingPage />
                 </MainLayout>
               </Route>
 
@@ -69,6 +71,14 @@ export default function App() {
                 <MainLayout>
                   <AuthPage />
                 </MainLayout>
+              </Route>
+
+              <Route path="/auth/student">
+                <StudentAuthPage />
+              </Route>
+
+              <Route path="/auth/agent">
+                <AgentAuthPage />
               </Route>
 
               <Route path="/programs/:id">

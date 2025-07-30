@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   Instagram,
   Linkedin,
@@ -12,6 +12,10 @@ import {
 
 export default function SiteFooter() {
   const currentYear = new Date().getFullYear();
+  const [location] = useLocation();
+  
+  // Determine if we're on the agent page or student page
+  const isAgentPage = location === '/agent' || location.startsWith('/agent');
 
   return (
     <footer className="bg-primary-800 text-white relative overflow-hidden">
@@ -116,6 +120,26 @@ export default function SiteFooter() {
                   <span className="w-1.5 h-1.5 bg-primary mr-2 rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
                   Contact
                 </Link>
+              </li>
+              <li>
+                {/* Dynamic footer link based on current page */}
+                {isAgentPage ? (
+                  <Link
+                    href="/"
+                    className="text-secondary hover:text-yellow-400 font-semibold text-[16px] transition-colors duration-200 flex items-center"
+                  >
+                    <span className="w-1.5 h-1.5 bg-secondary mr-2 rounded-full"></span>
+                    For Students
+                  </Link>
+                ) : (
+                  <Link
+                    href="/agent"
+                    className="text-secondary hover:text-yellow-400 font-semibold text-[16px] transition-colors duration-200 flex items-center"
+                  >
+                    <span className="w-1.5 h-1.5 bg-secondary mr-2 rounded-full"></span>
+                    For Agents
+                  </Link>
+                )}
               </li>
             </ul>
           </div>
