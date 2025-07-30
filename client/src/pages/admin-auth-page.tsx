@@ -43,11 +43,7 @@ export default function AdminAuthPage() {
       if (userData && userData.role === 'admin') {
         console.log("Redirecting to admin dashboard");
         
-        // Force immediate auth state update
-        await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-        
-        // Small delay to ensure state propagation
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // No additional queries needed - useAuth already handles cache update
         
         // Check for redirectAfterLogin from ProtectedRoute
         const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");

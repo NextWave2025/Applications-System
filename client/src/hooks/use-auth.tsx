@@ -95,21 +95,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Set user data immediately in cache to trigger auth state update
       queryClient.setQueryData(["/api/user"], user);
       
-      // Force immediate refetch to ensure state consistency
-      try {
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: ["/api/user"] }),
-          queryClient.invalidateQueries({ queryKey: ["/api/admin"] })
-        ]);
-        console.log("User queries invalidated and refetched");
-        
-        // Add a delay to ensure auth state propagates
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-      } catch (error) {
-        console.error("Error invalidating queries after login:", error);
-      }
-      
       console.log("Login success: Cache updated, showing toast");
       toast({
         title: "Login successful",

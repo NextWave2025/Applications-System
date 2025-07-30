@@ -9,12 +9,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../co
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { apiRequest } from "../lib/queryClient";
+import { useToast } from "../hooks/use-toast";
 import { Eye, EyeOff, Users, DollarSign, Globe } from "lucide-react";
 
 export default function AgentAuthPage() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
@@ -47,15 +49,17 @@ export default function AgentAuthPage() {
       
       // Check if user role matches the login page
       if (userData && userData.role !== 'agent') {
-        setError(`This account is registered as ${userData.role}. Please use the ${userData.role} login page or register a new agent account.`);
+        const message = `This account is registered as ${userData.role}. Please use the ${userData.role} login page or register a new agent account.`;
+        setError(message);
+        toast({
+          title: "⚠️ Wrong Login Portal",
+          description: message,
+          variant: "destructive",
+        });
         return;
       }
       
-      // Force immediate auth state update
-      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-      
-      // Small delay to ensure state propagation
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // No additional queries needed - useAuth already handles cache update
       
       // Check for redirectAfterLogin from ProtectedRoute
       const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
@@ -224,11 +228,11 @@ export default function AgentAuthPage() {
               <CardContent>
                 {/* Benefits highlight */}
                 <div className="bg-secondary/10 rounded-lg p-4 mb-6">
-                  <h3 className="font-semibold text-primary mb-2">Agent Benefits:</h3>
+                  <h3 className="font-semibold text-primary mb-2">Become a NextWave Education Agent:</h3>
                   <ul className="text-sm space-y-1 text-gray-600">
-                    <li className="flex items-center"><DollarSign className="w-3 h-3 mr-1 text-secondary" /> Up to 15% commission per student</li>
-                    <li className="flex items-center"><Globe className="w-3 h-3 mr-1 text-secondary" /> 31+ partner universities</li>
-                    <li className="flex items-center"><Users className="w-3 h-3 mr-1 text-secondary" /> Dedicated support team</li>
+                    <li className="flex items-center"><Globe className="w-3 h-3 mr-1 text-secondary" /> Direct 20+ University Access</li>
+                    <li className="flex items-center"><DollarSign className="w-3 h-3 mr-1 text-secondary" /> Competitive Commissions</li>
+                    <li className="flex items-center"><Users className="w-3 h-3 mr-1 text-secondary" /> Comprehensive support for your agency</li>
                   </ul>
                 </div>
 
