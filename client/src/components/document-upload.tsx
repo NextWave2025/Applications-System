@@ -28,7 +28,9 @@ export default function DocumentUpload() {
 
     // Simulate file upload
     setTimeout(() => {
-      alert("Documents uploaded successfully! We'll review them and get back to you soon.");
+      alert(
+        "Documents uploaded successfully! We'll review them and get back to you soon.",
+      );
       setFormData({
         name: "",
         email: "",
@@ -56,7 +58,8 @@ export default function DocumentUpload() {
               Submit Your <span className="text-primary">Documents</span>
             </h2>
             <p className="text-lg text-gray-600">
-              Upload your required documents to move forward with your application.
+              Upload your required documents to move forward with your
+              application.
             </p>
           </div>
 
@@ -72,7 +75,9 @@ export default function DocumentUpload() {
                     type="text"
                     required
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     placeholder="Enter your full name"
                     className="border-gray-300 focus:border-primary"
                   />
@@ -87,7 +92,9 @@ export default function DocumentUpload() {
                     type="email"
                     required
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     placeholder="your.email@example.com"
                     className="border-gray-300 focus:border-primary"
                   />
@@ -104,7 +111,9 @@ export default function DocumentUpload() {
                     type="tel"
                     required
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
                     placeholder="+971 50 123 4567"
                     className="border-gray-300 focus:border-primary"
                   />
@@ -117,7 +126,12 @@ export default function DocumentUpload() {
                   <Input
                     type="text"
                     value={formData.applicationId}
-                    onChange={(e) => setFormData({ ...formData, applicationId: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        applicationId: e.target.value,
+                      })
+                    }
                     placeholder="If you have one from previous communication"
                     className="border-gray-300 focus:border-primary"
                   />
@@ -152,12 +166,17 @@ export default function DocumentUpload() {
                     </span>
                   </label>
                 </div>
-                
+
                 {files.length > 0 && (
                   <div className="mt-4 space-y-2">
-                    <p className="text-sm font-medium text-gray-700">Selected files:</p>
+                    <p className="text-sm font-medium text-gray-700">
+                      Selected files:
+                    </p>
                     {files.map((file, index) => (
-                      <div key={index} className="flex items-center text-sm text-gray-600">
+                      <div
+                        key={index}
+                        className="flex items-center text-sm text-gray-600"
+                      >
                         <FileText className="w-4 h-4 mr-2" />
                         <span>{file.name}</span>
                         <span className="ml-auto text-gray-400">
@@ -175,7 +194,9 @@ export default function DocumentUpload() {
                 </label>
                 <Textarea
                   value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, notes: e.target.value })
+                  }
                   placeholder="Any additional information or questions you'd like to share..."
                   rows={3}
                   className="border-gray-300 focus:border-primary"
@@ -183,7 +204,9 @@ export default function DocumentUpload() {
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="font-medium text-blue-900 mb-2">Document Checklist:</h3>
+                <h3 className="font-medium text-blue-900 mb-2">
+                  Document Checklist:
+                </h3>
                 <ul className="text-sm text-blue-800 space-y-1">
                   <li>• Academic transcripts/certificates</li>
                   <li>• Passport copy</li>
@@ -202,7 +225,8 @@ export default function DocumentUpload() {
               </Button>
 
               <p className="text-sm text-gray-500 text-center">
-                Your documents are securely encrypted and stored. We'll review them within 2 business days.
+                Your documents are securely encrypted and stored. We'll review
+                them within 2 business days.
               </p>
             </form>
           </div>

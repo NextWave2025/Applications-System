@@ -5,7 +5,7 @@ import PartnerUniversitiesSection from "../components/partner-universities-secti
 import StudentTestimonialsSection from "../components/student-testimonials-section";
 import StudentCTASection from "../components/student-cta-section";
 import ConsultationForm from "../components/consultation-form";
-import DocumentUpload from "../components/document-upload";
+
 
 export default function StudentLandingPage() {
   return (
@@ -17,7 +17,6 @@ export default function StudentLandingPage() {
       <PartnerUniversitiesSection />
       <StudentCTASection />
       <ConsultationForm />
-      <DocumentUpload />
     </>
   );
 }

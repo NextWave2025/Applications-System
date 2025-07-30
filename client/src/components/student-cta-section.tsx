@@ -49,24 +49,28 @@ export default function StudentCTASection() {
             <span className="w-2 h-2 bg-secondary rounded-full mr-2"></span>
             Ready to Start Your Journey?
           </div>
-          
+
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
             Your UAE University
             <span className="text-secondary"> Adventure</span> Starts Here
           </h2>
-          
+
           <p className="text-base sm:text-lg lg:text-xl text-white/80 mb-8 sm:mb-12 max-w-3xl mx-auto font-light">
-            Join thousands of international students who chose the UAE for their 
-            higher education. Get personalized guidance and support every step of the way.
+            Join thousands of international students who chose the UAE for their
+            higher education. Get personalized guidance and support every step
+            of the way.
           </p>
 
           {/* Main CTAs */}
           <div className="flex flex-col lg:flex-row justify-center space-y-4 sm:space-y-6 lg:space-y-0 lg:space-x-8 mb-12 sm:mb-16">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20 flex-1 max-w-sm mx-auto lg:mx-0">
               <Calendar className="w-10 sm:w-12 h-10 sm:h-12 text-secondary mb-3 sm:mb-4 mx-auto" />
-              <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Free Consultation</h3>
+              <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">
+                Free Consultation
+              </h3>
               <p className="text-white/70 mb-4 sm:mb-6 text-xs sm:text-sm">
-                Get expert advice on universities, programs, and visa requirements
+                Get expert advice on universities, programs, and visa
+                requirements
               </p>
               <a
                 href="#consultation-form"
@@ -78,23 +82,10 @@ export default function StudentCTASection() {
             </div>
 
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20 flex-1 max-w-sm mx-auto lg:mx-0">
-              <Upload className="w-10 sm:w-12 h-10 sm:h-12 text-secondary mb-3 sm:mb-4 mx-auto" />
-              <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Submit Documents</h3>
-              <p className="text-white/70 mb-4 sm:mb-6 text-xs sm:text-sm">
-                Upload your documents to get started with your application
-              </p>
-              <a
-                href="#document-upload"
-                className="w-full btn-outline-white block text-center py-3 sm:py-2 text-sm sm:text-base min-h-[44px] flex items-center justify-center"
-              >
-                Upload Now
-                <ArrowRight className="ml-2 h-4 w-4 inline" />
-              </a>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20 flex-1 max-w-sm mx-auto lg:mx-0">
               <Phone className="w-10 sm:w-12 h-10 sm:h-12 text-secondary mb-3 sm:mb-4 mx-auto" />
-              <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">WhatsApp Support</h3>
+              <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">
+                WhatsApp Support
+              </h3>
               <p className="text-white/70 mb-4 sm:mb-6 text-xs sm:text-sm">
                 Get instant answers to your questions via WhatsApp
               </p>
