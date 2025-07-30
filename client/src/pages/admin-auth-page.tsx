@@ -43,9 +43,15 @@ export default function AdminAuthPage() {
       if (userData && userData.role === 'admin') {
         console.log("Redirecting to admin dashboard");
         
-        // Wait for auth state to update
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Check for redirectAfterLogin from ProtectedRoute
+        const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
+        if (redirectAfterLogin) {
+          localStorage.removeItem("redirectAfterLogin");
+          setLocation(redirectAfterLogin);
+          return;
+        }
         
+        // Default redirect to admin dashboard
         setLocation("/admin");
       } else {
         setError("Access denied. Admin privileges required.");

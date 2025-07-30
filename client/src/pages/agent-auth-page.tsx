@@ -51,9 +51,15 @@ export default function AgentAuthPage() {
         return;
       }
       
-      // Wait for auth state to update
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Check for redirectAfterLogin from ProtectedRoute
+      const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
+      if (redirectAfterLogin) {
+        localStorage.removeItem("redirectAfterLogin");
+        setLocation(redirectAfterLogin);
+        return;
+      }
       
+      // Default redirect to agent dashboard
       setLocation("/agent-dashboard");
     },
     onError: (error: any) => {

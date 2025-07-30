@@ -52,17 +52,24 @@ export default function StudentAuthPage() {
         return;
       }
       
-      // Wait for auth state to update
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
       // Check if there's a redirectTo URL in localStorage for application flow
       const redirectTo = localStorage.getItem("redirectTo");
       if (redirectTo) {
         localStorage.removeItem("redirectTo");
         setLocation(redirectTo);
-      } else {
-        setLocation("/student-dashboard");
+        return;
       }
+      
+      // Check for redirectAfterLogin from ProtectedRoute
+      const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
+      if (redirectAfterLogin) {
+        localStorage.removeItem("redirectAfterLogin");
+        setLocation(redirectAfterLogin);
+        return;
+      }
+      
+      // Default redirect
+      setLocation("/student-dashboard");
     },
     onError: (error: any) => {
       setError(error.message || "Login failed");
