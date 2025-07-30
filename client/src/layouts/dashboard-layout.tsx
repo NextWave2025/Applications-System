@@ -70,7 +70,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="flex h-screen bg-gray-100">
       {/* Mobile Header with Menu Toggle and NextWave Logo */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-primary text-white px-4 py-3 flex justify-between items-center shadow-md">
-        <NextWaveLogo size="sm" className="text-white" />
+        <NextWaveLogo size="sm" variant="white" />
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="text-white p-2 rounded-md hover:bg-white/10"
@@ -97,7 +97,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Desktop Logo/Title */}
         <div className="hidden lg:flex justify-between items-center p-4 border-b border-white/10">
           <div className={`transition-opacity duration-200 ${sidebarExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
-            <NextWaveLogo size="md" className="text-white" />
+            <NextWaveLogo size="md" variant="white" />
           </div>
           <button 
             onClick={() => setSidebarExpanded(!sidebarExpanded)}

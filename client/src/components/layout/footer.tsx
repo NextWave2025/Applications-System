@@ -6,13 +6,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 pt-16 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <div className="mb-4">
-              <img 
-                src="/logos/nextwave-white-new.png" 
-                alt="NextWave Logo" 
-                className="h-68 object-contain"
-              />
-            </div>
+            <div className="mb-4"></div>
             <p className="text-gray-400 mb-4">
               Connecting students with the best educational opportunities in the
               UAE.
@@ -60,7 +54,10 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Programs</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/programs" className="text-gray-400 hover:text-white">
+                <Link
+                  href="/programs"
+                  className="text-gray-400 hover:text-white"
+                >
                   Explore
                 </Link>
               </li>
@@ -75,7 +72,10 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-400 hover:text-white">
+                <Link
+                  href="/contact"
+                  className="text-gray-400 hover:text-white"
+                >
                   Contact
                 </Link>
               </li>
