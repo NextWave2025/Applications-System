@@ -1,177 +1,146 @@
-import React, { useState, useEffect } from "react";
-import { Quote, Star } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+
+const testimonials = [
+  {
+    name: "Ayesha Rahman",
+    country: "Pakistan",
+    flag: "🇵🇰",
+    university: "Heriot-Watt University Dubai",
+    program: "Business Administration",
+    quote: "NextWave made my dream of studying in Dubai a reality. The support was incredible from start to finish!",
+    image: "/api/placeholder/80/80",
+    rating: 5
+  },
+  {
+    name: "Mohammed Al-Rashid",
+    country: "Egypt",
+    flag: "🇪🇬",
+    university: "American University of Sharjah",
+    program: "Computer Science",
+    quote: "The guidance I received was exceptional. They helped me navigate every step of the application process.",
+    image: "/api/placeholder/80/80",
+    rating: 5
+  },
+  {
+    name: "Priya Sharma",
+    country: "India",
+    flag: "🇮🇳",
+    university: "Zayed University",
+    program: "International Relations",
+    quote: "From application to visa - NextWave handled everything professionally. Now I'm living my UAE dream!",
+    image: "/api/placeholder/80/80",
+    rating: 5
+  }
+];
 
 export default function StudentTestimonialsSection() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 },
-    );
-
-    const section = document.getElementById("student-testimonials-section");
-    if (section) observer.observe(section);
-
-    return () => {
-      if (section) observer.unobserve(section);
-    };
-  }, []);
-
-  const testimonials = [
-    {
-      quote:
-        "NextWave made my dream of studying at the American University of Dubai come true. Their guidance through the application process was invaluable, and they helped me find the perfect accommodation too.",
-      author: "Priya Sharma",
-      role: "Business Administration Student",
-      university: "American University of Dubai",
-      rating: 5,
-      image: "PS",
-    },
-    {
-      quote:
-        "From visa assistance to finding my student community, NextWave supported me at every step. Now I'm pursuing my Master's in Engineering and loving life in Dubai!",
-      author: "Ahmed Hassan",
-      role: "Engineering Student",
-      university: "Heriot-Watt University Dubai",
-      rating: 5,
-      image: "AH",
-    },
-    {
-      quote:
-        "The team understood exactly what I was looking for in a university program. Their knowledge of UAE universities is unmatched, and they found me the perfect fit.",
-      author: "Maria Gonzalez",
-      role: "International Business Student",
-      university: "University of Wollongong Dubai",
-      rating: 5,
-      image: "MG",
-    },
-  ];
-
-  useEffect(() => {
+    if (!isAutoPlaying) return;
+    
     const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
     }, 5000);
+
     return () => clearInterval(interval);
-  }, [testimonials.length]);
+  }, [isAutoPlaying]);
+
+  const nextTestimonial = () => {
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    setIsAutoPlaying(false);
+  };
+
+  const prevTestimonial = () => {
+    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    setIsAutoPlaying(false);
+  };
 
   return (
-    <section
-      id="student-testimonials-section"
-      className="py-24 bg-white relative overflow-hidden"
-    >
-      {/* Brand-inspired background elements */}
-      <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-gray-50/50 to-transparent pointer-events-none"></div>
-      <div className="absolute -left-16 bottom-1/4 w-32 h-32 bg-primary/5 rounded-full opacity-40 pointer-events-none"></div>
-      <div className="absolute right-0 top-0 w-64 h-64 bg-primary/5 rounded-bl-full opacity-20 pointer-events-none"></div>
-
-      {/* G pattern background subtly in the background */}
-      <div className="absolute bottom-0 right-0 w-80 h-80 opacity-5 pointer-events-none">
-        <div className="w-full h-full border-[20px] border-primary rounded-tl-full"></div>
-      </div>
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="max-w-3xl mx-auto mb-16 text-center">
-          <div className="nextwave-badge-with-dot mb-6">Student Stories</div>
-          <h2 className="text-5xl md:text-[64px] font-bold text-gray-900 mb-6 leading-tight tracking-tight">
-            Real <span className="text-primary">Student</span> Experiences
+    <section className="py-16 lg:py-24 bg-primary-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="text-center mb-12 lg:mb-16">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+            Student <span className="text-primary">Success Stories</span>
           </h2>
-          <p className="text-lg md:text-[25px] font-light text-gray-600 leading-relaxed max-w-3xl mx-auto mt-6">
-            Hear from students who are now thriving in UAE universities
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+            Real students sharing their NextWave journey to UAE universities
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          <div
-            className={`transition-all duration-1000 ease-out transform ${
-              isVisible
-                ? "translate-y-0 opacity-100"
-                : "translate-y-10 opacity-0"
-            }`}
-          >
-            <div className="bg-white border border-gray-100 rounded-3xl p-8 md:p-12 shadow-xl relative overflow-hidden">
-              {/* Quote background pattern */}
-              <div className="absolute top-6 left-6 w-16 h-16 bg-primary/5 rounded-full flex items-center justify-center">
-                <Quote className="w-8 h-8 text-primary opacity-30" />
-              </div>
+        {/* Testimonial Carousel */}
+        <div className="relative max-w-4xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl p-8 lg:p-12 relative overflow-hidden">
+            {/* Background Pattern */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/10 rounded-full translate-y-12 -translate-x-12"></div>
 
-              <div className="relative z-10 text-center">
-                <div className="flex justify-center mb-6">
-                  {[...Array(testimonials[currentTestimonial].rating)].map(
-                    (_, i) => (
-                      <Star
-                        key={i}
-                        className="w-6 h-6 text-yellow-400 fill-current"
-                      />
-                    ),
-                  )}
+            {/* Navigation Buttons */}
+            <button
+              onClick={prevTestimonial}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors duration-200 z-10"
+              aria-label="Previous testimonial"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
+            
+            <button
+              onClick={nextTestimonial}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors duration-200 z-10"
+              aria-label="Next testimonial"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-600" />
+            </button>
+
+            {/* Testimonial Content */}
+            <div className="text-center relative z-10">
+              <div className="mb-6">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-200 flex items-center justify-center text-2xl">
+                  {testimonials[currentIndex].flag}
                 </div>
-
-                <blockquote className="text-xl md:text-2xl font-light text-gray-700 leading-relaxed mb-8 italic">
-                  "{testimonials[currentTestimonial].quote}"
-                </blockquote>
-
-                <div className="flex items-center justify-center space-x-4">
-                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg">
-                    {testimonials[currentTestimonial].image}
-                  </div>
-                  <div className="text-left">
-                    <div className="font-bold text-gray-900 text-lg">
-                      {testimonials[currentTestimonial].author}
-                    </div>
-                    <div className="text-gray-600 text-sm">
-                      {testimonials[currentTestimonial].role}
-                    </div>
-                    <div className="text-primary text-sm font-medium">
-                      {testimonials[currentTestimonial].university}
-                    </div>
-                  </div>
+                <div className="flex justify-center mb-4">
+                  {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                  ))}
                 </div>
               </div>
-            </div>
 
-            {/* Testimonial indicators */}
-            <div className="flex justify-center mt-8 space-x-2">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentTestimonial(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === currentTestimonial
-                      ? "bg-primary scale-125"
-                      : "bg-gray-300 hover:bg-gray-400"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
+              <blockquote className="text-xl lg:text-2xl font-medium text-gray-900 mb-6 leading-relaxed">
+                "{testimonials[currentIndex].quote}"
+              </blockquote>
 
-        {/* Stats section */}
-        <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="text-center">
-            <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
-              900+
+              <div className="border-t border-gray-100 pt-6">
+                <div className="font-bold text-lg text-gray-900">
+                  {testimonials[currentIndex].name}
+                </div>
+                <div className="text-gray-600 mb-2">
+                  {testimonials[currentIndex].country}
+                </div>
+                <div className="text-sm text-primary font-medium">
+                  {testimonials[currentIndex].program} at {testimonials[currentIndex].university}
+                </div>
+              </div>
             </div>
-            <div className="text-gray-600"> Programs </div>
           </div>
-          <div className="text-center">
-            <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
-              20+
-            </div>
-            <div className="text-gray-600">Partner Universities</div>
-          </div>
-          <div className="text-center">
-            <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
-              98%
-            </div>
-            <div className="text-gray-600">Success Rate</div>
+
+          {/* Dots Indicator */}
+          <div className="flex justify-center mt-8 space-x-2">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setCurrentIndex(index);
+                  setIsAutoPlaying(false);
+                }}
+                className={`w-3 h-3 rounded-full transition-colors duration-200 ${
+                  index === currentIndex ? 'bg-primary' : 'bg-gray-300'
+                }`}
+                aria-label={`Go to testimonial ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
       </div>

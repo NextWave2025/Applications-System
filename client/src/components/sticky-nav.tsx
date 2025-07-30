@@ -1,0 +1,40 @@
+import { useState, useEffect } from "react";
+import { Calendar } from "lucide-react";
+
+export default function StickyNav() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      if (window.pageYOffset > 100) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener("scroll", toggleVisibility);
+    return () => window.removeEventListener("scroll", toggleVisibility);
+  }, []);
+
+  const scrollToConsultation = () => {
+    const element = document.getElementById("consultation-form");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  if (!isVisible) return null;
+
+  return (
+    <div className="fixed top-4 right-4 z-50 lg:hidden">
+      <button
+        onClick={scrollToConsultation}
+        className="bg-secondary text-black font-bold py-3 px-4 rounded-full shadow-lg hover:bg-yellow-400 transition-all duration-300 flex items-center animate-pulse"
+      >
+        <Calendar className="w-4 h-4 mr-2" />
+        Book Free Consultation
+      </button>
+    </div>
+  );
+}
