@@ -52,6 +52,12 @@ export default function StudentAuthPage() {
         return;
       }
       
+      // Force immediate auth state update
+      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
+      // Small delay to ensure state propagation
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Check if there's a redirectTo URL in localStorage for application flow
       const redirectTo = localStorage.getItem("redirectTo");
       if (redirectTo) {

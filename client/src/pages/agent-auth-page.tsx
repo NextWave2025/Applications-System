@@ -51,6 +51,12 @@ export default function AgentAuthPage() {
         return;
       }
       
+      // Force immediate auth state update
+      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
+      // Small delay to ensure state propagation
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Check for redirectAfterLogin from ProtectedRoute
       const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
       if (redirectAfterLogin) {
