@@ -45,8 +45,14 @@ export default function AgentAuthPage() {
     onSuccess: async (userData: any) => {
       console.log("Agent login success, redirecting to agent dashboard");
       
-      // Wait a brief moment to ensure auth state is updated
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Check if user role matches the login page
+      if (userData && userData.role !== 'agent') {
+        setError(`This account is registered as ${userData.role}. Please use the ${userData.role} login page or register a new agent account.`);
+        return;
+      }
+      
+      // Wait for auth state to update
+      await new Promise(resolve => setTimeout(resolve, 200));
       
       setLocation("/agent-dashboard");
     },
@@ -66,9 +72,11 @@ export default function AgentAuthPage() {
         agencyName: data.company,
         role: "agent"
       }),
-    onSuccess: async () => {
-      // Wait a brief moment to ensure auth state is updated
-      await new Promise(resolve => setTimeout(resolve, 100));
+    onSuccess: async (userData: any) => {
+      console.log("Agent signup success, redirecting to agent dashboard");
+      
+      // Wait for auth state to update
+      await new Promise(resolve => setTimeout(resolve, 200));
       
       setLocation("/agent-dashboard");
     },

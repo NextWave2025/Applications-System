@@ -1,0 +1,65 @@
+Here’s a structured developer-ready prompt to give your Replit collaborator to fix the login issues, redirection delays, and user role mismatch handling:
+
+⸻
+
+✅ Prompt for Developer — Login Redirect & Role-Based Logic Fix
+
+⸻
+
+Hi,
+
+Please help resolve the following issues related to login, redirection, and user-role verification across all account types (Admin, Agent, Student):
+
+⸻
+
+🐞 1. Login Redirection Delay (Admin & Agent)
+	•	Currently, admin and agent login/signup works, but the redirect only happens after manually refreshing the page.
+	•	The issue occurs right after pressing the login/signup button and seeing the “Welcome” popup.
+
+🔧 Action:
+	•	Ensure that after successful login/signup, the user is automatically redirected to the correct dashboard without needing a page refresh.
+	•	Fix this for both admin and agent login/signup flows.
+
+⸻
+
+🐞 2. Student Login Issue – “Invalid Credentials”
+	•	Currently, the student login/signup flow throws this error:
+
+[plugin:runtime-error-plugin] Invalid credentials
+
+
+	•	Even after registering, login is not successful.
+
+🔧 Action:
+	•	Debug and fix the student login/signup flow so it properly checks credentials and redirects the user to the student dashboard on success.
+	•	Ensure user role detection and token handling are correctly applied to students.
+
+⸻
+
+🚧 3. Role Mismatch Login Warning (New Feature)
+
+🔧 Action:
+	•	Add a pop-up alert or toast message when a user tries to log in with details meant for a different role.
+
+✅ Logic Example:
+	•	If a user with a student account tries to log in via the agent login page, show:
+⚠️ “This account is registered as a student. Please log in via the student portal or sign up with a new agent account.”
+	•	If an agent tries to log in via the student login:
+⚠️ “This account is registered as an agent. Please use the agent login page or register a new student account.”
+
+✅ Technical:
+	•	Use role check on backend response or in token/user profile
+	•	Trigger client-side modal or toast popup when mismatched
+
+⸻
+
+✅ Final Redirection Flow Per Role
+
+Role	Login Page Path	Redirect Path After Login
+Admin	/admin-login	/admin-dashboard
+Agent	/agent-login	/agent-dashboard
+Student	/student-login	/student-dashboard
+
+Please ensure that role-based redirection happens immediately on login success, and that token/session is handled properly.
+
+Let me know once deployed or if you need help testing each flow. Thanks!

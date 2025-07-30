@@ -32,12 +32,19 @@ export default function AdminAuthPage() {
     },
     onSuccess: async (userData: any) => {
       console.log("Admin login success, user data:", userData);
+      
+      // Check if user role matches the login page
+      if (userData && userData.role !== 'admin') {
+        setError(`This account is registered as ${userData.role}. Please use the ${userData.role} login page or register a new admin account.`);
+        return;
+      }
+      
       // Check if user is actually an admin
       if (userData && userData.role === 'admin') {
         console.log("Redirecting to admin dashboard");
         
-        // Wait a brief moment to ensure auth state is updated
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Wait for auth state to update
+        await new Promise(resolve => setTimeout(resolve, 200));
         
         setLocation("/admin");
       } else {

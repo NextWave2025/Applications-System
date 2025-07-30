@@ -103,8 +103,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ]);
         console.log("User queries invalidated and refetched");
         
-        // Add a small delay to ensure auth state propagates
-        await new Promise(resolve => setTimeout(resolve, 150));
+        // Add a delay to ensure auth state propagates
+        await new Promise(resolve => setTimeout(resolve, 300));
         
       } catch (error) {
         console.error("Error invalidating queries after login:", error);
@@ -154,8 +154,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
         console.log("User query invalidated after registration");
         
-        // Add a small delay to ensure auth state propagates
-        await new Promise(resolve => setTimeout(resolve, 150));
+        // Add a delay to ensure auth state propagates
+        await new Promise(resolve => setTimeout(resolve, 300));
         
       } catch (error) {
         console.error("Error invalidating queries after registration:", error);
