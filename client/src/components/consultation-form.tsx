@@ -76,7 +76,7 @@ export default function ConsultationForm() {
         
         // Optionally redirect to calendar booking
         setTimeout(() => {
-          window.open("https://calendar.google.com/calendar/appointments/schedules/AcZssZ2KkMjW8QjV4bP0XOlLqHgJ7vUHX0YzB8R8kN_t2K4LrZp2Q1MzX5Y7W9B3?gv=true", "_blank");
+          window.open("https://calendly.com/nextwave-admissionsinuae/30min", "_blank");
         }, 2000);
       } else {
         throw new Error('Failed to submit consultation request');
@@ -107,7 +107,7 @@ export default function ConsultationForm() {
             </p>
             <div className="text-center">
               <a
-                href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ2KkMjW8QjV4bP0XOlLqHgJ7vUHX0YzB8R8kN_t2K4LrZp2Q1MzX5Y7W9B3?gv=true"
+                href="https://calendly.com/nextwave-admissionsinuae/30min"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center px-6 py-3 bg-secondary text-black font-bold rounded-lg hover:bg-yellow-400 transition-all duration-300 mb-4"

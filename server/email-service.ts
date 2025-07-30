@@ -795,7 +795,7 @@ export async function sendConsultationRequestEmail(data: ConsultationRequestData
             ` : ''}
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ2KkMjW8QjV4bP0XOlLqHgJ7vUHX0YzB8R8kN_t2K4LrZp2Q1MzX5Y7W9B3?gv=true" 
+              <a href="https://calendly.com/nextwave-admissionsinuae/30min" 
                  style="display: inline-block; background: linear-gradient(135deg, #EFC61C 0%, #f3c614 100%); color: black; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 Schedule Consultation
               </a>

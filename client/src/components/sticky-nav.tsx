@@ -18,7 +18,7 @@ export default function StickyNav() {
   }, []);
 
   const openCalendar = () => {
-    window.open("https://calendar.google.com/calendar/appointments/schedules/AcZssZ2KkMjW8QjV4bP0XOlLqHgJ7vUHX0YzB8R8kN_t2K4LrZp2Q1MzX5Y7W9B3?gv=true", "_blank");
+    window.open("https://calendly.com/nextwave-admissionsinuae/30min", "_blank");
   };
 
   if (!isVisible) return null;
