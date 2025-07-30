@@ -26,9 +26,7 @@ interface FilterState {
 
 export default function ProgramsPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [displayedPrograms, setDisplayedPrograms] = useState<ProgramWithUniversity[]>([]);
   const [selectedProgramIds, setSelectedProgramIds] = useState<number[]>([]);
-  const [isFilterSearching, setIsFilterSearching] = useState(false);
   const [currencyConversions, setCurrencyConversions] = useState<Record<number, Array<{currency: string, amount: number, rate: number}>>>({});
   const [filters, setFilters] = useState<FilterState>({
     universityIds: [],
@@ -43,180 +41,93 @@ export default function ProgramsPage() {
   
   const [resultsCount, setResultsCount] = useState(0);
 
-  // Get all programs first without any filtering
-  const { data: allPrograms = [], isLoading: isLoadingAllPrograms, isError: isErrorAllPrograms } = useQuery<ProgramWithUniversity[]>({
-    queryKey: ['/api/programs']
+  // Streamlined data fetching - single source of truth
+  const { data: allPrograms = [], isLoading: isLoadingPrograms } = useQuery<ProgramWithUniversity[]>({
+    queryKey: ['/api/programs'],
+    staleTime: 2 * 60 * 1000, // 2 minutes cache
+    refetchOnWindowFocus: false
   });
 
-  console.log("All programs:", allPrograms);
-  console.log("Programs loading state:", { isLoadingAllPrograms, isErrorAllPrograms });
+  // Client-side filtering for instant results
+  const filteredPrograms = useMemo(() => {
+    let filtered = [...allPrograms];
 
-  // Use the query client to manually fetch programs if needed
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    // Force fetch programs on component mount for reliability
-    if (!isLoadingAllPrograms) {
-      console.log("Manually fetching programs...");
-      fetch('/api/programs')
-        .then(res => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
-          return res.json();
-        })
-        .then(data => {
-          console.log("Manually fetched programs:", data.length, "programs");
-          queryClient.setQueryData(['/api/programs'], data);
-        })
-        .catch(err => {
-          console.error("Error manually fetching programs:", err);
-        });
-    }
-  }, [isLoadingAllPrograms, queryClient]);
-
-  // Build filter query string using useMemo so it only recalculates when dependencies change
-  const filterQuery = useMemo(() => {
-    // Check if any filters are active
-    const hasActiveFilters = 
-      filters.degreeLevel.length > 0 || 
-      filters.studyField.length > 0 || 
-      filters.universityIds.length > 0 || 
-      filters.location.length > 0 ||
-      filters.intake.length > 0 ||
-      (filters.tuitionMin > 0 || filters.tuitionMax < 80000) || 
-      filters.hasScholarship || 
-      searchQuery.trim() !== "";
-
-    // If no filters are active, just use the allPrograms data
-    if (!hasActiveFilters) {
-      return null;
+    // Apply search query filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(program => 
+        program.name.toLowerCase().includes(query) ||
+        program.university?.name.toLowerCase().includes(query) ||
+        program.studyField?.toLowerCase().includes(query) ||
+        program.degree?.toLowerCase().includes(query)
+      );
     }
 
-    // Otherwise, build filter params
-    const params = new URLSearchParams();
-
-    // Add degree level filters
+    // Apply other filters
     if (filters.degreeLevel.length > 0) {
-      filters.degreeLevel.forEach(level => params.append('degree', level));
+      filtered = filtered.filter(program => 
+        program.degree && filters.degreeLevel.includes(program.degree)
+      );
     }
 
-    // Add study field filters
     if (filters.studyField.length > 0) {
-      filters.studyField.forEach(field => params.append('studyField', field));
+      filtered = filtered.filter(program => 
+        program.studyField && filters.studyField.includes(program.studyField)
+      );
     }
 
-    // Add university filters
     if (filters.universityIds.length > 0) {
-      filters.universityIds.forEach(id => params.append('university', id.toString()));
+      filtered = filtered.filter(program => 
+        program.universityId && filters.universityIds.includes(program.universityId)
+      );
     }
 
-    // Add location filters
     if (filters.location.length > 0) {
-      filters.location.forEach(location => params.append('location', location));
+      filtered = filtered.filter(program => 
+        program.university?.city && filters.location.includes(program.university.city)
+      );
     }
 
-    // Add intake filters
     if (filters.intake.length > 0) {
-      filters.intake.forEach(intake => params.append('intake', intake));
+      filtered = filtered.filter(program => {
+        if (!program.intake) return false;
+        const intakes = program.intake.split(',').map((i: string) => i.trim());
+        return filters.intake.some(filterIntake => 
+          intakes.some((programIntake: string) => programIntake.includes(filterIntake))
+        );
+      });
     }
 
-    // Add tuition range filters
-    if (filters.tuitionMin > 0) {
-      params.append('minTuition', filters.tuitionMin.toString());
-    }
-    if (filters.tuitionMax < 80000) {
-      params.append('maxTuition', filters.tuitionMax.toString());
+    // Apply tuition filters
+    if (filters.tuitionMin > 0 || filters.tuitionMax < 80000) {
+      filtered = filtered.filter(program => {
+        const tuition = parseInt(program.tuition) || 0;
+        return tuition >= filters.tuitionMin && tuition <= filters.tuitionMax;
+      });
     }
 
-    // Add scholarship filter
+    // Apply scholarship filter
     if (filters.hasScholarship) {
-      params.append('hasScholarship', 'true');
+      filtered = filtered.filter(program => program.hasScholarship);
     }
 
-    // Add search query
-    if (searchQuery) {
-      params.append('search', searchQuery);
-    }
+    return filtered;
+  }, [allPrograms, searchQuery, filters]);
 
-    const queryStr = params.toString();
-    return queryStr ? `/api/programs?${queryStr}` : '/api/programs';
-  }, [filters, searchQuery]);
+  // Use filtered programs directly for instant results
+  const programs = filteredPrograms;
 
-  // Fetch programs based on the memoized filter query
-  // Fetch filtered programs only if there are filters active
-  const { data: filteredPrograms = [], isLoading: isLoadingFiltered } = useQuery<ProgramWithUniversity[]>({
-    queryKey: [filterQuery],
-    // Skip this query if there are no active filters (filterQuery is null)
-    enabled: filterQuery !== null
-  });
-
-  // Manually fetch filtered programs when the filter changes
-  useEffect(() => {
-    if (filterQuery !== null) {
-      console.log("Manually fetching filtered programs with query:", filterQuery);
-      fetch(filterQuery)
-        .then(res => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
-          return res.json();
-        })
-        .then(data => {
-          console.log("Manually fetched filtered programs:", data.length, "programs");
-          queryClient.setQueryData([filterQuery], data);
-        })
-        .catch(err => {
-          console.error("Error manually fetching filtered programs:", err);
-        });
-    }
-  }, [filterQuery, queryClient]);
-
-  // Determine which programs to display: filtered programs if filters are active, otherwise all programs
-  const isLoading = filterQuery === null ? isLoadingAllPrograms : isLoadingFiltered;
-  const basePrograms = filterQuery === null ? allPrograms : filteredPrograms;
-
-  // Use displayed programs for search results, fallback to base programs
-  const programs = displayedPrograms.length > 0 ? displayedPrograms : basePrograms;
-
-  // Fetch universities for filters
+  // Fetch universities for filters - streamlined
   const { data: universities = [] } = useQuery<University[]>({
     queryKey: ["/api/universities"],
-    retry: 1,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+    refetchOnWindowFocus: false
   });
-
-  // Also fetch universities manually for reliability
-  useEffect(() => {
-    if (universities.length === 0) {
-      console.log("Manually fetching universities...");
-      fetch('/api/universities')
-        .then(res => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
-          return res.json();
-        })
-        .then(data => {
-          console.log("Manually fetched universities:", data.length, "universities");
-          queryClient.setQueryData(['/api/universities'], data);
-        })
-        .catch(err => {
-          console.error("Error manually fetching universities:", err);
-        });
-    }
-  }, [universities.length, queryClient]);
 
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
-    setDisplayedPrograms([]);
-    // Don't clear selections when filters change - preserve user selections
-    setIsFilterSearching(true);
-    
-    // Simulate search delay for animation
-    setTimeout(() => {
-      setIsFilterSearching(false);
-    }, 1200);
+    // Update results count immediately
+    setResultsCount(filteredPrograms.length);
   };
 
   const resetFilters = () => {
@@ -231,21 +142,12 @@ export default function ProgramsPage() {
       hasScholarship: false,
     });
     setSearchQuery("");
-    setDisplayedPrograms([]);
     setSelectedProgramIds([]);
   };
 
-  const handleResultsCountChange = (count: number) => {
-    setResultsCount(count);
-  };
-
   const handleSearchResults = (results: ProgramWithUniversity[]) => {
-    setDisplayedPrograms(results);
-    // Don't clear selections - keep selected programs that are still in results
-    setSelectedProgramIds(prev => {
-      const resultIds = results.map(p => p.id);
-      return prev.filter(id => resultIds.includes(id));
-    });
+    // Search is now handled by the filtered programs - no need for separate state
+    setSearchQuery(searchQuery);
   };
 
   const handleProgramSelection = (programId: number, selected: boolean) => {
@@ -308,8 +210,10 @@ export default function ProgramsPage() {
         {/* Enhanced Search bar */}
         <div className="max-w-full sm:max-w-xl mx-auto mb-6 sm:mb-8">
           <EnhancedSearch 
-            programs={basePrograms}
+            programs={allPrograms}
             onSearchResults={handleSearchResults}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
           />
         </div>
 
@@ -375,8 +279,8 @@ export default function ProgramsPage() {
               {/* Filter Panel */}
               <OptimizedFilterPanel 
                 onFiltersChange={handleFilterChange}
-                onResultsCountChange={handleResultsCountChange}
-                isSearching={isFilterSearching}
+                onResultsCountChange={() => {}}
+                isSearching={false}
                 searchResultsCount={programs.length}
                 className="w-full"
               />
@@ -385,13 +289,13 @@ export default function ProgramsPage() {
 
           {/* Main content - program cards */}
           <main className="flex-1 min-w-0">
-            {isLoading ? (
+            {isLoadingPrograms ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="animate-pulse h-64 sm:h-80 rounded-xl bg-gray-200" />
                 ))}
               </div>
-            ) : isErrorAllPrograms ? (
+            ) : false ? (
               <div className="text-center py-12 sm:py-16">
                 <div className="max-w-md mx-auto px-4">
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Error Loading Programs</h3>
@@ -450,7 +354,15 @@ export default function ProgramsPage() {
                 <div className="max-w-md mx-auto px-4">
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">No Programs Found</h3>
                   <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">No programs match your current criteria. Try adjusting your filters.</p>
-                  {filterQuery !== null && (
+                  {(filters.universityIds.length > 0 || 
+                    filters.degreeLevel.length > 0 || 
+                    filters.location.length > 0 || 
+                    filters.studyField.length > 0 || 
+                    filters.intake.length > 0 || 
+                    filters.hasScholarship ||
+                    filters.tuitionMin > 0 || 
+                    filters.tuitionMax < 80000 ||
+                    searchQuery.trim() !== "") && (
                     <Button 
                       onClick={resetFilters}
                       className="bg-blue-600 hover:bg-blue-700 text-white font-medium w-full sm:w-auto"
