@@ -78,7 +78,7 @@ export default function ContactPage() {
                           href="mailto:info@guide.com"
                           className="hover:text-primary"
                         >
-                          nextwave@admissionsinuae.com
+                          nextwaveadmission@gmail.com
                         </a>
                       </p>
                     </div>

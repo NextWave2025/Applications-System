@@ -53,7 +53,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     }
 
     // Using verified SendGrid sender email
-    const verifiedSenderEmail = params.from || 'nextwave@admissionsinuae.com';
+    const verifiedSenderEmail = params.from || 'nextwaveadmission@gmail.com';
     
     const msg = {
       to: params.to,
@@ -71,7 +71,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       text: convertHtmlToPlainText(params.html), // Improved plain text version
       // Enhanced anti-spam headers and authentication
       headers: {
-        'List-Unsubscribe': '<mailto:nextwave@admissionsinuae.com?subject=unsubscribe>',
+        'List-Unsubscribe': '<mailto:nextwaveadmission@gmail.com?subject=unsubscribe>',
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
         'X-Priority': '3',
         'X-MSMail-Priority': 'Normal',
@@ -756,7 +756,7 @@ interface ConsultationRequestData {
 
 // Function to send consultation request notification to admin
 export async function sendConsultationRequestEmail(data: ConsultationRequestData): Promise<boolean> {
-  const adminEmail = 'nextwave@admissionsinuae.com';
+  const adminEmail = 'nextwaveadmission@gmail.com';
   
   const html = `
     <!DOCTYPE html>
@@ -803,7 +803,7 @@ export async function sendConsultationRequestEmail(data: ConsultationRequestData
             
             <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 20px;">
               NextWave Admissions Team<br>
-              nextwave@admissionsinuae.com
+              nextwaveadmission@gmail.com
             </p>
           </td>
         </tr>
@@ -816,6 +816,6 @@ export async function sendConsultationRequestEmail(data: ConsultationRequestData
     to: adminEmail,
     subject: `New Consultation Request from ${data.name}`,
     html: html,
-    from: 'nextwave@admissionsinuae.com'
+    from: 'nextwaveadmission@gmail.com'
   });
 }

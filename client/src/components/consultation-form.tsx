@@ -82,7 +82,7 @@ export default function ConsultationForm() {
         throw new Error('Failed to submit consultation request');
       }
     } catch (error) {
-      alert('There was an error submitting your request. Please try again or contact us directly at nextwave@admissionsinuae.com');
+      alert('There was an error submitting your request. Please try again or contact us directly at nextwaveadmission@gmail.com');
     } finally {
       setIsSubmitting(false);
     }

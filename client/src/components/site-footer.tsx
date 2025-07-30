@@ -53,7 +53,7 @@ export default function SiteFooter() {
               <div className="flex items-center">
                 <Mail className="h-5 w-5 text-secondary mr-3" />
                 <span className="text-gray-300 text-[16px] font-light">
-                  nextwave@admissionsinuae.com
+                  nextwaveadmission@gmail.com
                 </span>
               </div>
             </div>
