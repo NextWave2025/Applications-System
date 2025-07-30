@@ -40,13 +40,34 @@ export default function ProgramsPage() {
   });
   
   const [resultsCount, setResultsCount] = useState(0);
+  const queryClient = useQueryClient();
 
-  // Streamlined data fetching - single source of truth
-  const { data: allPrograms = [], isLoading: isLoadingPrograms } = useQuery<ProgramWithUniversity[]>({
+  // Aggressive caching for instant perceived loading
+  const { data: allPrograms = [], isLoading: isLoadingPrograms, isFetching } = useQuery<ProgramWithUniversity[]>({
     queryKey: ['/api/programs'],
-    staleTime: 2 * 60 * 1000, // 2 minutes cache
-    refetchOnWindowFocus: false
+    staleTime: Infinity, // Never consider stale for immediate loading
+    gcTime: Infinity, // Never garbage collect for session
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    networkMode: 'online', // Only fetch when online
   });
+
+  // Prefetch data aggressively on component mount
+  useEffect(() => {
+    // Pre-warm the cache immediately
+    if (!allPrograms.length && !isLoadingPrograms) {
+      queryClient.prefetchQuery({
+        queryKey: ['/api/programs'],
+        staleTime: Infinity,
+      });
+    }
+    
+    // Also prefetch universities
+    queryClient.prefetchQuery({
+      queryKey: ['/api/universities'],
+      staleTime: Infinity,
+    });
+  }, [queryClient, allPrograms.length, isLoadingPrograms]);
 
   // Client-side filtering for instant results
   const filteredPrograms = useMemo(() => {
@@ -117,11 +138,13 @@ export default function ProgramsPage() {
   // Use filtered programs directly for instant results
   const programs = filteredPrograms;
 
-  // Fetch universities for filters - streamlined
+  // Instant universities loading
   const { data: universities = [] } = useQuery<University[]>({
     queryKey: ["/api/universities"],
-    staleTime: 5 * 60 * 1000, // 5 minutes cache
-    refetchOnWindowFocus: false
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   const handleFilterChange = (newFilters: FilterState) => {
@@ -289,10 +312,16 @@ export default function ProgramsPage() {
 
           {/* Main content - program cards */}
           <main className="flex-1 min-w-0">
-            {isLoadingPrograms ? (
+            {(isLoadingPrograms && !allPrograms.length) ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="animate-pulse h-64 sm:h-80 rounded-xl bg-gray-200" />
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div 
+                    key={i} 
+                    className="rounded-xl bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] animate-[shimmer_1.2s_ease-in-out_infinite] h-64 sm:h-80"
+                    style={{
+                      animationDelay: `${i * 0.1}s`
+                    }}
+                  />
                 ))}
               </div>
             ) : false ? (
