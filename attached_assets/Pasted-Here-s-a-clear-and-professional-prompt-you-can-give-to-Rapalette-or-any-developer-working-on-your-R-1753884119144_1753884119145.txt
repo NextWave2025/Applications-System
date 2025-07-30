@@ -1,0 +1,52 @@
+Here’s a clear and professional prompt you can give to Rapalette (or any developer working on your Replit project), explaining exactly what you want — including the separation of landing pages by audience without causing confusion in structure or integration:
+
+⸻
+
+✅ Prompt to Give Rapalette:
+
+⸻
+
+Hi Rapalette,
+
+We’re now ready to build the Student Landing Page for our platform. Please note that we already have a separate Agent Landing Page built and integrated, and now we want to do the same for students — with content and flow customized for them.
+
+Here’s what’s important to understand:
+
+🧭 Page Architecture
+	•	We have two distinct user types: agents and students.
+	•	Each should have their own dedicated landing page, tailored to their needs, tone, and call-to-action — but both should link into the same core system (like the Explore page and application logic).
+
+✅ So:
+	•	/agent is the Agent Landing Page
+	•	/student will be the new Student Landing Page
+	•	Both can route to /explore, /register, etc. — but their entry point and messaging will be different.
+
+🎯 Student Landing Page Goals
+
+The student page should:
+	•	Speak directly to students who are interested in studying in the UAE but are confused
+	•	Let them explore programs, book a consultation, and submit their documents
+	•	Collect leads via a simple form (e.g., Name, WhatsApp, Study Interest)
+	•	Highlight the unique value: UAE-focused support, internships, community, accommodation help, etc.
+	•	Optional but useful: include a simple document upload CTA for students who’ve already spoken to us
+
+Please use a clean, mobile-friendly layout with clear CTAs like:
+	•	Book Free Consultation
+	•	Explore UAE Programs
+	•	Upload Your Documents
+
+The current /explore page can be reused/linked for both audiences — just make sure it’s accessible from both landing pages, and contextually framed (e.g., “Explore options before your consultation”).
+
+🛠 Integration Notes
+	•	Don’t confuse the audiences or mix content between agent and student pages.
+	•	Each landing page is independent in messaging but connected to the same backend.
+	•	Feel free to reuse components (e.g., program cards), but wrap them in their appropriate landing layout.
+	•	Use routes like /student, /agent, /explore, /register?role=student, etc.
+
+Let me know if you need copy, design references, or form logic.
+
+Thanks!
+
+⸻
+
+Would you like me to generate an example React layout or Tailwind scaffold for /student too?
