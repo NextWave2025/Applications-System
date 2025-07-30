@@ -11,6 +11,7 @@ import LandingPage from "./pages/landing-page";
 import StudentLandingPage from "./pages/student-landing-page";
 import ProgramsPage from "./pages/programs-page";
 import ProgramDetailPage from "./pages/program-detail-page";
+import UniversityDetailPage from "./pages/university-detail-page";
 import ApplicationFormPage from "./pages/application-form-page";
 import ApplicationEditPage from "./pages/application-edit-page";
 import ApplicationsPage from "./pages/applications-page";
@@ -86,6 +87,12 @@ export default function App() {
               <Route path="/programs/:id">
                 <MainLayout>
                   <ProgramDetailPage />
+                </MainLayout>
+              </Route>
+
+              <Route path="/universities/:id">
+                <MainLayout>
+                  <UniversityDetailPage />
                 </MainLayout>
               </Route>
 

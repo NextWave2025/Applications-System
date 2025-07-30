@@ -30,7 +30,12 @@ function QuickApplyButton({ program }: { program: ProgramWithUniversity }) {
       );
       storeResumeData(resumeData);
       console.log("Quick Apply button - stored resume data:", resumeData);
-      setLocation("/auth");
+      
+      // Store redirect URL for after authentication
+      localStorage.setItem("redirectTo", `/apply/${program.id}?mode=quick&from=card`);
+      
+      // Redirect to student auth page for quick apply
+      setLocation("/auth/student");
     } else {
       // Redirect to application form in Quick Apply mode
       setLocation(`/apply/${program.id}?mode=quick&from=card`);

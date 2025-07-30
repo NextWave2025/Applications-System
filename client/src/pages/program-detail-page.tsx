@@ -250,7 +250,7 @@ export default function ProgramDetailPage() {
                   <p className="text-sm text-gray-600">{programData?.university?.location}</p>
                 </div>
               </div>
-              <Link to={`/universities/${programData?.universityId}`} className="text-primary hover:underline text-sm font-medium">
+              <Link href={`/universities/${programData?.universityId}`} className="text-primary hover:underline text-sm font-medium">
                 View University Profile
               </Link>
             </div>

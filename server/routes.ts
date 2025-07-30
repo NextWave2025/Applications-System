@@ -73,6 +73,7 @@ export function registerRoutes(app: Express): Server {
 
       const { 
         university, 
+        universityId,
         degree, 
         studyField, 
         hasScholarship, 
@@ -93,6 +94,17 @@ export function registerRoutes(app: Express): Server {
             : [parseInt(university as string)];
         } catch (e) {
           console.error("Error parsing university filter:", e);
+        }
+      }
+
+      // Support direct universityId parameter for university detail pages
+      if (universityId) {
+        try {
+          filters.universityIds = Array.isArray(universityId) 
+            ? universityId.map(id => parseInt(id as string))
+            : [parseInt(universityId as string)];
+        } catch (e) {
+          console.error("Error parsing universityId filter:", e);
         }
       }
 
