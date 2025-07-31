@@ -1,0 +1,267 @@
+Based on your conversation history and the specific issue where **new user account logins work successfully but subsequent logins fail**, combined with the program explore page returning "Not authenticated" errors, I can provide you with a comprehensive prompt to fix these critical production issues:
+
+# Comprehensive Replit Production Authentication Fix Prompt
+
+**Prompt for Replit AI:**
+
+"We have critical authentication and data access issues in production that are preventing users from properly accessing the application. The specific problems are:
+
+## **🚨 CRITICAL ISSUES TO FIX:**
+
+### **1. User Login Authentication Pattern Issue**
+- ✅ **New user account creation and first login works perfectly**
+- ❌ **Subsequent login attempts return '401 Unauthorized' and 'Invalid credentials' errors**
+- ❌ **Valid credentials that worked before are now being rejected**
+
+### **2. Program Explore Page Access Issue**
+- ❌ **Returns {"error":"Not authenticated"} in production**
+- ✅ **Works fine in development environment**
+- ❌ **Data fetching fails even for authenticated users**
+
+### **3. Session Persistence Problem**
+- **Pattern indicates session/cookie handling issues in Replit production environment**
+- **First login creates session successfully, but session doesn't persist for subsequent requests**
+
+## **🔧 SPECIFIC FIXES REQUIRED:**
+
+### **A. Session Configuration for Replit Production**
+
+**1. Trust Proxy Configuration (MOST CRITICAL)**
+```javascript
+// Add this as the FIRST line in your backend server setup
+app.set('trust proxy', 1);
+
+// This is essential for Replit deployments behind reverse proxy
+console.log('Trust proxy enabled for Replit deployment');
+```
+
+**2. Session Cookie Configuration for Production**
+```javascript
+// Update session configuration for Replit production
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'fallback-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  rolling: true,  // Refresh session on each request
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  },
+  name: 'connect.sid'  // Ensure consistent session name
+}));
+```
+
+**3. CORS Configuration for Session Handling**
+```javascript
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://nextwaveadmission.replit.app',
+    /\.replit\.app$/
+  ],
+  credentials: true,  // Critical for session cookies
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+```
+
+### **B. Authentication Flow Debugging and Fixes**
+
+**1. Enhanced Login Route with Session Debugging**
+```javascript
+app.post('/api/login', async (req, res) => {
+  console.log('=== LOGIN DEBUG ===');
+  console.log('Environment:', process.env.NODE_ENV);
+  console.log('Session ID before auth:', req.sessionID);
+  console.log('Existing session data:', req.session);
+  console.log('Request headers:', req.headers.cookie);
+  
+  try {
+    const { email, password } = req.body;
+    const user = await authenticateUser(email, password);
+    
+    if (user) {
+      // Regenerate session for security
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error('Session regeneration error:', err);
+          return res.status(500).json({ error: 'Session error' });
+        }
+        
+        // Set user data in session
+        req.session.userId = user.id;
+        req.session.user = user;
+        
+        // Force session save
+        req.session.save((err) => {
+          if (err) {
+            console.error('Session save error:', err);
+            return res.status(500).json({ error: 'Session save failed' });
+          }
+          
+          console.log('✅ Login successful, session saved:', req.sessionID);
+          res.json({ success: true, user: user });
+        });
+      });
+    } else {
+      console.log('❌ Authentication failed for:', email);
+      res.status(401).json({ error: 'Invalid credentials' });
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+```
+
+**2. Session Verification Middleware**
+```javascript
+// Add this middleware to protect routes
+const requireAuth = (req, res, next) => {
+  console.log('Auth check - Session ID:', req.sessionID);
+  console.log('Auth check - User in session:', !!req.session?.user);
+  
+  if (!req.session || !req.session.user) {
+    console.log('❌ No valid session found');
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  
+  console.log('✅ Valid session found for user:', req.session.user.email);
+  next();
+};
+
+// Apply to protected routes
+app.get('/api/programs', requireAuth, async (req, res) => {
+  try {
+    const programs = await fetchPrograms();
+    res.json(programs);
+  } catch (error) {
+    console.error('Programs fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch programs' });
+  }
+});
+```
+
+### **C. Frontend Session Handling**
+
+**1. Ensure Credentials Are Sent with Requests**
+```javascript
+// In your frontend API calls
+const apiCall = async (endpoint, options = {}) => {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    credentials: 'include',  // Critical for session cookies
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers
+    }
+  });
+  
+  if (!response.ok) {
+    if (response.status === 401) {
+      console.log('Session expired, redirecting to login');
+      // Handle session expiration
+      window.location.href = '/auth/student';
+    }
+    throw new Error(`API call failed: ${response.status}`);
+  }
+  
+  return response.json();
+};
+```
+
+### **D. Environment Variables Setup**
+
+**In Replit Secrets tab, ensure these are set:**
+```
+NODE_ENV=production
+SESSION_SECRET=your-secure-random-session-secret
+DATABASE_URL=your-production-database-url
+COOKIE_SECRET=additional-cookie-security-key
+```
+
+### **E. Database Session Storage (Recommended)**
+
+**For better session persistence:**
+```javascript
+// Consider using database session storage
+const MongoStore = require('connect-mongo');
+
+app.use(session({
+  // ... other config
+  store: MongoStore.create({
+    mongoUrl: process.env.DATABASE_URL,
+    touchAfter: 24 * 3600 // lazy session update
+  })
+}));
+```
+
+### **F. Diagnostic Endpoints**
+
+**Add these for debugging:**
+```javascript
+// Session diagnostic endpoint
+app.get('/api/session-status', (req, res) => {
+  res.json({
+    hasSession: !!req.session,
+    sessionId: req.sessionID,
+    userId: req.session?.userId,
+    userEmail: req.session?.user?.email,
+    cookieHeader: req.headers.cookie
+  });
+});
+
+// Health check with session info
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    environment: process.env.NODE_ENV,
+    trustProxy: req.app.get('trust proxy'),
+    sessionConfig: !!req.sessionStore,
+    timestamp: new Date().toISOString()
+  });
+});
+```
+
+## **🎯 EXPECTED BEHAVIOR AFTER FIX:**
+
+✅ **New user registration and first login works (already working)**
+✅ **Subsequent logins work without '401 Unauthorized' errors**
+✅ **Sessions persist properly between requests**
+✅ **Program explore page loads data for authenticated users**
+✅ **No more 'Not authenticated' errors for valid sessions**
+✅ **Consistent authentication behavior in production**
+
+## **🔍 IMMEDIATE TESTING STEPS:**
+
+1. **Test session endpoints:** Visit `/api/session-status` and `/api/health`
+2. **Test login flow:** Create new user → login → logout → login again
+3. **Test data access:** After login, access program explore page
+4. **Check browser cookies:** Verify `connect.sid` cookie is set and persists
+
+**The core issue is that Replit's reverse proxy architecture requires specific session configuration (`trust proxy`, proper cookie settings, and CORS credentials) to maintain authentication state between requests. This fix addresses the session persistence problem causing subsequent login failures.**"
+
+This comprehensive prompt targets the specific pattern you've identified where **first-time logins work but subsequent logins fail**, which is a classic Replit production session handling issue[1][2][3]. The fixes ensure proper session persistence and authentication state management in Replit's reverse proxy environment.
+
+[1] https://stackoverflow.com/questions/79492564/replit-app-is-fine-within-the-replit-environment-but-getting-401-and-500-errors
+[2] https://stackoverflow.com/questions/77700972/flask-session-resets-after-redirect-in-replit
+[3] https://replit.com/bounties/@30Native/fix-session-handling
+[4] https://github.com/nextauthjs/next-auth/discussions/4602
+[5] https://bonsai.io/docs/api-error-401-unauthorized
+[6] https://www.hostinger.com/tutorials/how-to-fix-the-401-unauthorized-error
+[7] https://www.youtube.com/watch?v=YoNfzenB910
+[8] https://www.sidetool.co/post/replit-agents-technical-faq-solving-common-setup-and-coding-challenges
+[9] https://www.reddit.com/r/replit/comments/1hogalh/replit_is_driving_me_insane_on_my_first_attempts/
+[10] https://replit.com/bounties/@eddievieira28/login-endpoint-sudde
+[11] https://www.reddit.com/r/replit/comments/1hgba1x/continued_charges_for_repeated_errors_and_no_fixes/
+[12] https://www.linkedin.com/posts/talsraviv_i-failed-to-make-a-web-app-on-both-replit-activity-7290861087745282048-FC9T
+[13] https://github.com/Dokploy/dokploy/issues/1757
+[14] https://ask.replit.com/t/can-t-log-in-to-my-account/78981
+[15] https://blog.replit.com/eval
+[16] https://www.rapidevelopers.com/replit-tutorials
+[17] https://community.sap.com/t5/technology-q-a/unauthorized-error/qaq-p/12564888
+[18] https://forum.freecodecamp.org/t/the-test-pass-but-i-cant-login-like-it-says-i-should/451651
+[19] https://replit.com/bounties/@emmanuelf4/fix-replit-session-i
+[20] https://docs.replit.com/replit-workspace/replit-auth
