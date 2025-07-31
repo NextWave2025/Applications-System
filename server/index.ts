@@ -36,22 +36,24 @@ const corsOptions = {
       return callback(null, true);
     }
     
-    // Environment variable whitelist (highest priority)
+    // 1. Environment variable whitelist (highest priority)
     const allowedOriginsEnv = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || [];
     if (allowedOriginsEnv.length > 0 && allowedOriginsEnv.includes(origin)) {
       console.log('✅ CORS: Origin in ALLOWED_ORIGINS env var');
       return callback(null, true);
     }
     
-    // Universal patterns for ANY hosting platform
+    // 2. Universal patterns for ANY hosting platform
     const allowedPatterns = [
-      // Local development
+      // Local development (comprehensive)
       /^http:\/\/localhost:\d+$/,
       /^http:\/\/127\.0\.0\.1:\d+$/,
       /^http:\/\/0\.0\.0\.0:\d+$/,
       /^http:\/\/192\.168\.\d+\.\d+:\d+$/,
       /^http:\/\/10\.\d+\.\d+\.\d+:\d+$/,
-      /^https?:\/\/.*\.local:\d+$/,
+      /^http:\/\/172\.16\.\d+\.\d+:\d+$/,
+      /^https?:\/\/.*\.local(:\d+)?$/,
+      /^https?:\/\/.*\.localhost(:\d+)?$/,
       
       // Replit (all variants)
       /^https:\/\/.*\.replit\.app$/,
@@ -60,6 +62,7 @@ const corsOptions = {
       /^https:\/\/.*\.worf\.replit\.dev$/,
       /^https:\/\/.*\.kirk\.replit\.dev$/,
       /^https:\/\/.*\.picard\.replit\.dev$/,
+      /^https:\/\/.*\.spock\.replit\.dev$/,
       
       // Major hosting platforms
       /^https:\/\/.*\.vercel\.app$/,
@@ -73,6 +76,8 @@ const corsOptions = {
       /^https:\/\/.*\.firebaseapp\.com$/,
       /^https:\/\/.*\.github\.io$/,
       /^https:\/\/.*\.gitpod\.io$/,
+      /^https:\/\/.*\.codepen\.io$/,
+      /^https:\/\/.*\.codesandbox\.io$/,
       /^https:\/\/.*\.codesandbox\.io$/,
       /^https:\/\/.*\.stackblitz\.io$/,
       

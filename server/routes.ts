@@ -19,13 +19,16 @@ export function registerRoutes(app: Express): Server {
     const hostname = req.hostname || req.get('host') || 'unknown';
     const host = req.get('host') || 'unknown';
     
-    // More robust production detection
+    // Universal production detection for ANY environment
     const isProduction = hostname.includes('replit.dev') || hostname.includes('replit.app') || 
                         hostname.includes('vercel.app') || hostname.includes('netlify.app') ||
                         hostname.includes('herokuapp.com') || hostname.includes('railway.app') ||
+                        hostname.includes('render.com') || hostname.includes('fly.dev') ||
                         host.includes('replit.dev') || host.includes('replit.app') ||
                         (!hostname.includes('localhost') && !hostname.includes('127.0.0.1') && 
-                         !host.includes('localhost') && !host.includes('127.0.0.1'));
+                         !host.includes('localhost') && !host.includes('127.0.0.1') &&
+                         !hostname.includes('192.168.') && !hostname.includes('10.') &&
+                         !hostname.endsWith('.local'));
     
     res.json({
       status: "OK",
@@ -37,7 +40,8 @@ export function registerRoutes(app: Express): Server {
       protocol: req.protocol,
       url: req.url,
       isProduction: isProduction,
-      nodeEnv: process.env.NODE_ENV || 'not_set'
+      nodeEnv: process.env.NODE_ENV || 'not_set',
+      universalConfig: "enabled"
     });
   });
 

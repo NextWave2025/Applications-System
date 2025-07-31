@@ -6,40 +6,43 @@ type ApiMethodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 export const getApiBaseUrl = (): string => {
   // Server-side rendering or Node.js environment
   if (typeof window === 'undefined') {
-    return process.env.API_BASE_URL || 'http://localhost:5000/api';
+    return process.env.API_BASE_URL || process.env.VITE_API_URL || 'http://localhost:5000/api';
   }
   
   const { hostname, protocol, port, origin } = window.location;
   
-  // Environment variable override (highest priority)
+  // 1. Environment variable override (highest priority)
   if (import.meta.env.VITE_API_URL) {
-    console.log('🔧 Using VITE_API_URL:', import.meta.env.VITE_API_URL);
+    console.log('🔧 Using VITE_API_URL override:', import.meta.env.VITE_API_URL);
     return import.meta.env.VITE_API_URL;
   }
   
-  // Local development detection
-  const isLocalhost = hostname === 'localhost' || 
-                     hostname === '127.0.0.1' || 
-                     hostname === '0.0.0.0' ||
-                     hostname.startsWith('192.168.') ||
-                     hostname.startsWith('10.') ||
-                     hostname.endsWith('.local');
+  // 2. Comprehensive local development detection
+  const isLocalDevelopment = hostname === 'localhost' || 
+                            hostname === '127.0.0.1' || 
+                            hostname === '0.0.0.0' ||
+                            hostname.startsWith('192.168.') ||
+                            hostname.startsWith('10.') ||
+                            hostname.startsWith('172.16.') ||
+                            hostname.endsWith('.local') ||
+                            hostname.endsWith('.localhost') ||
+                            port === '3000' || port === '5173' || port === '8080';
   
-  if (isLocalhost) {
+  if (isLocalDevelopment) {
     const devUrl = 'http://localhost:5000/api';
-    console.log('🛠️ LOCAL DEV API URL:', devUrl);
+    console.log('🛠️ LOCAL DEV API URL:', devUrl, { hostname, port });
     return devUrl;
   }
   
-  // Production: Use same origin with /api path
-  // Works for: custom domains, Replit, Vercel, Netlify, Heroku, AWS, etc.
+  // 3. Universal Production: Works with ANY domain/platform
+  // Custom domains, Replit, Vercel, Netlify, Heroku, Railway, AWS, Azure, etc.
   const prodUrl = `${origin}/api`;
-  console.log('🌐 PRODUCTION API URL:', prodUrl, {
+  console.log('🌐 UNIVERSAL PRODUCTION API URL:', prodUrl, {
     hostname,
     protocol,
     port,
     origin,
-    environment: 'production'
+    environment: 'universal-production'
   });
   
   return prodUrl;
