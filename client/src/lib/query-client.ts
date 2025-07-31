@@ -80,6 +80,7 @@ export async function apiRequest(
   const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url.startsWith('/api') ? url.slice(4) : url}`;
   
   console.log(`🔗 API Request: ${method} ${fullUrl}`);
+  console.log('🍪 API Request with credentials: include');
   
   const headers: HeadersInit = {
     "Content-Type": "application/json",
@@ -89,7 +90,7 @@ export async function apiRequest(
   const config: RequestInit = {
     method,
     headers,
-    credentials: "include", // important for cookies
+    credentials: "include", // 🚨 CRITICAL: Essential for session cookies in production
   };
 
   if (body && method !== "GET") {

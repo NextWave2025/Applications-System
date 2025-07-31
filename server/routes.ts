@@ -93,10 +93,12 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // API endpoint to get programs with filters
+  // 🚨 CRITICAL FIX: Programs endpoint with proper authentication
   app.get("/api/programs", async (req, res) => {
     try {
       console.log("GET /api/programs request with query:", req.query);
+      console.log("Programs request - Session ID:", req.sessionID);
+      console.log("Programs request - Authenticated:", req.isAuthenticated());
       
       // Add CORS headers explicitly for debugging
       res.header('Access-Control-Allow-Origin', req.headers.origin || '*');

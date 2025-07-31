@@ -60,17 +60,37 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
+  // 🚨 CRITICAL FIX: Trust proxy MUST be set FIRST for Replit production
+  app.set("trust proxy", 1);
+  console.log('✅ Trust proxy enabled for Replit deployment');
+  
+  // 🚨 CRITICAL FIX: Enhanced session configuration for Replit production
+  const isProduction = process.env.NODE_ENV === 'production' || 
+                      process.env.REPLIT_ENVIRONMENT === 'production' ||
+                      (typeof process !== 'undefined' && process.env.REPL_ID);
+  
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "default-secret-replace-in-production",
     resave: false,
     saveUninitialized: false,
+    rolling: true as boolean, // 🚨 CRITICAL: Refresh session on each request
+    name: 'connect.sid', // 🚨 CRITICAL: Consistent session name
     cookie: {
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      secure: isProduction, // 🚨 CRITICAL: Use HTTPS in production
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours (reduced from 30 days)
+      sameSite: isProduction ? 'none' : 'lax', // 🚨 CRITICAL: Handle cross-origin in production
     },
     store: storage.sessionStore,
   };
 
-  app.set("trust proxy", 1);
+  console.log('Session configuration:', {
+    isProduction,
+    cookieSecure: sessionSettings.cookie?.secure,
+    cookieSameSite: sessionSettings.cookie?.sameSite,
+    rolling: sessionSettings.rolling
+  });
+
   app.use(session(sessionSettings));
   app.use(passport.initialize());
   app.use(passport.session());
@@ -202,25 +222,55 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
+    console.log('=== LOGIN DEBUG START ===');
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('REPL_ID:', process.env.REPL_ID);
+    console.log('Session ID before auth:', req.sessionID);
+    console.log('Existing session data:', req.session);
+    console.log('Request headers cookie:', req.headers.cookie);
+    console.log('Trust proxy setting:', req.app.get('trust proxy'));
     console.log("Login attempt for user:", req.body.username);
+    
     passport.authenticate("local", (err: Error | null, user: User | false, info: any) => {
       if (err) {
-        console.error("Authentication error:", err);
+        console.error("❌ Authentication error:", err);
         return next(err);
       }
       if (!user) {
-        console.log("Authentication failed for user:", req.body.username, "Info:", info);
+        console.log("❌ Authentication failed for user:", req.body.username, "Info:", info);
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
-      console.log("Authentication successful for user:", user.username, "Role:", user.role);
-      req.login(user, (err: Error | null) => {
-        if (err) {
-          console.error("Login session error:", err);
-          return next(err);
+      console.log("✅ Authentication successful for user:", user.username, "Role:", user.role);
+      
+      // 🚨 CRITICAL FIX: Regenerate session for security and reliability
+      req.session.regenerate((regenerateErr) => {
+        if (regenerateErr) {
+          console.error('❌ Session regeneration error:', regenerateErr);
+          return res.status(500).json({ error: 'Session error' });
         }
-        console.log("Session created successfully for user:", user.username);
-        return res.status(200).json(user);
+        
+        req.login(user, (loginErr: Error | null) => {
+          if (loginErr) {
+            console.error("❌ Login session error:", loginErr);
+            return next(loginErr);
+          }
+          
+          // 🚨 CRITICAL FIX: Force session save
+          req.session.save((saveErr) => {
+            if (saveErr) {
+              console.error('❌ Session save error:', saveErr);
+              return res.status(500).json({ error: 'Session save failed' });
+            }
+            
+            console.log("✅ Session created and saved successfully");
+            console.log('New session ID:', req.sessionID);
+            console.log('User in session:', !!(req.session as any).passport?.user);
+            console.log('=== LOGIN DEBUG END ===');
+            
+            return res.status(200).json(user);
+          });
+        });
       });
     })(req, res, next);
   });
@@ -232,14 +282,37 @@ export function setupAuth(app: Express) {
     });
   });
 
+  // 🚨 CRITICAL FIX: Enhanced session debugging for authentication
   app.get("/api/user", (req, res) => {
-    console.log("User session check - isAuthenticated:", req.isAuthenticated());
-    console.log("User session check - user:", req.user);
+    console.log("=== USER SESSION DEBUG ===");
+    console.log("Session ID:", req.sessionID);
+    console.log("Session data:", req.session);
+    console.log("Passport authenticated:", req.isAuthenticated());
+    console.log("User in session:", req.user);
+    console.log("Cookie header:", req.headers.cookie);
+    console.log("Trust proxy:", req.app.get('trust proxy'));
+    
     if (!req.isAuthenticated()) {
-      console.log("User not authenticated, returning 401");
+      console.log("❌ User not authenticated, returning 401");
       return res.status(401).json({ error: "Not authenticated" });
     }
-    console.log("Returning user data:", req.user);
+    console.log("✅ Returning user data:", req.user);
     res.json(req.user);
+  });
+
+  // 🚨 CRITICAL FIX: Session diagnostic endpoint
+  app.get("/api/session-status", (req, res) => {
+    res.json({
+      hasSession: !!req.session,
+      sessionId: req.sessionID,
+      isAuthenticated: req.isAuthenticated(),
+      userId: req.user?.id,
+      userEmail: req.user?.username,
+      cookieHeader: req.headers.cookie,
+      trustProxy: req.app.get('trust proxy'),
+      sessionStore: !!req.sessionStore,
+      environment: process.env.NODE_ENV,
+      replId: process.env.REPL_ID
+    });
   });
 }
