@@ -1,0 +1,203 @@
+
+
+
+
+
+📊 What Your Console Tests Revealed:
+✅ What's Working:
+* Backend is accessible: Health endpoint returns 200 OK with production environment details
+* CORS is configured correctly: Proper headers are being returned
+* API routing is working: Requests are reaching your endpoints
+* Programs endpoint exists: Returns [] (empty array) without authentication
+❌ The Real Problem:
+* All login attempts return {"error":"Invalid credentials"} with 401 status
+* This happens even for test credentials, indicating a fundamental authentication logic issue
+* Missing diagnostic endpoints: /api/db-test and /api/session-test return HTML instead of JSON (routes don't exist)
+🚨 ROOT CAUSE IDENTIFIED:
+Your backend's authentication logic itself is failing - either:
+1. Database connection issues - User lookup is failing
+2. Password hashing mismatch - Stored passwords don't match login attempts
+3. Missing user accounts - Test users don't exist in the production database
+4. Authentication function errors - The login validation logic has bugs
+🔧 DEFINITIVE FIX PROMPT FOR REPLIT:
+Prompt for Replit AI:
+"The console testing reveals that ALL login attempts return 'Invalid credentials' with 401 status, even for test credentials. The backend is accessible and responding, but the authentication logic itself is failing. This indicates either database connectivity issues, missing user accounts, or authentication function bugs in production.
+🚨 CRITICAL AUTHENTICATION FIXES REQUIRED:
+1. Add Database Connection Diagnostics
+Create a database test endpoint to verify connectivity:
+
+javascript
+app.get('/api/db-test', async (req, res) => {
+  try {
+    console.log('=== DATABASE CONNECTION TEST ===');
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('Database URL exists:', !!process.env.DATABASE_URL);
+    
+    // Test database connection (adjust based on your DB type)
+    // For MongoDB:
+    // const db = mongoose.connection;
+    // const testQuery = await User.countDocuments();
+    
+    // For PostgreSQL:
+    // const testQuery = await pool.query('SELECT 1');
+    
+    // For your specific database, add appropriate test query
+    const userCount = await getUserCount(); // Implement this based on your DB
+    
+    res.json({
+      status: 'Database connected',
+      environment: process.env.NODE_ENV,
+      userCount: userCount,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('❌ Database connection error:', error);
+    res.status(500).json({
+      status: 'Database connection failed',
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+2. Debug Authentication Function
+Add comprehensive logging to your login route:
+
+javascript
+app.post('/api/login', async (req, res) => {
+  console.log('=== LOGIN ATTEMPT DEBUG ===');
+  console.log('Environment:', process.env.NODE_ENV);
+  console.log('Request body:', req.body);
+  console.log('Email received:', req.body.email);
+  console.log('Password received:', req.body.password ? '[PRESENT]' : '[MISSING]');
+  
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      console.log('❌ Missing email or password');
+      return res.status(400).json({ error: 'Email and password required' });
+    }
+    
+    console.log('🔍 Looking up user in database...');
+    
+    // Add user lookup debugging
+    const user = await findUserByEmail(email);
+    console.log('User found:', !!user);
+    
+    if (!user) {
+      console.log('❌ User not found in database for email:', email);
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    console.log('✅ User found, verifying password...');
+    console.log('Stored password hash:', user.password ? '[PRESENT]' : '[MISSING]');
+    
+    // Add password verification debugging
+    const isValidPassword = await verifyPassword(password, user.password);
+    console.log('Password verification result:', isValidPassword);
+    
+    if (!isValidPassword) {
+      console.log('❌ Password verification failed');
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    console.log('✅ Authentication successful for user:', user.id);
+    
+    // Set session data
+    req.session.userId = user.id;
+    req.session.user = user;
+    
+    res.json({ 
+      success: true, 
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        role: user.role 
+      } 
+    });
+    
+  } catch (error) {
+    console.error('❌ Login route error:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      details: error.message 
+    });
+  }
+});
+3. Create Test User Endpoint
+Add an endpoint to create test users in production:
+
+javascript
+app.post('/api/create-test-user', async (req, res) => {
+  try {
+    console.log('Creating test user...');
+    
+    const testUsers = [
+      { email: 'student@gmail.com', password: 'password', role: 'student' },
+      { email: 'agent@gmail.com', password: 'password', role: 'agent' },
+      { email: 'admin@gmail.com', password: 'password', role: 'admin' }
+    ];
+    
+    for (const userData of testUsers) {
+      const existingUser = await findUserByEmail(userData.email);
+      if (!existingUser) {
+        const hashedPassword = await hashPassword(userData.password);
+        await createUser({
+          ...userData,
+          password: hashedPassword
+        });
+        console.log('✅ Created test user:', userData.email);
+      } else {
+        console.log('User already exists:', userData.email);
+      }
+    }
+    
+    res.json({ success: true, message: 'Test users created' });
+  } catch (error) {
+    console.error('Test user creation error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+4. Environment Variables Verification
+Add environment debugging endpoint:
+
+javascript
+app.get('/api/env-check', (req, res) => {
+  res.json({
+    nodeEnv: process.env.NODE_ENV,
+    hasDatabaseUrl: !!process.env.DATABASE_URL,
+    hasSessionSecret: !!process.env.SESSION_SECRET,
+    databaseUrlLength: process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0,
+    port: process.env.PORT || 3000
+  });
+});
+5. Session Test Endpoint
+Add proper session testing:
+
+javascript
+app.get('/api/session-test', (req, res) => {
+  console.log('=== SESSION TEST ===');
+  console.log('Session ID:', req.sessionID);
+  console.log('Session data:', req.session);
+  console.log('User in session:', req.session?.user);
+  console.log('Cookies:', req.headers.cookie);
+  
+  res.json({
+    sessionId: req.sessionID,
+    hasSession: !!req.session,
+    hasUser: !!req.session?.user,
+    cookies: req.headers.cookie,
+    userEmail: req.session?.user?.email
+  });
+});
+🔍 IMMEDIATE TESTING STEPS:
+After implementing these fixes, test in this order:
+1. Environment check: curl https://nextwaveadmission.replit.app/api/env-check
+2. Database test: curl https://nextwaveadmission.replit.app/api/db-test
+3. Create test users: curl -X POST https://nextwaveadmission.replit.app/api/create-test-user
+4. Test login again: curl -X POST https://nextwaveadmission.replit.app/api/login -H "Content-Type: application/json" -d '{"email":"student@gmail.com","password":"password"}'
+🎯 EXPECTED BEHAVIOR AFTER FIX:
+✅ Database test endpoint returns connection status ✅ Environment check shows proper configuration ✅ Test users are created successfully ✅ Login attempts succeed with detailed debugging logs ✅ Authentication works for all user types
+The issue is almost certainly that your production database either doesn't have the test users you're trying to login with, or there's a database connection problem preventing user lookup/authentication from working properly."
+This comprehensive debugging approach will identify exactly where your authentication is failing - whether it's database connectivity, missing users, password hashing issues, or authentication logic bugs.

@@ -79,7 +79,7 @@ export function setupAuth(app: Express) {
       secure: isProduction, // 🚨 CRITICAL: Use HTTPS in production
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours (reduced from 30 days)
-      sameSite: isProduction ? 'none' : 'lax', // 🚨 CRITICAL: Handle cross-origin in production
+      sameSite: isProduction ? 'none' as const : 'lax' as const, // 🚨 CRITICAL: Handle cross-origin in production
     },
     store: storage.sessionStore,
   };
@@ -229,7 +229,19 @@ export function setupAuth(app: Express) {
     console.log('Existing session data:', req.session);
     console.log('Request headers cookie:', req.headers.cookie);
     console.log('Trust proxy setting:', req.app.get('trust proxy'));
-    console.log("Login attempt for user:", req.body.username);
+    console.log("Request content-type:", req.headers['content-type']);
+    console.log("Request body:", req.body);
+    console.log("Request body type:", typeof req.body);
+    console.log("Request body keys:", req.body ? Object.keys(req.body) : 'NO BODY');
+    console.log("Login attempt for user:", req.body?.email || req.body?.username);
+    console.log("Email field:", req.body?.email);
+    console.log("Username field:", req.body?.username);
+    console.log("Password field:", req.body?.password ? '[PRESENT]' : '[MISSING]');
+    
+    // Map email to username for passport compatibility
+    if (req.body.email && !req.body.username) {
+      req.body.username = req.body.email;
+    }
     
     passport.authenticate("local", (err: Error | null, user: User | false, info: any) => {
       if (err) {
@@ -237,7 +249,7 @@ export function setupAuth(app: Express) {
         return next(err);
       }
       if (!user) {
-        console.log("❌ Authentication failed for user:", req.body.username, "Info:", info);
+        console.log("❌ Authentication failed for user:", req.body.email || req.body.username, "Info:", info);
         return res.status(401).json({ error: "Invalid credentials" });
       }
 

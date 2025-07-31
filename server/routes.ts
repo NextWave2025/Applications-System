@@ -924,6 +924,150 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // 🚨 CRITICAL: Database connection test endpoint
+  app.get("/api/db-test", async (req, res) => {
+    try {
+      console.log('=== DATABASE CONNECTION TEST ===');
+      console.log('Environment:', process.env.NODE_ENV);
+      console.log('Database URL exists:', !!process.env.DATABASE_URL);
+      
+      // Test database connection with program count instead
+      const programs = await storage.getPrograms({});
+      const programCount = programs.length;
+      
+      // Get a sample of test users by trying to fetch specific ones
+      const testUserEmails = ['student@gmail.com', 'newagent@test.com', 'nextwaveadmission@gmail.com'];
+      const sampleUsers = [];
+      
+      for (const email of testUserEmails) {
+        try {
+          const user = await storage.getUserByUsername(email);
+          if (user) {
+            sampleUsers.push({
+              id: user.id,
+              username: user.username,
+              role: user.role,
+              active: user.active
+            });
+          }
+        } catch (e) {
+          // User doesn't exist, which is fine
+        }
+      }
+      
+      res.json({
+        status: 'Database connected',
+        environment: process.env.NODE_ENV,
+        programCount: programCount,
+        testUserCount: sampleUsers.length,
+        testUsers: sampleUsers,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('❌ Database connection error:', error);
+      res.status(500).json({
+        status: 'Database connection failed',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // 🚨 CRITICAL: Create/verify test users endpoint
+  app.post("/api/create-test-users", async (req, res) => {
+    try {
+      console.log('=== CREATING/VERIFYING TEST USERS ===');
+      
+      const testUsers = [
+        { 
+          username: 'student@gmail.com', 
+          password: 'student123', 
+          role: 'student' as const,
+          firstName: 'Student',
+          lastName: 'Test',
+          phoneNumber: '1234567890'
+        },
+        { 
+          username: 'newagent@test.com', 
+          password: 'agent123', 
+          role: 'agent' as const,
+          firstName: 'Agent',
+          lastName: 'Test',
+          phoneNumber: '1234567890'
+        },
+        { 
+          username: 'nextwaveadmission@gmail.com', 
+          password: 'admin123', 
+          role: 'admin' as const,
+          firstName: 'Admin',
+          lastName: 'User',
+          phoneNumber: '1234567890'
+        }
+      ];
+      
+      const results = [];
+      
+      for (const userData of testUsers) {
+        try {
+          const existingUser = await storage.getUserByUsername(userData.username);
+          if (!existingUser) {
+            const auth = await import('./auth');
+            const hashedPassword = await (auth as any).hashPassword(userData.password);
+            
+            const newUser = await storage.createUser({
+              ...userData,
+              password: hashedPassword,
+              active: true
+            });
+            
+            console.log('✅ Created test user:', userData.username);
+            results.push({ email: userData.username, status: 'created', id: newUser.id });
+          } else {
+            if (!existingUser.active) {
+              await storage.updateUser(existingUser.id, { active: true });
+              console.log('✅ Activated existing user:', userData.username);
+              results.push({ email: userData.username, status: 'activated', id: existingUser.id });
+            } else {
+              console.log('✅ User already exists and is active:', userData.username);
+              results.push({ email: userData.username, status: 'exists', id: existingUser.id });
+            }
+          }
+        } catch (userError) {
+          console.error('❌ Error with user:', userData.username, userError);
+          results.push({ 
+            email: userData.username, 
+            status: 'error', 
+            error: userError instanceof Error ? userError.message : String(userError)
+          });
+        }
+      }
+      
+      res.json({ 
+        success: true, 
+        message: 'Test users processed',
+        results: results
+      });
+    } catch (error) {
+      console.error('❌ Test user creation error:', error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : String(error),
+        details: 'Failed to create/verify test users'
+      });
+    }
+  });
+
+  // 🚨 CRITICAL: Environment check endpoint
+  app.get("/api/env-check", (req, res) => {
+    res.json({
+      nodeEnv: process.env.NODE_ENV,
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      hasSessionSecret: !!process.env.SESSION_SECRET,
+      databaseUrlLength: process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0,
+      port: process.env.PORT || 5000,
+      replId: process.env.REPL_ID,
+      trustProxy: req.app.get('trust proxy')
+    });
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
