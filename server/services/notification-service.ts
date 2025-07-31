@@ -30,7 +30,7 @@ interface UserNotificationData {
 }
 
 class NotificationService {
-  private senderEmail = "nextwaveadmission@gmail.com";
+  private senderEmail = "nextwave@admissionsinuae.com";
   private senderName = "NextWave Admissions Team";
 
   async sendApplicationSubmittedNotification(data: ApplicationNotificationData) {

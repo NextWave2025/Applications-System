@@ -398,8 +398,8 @@ export default function AgentAuthPage() {
         <div className="text-center mt-6">
           <p className="text-white/60 text-sm">
             Need help? Contact our agent support team at{" "}
-            <a href="mailto:agents@nextwave.com" className="text-secondary hover:underline">
-              agents@nextwave.com
+            <a href="mailto:nextwave@admissionsinuae.com" className="text-secondary hover:underline">
+              nextwave@admissionsinuae.com
             </a>
           </p>
         </div>

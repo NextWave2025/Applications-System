@@ -53,7 +53,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     }
 
     // Using verified SendGrid sender email
-    const verifiedSenderEmail = params.from || 'nextwaveadmission@gmail.com';
+    const verifiedSenderEmail = params.from || 'nextwave@admissionsinuae.com';
     
     const msg = {
       to: params.to,
@@ -71,7 +71,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       text: convertHtmlToPlainText(params.html), // Improved plain text version
       // Enhanced anti-spam headers and authentication
       headers: {
-        'List-Unsubscribe': '<mailto:nextwaveadmission@gmail.com?subject=unsubscribe>',
+        'List-Unsubscribe': '<mailto:nextwave@admissionsinuae.com?subject=unsubscribe>',
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
         'X-Priority': '3',
         'X-MSMail-Priority': 'Normal',
@@ -82,7 +82,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
         'Return-Path': `<${verifiedSenderEmail}>`,
         'Message-ID': `<${Date.now()}-${Math.random().toString(36).substr(2, 9)}@nextwave-admissions.com>`,
         'Date': new Date().toUTCString(),
-        'Authentication-Results': 'spf=pass smtp.mailfrom=nextwaveadmission@gmail.com',
+        'Authentication-Results': 'spf=pass smtp.mailfrom=nextwave@admissionsinuae.com',
         'DKIM-Signature': 'v=1; a=rsa-sha256; c=relaxed/relaxed',
         'Precedence': 'bulk',
         'X-Original-Sender': verifiedSenderEmail,

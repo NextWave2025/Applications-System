@@ -9,11 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../co
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { apiRequest } from "../lib/query-client";
 import { Eye, EyeOff, Shield, Users, Settings, BookOpen, BarChart3, Globe } from "lucide-react";
+import { useToast } from "../hooks/use-toast";
 
 export default function AdminAuthPage() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
@@ -31,7 +33,7 @@ export default function AdminAuthPage() {
       return userData;
     },
     onSuccess: async (userData: any) => {
-      console.log("Admin login success, user data:", userData);
+      console.log("Admin login success - updating cache for protected routes");
       
       // Check if user role matches the login page
       if (userData && userData.role !== 'admin') {
@@ -39,26 +41,43 @@ export default function AdminAuthPage() {
         return;
       }
       
-      // Check if user is actually an admin
-      if (userData && userData.role === 'admin') {
-        console.log("Redirecting to admin dashboard");
+      // Set cache data immediately  
+      queryClient.setQueryData(["/api/user"], userData);
+      
+      // Force immediate refetch to ensure consistency
+      await queryClient.refetchQueries({ 
+        queryKey: ["/api/user"],
+        type: 'active'
+      });
+      
+      // Set auth transition flag for protected route bypass
+      sessionStorage.setItem('authTransition', 'true');
+      
+      // Extended delay for protected route synchronization
+      setTimeout(() => {
+        console.log("Navigating after protected route sync delay");
         
-        // Wait for auth state to propagate, then redirect
+        // Check for redirectAfterLogin from ProtectedRoute
+        const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
+        if (redirectAfterLogin) {
+          localStorage.removeItem("redirectAfterLogin");
+          setLocation(redirectAfterLogin);
+          return;
+        }
+        
+        // Default redirect to admin dashboard
+        setLocation("/admin");
+        
+        // Clear auth transition after navigation
         setTimeout(() => {
-          // Check for redirectAfterLogin from ProtectedRoute
-          const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
-          if (redirectAfterLogin) {
-            localStorage.removeItem("redirectAfterLogin");
-            setLocation(redirectAfterLogin);
-            return;
-          }
-          
-          // Default redirect to admin dashboard
-          setLocation("/admin");
-        }, 200);
-      } else {
-        setError("Access denied. Admin privileges required.");
-      }
+          sessionStorage.removeItem('authTransition');
+        }, 2000);
+      }, 1000); // Longer delay for protected routes
+      
+      toast({
+        title: "Login successful!",
+        description: "Redirecting to admin dashboard...",
+      });
     },
     onError: (error: any) => {
       console.log("Admin login error:", error);
@@ -153,7 +172,7 @@ export default function AdminAuthPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="nextwaveadmission@gmail.com"
+                  placeholder="nextwave@admissionsinuae.com"
                   value={loginForm.email}
                   onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
                   required

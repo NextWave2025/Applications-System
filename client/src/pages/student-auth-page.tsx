@@ -475,8 +475,8 @@ export default function StudentAuthPage() {
         <div className="text-center mt-6">
           <p className="text-white/60 text-sm">
             Need help? Contact our student support team at{" "}
-            <a href="mailto:students@nextwave.com" className="text-secondary hover:underline">
-              students@nextwave.com
+            <a href="mailto:nextwave@admissionsinuae.com" className="text-secondary hover:underline">
+              nextwave@admissionsinuae.com
             </a>
           </p>
         </div>
