@@ -5,7 +5,7 @@ import {
   UseMutationResult,
 } from "@tanstack/react-query";
 import { User } from "@shared/schema";
-import { getQueryFn, apiRequest, queryClient } from "../lib/query-client";
+import { getQueryFn, apiRequest, queryClient, API_BASE_URL } from "../lib/query-client";
 import { useToast } from "./use-toast";
 
 type AuthContextType = {
@@ -47,7 +47,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/user"],
     queryFn: async () => {
       try {
-        const response = await fetch("/api/user", {
+        // 🚨 CRITICAL FIX: Use environment-aware API URL
+        const apiUrl = `${API_BASE_URL}/user`;
+        console.log('🔑 Auth check URL:', apiUrl);
+        
+        const response = await fetch(apiUrl, {
           credentials: "include"
         });
         if (response.status === 401 || response.status === 403) {
@@ -76,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutationFn: async (credentials: LoginData) => {
       try {
         console.log("Attempting login for:", credentials.username);
-        const res = await apiRequest("POST", "/api/login", credentials);
+        const res = await apiRequest("POST", "/login", credentials);
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({ message: 'Login failed' }));
           throw new Error(errorData.message || 'Login failed');
@@ -118,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutationFn: async (credentials: RegisterData) => {
       try {
         console.log("Registration attempt for:", credentials.username);
-        const res = await apiRequest("POST", "/api/register", credentials);
+        const res = await apiRequest("POST", "/register", credentials);
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({ message: 'Registration failed' }));
           throw new Error(errorData.message || 'Registration failed');
@@ -177,7 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "/api/logout");
+      await apiRequest("POST", "/logout");
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);

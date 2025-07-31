@@ -25,26 +25,35 @@ try {
 
 const app = express();
 
-// Configure CORS for production deployment
+// 🚨 CRITICAL FIX: Enhanced CORS configuration for production deployment
 const corsOptions = {
   origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    console.log('🌐 CORS Origin Check:', origin);
+    
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      console.log('✅ CORS: No origin - allowing');
+      return callback(null, true);
+    }
     
     // Allow all Replit domains and local development
     const allowedOrigins = [
       /^https:\/\/.*\.replit\.app$/,
       /^https:\/\/.*\.repl\.co$/,
+      /^https:\/\/.*\.replit\.dev$/,          // 🚨 FIX: Allow .replit.dev domains
+      /^https:\/\/.*\.worf\.replit\.dev$/,    // 🚨 FIX: Allow .worf.replit.dev domains
       /^http:\/\/localhost:\d+$/,
       /^http:\/\/127\.0\.0\.1:\d+$/,
     ];
     
     const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
+    console.log(`${isAllowed ? '✅' : '❌'} CORS: Origin ${origin} - ${isAllowed ? 'allowed' : 'blocked'}`);
     callback(null, isAllowed);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200 // For legacy browser support
 };
 
 app.use(cors(corsOptions));

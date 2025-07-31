@@ -1,0 +1,181 @@
+Prompt for Replit AI:
+"The application works perfectly in development but fails completely in production with 'Invalid credentials' for all authentication and 'Not authenticated' errors for data fetching. The console logs show the frontend is calling wrong API endpoints in production. This is a critical API base URL configuration issue that needs immediate fixing.
+🚨 CRITICAL PRODUCTION FIXES REQUIRED:
+1. Fix API Base URL Configuration (HIGHEST PRIORITY)
+The frontend is using localhost URLs in production. Find and fix your API configuration:
+javascript
+// ❌ CURRENT PROBLEM: Hardcoded localhost URLs that break in production
+const API_URL = "http://localhost:3000/api"  
+const BASE_URL = "http://localhost:8000/api"
+
+// ✅ SOLUTION: Environment-aware API configuration
+const getApiBaseUrl = () => {
+  // Check if we're in production (deployed)
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return `${window.location.origin}/api`;  // Use deployed domain
+  }
+  
+  // Development fallback
+  return 'http://localhost:3000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+// Alternative explicit configuration:
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? `${window.location.origin}/api`
+  : 'http://localhost:3000/api';
+2. Environment Variables Setup
+In Replit's Secrets tab, add these critical variables:
+text
+NODE_ENV=production
+DATABASE_URL=your-production-database-url
+JWT_SECRET=your-jwt-secret-key
+VITE_API_URL=https://your-app-name.replit.app/api
+3. Authentication Service Debug Fix
+Update your authentication API calls with proper URL handling:
+javascript
+// In your auth hook or service
+const loginUser = async (credentials) => {
+  // Dynamic API URL based on environment
+  const apiUrl = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? `${window.location.origin}/api/auth/login`
+    : 'http://localhost:3000/api/auth/login';
+    
+  console.log('=== AUTH API DEBUG ===');
+  console.log('Current hostname:', window.location.hostname);
+  console.log('API URL being used:', apiUrl);
+  console.log('Login attempt for:', credentials.email);
+  
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(credentials),
+    });
+    
+    console.log('Response status:', response.status);
+    console.log('Response from:', response.url);
+    
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('❌ API Error:', errorData);
+      throw new Error(`Login failed: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    console.log('✅ Login successful');
+    return result;
+    
+  } catch (error) {
+    console.error('❌ Login request failed:', error.message);
+    throw error;
+  }
+};
+4. Data Fetching Service Fix
+Fix the program explore page data fetching:
+javascript
+// For fetching programs and other data
+const fetchData = async (endpoint) => {
+  const apiUrl = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? `${window.location.origin}/api${endpoint}`
+    : `http://localhost:3000/api${endpoint}`;
+    
+  console.log('=== DATA FETCH DEBUG ===');
+  console.log('Fetching from:', apiUrl);
+  
+  try {
+    const authToken = localStorage.getItem('authToken');
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+      },
+      credentials: 'include',
+    });
+    
+    console.log('Data fetch status:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Data fetch error:', errorText);
+      throw new Error(`Data fetch failed: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('✅ Data fetched successfully');
+    return data;
+    
+  } catch (error) {
+    console.error('❌ Data fetch failed:', error);
+    throw error;
+  }
+};
+
+// Usage for programs
+const fetchPrograms = () => fetchData('/programs');
+5. Backend CORS Configuration
+Ensure your backend accepts requests from the deployed domain:
+javascript
+// In your backend server setup
+app.set('trust proxy', 1);
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests from Replit deployed apps
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      /\.replit\.app$/,  // Allow all replit.app subdomains
+      /\.repl\.co$/      // Allow all repl.co subdomains
+    ];
+    
+    if (!origin) return callback(null, true);
+    
+    const allowed = allowedOrigins.some(pattern => {
+      if (typeof pattern === 'string') return pattern === origin;
+      return pattern.test(origin);
+    });
+    
+    callback(null, allowed);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
+6. Health Check Endpoint
+Add a backend health check to verify API connectivity:
+javascript
+// Add this to your backend routes
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString(),
+    hostname: req.hostname
+  });
+});
+7. Immediate Testing
+After implementation, test these in your browser:
+Visit: https://your-app-name.replit.app/api/health
+Should return: {"status":"OK","environment":"production"}
+Check browser console for correct API URLs during login
+Test program data loading
+🎯 EXPECTED BEHAVIOR AFTER FIX:
+✅ All authentication (admin, student, agent) works in production
+✅ Program explore page loads data without 'Not authenticated' errors
+✅ Console shows production API URLs (not localhost)
+✅ No more API configuration mismatches between dev/prod
+✅ Improved loading performance
+🔍 FILES TO SEARCH AND UPDATE:
+API configuration files (look for localhost URLs)
+Authentication hooks/services
+Data fetching utilities
+Backend server configuration
+🚨 ROOT CAUSE:
+Your frontend is hardcoded to call http://localhost:3000/api even in production, but your deployed backend is at https://your-app-name.replit.app/api. This URL mismatch is causing all authentication and data fetching to fail.
+Priority: Find and replace ALL localhost API URLs with environment-aware configuration. This single fix will resolve both authentication and data fetching issues."
+This prompt specifically targets the API URL configuration issue that's causing both your authentication failures and data fetching problems in production. The solution ensures your app uses the correct API endpoints based on the environment it's running in

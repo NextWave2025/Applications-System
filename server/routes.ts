@@ -13,6 +13,17 @@ import { setupEmailTestRoutes } from "./routes/email-test";
 export function registerRoutes(app: Express): Server {
   // sets up /api/register, /api/login, /api/logout, /api/user
   setupAuth(app);
+  
+  // 🚨 CRITICAL FIX: Health check endpoint for production debugging
+  app.get("/api/health", (req, res) => {
+    res.json({
+      status: "OK",
+      environment: process.env.NODE_ENV || "development",
+      timestamp: new Date().toISOString(),
+      hostname: req.hostname,
+      origin: req.get('origin') || 'unknown'
+    });
+  });
 
   // Mount admin routes
   app.use('/api/admin', adminRouter);
