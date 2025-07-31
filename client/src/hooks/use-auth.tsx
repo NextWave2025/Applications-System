@@ -50,22 +50,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // 🚨 CRITICAL FIX: Use environment-aware API URL
         const apiUrl = `${API_BASE_URL}/user`;
         console.log('🔑 Auth check URL:', apiUrl);
+        console.log('=== AUTH API DEBUG ===');
+        console.log('Current hostname:', window.location.hostname);
+        console.log('API URL being used:', apiUrl);
         
         const response = await fetch(apiUrl, {
           credentials: "include"
         });
+        
+        console.log('Auth response status:', response.status);
+        console.log('Auth response from:', response.url);
+        
         if (response.status === 401 || response.status === 403) {
+          console.log('❌ Not authenticated (401/403)');
           return null;
         }
         if (!response.ok) {
-          console.warn(`Auth query failed: ${response.status} ${response.statusText}`);
+          console.warn(`❌ Auth query failed: ${response.status} ${response.statusText}`);
           return null;
         }
         const userData = await response.json();
-        console.log("Auth query successful:", userData);
+        console.log("✅ Auth query successful:", userData);
         return userData;
       } catch (error) {
-        console.warn("Auth query error:", error);
+        console.warn("❌ Auth query error:", error);
         return null;
       }
     },
@@ -79,17 +87,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
       try {
-        console.log("Attempting login for:", credentials.username);
+        console.log('=== AUTH LOGIN DEBUG ===');
+        console.log('Current hostname:', window.location.hostname);
+        console.log('API base URL:', API_BASE_URL);
+        console.log('Login attempt for:', credentials.username);
+        
         const res = await apiRequest("POST", "/login", credentials);
+        
+        console.log('Login response status:', res.status);
+        console.log('Login response from:', res.url);
+        
         if (!res.ok) {
-          const errorData = await res.json().catch(() => ({ message: 'Login failed' }));
+          const errorText = await res.text();
+          console.error('❌ Login API Error:', errorText);
+          
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch {
+            errorData = { message: 'Login failed' };
+          }
+          
           throw new Error(errorData.message || 'Login failed');
         }
+        
         const userData = await res.json();
-        console.log("Login successful, user data:", userData);
+        console.log("✅ Login successful, user data:", userData);
         return userData;
       } catch (error) {
-        console.error("Login mutation error:", error);
+        console.error("❌ Login mutation error:", error);
         throw error instanceof Error ? error : new Error('Login failed');
       }
     },

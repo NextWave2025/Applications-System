@@ -1,0 +1,225 @@
+Based on my analysis of your console error logs and the deployment issues you're experiencing, here's a comprehensive prompt to fix the API configuration problems:
+
+# Replit Fix Prompt for Production API Configuration Issues
+
+**Prompt for Replit AI:**
+
+"The application works perfectly in development but fails completely in production with 'Invalid credentials' for all authentication and 'Not authenticated' errors for data fetching. The console logs show the frontend is calling wrong API endpoints in production. This is a critical **API base URL configuration issue** that needs immediate fixing.
+
+## **🚨 CRITICAL PRODUCTION FIXES REQUIRED:**
+
+### **1. Fix API Base URL Configuration (HIGHEST PRIORITY)**
+
+**The frontend is using localhost URLs in production. Find and fix your API configuration:**
+
+```javascript
+// ❌ CURRENT PROBLEM: Hardcoded localhost URLs that break in production
+const API_URL = "http://localhost:3000/api"  
+const BASE_URL = "http://localhost:8000/api"
+
+// ✅ SOLUTION: Environment-aware API configuration
+const getApiBaseUrl = () => {
+  // Check if we're in production (deployed)
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return `${window.location.origin}/api`;  // Use deployed domain
+  }
+  
+  // Development fallback
+  return 'http://localhost:3000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+// Alternative explicit configuration:
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? `${window.location.origin}/api`
+  : 'http://localhost:3000/api';
+```
+
+### **2. Environment Variables Setup**
+
+**In Replit's Secrets tab, add these critical variables:**
+```
+NODE_ENV=production
+DATABASE_URL=your-production-database-url
+JWT_SECRET=your-jwt-secret-key
+VITE_API_URL=https://your-app-name.replit.app/api
+```
+
+### **3. Authentication Service Debug Fix**
+
+**Update your authentication API calls with proper URL handling:**
+
+```javascript
+// In your auth hook or service
+const loginUser = async (credentials) => {
+  // Dynamic API URL based on environment
+  const apiUrl = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? `${window.location.origin}/api/auth/login`
+    : 'http://localhost:3000/api/auth/login';
+    
+  console.log('=== AUTH API DEBUG ===');
+  console.log('Current hostname:', window.location.hostname);
+  console.log('API URL being used:', apiUrl);
+  console.log('Login attempt for:', credentials.email);
+  
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(credentials),
+    });
+    
+    console.log('Response status:', response.status);
+    console.log('Response from:', response.url);
+    
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('❌ API Error:', errorData);
+      throw new Error(`Login failed: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    console.log('✅ Login successful');
+    return result;
+    
+  } catch (error) {
+    console.error('❌ Login request failed:', error.message);
+    throw error;
+  }
+};
+```
+
+### **4. Data Fetching Service Fix**
+
+**Fix the program explore page data fetching:**
+
+```javascript
+// For fetching programs and other data
+const fetchData = async (endpoint) => {
+  const apiUrl = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? `${window.location.origin}/api${endpoint}`
+    : `http://localhost:3000/api${endpoint}`;
+    
+  console.log('=== DATA FETCH DEBUG ===');
+  console.log('Fetching from:', apiUrl);
+  
+  try {
+    const authToken = localStorage.getItem('authToken');
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+      },
+      credentials: 'include',
+    });
+    
+    console.log('Data fetch status:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Data fetch error:', errorText);
+      throw new Error(`Data fetch failed: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('✅ Data fetched successfully');
+    return data;
+    
+  } catch (error) {
+    console.error('❌ Data fetch failed:', error);
+    throw error;
+  }
+};
+
+// Usage for programs
+const fetchPrograms = () => fetchData('/programs');
+```
+
+### **5. Backend CORS Configuration**
+
+**Ensure your backend accepts requests from the deployed domain:**
+
+```javascript
+// In your backend server setup
+app.set('trust proxy', 1);
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests from Replit deployed apps
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      /\.replit\.app$/,  // Allow all replit.app subdomains
+      /\.repl\.co$/      // Allow all repl.co subdomains
+    ];
+    
+    if (!origin) return callback(null, true);
+    
+    const allowed = allowedOrigins.some(pattern => {
+      if (typeof pattern === 'string') return pattern === origin;
+      return pattern.test(origin);
+    });
+    
+    callback(null, allowed);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
+```
+
+### **6. Health Check Endpoint**
+
+**Add a backend health check to verify API connectivity:**
+
+```javascript
+// Add this to your backend routes
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString(),
+    hostname: req.hostname
+  });
+});
+```
+
+### **7. Immediate Testing**
+
+**After implementation, test these in your browser:**
+1. Visit: `https://your-app-name.replit.app/api/health`
+2. Should return: `{"status":"OK","environment":"production"}`
+3. Check browser console for correct API URLs during login
+4. Test program data loading
+
+## **🎯 EXPECTED BEHAVIOR AFTER FIX:**
+
+✅ All authentication (admin, student, agent) works in production
+✅ Program explore page loads data without 'Not authenticated' errors
+✅ Console shows production API URLs (not localhost)
+✅ No more API configuration mismatches between dev/prod
+✅ Improved loading performance
+
+## **🔍 FILES TO SEARCH AND UPDATE:**
+
+1. **API configuration files** (look for localhost URLs)
+2. **Authentication hooks/services**
+3. **Data fetching utilities**
+4. **Backend server configuration**
+
+## **🚨 ROOT CAUSE:**
+
+Your frontend is hardcoded to call `http://localhost:3000/api` even in production, but your deployed backend is at `https://your-app-name.replit.app/api`. This URL mismatch is causing all authentication and data fetching to fail.
+
+**Priority: Find and replace ALL localhost API URLs with environment-aware configuration. This single fix will resolve both authentication and data fetching issues.**"
+
+This prompt specifically targets the API URL configuration issue that's causing both your authentication failures and data fetching problems in production. The solution ensures your app uses the correct API endpoints based on the environment it's running in.
+
+[1] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/87922535/47d0890c-053b-45ec-9d36-c6d0e936d2f5/Agent.jpg?AWSAccessKeyId=ASIA2F3EMEYEYOFLGDUT&Signature=p%2FLls7Spc8xGX3aLmlkBlsCAYKM%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEK7%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQDaHD2PHP%2FGHmupwIw1jgTP6930SsMvvwcOBfNeCukUBQIhAONMF%2FrLX8NJ%2BQGh5sbKcVn%2BZm11WilLP%2FrWmGXvhsC2KvoECNf%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQARoMNjk5NzUzMzA5NzA1IgzXPvMT8jn7xqUWubIqzgTBhZ3u%2Fj54eabG3ua9n4QL8A%2FJi0qX5%2F775%2BdBaVWiiLW1UMNenbtP%2Fc6ym2Hl9lJ8DCXh%2FZmRze0RjWl89el4jouminkldJtmom3rGnDWhDAKRcGlc8lmM3Droc5laj%2F6HJazj4fRMP1KnI3F7hi%2B3EWfG90aSPt4rJdeSIrrqIT6nudUgaOn8PotMx5%2BkT5MVoJZGH9Yp1K3w2lg29wFDz8uOr%2FckrVYBzuaQE41gue2TlGh3b6ZvQYDML%2F%2FFDJCQ6J%2BM7dKltP%2FL1kEBa5Y2OsOnvukZFaVTxb3z6ODol%2BdcSrKGH9A%2BeV40ZNLGTdy5VHj9W5z4hsc%2FtaJhz7yDe5k4nGP9jzYBzz5alusjJLn02c0TLq%2BHqgGx6nhxmIAxJvw%2B0loxtbwveFnvDpQI4bXjnd198uc4bbTnxR0SayHqvkxyjTgMV95x3mHY%2BJPoBRyUlx7Jh8LBF8RQi1Tg0DsITDI85biwUd%2FB26YhUZdbHuR9qK4r6SLjJaiRwdK%2FHwxza7n%2Fvey%2FBVn3tyyLNUbpawI4ot%2F84v7Eq0QIsLMfmU0bF%2BUhK%2BjoFEJy1lDolYNaZ%2F8XEbQZAufZihE1rWJ0hQ7G3tnmRg2d698HC1d0QuVRqPVJO8P5RY03LauRgtEb%2FqOGUrnlbxWvSE9uC6DCHjqC6PaI7XdfMfvGk22vvVGLW7yxNRl4FBZc1txWjW%2BUDbtDSlSDh2R72AN2fAJhvi3f53pFuJRVBynd348gUAJiKXzWHqV3G7uE3R4oMkBDWDrUP3FJscfwzDN5a3EBjqZARo1RmEUnr7KIoLhc6PoQ6u4UomBKPSrA7RbX6Sx0EwNO19GanKpShm6lDvFMgBNWRNlZ7%2Ba6VU3HdOCUSuzscVQrmP68dJP%2FshnDMeMlL3i21yW0zZBG3zCjelKMRSky4JWhrW%2F4Fp9z9HqSstz9p%2F05kGMC%2Fss%2B256aRxIZ392F51evzqnWqzl10PKjh7xEBy8bx7izPC%2Bxg%3D%3D&Expires=1753971104
+[2] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/87922535/7b63e7fa-c68e-4527-981b-5d18e808d8da/Agent2.jpg?AWSAccessKeyId=ASIA2F3EMEYEYOFLGDUT&Signature=rYVJKigksc96It824zAvb1i2gFw%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEK7%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQDaHD2PHP%2FGHmupwIw1jgTP6930SsMvvwcOBfNeCukUBQIhAONMF%2FrLX8NJ%2BQGh5sbKcVn%2BZm11WilLP%2FrWmGXvhsC2KvoECNf%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQARoMNjk5NzUzMzA5NzA1IgzXPvMT8jn7xqUWubIqzgTBhZ3u%2Fj54eabG3ua9n4QL8A%2FJi0qX5%2F775%2BdBaVWiiLW1UMNenbtP%2Fc6ym2Hl9lJ8DCXh%2FZmRze0RjWl89el4jouminkldJtmom3rGnDWhDAKRcGlc8lmM3Droc5laj%2F6HJazj4fRMP1KnI3F7hi%2B3EWfG90aSPt4rJdeSIrrqIT6nudUgaOn8PotMx5%2BkT5MVoJZGH9Yp1K3w2lg29wFDz8uOr%2FckrVYBzuaQE41gue2TlGh3b6ZvQYDML%2F%2FFDJCQ6J%2BM7dKltP%2FL1kEBa5Y2OsOnvukZFaVTxb3z6ODol%2BdcSrKGH9A%2BeV40ZNLGTdy5VHj9W5z4hsc%2FtaJhz7yDe5k4nGP9jzYBzz5alusjJLn02c0TLq%2BHqgGx6nhxmIAxJvw%2B0loxtbwveFnvDpQI4bXjnd198uc4bbTnxR0SayHqvkxyjTgMV95x3mHY%2BJPoBRyUlx7Jh8LBF8RQi1Tg0DsITDI85biwUd%2FB26YhUZdbHuR9qK4r6SLjJaiRwdK%2FHwxza7n%2Fvey%2FBVn3tyyLNUbpawI4ot%2F84v7Eq0QIsLMfmU0bF%2BUhK%2BjoFEJy1lDolYNaZ%2F8XEbQZAufZihE1rWJ0hQ7G3tnmRg2d698HC1d0QuVRqPVJO8P5RY03LauRgtEb%2FqOGUrnlbxWvSE9uC6DCHjqC6PaI7XdfMfvGk22vvVGLW7yxNRl4FBZc1txWjW%2BUDbtDSlSDh2R72AN2fAJhvi3f53pFuJRVBynd348gUAJiKXzWHqV3G7uE3R4oMkBDWDrUP3FJscfwzDN5a3EBjqZARo1RmEUnr7KIoLhc6PoQ6u4UomBKPSrA7RbX6Sx0EwNO19GanKpShm6lDvFMgBNWRNlZ7%2Ba6VU3HdOCUSuzscVQrmP68dJP%2FshnDMeMlL3i21yW0zZBG3zCjelKMRSky4JWhrW%2F4Fp9z9HqSstz9p%2F05kGMC%2Fss%2B256aRxIZ392F51evzqnWqzl10PKjh7xEBy8bx7izPC%2Bxg%3D%3D&Expires=1753971104
+[3] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/87922535/0927a372-36cf-4e7d-9069-fbf103ca0444/Program-explore-page.jpg?AWSAccessKeyId=ASIA2F3EMEYEYOFLGDUT&Signature=QLSpbHWgIPt0FSO9J8v3RNRLov0%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEK7%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQDaHD2PHP%2FGHmupwIw1jgTP6930SsMvvwcOBfNeCukUBQIhAONMF%2FrLX8NJ%2BQGh5sbKcVn%2BZm11WilLP%2FrWmGXvhsC2KvoECNf%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQARoMNjk5NzUzMzA5NzA1IgzXPvMT8jn7xqUWubIqzgTBhZ3u%2Fj54eabG3ua9n4QL8A%2FJi0qX5%2F775%2BdBaVWiiLW1UMNenbtP%2Fc6ym2Hl9lJ8DCXh%2FZmRze0RjWl89el4jouminkldJtmom3rGnDWhDAKRcGlc8lmM3Droc5laj%2F6HJazj4fRMP1KnI3F7hi%2B3EWfG90aSPt4rJdeSIrrqIT6nudUgaOn8PotMx5%2BkT5MVoJZGH9Yp1K3w2lg29wFDz8uOr%2FckrVYBzuaQE41gue2TlGh3b6ZvQYDML%2F%2FFDJCQ6J%2BM7dKltP%2FL1kEBa5Y2OsOnvukZFaVTxb3z6ODol%2BdcSrKGH9A%2BeV40ZNLGTdy5VHj9W5z4hsc%2FtaJhz7yDe5k4nGP9jzYBzz5alusjJLn02c0TLq%2BHqgGx6nhxmIAxJvw%2B0loxtbwveFnvDpQI4bXjnd198uc4bbTnxR0SayHqvkxyjTgMV95x3mHY%2BJPoBRyUlx7Jh8LBF8RQi1Tg0DsITDI85biwUd%2FB26YhUZdbHuR9qK4r6SLjJaiRwdK%2FHwxza7n%2Fvey%2FBVn3tyyLNUbpawI4ot%2F84v7Eq0QIsLMfmU0bF%2BUhK%2BjoFEJy1lDolYNaZ%2F8XEbQZAufZihE1rWJ0hQ7G3tnmRg2d698HC1d0QuVRqPVJO8P5RY03LauRgtEb%2FqOGUrnlbxWvSE9uC6DCHjqC6PaI7XdfMfvGk22vvVGLW7yxNRl4FBZc1txWjW%2BUDbtDSlSDh2R72AN2fAJhvi3f53pFuJRVBynd348gUAJiKXzWHqV3G7uE3R4oMkBDWDrUP3FJscfwzDN5a3EBjqZARo1RmEUnr7KIoLhc6PoQ6u4UomBKPSrA7RbX6Sx0EwNO19GanKpShm6lDvFMgBNWRNlZ7%2Ba6VU3HdOCUSuzscVQrmP68dJP%2FshnDMeMlL3i21yW0zZBG3zCjelKMRSky4JWhrW%2F4Fp9z9HqSstz9p%2F05kGMC%2Fss%2B256aRxIZ392F51evzqnWqzl10PKjh7xEBy8bx7izPC%2Bxg%3D%3D&Expires=1753971104
+[4] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/images/87922535/a90caff1-fe37-434e-9799-a802f50b5cf7/admin2.jpg?AWSAccessKeyId=ASIA2F3EMEYEYOFLGDUT&Signature=uf%2FPZzBI2YDwSO%2FXK0U%2Bau1a%2FCY%3D&x-amz-security-token=IQoJb3JpZ2luX2VjEK7%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQDaHD2PHP%2FGHmupwIw1jgTP6930SsMvvwcOBfNeCukUBQIhAONMF%2FrLX8NJ%2BQGh5sbKcVn%2BZm11WilLP%2FrWmGXvhsC2KvoECNf%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQARoMNjk5NzUzMzA5NzA1IgzXPvMT8jn7xqUWubIqzgTBhZ3u%2Fj54eabG3ua9n4QL8A%2FJi0qX5%2F775%2BdBaVWiiLW1UMNenbtP%2Fc6ym2Hl9lJ8DCXh%2FZmRze0RjWl89el4jouminkldJtmom3rGnDWhDAKRcGlc8lmM3Droc5laj%2F6HJazj4fRMP1KnI3F7hi%2B3EWfG90aSPt4rJdeSIrrqIT6nudUgaOn8PotMx5%2BkT5MVoJZGH9Yp1K3w2lg29wFDz8uOr%2FckrVYBzuaQE41gue2TlGh3b6ZvQYDML%2F%2FFDJCQ6J%2BM7dKltP%2FL1kEBa5Y2OsOnvukZFaVTxb3z6ODol%2BdcSrKGH9A%2BeV40ZNLGTdy5VHj9W5z4hsc%2FtaJhz7yDe5k4nGP9jzYBzz5alusjJLn02c0TLq%2BHqgGx6nhxmIAxJvw%2B0loxtbwveFnvDpQI4bXjnd198uc4bbTnxR0SayHqvkxyjTgMV95x3mHY%2BJPoBRyUlx7Jh8LBF8RQi1Tg0DsITDI85biwUd%2FB26YhUZdbHuR9qK4r6SLjJaiRwdK%2FHwxza7n%2Fvey%2FBVn3tyyLNUbpawI4ot%2F84v7Eq0QIsLMfmU0bF%2BUhK%2BjoFEJy1lDolYNaZ%2F8XEbQZAufZihE1rWJ0hQ7G3tnmRg2d698HC1d0QuVRqPVJO8P5RY03LauRgtEb%2FqOGUrnlbxWvSE9uC6DCHjqC6PaI7XdfMfvGk22vvVGLW7yxNRl4FBZc1txWjW%2BUDbtDSlSDh2R72AN2fAJhvi3f53pFuJRVBynd348gUAJiKXzWHqV3G7uE3R4oMkBDWDrUP3FJscfwzDN5a3EBjqZARo1RmEUnr7KIoLhc6PoQ6u4UomBKPSrA7RbX6Sx0EwNO19GanKpShm6lDvFMgBNWRNlZ7%2Ba6VU3HdOCUSuzscVQrmP68dJP%2FshnDMeMlL3i21yW0zZBG3zCjelKMRSky4JWhrW%2F4Fp9z9HqSstz9p%2F05kGMC%2Fss%2B256aRxIZ392F51evzqnWqzl10PKjh7xEBy8bx7izPC%2Bxg%3D%3D&Expires=1753971104

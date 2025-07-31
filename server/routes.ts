@@ -16,12 +16,28 @@ export function registerRoutes(app: Express): Server {
   
   // 🚨 CRITICAL FIX: Health check endpoint for production debugging
   app.get("/api/health", (req, res) => {
+    const hostname = req.hostname || req.get('host') || 'unknown';
+    const host = req.get('host') || 'unknown';
+    
+    // More robust production detection
+    const isProduction = hostname.includes('replit.dev') || hostname.includes('replit.app') || 
+                        hostname.includes('vercel.app') || hostname.includes('netlify.app') ||
+                        hostname.includes('herokuapp.com') || hostname.includes('railway.app') ||
+                        host.includes('replit.dev') || host.includes('replit.app') ||
+                        (!hostname.includes('localhost') && !hostname.includes('127.0.0.1') && 
+                         !host.includes('localhost') && !host.includes('127.0.0.1'));
+    
     res.json({
       status: "OK",
-      environment: process.env.NODE_ENV || "development",
+      environment: isProduction ? "production" : "development",
       timestamp: new Date().toISOString(),
-      hostname: req.hostname,
-      origin: req.get('origin') || 'unknown'
+      hostname: hostname,
+      host: host,
+      origin: req.get('origin') || 'unknown',
+      protocol: req.protocol,
+      url: req.url,
+      isProduction: isProduction,
+      nodeEnv: process.env.NODE_ENV || 'not_set'
     });
   });
 
