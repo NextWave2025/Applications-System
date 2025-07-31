@@ -13,32 +13,41 @@ export default function ProtectedRoute({ children, redirectTo }: ProtectedRouteP
   const [location, setLocation] = useLocation();
   const [authGracePeriod, setAuthGracePeriod] = useState(true);
 
-  // Extended grace period for auth state propagation after registration
+  // Extended grace period for auth state propagation after login/registration
   useEffect(() => {
     const timer = setTimeout(() => {
       setAuthGracePeriod(false);
-    }, 1000); // Extended delay to prevent race conditions
+    }, 1500); // Increased delay for protected route synchronization
     
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     // Enhanced debug logging
-    console.log("=== PROTECTED ROUTE CHECK DEBUG ===", {
+    console.log("=== PROTECTED ROUTE CHECK ===", {
       hasUser: !!user,
-      isLoading,
       userRole: user?.role,
+      isLoading,
+      authGracePeriod,
       currentPath: window.location.pathname,
       location,
-      authGracePeriod,
-      queryData: queryClient.getQueryData(["/api/user"])
+      cacheData: queryClient.getQueryData(["/api/user"]),
+      timestamp: new Date().toISOString()
     });
+
+    // Check for auth transition bypass
+    const isInAuthTransition = sessionStorage.getItem('authTransition');
+    
+    if (isInAuthTransition && !user && !isLoading) {
+      console.log("=== AUTH TRANSITION ACTIVE - WAITING ===");
+      return; // Don't redirect during auth transition
+    }
 
     // Only redirect after grace period and when not loading
     if (!isLoading && !user && !authGracePeriod) {
       console.log("=== PROTECTED ROUTE REDIRECT DEBUG ===");
-      console.log("User not authenticated, current location:", location);
-      console.log("Redirecting to appropriate auth page");
+      console.log("Protected route redirecting - no user after grace period");
+      console.log("Current location:", location);
       
       // Store the intended destination for post-login redirect
       if (redirectTo && !location.startsWith("/auth")) {
@@ -63,16 +72,22 @@ export default function ProtectedRoute({ children, redirectTo }: ProtectedRouteP
     } else if (!isLoading && user) {
       console.log("=== PROTECTED ROUTE ALLOW ACCESS ===");
       console.log("User authenticated:", user.role, "at location:", location);
+      // Clear auth transition flag when user is confirmed
+      sessionStorage.removeItem('authTransition');
     }
   }, [user, isLoading, setLocation, redirectTo, location, authGracePeriod]);
 
-  // Show loading while checking authentication or during grace period
-  if (isLoading || authGracePeriod) {
+  // Show loading while checking authentication, during grace period, or auth transition
+  const isInAuthTransition = sessionStorage.getItem('authTransition');
+  
+  if (isLoading || authGracePeriod || (isInAuthTransition && !user)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-primary-600">Verifying authentication...</p>
+          <p className="text-primary-600">
+            {isInAuthTransition ? "Completing authentication..." : "Verifying authentication..."}
+          </p>
         </div>
       </div>
     );

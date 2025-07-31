@@ -46,7 +46,7 @@ export default function StudentAuthPage() {
       return userData;
     },
     onSuccess: async (userData: any) => {
-      console.log("Student login success, checking redirect");
+      console.log("Student login success - updating cache for protected routes");
       
       // Check if user role matches the login page
       if (userData && userData.role !== 'student') {
@@ -60,8 +60,22 @@ export default function StudentAuthPage() {
         return;
       }
       
-      // Wait for auth state to propagate, then redirect
+      // Set cache data immediately  
+      queryClient.setQueryData(["/api/user"], userData);
+      
+      // Force immediate refetch to ensure consistency
+      await queryClient.refetchQueries({ 
+        queryKey: ["/api/user"],
+        type: 'active'
+      });
+      
+      // Set auth transition flag for protected route bypass
+      sessionStorage.setItem('authTransition', 'true');
+      
+      // Extended delay for protected route synchronization
       setTimeout(() => {
+        console.log("Navigating after protected route sync delay");
+        
         // Check if there's a redirectTo URL in localStorage for application flow
         const redirectTo = localStorage.getItem("redirectTo");
         if (redirectTo) {
@@ -80,7 +94,17 @@ export default function StudentAuthPage() {
         
         // Default redirect
         setLocation("/student-dashboard");
-      }, 200);
+        
+        // Clear auth transition after navigation
+        setTimeout(() => {
+          sessionStorage.removeItem('authTransition');
+        }, 2000);
+      }, 1000); // Longer delay for protected routes
+      
+      toast({
+        title: "Login successful!",
+        description: "Redirecting to your dashboard...",
+      });
     },
     onError: (error: any) => {
       setError(error.message || "Login failed");
@@ -122,11 +146,19 @@ export default function StudentAuthPage() {
       console.log("4. Cache synchronization complete");
       console.log("5. Query data after sync:", queryClient.getQueryData(["/api/user"]));
       
+      // Set auth transition flag for protected route bypass
+      sessionStorage.setItem('authTransition', 'true');
+      
       // Extended delay for protected route propagation
       setTimeout(() => {
         console.log("6. Navigating to dashboard after auth propagation:", targetUrl);
         setLocation(targetUrl);
-      }, 800); // Increased delay for protected routes
+        
+        // Clear auth transition after navigation
+        setTimeout(() => {
+          sessionStorage.removeItem('authTransition');
+        }, 2000);
+      }, 1000); // Longer delay for protected route synchronization
       
       toast({
         title: "Registration successful!",

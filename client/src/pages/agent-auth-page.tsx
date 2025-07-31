@@ -45,7 +45,7 @@ export default function AgentAuthPage() {
       return userData;
     },
     onSuccess: async (userData: any) => {
-      console.log("Agent login success, redirecting to agent dashboard");
+      console.log("Agent login success - updating cache for protected routes");
       
       // Check if user role matches the login page
       if (userData && userData.role !== 'agent') {
@@ -59,8 +59,22 @@ export default function AgentAuthPage() {
         return;
       }
       
-      // Wait for auth state to propagate, then redirect
+      // Set cache data immediately  
+      queryClient.setQueryData(["/api/user"], userData);
+      
+      // Force immediate refetch to ensure consistency
+      await queryClient.refetchQueries({ 
+        queryKey: ["/api/user"],
+        type: 'active'
+      });
+      
+      // Set auth transition flag for protected route bypass
+      sessionStorage.setItem('authTransition', 'true');
+      
+      // Extended delay for protected route synchronization
       setTimeout(() => {
+        console.log("Navigating after protected route sync delay");
+        
         // Check for redirectAfterLogin from ProtectedRoute
         const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
         if (redirectAfterLogin) {
@@ -71,7 +85,17 @@ export default function AgentAuthPage() {
         
         // Default redirect to agent dashboard
         setLocation("/agent-dashboard");
-      }, 200);
+        
+        // Clear auth transition after navigation
+        setTimeout(() => {
+          sessionStorage.removeItem('authTransition');
+        }, 2000);
+      }, 1000); // Longer delay for protected routes
+      
+      toast({
+        title: "Login successful!",
+        description: "Redirecting to your dashboard...",
+      });
     },
     onError: (error: any) => {
       setError(error.message || "Login failed");
@@ -106,11 +130,19 @@ export default function AgentAuthPage() {
       console.log("4. Cache synchronization complete");
       console.log("5. Query data after sync:", queryClient.getQueryData(["/api/user"]));
       
+      // Set auth transition flag for protected route bypass
+      sessionStorage.setItem('authTransition', 'true');
+      
       // Extended delay for protected route propagation
       setTimeout(() => {
         console.log("6. Navigating to agent dashboard after auth propagation");
         setLocation("/agent-dashboard");
-      }, 800); // Increased delay for protected routes
+        
+        // Clear auth transition after navigation
+        setTimeout(() => {
+          sessionStorage.removeItem('authTransition');
+        }, 2000);
+      }, 1000); // Longer delay for protected route synchronization
       
       toast({
         title: "Registration successful!",

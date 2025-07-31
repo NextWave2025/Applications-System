@@ -1,0 +1,110 @@
+"The console logs reveal the exact issue: PROTECTED ROUTE REDIRECT LOOPS after successful login. The logs show the protected route system is checking authentication before the auth cache propagates, creating false negatives that redirect authenticated users back to login pages.
+🎯 CRITICAL FIXES NEEDED:
+1. Fix Protected Route Race Condition
+The protected routes are checking auth state too quickly after login. Add proper synchronization:
+javascript
+// In your protected route component (likely protected-route.tsx)
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { user, isLoading } = useAuth();
+  
+  // ❌ CURRENT PROBLEM: Immediate redirect if no user
+  // ✅ FIX: Add grace period for auth state propagation
+  
+  const [authCheckDelay, setAuthCheckDelay] = useState(true);
+  
+  useEffect(() => {
+    // Give auth cache time to propagate after login/registration
+    const timer = setTimeout(() => setAuthCheckDelay(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+  
+  // Don't redirect during loading OR grace period
+  if (isLoading || authCheckDelay) {
+    return <div>Loading...</div>;
+  }
+  
+  // Only redirect after auth state has had time to propagate
+  if (!user) {
+    console.log("Protected route redirecting - no user after grace period");
+    return <Navigate to="/auth/student" replace />;
+  }
+  
+  return children;
+};
+2. Synchronize Auth Cache with Protected Routes
+Ensure protected routes use the same auth query as login:
+javascript
+// In your auth hook and protected routes
+// Make sure BOTH use the exact same query key: ["/api/user"]
+// No variations like ["user"], ["/user"], or ["api", "user"]
+3. Enhanced Login Success Handler
+Update login success to account for protected route timing:
+javascript
+onSuccess: async (userData: any) => {
+  console.log("Login success - updating cache for protected routes");
+  
+  // Set cache data immediately
+  queryClient.setQueryData(["/api/user"], userData);
+  
+  // Force immediate refetch to ensure consistency
+  await queryClient.refetchQueries({ 
+    queryKey: ["/api/user"],
+    type: 'active'
+  });
+  
+  // Extended delay for protected route synchronization
+  setTimeout(() => {
+    console.log("Navigating after protected route sync delay");
+    
+    if (userData.role === 'student') {
+      setLocation("/student-dashboard");
+    } else if (userData.role === 'agent') {
+      setLocation("/agent-dashboard");  
+    } else if (userData.role === 'admin') {
+      setLocation("/admin");
+    }
+  }, 1000); // Longer delay for protected routes
+  
+  toast({
+    title: "Login successful!",
+    description: "Redirecting to your dashboard...",
+  });
+}
+4. Debug Protected Route Logic
+Add comprehensive logging to your protected route component:
+javascript
+// In protected route component
+console.log("=== PROTECTED ROUTE CHECK ===", {
+  hasUser: !!user,
+  userRole: user?.role,
+  isLoading,
+  currentPath: window.location.pathname,
+  cacheData: queryClient.getQueryData(["/api/user"]),
+  timestamp: new Date().toISOString()
+});
+5. Alternative: Bypass Protection During Auth Flow
+Add a temporary bypass for the auth transition period:
+javascript
+// In protected route component
+const isInAuthTransition = sessionStorage.getItem('authTransition');
+
+if (isInAuthTransition && !user && !isLoading) {
+  // Don't redirect immediately after login - give auth state time
+  return <div>Completing authentication...</div>;
+}
+
+// In login success handler
+sessionStorage.setItem('authTransition', 'true');
+setTimeout(() => {
+  sessionStorage.removeItem('authTransition');
+}, 2000);
+🔍 FILES TO EXAMINE AND FIX:
+client/src/components/protected-route.tsx (or similar) - The main culprit
+Route configuration in App.tsx - How dashboard routes are wrapped
+Auth hook synchronization - Ensure consistent query keys
+✅ EXPECTED BEHAVIOR AFTER FIX:
+User logs in successfully
+Protected routes wait for auth state propagation (1-2 seconds)
+Navigation to dashboard completes without redirect loops
+No more bouncing between dashboard and login pages
+The issue is definitely in your protected route timing, not in the authentication logic itself. The logs clearly show the protection system is working too aggressively and not giving the auth state time to propagate properly."
