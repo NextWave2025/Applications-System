@@ -5,11 +5,17 @@ import { type ProgramWithUniversity } from "@shared/schema";
 interface EnhancedSearchProps {
   programs: ProgramWithUniversity[];
   onSearchResults: (results: ProgramWithUniversity[]) => void;
+  searchQuery?: string;
+  setSearchQuery?: (query: string) => void;
   className?: string;
 }
 
-export default function EnhancedSearch({ programs, onSearchResults, className }: EnhancedSearchProps) {
-  const [searchQuery, setSearchQuery] = useState("");
+export default function EnhancedSearch({ programs, onSearchResults, searchQuery: externalQuery, setSearchQuery: externalSetQuery, className }: EnhancedSearchProps) {
+  const [internalQuery, setInternalQuery] = useState("");
+  
+  // Use external query if provided, otherwise use internal state
+  const searchQuery = externalQuery !== undefined ? externalQuery : internalQuery;
+  const setSearchQuery = externalSetQuery || setInternalQuery;
 
   // Configure Fuse.js for fuzzy search
   const fuse = useMemo(() => {

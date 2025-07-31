@@ -184,8 +184,8 @@ export default function ProgramsPage() {
   };
 
   const handleSearchResults = (results: ProgramWithUniversity[]) => {
-    // Search is now handled by the filtered programs - no need for separate state
-    setSearchQuery(searchQuery);
+    // Search is handled by client-side filtering in filteredPrograms
+    // This callback is kept for compatibility but search state is managed by searchQuery
   };
 
   const handleProgramSelection = (programId: number, selected: boolean) => {
@@ -250,6 +250,8 @@ export default function ProgramsPage() {
           <EnhancedSearch 
             programs={allPrograms}
             onSearchResults={handleSearchResults}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
           />
         </div>
 
