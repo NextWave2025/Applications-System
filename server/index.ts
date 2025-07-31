@@ -25,35 +25,90 @@ try {
 
 const app = express();
 
-// 🚨 CRITICAL FIX: Enhanced CORS configuration for production deployment
+// 🌐 UNIVERSAL CORS CONFIGURATION - Works across ANY production environment
 const corsOptions = {
   origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
     console.log('🌐 CORS Origin Check:', origin);
     
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (mobile apps, curl, server-to-server)
     if (!origin) {
       console.log('✅ CORS: No origin - allowing');
       return callback(null, true);
     }
     
-    // Allow all Replit domains and local development
-    const allowedOrigins = [
-      /^https:\/\/.*\.replit\.app$/,
-      /^https:\/\/.*\.repl\.co$/,
-      /^https:\/\/.*\.replit\.dev$/,          // 🚨 FIX: Allow .replit.dev domains
-      /^https:\/\/.*\.worf\.replit\.dev$/,    // 🚨 FIX: Allow .worf.replit.dev domains
+    // Environment variable whitelist (highest priority)
+    const allowedOriginsEnv = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || [];
+    if (allowedOriginsEnv.length > 0 && allowedOriginsEnv.includes(origin)) {
+      console.log('✅ CORS: Origin in ALLOWED_ORIGINS env var');
+      return callback(null, true);
+    }
+    
+    // Universal patterns for ANY hosting platform
+    const allowedPatterns = [
+      // Local development
       /^http:\/\/localhost:\d+$/,
       /^http:\/\/127\.0\.0\.1:\d+$/,
+      /^http:\/\/0\.0\.0\.0:\d+$/,
+      /^http:\/\/192\.168\.\d+\.\d+:\d+$/,
+      /^http:\/\/10\.\d+\.\d+\.\d+:\d+$/,
+      /^https?:\/\/.*\.local:\d+$/,
+      
+      // Replit (all variants)
+      /^https:\/\/.*\.replit\.app$/,
+      /^https:\/\/.*\.repl\.co$/,
+      /^https:\/\/.*\.replit\.dev$/,
+      /^https:\/\/.*\.worf\.replit\.dev$/,
+      /^https:\/\/.*\.kirk\.replit\.dev$/,
+      /^https:\/\/.*\.picard\.replit\.dev$/,
+      
+      // Major hosting platforms
+      /^https:\/\/.*\.vercel\.app$/,
+      /^https:\/\/.*\.netlify\.app$/,
+      /^https:\/\/.*\.herokuapp\.com$/,
+      /^https:\/\/.*\.railway\.app$/,
+      /^https:\/\/.*\.render\.com$/,
+      /^https:\/\/.*\.fly\.dev$/,
+      /^https:\/\/.*\.surge\.sh$/,
+      /^https:\/\/.*\.firebase\.app$/,
+      /^https:\/\/.*\.firebaseapp\.com$/,
+      /^https:\/\/.*\.github\.io$/,
+      /^https:\/\/.*\.gitpod\.io$/,
+      /^https:\/\/.*\.codesandbox\.io$/,
+      /^https:\/\/.*\.stackblitz\.io$/,
+      
+      // AWS/Cloud platforms
+      /^https:\/\/.*\.amazonaws\.com$/,
+      /^https:\/\/.*\.cloudfront\.net$/,
+      /^https:\/\/.*\.azurewebsites\.net$/,
+      /^https:\/\/.*\.googleusercontent\.com$/,
+      
+      // Custom domains (if same-origin serving)
+      // This allows any HTTPS domain since API and frontend are served from same origin
     ];
     
-    const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
-    console.log(`${isAllowed ? '✅' : '❌'} CORS: Origin ${origin} - ${isAllowed ? 'allowed' : 'blocked'}`);
-    callback(null, isAllowed);
+    // Check against patterns
+    const isAllowed = allowedPatterns.some(pattern => pattern.test(origin));
+    
+    // If no pattern matches but it's HTTPS and not obviously suspicious, allow it
+    // This handles custom domains that serve both frontend and API
+    const isSuspicious = origin.includes('localhost') || 
+                        origin.includes('127.0.0.1') || 
+                        origin.includes('192.168.') ||
+                        origin.includes('10.') ||
+                        !origin.startsWith('https://');
+    
+    const finalDecision = isAllowed || (!isSuspicious && origin.startsWith('https://'));
+    
+    console.log(`${finalDecision ? '✅' : '❌'} CORS: Origin ${origin} - ${finalDecision ? 'allowed' : 'blocked'}`);
+    console.log(`  Pattern match: ${isAllowed}, Suspicious: ${isSuspicious}`);
+    
+    callback(null, finalDecision);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  optionsSuccessStatus: 200 // For legacy browser support
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  optionsSuccessStatus: 200,
+  maxAge: 86400 // Cache preflight for 24 hours
 };
 
 app.use(cors(corsOptions));

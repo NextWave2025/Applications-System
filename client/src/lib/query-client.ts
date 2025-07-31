@@ -2,24 +2,47 @@ import { QueryClient } from "@tanstack/react-query";
 
 type ApiMethodType = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-// 🚨 CRITICAL FIX: Environment-aware API base URL configuration
+// 🌐 UNIVERSAL API CONFIGURATION - Works across ANY production environment
 export const getApiBaseUrl = (): string => {
-  // Check if we're in production (deployed environment)
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    
-    // Production detection - not localhost
-    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-      const baseUrl = `${window.location.origin}/api`;
-      console.log('🌐 PRODUCTION API URL:', baseUrl);
-      return baseUrl;
-    }
+  // Server-side rendering or Node.js environment
+  if (typeof window === 'undefined') {
+    return process.env.API_BASE_URL || 'http://localhost:5000/api';
   }
   
-  // Development fallback
-  const devUrl = 'http://localhost:5000/api';
-  console.log('🛠️ DEVELOPMENT API URL:', devUrl);
-  return devUrl;
+  const { hostname, protocol, port, origin } = window.location;
+  
+  // Environment variable override (highest priority)
+  if (import.meta.env.VITE_API_URL) {
+    console.log('🔧 Using VITE_API_URL:', import.meta.env.VITE_API_URL);
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Local development detection
+  const isLocalhost = hostname === 'localhost' || 
+                     hostname === '127.0.0.1' || 
+                     hostname === '0.0.0.0' ||
+                     hostname.startsWith('192.168.') ||
+                     hostname.startsWith('10.') ||
+                     hostname.endsWith('.local');
+  
+  if (isLocalhost) {
+    const devUrl = 'http://localhost:5000/api';
+    console.log('🛠️ LOCAL DEV API URL:', devUrl);
+    return devUrl;
+  }
+  
+  // Production: Use same origin with /api path
+  // Works for: custom domains, Replit, Vercel, Netlify, Heroku, AWS, etc.
+  const prodUrl = `${origin}/api`;
+  console.log('🌐 PRODUCTION API URL:', prodUrl, {
+    hostname,
+    protocol,
+    port,
+    origin,
+    environment: 'production'
+  });
+  
+  return prodUrl;
 };
 
 // Global API base URL
