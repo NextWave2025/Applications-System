@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { registerRoutes } from "./routes.ts";
 import { setupVite, serveStatic, log } from "./vite.ts";
+import { VERSION } from "./version.ts";
 import path from "path";
 import dotenv from "dotenv";
 import fs from "fs";
@@ -204,6 +205,7 @@ app.use((req, res, next) => {
     try {
       server.listen(port, "0.0.0.0", () => {
         log(`SERVER STARTED SUCCESSFULLY on port ${port}`);
+        log(`🚀 Version: ${JSON.stringify(VERSION)}`);
         
         // Add detailed diagnostics
         log(`Node environment: ${process.env.NODE_ENV}`);

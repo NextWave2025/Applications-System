@@ -3,7 +3,10 @@
   "builds": [
     {
       "src": "server/index.ts",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["server/**/*"]
+      }
     }
   ],
   "routes": [
@@ -15,5 +18,10 @@
       "src": "/(.*)",
       "dest": "/server/index.ts"
     }
-  ]
+  ],
+  "functions": {
+    "server/index.ts": {
+      "maxDuration": 30
+    }
+  }
 } 
