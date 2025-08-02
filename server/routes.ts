@@ -10,15 +10,32 @@ let adminRouter: any = null;
 let subAdminRouter: any = null;
 let setupEmailTestRoutes: any = null;
 
-try {
-  storage = require("./storage").storage;
-  setupAuth = require("./auth").setupAuth;
-  adminRouter = require("./routes/admin").default;
-  subAdminRouter = require("./routes/sub-admin").default;
-  setupEmailTestRoutes = require("./routes/email-test").setupEmailTestRoutes;
-} catch (error) {
-  console.error('❌ Failed to import modules:', error);
+// Use dynamic imports for better ES module compatibility
+async function loadModules() {
+  try {
+    const storageModule = await import("./storage.ts");
+    storage = storageModule.storage;
+    
+    const authModule = await import("./auth.ts");
+    setupAuth = authModule.setupAuth;
+    
+    const adminModule = await import("./routes/admin.ts");
+    adminRouter = adminModule.default;
+    
+    const subAdminModule = await import("./routes/sub-admin.ts");
+    subAdminRouter = subAdminModule.default;
+    
+    const emailTestModule = await import("./routes/email-test.ts");
+    setupEmailTestRoutes = emailTestModule.setupEmailTestRoutes;
+    
+    console.log('✅ All modules loaded successfully');
+  } catch (error) {
+    console.error('❌ Failed to import modules:', error);
+  }
 }
+
+// Load modules immediately
+loadModules();
 
 export function registerRoutes(app: Express): Server {
   // 🚨 CRITICAL FIX: Safe setup with error handling
