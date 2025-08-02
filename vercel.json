@@ -5,7 +5,8 @@
       "src": "server/index.ts",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["server/**/*"]
+        "includeFiles": ["server/**/*"],
+        "maxDuration": 30
       }
     }
   ],
@@ -18,10 +19,5 @@
       "src": "/(.*)",
       "dest": "/server/index.ts"
     }
-  ],
-  "functions": {
-    "server/index.ts": {
-      "maxDuration": 30
-    }
-  }
+  ]
 } 
