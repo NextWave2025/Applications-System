@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextWave Application</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .status {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+            margin: 20px 0;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+        .api-test {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 8px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .loading {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 NextWave Application</h1>
+        
+        <div class="status" id="status">
+            <strong>Status:</strong> Checking application status...
+        </div>
+
+        <div class="api-test">
+            <h3>API Health Check</h3>
+            <button onclick="testHealth()">Test Health Endpoint</button>
+            <button onclick="testSession()">Test Session Status</button>
+            <div id="api-result" class="status loading"></div>
+        </div>
+
+        <div class="status success" id="build-info">
+            <strong>Build Info:</strong><br>
+            This is a fallback page. If you're seeing this, the main application build may not have completed properly.
+        </div>
+
+        <p>
+            <strong>Next Steps:</strong><br>
+            1. Check the API endpoints above<br>
+            2. Ensure environment variables are set<br>
+            3. Verify the build process completed successfully
+        </p>
+    </div>
+
+    <script>
+        async function testHealth() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'status';
+            resultDiv.innerHTML = '<strong>Testing health endpoint...</strong>';
+
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'status success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ Health Check Successful</strong><br>
+                        Environment: ${data.environment}<br>
+                        Hostname: ${data.hostname}<br>
+                        Timestamp: ${data.timestamp}
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'status error';
+                resultDiv.innerHTML = `
+                    <strong>❌ Health Check Failed</strong><br>
+                    Error: ${error.message}
+                `;
+            }
+        }
+
+        async function testSession() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'status';
+            resultDiv.innerHTML = '<strong>Testing session status...</strong>';
+
+            try {
+                const response = await fetch('/api/session-status');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'status success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ Session Status</strong><br>
+                        Has Session: ${data.hasSession}<br>
+                        Is Authenticated: ${data.isAuthenticated}<br>
+                        Environment: ${data.environment}
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${data.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                resultDiv.className = 'status error';
+                resultDiv.innerHTML = `
+                    <strong>❌ Session Test Failed</strong><br>
+                    Error: ${error.message}
+                `;
+            }
+        }
+
+        // Auto-test health on page load
+        window.addEventListener('load', () => {
+            setTimeout(testHealth, 1000);
+        });
+    </script>
+</body>
+</html> 

@@ -68,18 +68,56 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+  // 🚨 CRITICAL FIX: Handle multiple possible static file locations for Vercel
+  const possiblePaths = [
+    path.resolve(import.meta.dirname, "..", "dist", "public"),
+    path.resolve(import.meta.dirname, "..", "client", "dist"),
+    path.resolve(import.meta.dirname, "..", "dist"),
+    path.resolve(import.meta.dirname, "..", "public"),
+  ];
 
-  if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
-    );
+  let distPath = null;
+  
+  for (const testPath of possiblePaths) {
+    console.log('Checking static files path:', testPath);
+    if (fs.existsSync(testPath)) {
+      distPath = testPath;
+      console.log('✅ Found static files at:', distPath);
+      break;
+    }
   }
 
+  if (!distPath) {
+    console.error('❌ Could not find static files in any of the expected locations');
+    console.log('Available directories:', fs.readdirSync(path.resolve(import.meta.dirname, "..")));
+    
+    // 🚨 CRITICAL FIX: Provide a fallback response instead of throwing
+    app.use("*", (_req, res) => {
+      res.status(404).json({ 
+        error: "Static files not found", 
+        message: "Please ensure the client is built before deployment",
+        availablePaths: possiblePaths
+      });
+    });
+    return;
+  }
+
+  // Serve static files from the found directory
   app.use(express.static(distPath));
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+    const indexPath = path.resolve(distPath, "index.html");
+    console.log('Serving index.html from:', indexPath);
+    
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).json({ 
+        error: "index.html not found", 
+        message: "Please ensure the client is built correctly",
+        indexPath: indexPath
+      });
+    }
   });
 }
