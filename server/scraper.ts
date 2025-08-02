@@ -1,6 +1,6 @@
 import { storage } from './storage';
 import { type InsertProgram, type InsertUniversity } from '@shared/schema';
-import * as puppeteer from 'puppeteer';
+// import * as puppeteer from 'puppeteer';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -66,112 +66,18 @@ export async function scrapeData(): Promise<void> {
     if (!fromFiles || universities.length === 0 || programs.length === 0) {
       console.log('No existing data files found. Extracting data from the website...');
       
-      // Launch browser
-      const browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-        headless: true
-      });
+      // Launch browser - DISABLED FOR VERCEL DEPLOYMENT
+      // const browser = await puppeteer.launch({
+      //   args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+      //   headless: true
+      // });
       
-      try {
-        console.log('Browser launched, navigating to page...');
-        const page = await browser.newPage();
-        
-        // Navigate to the main page
-        await page.goto(DATA_URL, {
-          waitUntil: 'networkidle2',
-          timeout: 60000
-        });
-        
-        console.log('Page loaded. Extracting universities...');
-        
-        // Get all universities
-        universities = await page.evaluate(() => {
-          const universityElements = document.querySelectorAll('.university-card');
-          return Array.from(universityElements).map((element, index) => {
-            // Get the university name and location
-            const name = element.querySelector('h3')?.textContent?.trim() || `University ${index + 1}`;
-            const location = element.querySelector('p')?.textContent?.trim() || 'UAE';
-            
-            // Get the university image URL (if available)
-            const imageUrl = element.querySelector('img')?.src || '';
-            
-            // Get the university ID from the link
-            const link = element.querySelector('a')?.href || '';
-            const id = link.split('/').pop() || (index + 1).toString();
-            
-            return {
-              id: parseInt(id),
-              name,
-              location,
-              imageUrl
-            };
-          });
-        });
-        
-        console.log(`Found ${universities.length} universities. Now scraping program data...`);
-        
-        // Array to store all programs
-        programs = [];
-        
-        // For each university, get its programs
-        for (let i = 0; i < universities.length; i++) {
-          const university = universities[i];
-          console.log(`Scraping programs for ${university.name} (${i + 1}/${universities.length})...`);
-          
-          // Navigate to the university page
-          await page.goto(`${DATA_URL}university/${university.id}`, {
-            waitUntil: 'networkidle2',
-            timeout: 60000
-          });
-          
-          // Get all programs for this university
-          const universityPrograms = await page.evaluate((universityId, universityName) => {
-            const programElements = document.querySelectorAll('.program-card');
-            return Array.from(programElements).map((element, index) => {
-              // Get basic program info
-              const name = element.querySelector('h3')?.textContent?.trim() || `Program ${index + 1}`;
-              
-              // Get program details
-              const details = element.querySelectorAll('.program-detail');
-              
-              // Extract details - order might vary, so we check text content
-              let degree = 'Bachelor\'s Degree'; // Default
-              let duration = '4 years'; // Default
-              let tuition = '35,000 AED/year'; // Default
-              let intake = 'September'; // Default
-              
-              details.forEach(detail => {
-                const label = detail.querySelector('strong')?.textContent?.trim()?.toLowerCase() || '';
-                const value = detail.textContent?.replace(label, '')?.trim() || '';
-                
-                if (label.includes('degree')) degree = value;
-                else if (label.includes('duration')) duration = value;
-                else if (label.includes('tuition')) tuition = value;
-                else if (label.includes('intake')) intake = value;
-              });
-              
-              // Get study field based on the program name
-              let studyField = 'Business & Management'; // Default
-              if (name.toLowerCase().includes('engineering')) studyField = 'Engineering';
-              else if (name.toLowerCase().includes('computer') || name.toLowerCase().includes('it') || name.toLowerCase().includes('technology')) studyField = 'Computer Science & IT';
-              else if (name.toLowerCase().includes('medicine') || name.toLowerCase().includes('health') || name.toLowerCase().includes('nursing')) studyField = 'Medicine & Health';
-              else if (name.toLowerCase().includes('art') || name.toLowerCase().includes('design') || name.toLowerCase().includes('literature') || name.toLowerCase().includes('history')) studyField = 'Arts & Humanities';
-              
-              // Determine if scholarship is available
-              const hasScholarship = index % 3 === 0; // Every third program has a scholarship
-              
-              // Get requirements
-              const requirements = [];
-              if (degree.toLowerCase().includes('bachelor')) {
-                requirements.push('High School Certificate');
-                requirements.push('IELTS 6.0');
-              } else if (degree.toLowerCase().includes('master')) {
-                requirements.push('Bachelor\'s Degree');
-                requirements.push('IELTS 6.5');
-                requirements.push('GPA 3.0');
-              } else if (degree.toLowerCase().includes('phd')) {
-                requirements.push('Master\'s Degree');
-                requirements.push('IELTS 7.0');
+      // PUPPETEER CODE DISABLED FOR VERCEL DEPLOYMENT
+      console.log('Puppeteer scraping disabled for Vercel deployment');
+      console.log('Using fallback data or existing data files');
+      
+      // For now, just return without scraping
+      return;
                 requirements.push('Research Proposal');
               }
               
