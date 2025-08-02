@@ -13,19 +13,19 @@ let setupEmailTestRoutes: any = null;
 // Use dynamic imports for better ES module compatibility
 async function loadModules() {
   try {
-    const storageModule = await import("./storage.ts");
+    const storageModule = await import("./storage");
     storage = storageModule.storage;
     
-    const authModule = await import("./auth.ts");
+    const authModule = await import("./auth");
     setupAuth = authModule.setupAuth;
     
-    const adminModule = await import("./routes/admin.ts");
+    const adminModule = await import("./routes/admin");
     adminRouter = adminModule.default;
     
-    const subAdminModule = await import("./routes/sub-admin.ts");
+    const subAdminModule = await import("./routes/sub-admin");
     subAdminRouter = subAdminModule.default;
     
-    const emailTestModule = await import("./routes/email-test.ts");
+    const emailTestModule = await import("./routes/email-test");
     setupEmailTestRoutes = emailTestModule.setupEmailTestRoutes;
     
     console.log('✅ All modules loaded successfully');
@@ -69,7 +69,7 @@ export function registerRoutes(app: Express): Server {
     let dbStatus: { success: boolean; message: string; error?: string } = { success: false, message: 'Database not tested' };
     try {
       if (storage) {
-        const { testDatabaseConnection } = await import('./db-test.ts');
+        const { testDatabaseConnection } = await import('./db-test');
         dbStatus = await testDatabaseConnection();
       } else {
         dbStatus = { success: false, message: 'Storage module not loaded' };

@@ -5,9 +5,9 @@ import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import bcrypt from "bcrypt";
-import { storage } from "./storage.ts";
+import { storage } from "./storage";
 import { User } from "@shared/schema";
-import { sendWelcomeEmail } from "./email-service.ts";
+import { sendWelcomeEmail } from "./email-service";
 
 declare global {
   namespace Express {
