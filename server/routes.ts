@@ -1,21 +1,39 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { scrapeData } from "./scraper";
-import { setupAuth } from "./auth";
 import multer from "multer";
 import path from "path";
-import adminRouter from "./routes/admin";
-import subAdminRouter from "./routes/sub-admin";
-import { sendApplicationStatusNotification } from "./email-service";
-import { setupEmailTestRoutes } from "./routes/email-test";
+
+// 🚨 CRITICAL FIX: Safe imports with error handling for Vercel
+let storage: any = null;
+let setupAuth: any = null;
+let adminRouter: any = null;
+let subAdminRouter: any = null;
+let setupEmailTestRoutes: any = null;
+
+try {
+  storage = require("./storage").storage;
+  setupAuth = require("./auth").setupAuth;
+  adminRouter = require("./routes/admin").default;
+  subAdminRouter = require("./routes/sub-admin").default;
+  setupEmailTestRoutes = require("./routes/email-test").setupEmailTestRoutes;
+} catch (error) {
+  console.error('❌ Failed to import modules:', error);
+}
 
 export function registerRoutes(app: Express): Server {
-  // sets up /api/register, /api/login, /api/logout, /api/user
-  setupAuth(app);
+  // 🚨 CRITICAL FIX: Safe setup with error handling
+  try {
+    if (setupAuth) {
+      setupAuth(app);
+    } else {
+      console.warn('⚠️ Auth setup not available');
+    }
+  } catch (error) {
+    console.error('❌ Auth setup failed:', error);
+  }
   
   // 🚨 CRITICAL FIX: Health check endpoint for production debugging
-  app.get("/api/health", (req, res) => {
+  app.get("/api/health", async (req, res) => {
     const hostname = req.hostname || req.get('host') || 'unknown';
     const host = req.get('host') || 'unknown';
     
@@ -30,6 +48,23 @@ export function registerRoutes(app: Express): Server {
                          !hostname.includes('192.168.') && !hostname.includes('10.') &&
                          !hostname.endsWith('.local'));
     
+    // Test database connection
+    let dbStatus = { success: false, message: 'Database not tested' };
+    try {
+      if (storage) {
+        const { testDatabaseConnection } = await import('./db-test');
+        dbStatus = await testDatabaseConnection();
+      } else {
+        dbStatus = { success: false, message: 'Storage module not loaded' };
+      }
+    } catch (error) {
+      dbStatus = { 
+        success: false, 
+        message: 'Database test failed', 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      };
+    }
+    
     res.json({
       status: "OK",
       environment: isProduction ? "production" : "development",
@@ -41,18 +76,63 @@ export function registerRoutes(app: Express): Server {
       url: req.url,
       isProduction: isProduction,
       nodeEnv: process.env.NODE_ENV || 'not_set',
-      universalConfig: "enabled"
+      universalConfig: "enabled",
+      database: dbStatus,
+      modulesLoaded: {
+        storage: !!storage,
+        auth: !!setupAuth,
+        adminRouter: !!adminRouter,
+        subAdminRouter: !!subAdminRouter
+      }
     });
   });
 
-  // Mount admin routes
-  app.use('/api/admin', adminRouter);
-  
-  // Mount sub-admin routes
-  app.use('/api/sub-admin', subAdminRouter);
-  
-  // Setup email testing routes
-  setupEmailTestRoutes(app);
+  // 🚨 CRITICAL FIX: Session status endpoint for debugging
+  app.get("/api/session-status", (req, res) => {
+    res.json({
+      hasSession: !!req.session,
+      sessionId: req.sessionID,
+      isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : false,
+      userId: req.user?.id,
+      userEmail: req.user?.username,
+      cookieHeader: req.headers.cookie,
+      trustProxy: req.app.get('trust proxy'),
+      sessionStore: !!req.sessionStore,
+      environment: process.env.NODE_ENV,
+      replId: process.env.REPL_ID
+    });
+  });
+
+  // 🚨 CRITICAL FIX: Safe route mounting with error handling
+  try {
+    if (adminRouter) {
+      app.use('/api/admin', adminRouter);
+    } else {
+      console.warn('⚠️ Admin router not available');
+    }
+  } catch (error) {
+    console.error('❌ Admin router setup failed:', error);
+  }
+
+  try {
+    if (subAdminRouter) {
+      app.use('/api/sub-admin', subAdminRouter);
+    } else {
+      console.warn('⚠️ Sub-admin router not available');
+    }
+  } catch (error) {
+    console.error('❌ Sub-admin router setup failed:', error);
+  }
+
+  try {
+    if (setupEmailTestRoutes) {
+      setupEmailTestRoutes(app);
+    } else {
+      console.warn('⚠️ Email test routes not available');
+    }
+  } catch (error) {
+    console.error('❌ Email test routes setup failed:', error);
+  }
 
   // Configure multer for file uploads
   const multerStorage = multer.memoryStorage(); // Use memory storage for simplicity
@@ -63,9 +143,13 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // API endpoint to get universities
+  // 🚨 CRITICAL FIX: Safe API endpoints with error handling
   app.get("/api/universities", async (req, res) => {
     try {
+      if (!storage) {
+        return res.status(503).json({ error: "Database not available" });
+      }
+      
       // Add CORS headers explicitly for debugging
       res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
       res.header('Access-Control-Allow-Credentials', 'true');
@@ -82,6 +166,10 @@ export function registerRoutes(app: Express): Server {
   // API endpoint to get a specific university
   app.get("/api/universities/:id", async (req, res) => {
     try {
+      if (!storage) {
+        return res.status(503).json({ error: "Database not available" });
+      }
+      
       const university = await storage.getUniversityById(parseInt(req.params.id));
       if (!university) {
         return res.status(404).json({ error: "University not found" });
@@ -96,6 +184,10 @@ export function registerRoutes(app: Express): Server {
   // 🚨 CRITICAL FIX: Programs endpoint with proper authentication
   app.get("/api/programs", async (req, res) => {
     try {
+      if (!storage) {
+        return res.status(503).json({ error: "Database not available" });
+      }
+      
       console.log("GET /api/programs request with query:", req.query);
       console.log("Programs request - Session ID:", req.sessionID);
       console.log("Programs request - Authenticated:", req.isAuthenticated());
@@ -250,7 +342,7 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/init-data", async (req, res) => {
     try {
       if (req.isAuthenticated() && req.user.role === 'admin') {
-        await scrapeData();
+        await require("./scraper").scrapeData();
         res.json({ success: true, message: "Data initialization completed" });
       } else {
         res.status(403).json({ error: "Unauthorized" });
