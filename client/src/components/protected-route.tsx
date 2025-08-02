@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "../hooks/use-auth";
-import { queryClient } from "../lib/queryClient";
+import { queryClient } from "../lib/query-client";
 
 interface ProtectedRouteProps {
   children: ReactNode;

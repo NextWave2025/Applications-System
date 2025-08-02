@@ -60,26 +60,23 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
-  // 🚨 CRITICAL FIX: Trust proxy MUST be set FIRST for Replit production
-  app.set("trust proxy", 1);
-  console.log('✅ Trust proxy enabled for Replit deployment');
-  
-  // 🚨 CRITICAL FIX: Enhanced session configuration for Replit production
+  // 🚨 CRITICAL FIX: Enhanced session configuration for production
   const isProduction = process.env.NODE_ENV === 'production' || 
                       process.env.REPLIT_ENVIRONMENT === 'production' ||
                       (typeof process !== 'undefined' && process.env.REPL_ID);
   
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "default-secret-replace-in-production",
-    resave: false,
+    resave: true, // 🚨 CRITICAL: Enable resave for production reliability
     saveUninitialized: false,
     rolling: true as boolean, // 🚨 CRITICAL: Refresh session on each request
     name: 'connect.sid', // 🚨 CRITICAL: Consistent session name
     cookie: {
       secure: isProduction, // 🚨 CRITICAL: Use HTTPS in production
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours (reduced from 30 days)
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
       sameSite: isProduction ? 'none' as const : 'lax' as const, // 🚨 CRITICAL: Handle cross-origin in production
+      domain: isProduction ? undefined : undefined, // Let browser handle domain
     },
     store: storage.sessionStore,
   };
@@ -255,33 +252,32 @@ export function setupAuth(app: Express) {
 
       console.log("✅ Authentication successful for user:", user.username, "Role:", user.role);
       
-      // 🚨 CRITICAL FIX: Regenerate session for security and reliability
-      req.session.regenerate((regenerateErr) => {
-        if (regenerateErr) {
-          console.error('❌ Session regeneration error:', regenerateErr);
-          return res.status(500).json({ error: 'Session error' });
+      // 🚨 CRITICAL FIX: Simplified session handling for production reliability
+      req.login(user, (loginErr: Error | null) => {
+        if (loginErr) {
+          console.error("❌ Login session error:", loginErr);
+          return next(loginErr);
         }
         
-        req.login(user, (loginErr: Error | null) => {
-          if (loginErr) {
-            console.error("❌ Login session error:", loginErr);
-            return next(loginErr);
+        // 🚨 CRITICAL FIX: Force session save with timeout
+        const saveTimeout = setTimeout(() => {
+          console.error('❌ Session save timeout');
+          return res.status(500).json({ error: 'Session save timeout' });
+        }, 5000);
+        
+        req.session.save((saveErr) => {
+          clearTimeout(saveTimeout);
+          if (saveErr) {
+            console.error('❌ Session save error:', saveErr);
+            return res.status(500).json({ error: 'Session save failed' });
           }
           
-          // 🚨 CRITICAL FIX: Force session save
-          req.session.save((saveErr) => {
-            if (saveErr) {
-              console.error('❌ Session save error:', saveErr);
-              return res.status(500).json({ error: 'Session save failed' });
-            }
-            
-            console.log("✅ Session created and saved successfully");
-            console.log('New session ID:', req.sessionID);
-            console.log('User in session:', !!(req.session as any).passport?.user);
-            console.log('=== LOGIN DEBUG END ===');
-            
-            return res.status(200).json(user);
-          });
+          console.log("✅ Session created and saved successfully");
+          console.log('Session ID:', req.sessionID);
+          console.log('User in session:', !!(req.session as any).passport?.user);
+          console.log('=== LOGIN DEBUG END ===');
+          
+          return res.status(200).json(user);
         });
       });
     })(req, res, next);

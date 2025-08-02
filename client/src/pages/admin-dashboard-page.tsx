@@ -10,7 +10,7 @@ import {
   Loader2, Users, FileText, AlertTriangle, CheckCircle, 
   Clock, School, Search, Calendar, Filter, RefreshCw, Plus, Edit, Trash2, Upload
 } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest } from "@/lib/query-client";
 import { Input } from "@/components/ui/input";
 import { 
   Select, SelectContent, SelectItem, 

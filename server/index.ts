@@ -25,6 +25,10 @@ try {
 
 const app = express();
 
+// 🚨 CRITICAL FIX: Trust proxy MUST be set FIRST for production deployments
+app.set("trust proxy", 1);
+console.log('✅ Trust proxy enabled for production deployment');
+
 // 🌐 UNIVERSAL CORS CONFIGURATION - Works across ANY production environment
 const corsOptions = {
   origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {

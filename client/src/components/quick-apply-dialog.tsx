@@ -24,7 +24,7 @@ import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest } from '@/lib/query-client';
 import { type ProgramWithUniversity } from '@shared/schema';
 
 const quickApplySchema = z.object({

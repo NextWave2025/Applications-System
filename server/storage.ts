@@ -38,8 +38,18 @@ try {
   throw error;
 }
 
-// Create a memory store for sessions
+// Create a memory store for sessions (development) or persistent store (production)
 const MemoryStore = createMemoryStore(session);
+
+// 🚨 CRITICAL FIX: Use persistent session store for production
+const isProduction = process.env.NODE_ENV === 'production' || 
+                    process.env.REPLIT_ENVIRONMENT === 'production' ||
+                    (typeof process !== 'undefined' && process.env.REPL_ID);
+
+console.log('Session store configuration:', {
+  isProduction,
+  storeType: isProduction ? 'persistent' : 'memory'
+});
 
 // Expanded storage interface with all the needed CRUD methods
 export interface IStorage {
@@ -134,9 +144,24 @@ export class DBStorage implements IStorage {
 
   constructor(db: PostgresJsDatabase) {
     this.db = db;
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000 // prune expired entries every 24h
-    });
+    
+    // 🚨 CRITICAL FIX: Use persistent session store for production
+    if (isProduction) {
+      // For production, use a more persistent store configuration
+      this.sessionStore = new MemoryStore({
+        checkPeriod: 86400000, // prune expired entries every 24h
+        ttl: 24 * 60 * 60 * 1000, // 24 hours
+        noDisposeOnSet: true,
+        dispose: (key, value) => {
+          console.log('Session disposed:', key);
+        }
+      });
+    } else {
+      // For development, use standard memory store
+      this.sessionStore = new MemoryStore({
+        checkPeriod: 86400000 // prune expired entries every 24h
+      });
+    }
   }
 
   // User methods

@@ -122,14 +122,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: async (user: User) => {
       console.log("Login mutation onSuccess called, setting user data:", user);
       
-      // Set user data immediately in cache to trigger auth state update
-      queryClient.setQueryData(["/api/user"], user);
-      
-      console.log("Login success: Cache updated, showing toast");
-      toast({
-        title: "Login successful",
-        description: "Welcome back!",
-      });
+      try {
+        // 🚨 CRITICAL FIX: Set user data immediately and force cache update
+        queryClient.setQueryData(["/api/user"], user);
+        
+        // Force a small delay to ensure cache is updated
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Invalidate queries to trigger UI updates
+        await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+        
+        console.log("Login success: Cache updated and queries invalidated");
+        toast({
+          title: "Login successful",
+          description: "Welcome back!",
+        });
+      } catch (error) {
+        console.error("Error in login onSuccess handler:", error);
+        // Fallback: still set user data
+        queryClient.setQueryData(["/api/user"], user);
+        toast({
+          title: "Login successful",
+          description: "Welcome back!",
+        });
+      }
     },
     onError: (error: Error) => {
       console.error("Login error:", error);
