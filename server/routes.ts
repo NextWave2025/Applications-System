@@ -66,10 +66,10 @@ export function registerRoutes(app: Express): Server {
                          !hostname.endsWith('.local'));
     
     // Test database connection
-    let dbStatus = { success: false, message: 'Database not tested' };
+    let dbStatus: { success: boolean; message: string; error?: string } = { success: false, message: 'Database not tested' };
     try {
       if (storage) {
-        const { testDatabaseConnection } = await import('./db-test');
+        const { testDatabaseConnection } = await import('./db-test.ts');
         dbStatus = await testDatabaseConnection();
       } else {
         dbStatus = { success: false, message: 'Storage module not loaded' };

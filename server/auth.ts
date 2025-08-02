@@ -75,7 +75,7 @@ export function setupAuth(app: Express) {
       secure: isProduction, // 🚨 CRITICAL: Use HTTPS in production
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: isProduction ? 'none' as const : 'lax' as const, // 🚨 CRITICAL: Handle cross-origin in production
+      sameSite: isProduction ? 'none' : 'lax', // 🚨 CRITICAL: Handle cross-origin in production
       domain: isProduction ? undefined : undefined, // Let browser handle domain
     },
     store: storage.sessionStore,
